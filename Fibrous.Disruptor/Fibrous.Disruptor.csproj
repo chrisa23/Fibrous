@@ -44,14 +44,16 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Fibers\ActionEvent.cs" />
     <Compile Include="Fibers\DisruptorFiber.cs" />
-    <Compile Include="Marshaller.cs" />
-    <Compile Include="MsgEvent.cs" />
-    <Compile Include="MsgHandler.cs" />
-    <Compile Include="MsgHandlerAndUnmarshaller.cs" />
+    <Compile Include="Fibers\EventHandler.cs" />
+    <Compile Include="Remoting\Marshaller.cs" />
+    <Compile Include="Remoting\MsgEvent.cs" />
+    <Compile Include="Remoting\MsgHandler.cs" />
+    <Compile Include="Remoting\MsgHandlerAndUnmarshaller.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RequestReplyHandler.cs" />
-    <Compile Include="UnMarshaller.cs" />
+    <Compile Include="Remoting\RequestReplyHandler.cs" />
+    <Compile Include="Remoting\UnMarshaller.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -62,6 +64,7 @@
       <Name>Fibrous</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

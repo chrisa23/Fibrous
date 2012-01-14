@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Fibrous.Fibers
 {
-    internal sealed class DefaultExecutor : IExecutor
+    public sealed class DefaultExecutor : IExecutor
     {
         public void Execute(IEnumerable<Action> toExecute)
         {
