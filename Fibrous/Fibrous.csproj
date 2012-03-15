@@ -55,13 +55,12 @@
     <Compile Include="Scheduling\BatchingExtensions.cs" />
     <Compile Include="Scheduling\BatchSubscriber.cs" />
     <Compile Include="Channels\IAsyncRequestReplyChannel.cs" />
-    <Compile Include="IRequest.cs" />
+    <Compile Include="Channels\IRequest.cs" />
     <Compile Include="Channels\ISnapshotChannel.cs" />
     <Compile Include="Scheduling\KeyedBatchSubscriber.cs" />
     <Compile Include="Scheduling\LastSubscriber.cs" />
     <Compile Include="Channels\Channel.cs" />
     <Compile Include="Internal\DisposeAction.cs" />
-    <Compile Include="Fibers\Filter.cs" />
     <Compile Include="Internal\Unsubscriber.cs" />
     <Compile Include="IPublisherPort.cs" />
     <Compile Include="ISubscriberPort.cs" />

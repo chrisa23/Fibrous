@@ -92,13 +92,14 @@ namespace Fibrous.Tests.Examples
                         }
                     };
 
-                counter.SubscribeToBatch(fiber, cb, TimeSpan.FromMilliseconds(1));
-
-                for (int i = 0; i < 10; i++)
+                using (counter.SubscribeToBatch(fiber, cb, TimeSpan.FromMilliseconds(1)))
                 {
-                    counter.Publish(i);
-                }
 
+                    for (int i = 0; i < 10; i++)
+                    {
+                        counter.Publish(i);
+                    }
+                }
                 Assert.IsTrue(reset.WaitOne(10000, false));
             }
         }
@@ -120,13 +121,14 @@ namespace Fibrous.Tests.Examples
                     };
 
                 Converter<int, String> keyResolver = x => x.ToString();
-                counter.SubscribeToKeyedBatch(fiber, keyResolver, cb, TimeSpan.FromMilliseconds(1));
-
-                for (int i = 0; i < 10; i++)
+                using (counter.SubscribeToKeyedBatch(fiber, keyResolver, cb, TimeSpan.FromMilliseconds(1)))
                 {
-                    counter.Publish(i);
-                }
 
+                    for (int i = 0; i < 10; i++)
+                    {
+                        counter.Publish(i);
+                    }
+                }
                 Assert.IsTrue(reset.WaitOne(10000, false));
             }
         }
@@ -138,9 +140,12 @@ namespace Fibrous.Tests.Examples
             {
                 fiber.Start();
                 var channel = new RequestReplyChannel<string, string>();
-                channel.SetRequestHandler(fiber, req => req.Publish("bye"));
-                string reply = channel.SendRequest("hello", TimeSpan.FromSeconds(1));
-                Assert.AreEqual("bye", reply);
+                using (channel.SetRequestHandler(fiber, req => req.Publish("bye")))
+                {
+                    string reply = channel.SendRequest("hello", TimeSpan.FromSeconds(1));
+
+                    Assert.AreEqual("bye", reply);
+                }
             }
         }
 

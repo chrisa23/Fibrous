@@ -1,4 +1,4 @@
-namespace Fibrous
+namespace Fibrous.Channels
 {
     public interface IRequest<out TRequest, in TReply>
         : IPublisherPort<TReply>

@@ -21,7 +21,7 @@ namespace Fibrous.Fibers
         public static IDisposable Subscribe<T>(this ISubscriberPort<T> port,
                                                IFiber fiber,
                                                Action<T> receive,
-                                               Filter<T> filter)
+                                               Predicate<T> filter)
         {
             Action<T> filteredReceiver = x => { if (filter(x)) fiber.Enqueue(() => receive(x)); };
             return port.Subscribe(new StubFiber(), filteredReceiver);
