@@ -52,7 +52,6 @@
     <Compile Include="ReqReplyService.cs" />
     <Compile Include="SendSocketBase.cs" />
     <Compile Include="SubscribeSocketPort.cs" />
-    <Compile Include="temp.cs" />
     <Compile Include="Zmsg.cs" />
   </ItemGroup>
   <ItemGroup>
