@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Windows.Threading;
 
-namespace Fibrous.Fibers.Gui
+namespace Fibrous.Fibers
 {
     public sealed class DispatcherFiber : GuiFiberBase
     {

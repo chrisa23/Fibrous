@@ -72,6 +72,16 @@ namespace Fibrous.Tests
             PointToPointPerfTestWithObject(new ThreadFiber(new DefaultQueue(new PerfExecutor())));
         }
 
+        [Test]
+        [Explicit]
+        public void TestPool()
+        {
+            // RunQueue(new BusyWaitQueue(new PerfExecutor(), 100000, 30000));
+            PointToPointPerfTestWithStruct(new PoolFiber(new PerfExecutor()));
+            PointToPointPerfTestWithInt(new PoolFiber(new PerfExecutor()));
+            PointToPointPerfTestWithObject(new PoolFiber(new PerfExecutor()));
+        }
+
         //[Test]
         //public void TestDisruptor()
         //{

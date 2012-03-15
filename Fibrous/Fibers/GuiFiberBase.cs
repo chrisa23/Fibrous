@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace Fibrous.Fibers.Gui
+namespace Fibrous.Fibers
 {
     public abstract class GuiFiberBase : FiberBase
     {

@@ -4,7 +4,6 @@ using System.Threading;
 using Fibrous.Channels;
 using Fibrous.Fibers;
 using Fibrous.Fibers.Thread;
-using Fibrous.Fibers.ThreadPool;
 using Fibrous.Scheduling;
 using NUnit.Framework;
 

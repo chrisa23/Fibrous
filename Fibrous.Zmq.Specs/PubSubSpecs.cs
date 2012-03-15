@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Threading;
-using Fibrous.Fibers.ThreadPool;
+using Fibrous.Fibers;
 using Machine.Specifications;
 using ZeroMQ;
 using ZeroMQ.Sockets;

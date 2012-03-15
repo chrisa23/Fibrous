@@ -1,6 +1,6 @@
 using System;
 using Fibrous.Channels;
-using Fibrous.Fibers.ThreadPool;
+using Fibrous.Fibers;
 using NUnit.Framework;
 
 namespace Fibrous.Tests

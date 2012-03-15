@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Fibrous.Channels;
-using Fibrous.Fibers.ThreadPool;
+using Fibrous.Fibers;
 using ZeroMQ;
 using ZeroMQ.Sockets;
 

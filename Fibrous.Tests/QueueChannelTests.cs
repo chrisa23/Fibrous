@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using Fibrous.Channels;
 using Fibrous.Fibers;
-using Fibrous.Fibers.ThreadPool;
 using NUnit.Framework;
 
 namespace Fibrous.Tests
@@ -42,7 +41,7 @@ namespace Fibrous.Tests
         public void SingleConsumerWithException()
         {
             var exec = new StubExecutor();
-            var one = new PoolFiber(new DefaultThreadPool(), exec);
+            var one = new PoolFiber( exec);
             one.Start();
             var reset = new AutoResetEvent(false);
             using (one)

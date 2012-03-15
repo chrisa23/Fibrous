@@ -14,7 +14,7 @@ namespace Fibrous.Internal
         {
             InternalEvent += receive;
 
-            return new DisposeAction(() => InternalEvent -= receive);
+            return new DisposeEventHandler(InternalEvent,receive);
         }
 
         public bool Publish(TEvent msg)
@@ -32,5 +32,24 @@ namespace Fibrous.Internal
         {
             get { return InternalEvent == null ? 0 : InternalEvent.GetInvocationList().Length; }
         }
+
+        private sealed class DisposeEventHandler : IDisposable
+        {
+            private Action<TEvent> _onInternalEvent;
+            private readonly Action<TEvent> _receive;
+
+            public DisposeEventHandler(Action<TEvent> onInternalEvent, Action<TEvent> receive)
+            {
+                _onInternalEvent = onInternalEvent;
+                _receive = receive;
+            }
+
+            public void Dispose()
+            {
+                _onInternalEvent -= _receive;
+            }
+        }
     }
+
+
 }

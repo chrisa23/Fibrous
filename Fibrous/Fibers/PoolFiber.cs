@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Fibrous.Internal;
 
-namespace Fibrous.Fibers.ThreadPool
+namespace Fibrous.Fibers
 {
     /// <summary>
     /// Fiber that uses a thread pool for execution.
@@ -18,7 +19,7 @@ namespace Fibrous.Fibers.ThreadPool
         }
 
         private readonly object _lock = new object();
-        private readonly IThreadPool _pool;
+        
         private readonly IExecutor _executor;
 
         private List<Action> _queue = new List<Action>();
@@ -26,22 +27,26 @@ namespace Fibrous.Fibers.ThreadPool
 
         private ExecutionState _started = ExecutionState.Created;
         private bool _flushPending;
-
-
-        public PoolFiber(IThreadPool pool, IExecutor executor)
-        {
-            _pool = pool;
-            _executor = executor;
-        }
+        private readonly TaskFactory _taskFactory;
 
         public PoolFiber(IExecutor executor)
-            : this(new DefaultThreadPool(), executor)
+        {
+            
+            _executor = executor;
+            _taskFactory = new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None);
+        }
+
+
+        public PoolFiber()
+            : this(new DefaultExecutor())
         {
         }
 
-        public PoolFiber()
-            : this(new DefaultThreadPool(), new DefaultExecutor())
+        public static IFiber StartNew()
         {
+            var fiber = new PoolFiber();
+            fiber.Start();
+            return fiber;
         }
 
         public override void Enqueue(Action action)
@@ -58,13 +63,13 @@ namespace Fibrous.Fibers.ThreadPool
 
                 if (!_flushPending)
                 {
-                    _pool.Queue(Flush);
+                   _taskFactory.StartNew(Flush);
                     _flushPending = true;
                 }
             }
         }
 
-        private void Flush(object state)
+        private void Flush()
         {
             IEnumerable<Action> toExecute = ClearActions();
             if (toExecute != null)
@@ -75,7 +80,7 @@ namespace Fibrous.Fibers.ThreadPool
                     if (_queue.Count > 0)
                     {
                         // don't monopolize thread.
-                        _pool.Queue(Flush);
+                        _taskFactory.StartNew(Flush);
                     }
                     else
                     {

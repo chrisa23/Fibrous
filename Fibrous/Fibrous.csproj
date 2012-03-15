@@ -44,7 +44,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Channels\AsyncSnapshotChannel.cs" />
+    <Compile Include="Fibers\DispatcherFiber.cs" />
     <Compile Include="Fibers\FiberBase.cs" />
+    <Compile Include="Fibers\FormFiber.cs" />
+    <Compile Include="Fibers\GuiFiberBase.cs" />
     <Compile Include="IRequestPort.cs" />
     <Compile Include="IAsyncRequestPort.cs" />
     <Compile Include="Channels\ListChannel.cs" />
@@ -73,23 +76,18 @@
     <Compile Include="Fibers\Thread\BusyWaitQueue.cs" />
     <Compile Include="Fibers\DefaultExecutor.cs" />
     <Compile Include="Fibers\Thread\DefaultQueue.cs" />
-    <Compile Include="Fibers\ThreadPool\DefaultThreadPool.cs" />
     <Compile Include="IExecutionContext.cs" />
     <Compile Include="IExecutor.cs" />
     <Compile Include="Fibers\Thread\IQueue.cs" />
     <Compile Include="Scheduling\IScheduler.cs" />
     <Compile Include="IDisposableRegistry.cs" />
-    <Compile Include="Fibers\ThreadPool\IThreadPool.cs" />
     <Compile Include="Internal\Lists.cs" />
-    <Compile Include="Fibers\QueueFullException.cs" />
+    <Compile Include="Fibers\Thread\QueueFullException.cs" />
     <Compile Include="Internal\PendingAction.cs" />
     <Compile Include="Scheduling\TimerScheduler.cs" />
     <Compile Include="Fibers\Disposables.cs" />
-    <Compile Include="Fibers\Gui\DispatcherFiber.cs" />
-    <Compile Include="Fibers\Gui\FormFiber.cs" />
-    <Compile Include="Fibers\Gui\GuiFiberBase.cs" />
     <Compile Include="IFiber.cs" />
-    <Compile Include="Fibers\ThreadPool\PoolFiber.cs" />
+    <Compile Include="Fibers\PoolFiber.cs" />
     <Compile Include="Fibers\StubFiber.cs" />
     <Compile Include="Scheduling\StubScheduledAction.cs" />
     <Compile Include="Fibers\TestFiber.cs" />

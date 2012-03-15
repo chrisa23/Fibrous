@@ -1,6 +1,6 @@
 using System;
 
-namespace Fibrous.Fibers
+namespace Fibrous.Fibers.Thread
 {
     public sealed class QueueFullException : Exception
     {

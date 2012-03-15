@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
-using Fibrous.Fibers.ThreadPool;
+using Fibrous.Fibers;
 using Machine.Specifications;
 
 namespace Fibrous.Zmq.Specs.AsyncServiceSpecs
