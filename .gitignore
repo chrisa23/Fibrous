@@ -25,3 +25,9 @@
 /Fibrous.Zmq/bin
 /Fibrous.Zmq.Specs/obj
 /Fibrous.Zmq.Specs/bin
+/_ReSharper.Fibrous
+/Fibrous.sln.DotSettings.user
+/Fibrous.suo
+/Fibrous.1.2.dotCover
+/Fibrous.ncrunchsolution
+/Fibrous.ncrunchsolution.user
