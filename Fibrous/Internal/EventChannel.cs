@@ -14,7 +14,7 @@ namespace Fibrous.Internal
         {
             InternalEvent += receive;
 
-            return new DisposeEventHandler(InternalEvent,receive);
+            return new DisposeEventHandler(InternalEvent, receive);
         }
 
         public bool Publish(TEvent msg)
@@ -50,6 +50,4 @@ namespace Fibrous.Internal
             }
         }
     }
-
-
 }

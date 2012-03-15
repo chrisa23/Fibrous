@@ -23,7 +23,6 @@ namespace Fibrous.Fibers
         }
 
 
-
         private class FormAdapter : IExecutionContext
         {
             private readonly ISynchronizeInvoke _invoker;

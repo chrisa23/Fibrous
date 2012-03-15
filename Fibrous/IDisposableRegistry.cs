@@ -6,6 +6,5 @@ namespace Fibrous
     {
         void Add(IDisposable toAdd);
         bool Remove(IDisposable toRemove);
-        int Count { get; }
     }
 }

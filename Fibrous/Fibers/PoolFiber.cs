@@ -19,7 +19,7 @@ namespace Fibrous.Fibers
         }
 
         private readonly object _lock = new object();
-        
+
         private readonly IExecutor _executor;
 
         private List<Action> _queue = new List<Action>();
@@ -31,7 +31,6 @@ namespace Fibrous.Fibers
 
         public PoolFiber(IExecutor executor)
         {
-            
             _executor = executor;
             _taskFactory = new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None);
         }
@@ -63,7 +62,7 @@ namespace Fibrous.Fibers
 
                 if (!_flushPending)
                 {
-                   _taskFactory.StartNew(Flush);
+                    _taskFactory.StartNew(Flush);
                     _flushPending = true;
                 }
             }

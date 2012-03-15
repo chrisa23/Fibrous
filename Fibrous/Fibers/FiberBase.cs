@@ -1,5 +1,4 @@
 using System;
-using Fibrous.Internal;
 
 namespace Fibrous.Fibers
 {
