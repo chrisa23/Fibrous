@@ -1,7 +1,6 @@
 namespace Fibrous.Channels
 {
     using System;
-    using Fibrous.Utility;
 
     /// <summary>
     /// Channels are in memory conduits...

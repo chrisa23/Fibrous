@@ -22,7 +22,6 @@ namespace Fibrous.Fibers
         private QueueFullException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-
         }
 
         public int Depth

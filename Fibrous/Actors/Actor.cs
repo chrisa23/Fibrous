@@ -4,7 +4,7 @@
     using Fibrous.Channels;
     using Fibrous.Fibers;
 
-    public sealed class Actor<TMsg> : Disposables, IActor<TMsg>
+    public sealed class Actor<TMsg> : IActor<TMsg>
     {
         private readonly IFiber _fiber;
         private readonly IChannel<TMsg> _channel = new Channel<TMsg>();
@@ -30,20 +30,26 @@
             _channel.Publish(msg);
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _fiber.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
         public static IActor<TMsg> StartNew(Action<TMsg> handler)
         {
             var actor = new Actor<TMsg>(handler);
             actor.Start();
             return actor;
+        }
+
+        public void Dispose()
+        {
+            _fiber.Dispose();
+        }
+
+        public void Add(IDisposable toAdd)
+        {
+            _fiber.Add(toAdd);
+        }
+
+        public void Remove(IDisposable toRemove)
+        {
+            _fiber.Remove(toRemove);
         }
     }
 }
