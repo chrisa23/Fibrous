@@ -1,12 +1,13 @@
-using System;
-using System.Collections.Generic;
-
 namespace Fibrous.Fibers
 {
-    public class Disposables : IDisposableRegistry
+    using System;
+    using System.Collections.Generic;
+
+    public abstract class Disposables : IDisposableRegistry
     {
         private readonly object _lock = new object();
         private readonly List<IDisposable> _items = new List<IDisposable>();
+        private bool _disposed;
 
         public void Add(IDisposable toAdd)
         {
@@ -16,15 +17,33 @@ namespace Fibrous.Fibers
             }
         }
 
-        public bool Remove(IDisposable toRemove)
+        public void Remove(IDisposable toRemove)
         {
             lock (_lock)
             {
-                return _items.Remove(toRemove);
+                _items.Remove(toRemove);
             }
         }
 
-        public virtual void Dispose()
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    DisposeOfMembers();
+                }
+                _disposed = true;
+            }
+        }
+
+        private void DisposeOfMembers()
         {
             IDisposable[] disposables;
             lock (_lock)
@@ -35,17 +54,6 @@ namespace Fibrous.Fibers
             foreach (IDisposable victim in disposables)
             {
                 victim.Dispose();
-            }
-        }
-
-        public int Count
-        {
-            get
-            {
-                lock (_lock)
-                {
-                    return _items.Count;
-                }
             }
         }
     }

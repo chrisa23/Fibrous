@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Fibrous.Channels;
 using Fibrous.Fibers;
 using ZeroMQ;
-using ZeroMQ.Sockets;
+
 
 namespace Fibrous.Zmq
 {
@@ -15,8 +15,8 @@ namespace Fibrous.Zmq
 
         private volatile bool _running = true;
 
-        private readonly IZmqContext _context;
-        private readonly IDuplexSocket _socket;
+        private readonly ZmqContext _context;
+        private readonly ZmqSocket _socket;
 
         private readonly Func<byte[], TReply> _replyUnmarshaller;
         private readonly Func<TRequest, byte[]> _requestMarshaller;
@@ -52,7 +52,7 @@ namespace Fibrous.Zmq
 
             //set up sockets and subscribe to pub socket
             _context = ZmqContext.Create(1);
-            _socket = _context.CreateDealerSocket();
+            _socket = _context.CreateSocket(SocketType.DEALER);
             _socket.Connect(address);
 
             _task = Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);

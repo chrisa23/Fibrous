@@ -1,8 +1,8 @@
-using System;
-using System.Collections.Generic;
-
 namespace Fibrous.Channels
 {
+    using System;
+    using System.Collections.Generic;
+
     public sealed class QueueChannel<TMsg> : IChannel<TMsg>
     {
         private readonly Queue<TMsg> _queue = new Queue<TMsg>();
@@ -59,9 +59,7 @@ namespace Fibrous.Channels
             private readonly Action<TMsg> _callback;
             private readonly QueueChannel<TMsg> _eventChannel;
 
-            public QueueConsumer(IExecutionContext target,
-                                 Action<TMsg> callback,
-                                 QueueChannel<TMsg> eventChannel)
+            public QueueConsumer(IExecutionContext target, Action<TMsg> callback, QueueChannel<TMsg> eventChannel)
             {
                 _target = target;
                 _callback = callback;

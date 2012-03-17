@@ -6,21 +6,21 @@ namespace Fibrous.Zmq
 {
     public class ReqReplyService<TRequest, TReply> : IDisposable
     {
-        private readonly Func<byte[], TRequest> _requestUnmarshaller;
+        private readonly Func<byte[],int, TRequest> _requestUnmarshaller;
         private readonly Func<TRequest, TReply> _businessLogic;
         private readonly Func<TReply, byte[]> _replyMarshaller;
         private bool _running = true;
 
-        private readonly IDuplexSocket _socket;
+        private readonly ZmqSocket _socket;
         private readonly Thread _thread;
-        private readonly IPollSet _poll;
+        private readonly Poller _poll;
 
         private readonly TimeSpan _timeout;
 
-
-        public ReqReplyService(IZmqContext context,
+        byte[] _buffer = new byte[1024 * 1024 * 2];
+        public ReqReplyService(ZmqContext context,
                                string address,
-                               Func<byte[], TRequest> requestUnmarshaller,
+                               Func<byte[],int, TRequest> requestUnmarshaller,
                                Func<TRequest, TReply> businessLogic,
                                Func<TReply, byte[]> replyMarshaller)
         {
@@ -29,20 +29,20 @@ namespace Fibrous.Zmq
             _replyMarshaller = replyMarshaller;
             _timeout = TimeSpan.FromMilliseconds(100);
 
-            _socket = context.CreateReplySocket();
+            _socket = context.CreateSocket(SocketType.REP);
             _socket.Bind(address);
             _socket.ReceiveReady += SocketReceiveReady;
 
-            _poll = context.CreatePollSet(new ISocket[] {_socket});
+            _poll =new Poller(new [] {_socket});
 
             _thread = new Thread(Run) {IsBackground = true};
             _thread.Start();
         }
 
-        private void SocketReceiveReady(object sender, ReceiveReadyEventArgs e)
+        private void SocketReceiveReady(object sender, SocketEventArgs e)
         {
-            byte[] requestData = _socket.Receive();
-            TRequest request = _requestUnmarshaller(requestData);
+            int requestLength= _socket.Receive(_buffer);
+            TRequest request = _requestUnmarshaller(_buffer,requestLength);
             TReply reply = _businessLogic(request);
             byte[] replyData = _replyMarshaller(reply);
             _socket.Send(replyData);

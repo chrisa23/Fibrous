@@ -1,8 +1,8 @@
-using System;
-using System.Collections.Generic;
-
 namespace Fibrous
 {
+    using System;
+    using System.Collections.Generic;
+
     public interface IExecutor
     {
         void Execute(IEnumerable<Action> toExecute);

@@ -2,11 +2,13 @@
 using System.Diagnostics;
 using System.Threading;
 using Fibrous.Channels;
-using Fibrous.Fibers.Thread;
+
 using NUnit.Framework;
 
 namespace Fibrous.Tests
 {
+    using Fibrous.Fibers;
+
     [TestFixture]
     public class BusyWaitQueueLatencyTests
     {

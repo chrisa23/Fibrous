@@ -1,8 +1,8 @@
-using System;
-
 namespace Fibrous.Scheduling
 {
-    public abstract class BatchSubscriberBase<T> : IDisposable
+    using System;
+
+    internal abstract class BatchSubscriberBase<T> : IDisposable
     {
         protected readonly object BatchLock = new object();
         protected readonly IScheduler Scheduler;

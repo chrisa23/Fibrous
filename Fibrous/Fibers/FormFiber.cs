@@ -1,8 +1,8 @@
-using System;
-using System.ComponentModel;
-
 namespace Fibrous.Fibers
 {
+    using System;
+    using System.ComponentModel;
+
     public sealed class FormFiber : GuiFiberBase
     {
         public FormFiber(ISynchronizeInvoke invoker, IExecutor executor)
@@ -22,6 +22,12 @@ namespace Fibrous.Fibers
             return fiber;
         }
 
+        public static IFiber StartNew(ISynchronizeInvoke invoker, IExecutor executor)
+        {
+            var fiber = new FormFiber(invoker, executor);
+            fiber.Start();
+            return fiber;
+        }
 
         private class FormAdapter : IExecutionContext
         {

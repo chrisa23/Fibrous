@@ -41,7 +41,7 @@ namespace Fibrous.Tests
         public void SingleConsumerWithException()
         {
             var exec = new StubExecutor();
-            var one = new PoolFiber( exec);
+            var one = new PoolFiber(exec);
             one.Start();
             var reset = new AutoResetEvent(false);
             using (one)

@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Fibrous.Channels;
-using Fibrous.Fibers.Thread;
+
 using NUnit.Framework;
 
 namespace Fibrous.Tests.Examples
 {
+    using Fibrous.Fibers;
+
     /*
      * This demonstration imagines the following scenario:  A stream
      * of quadratic equations is being received.  Each equation must
@@ -211,12 +213,6 @@ namespace Fibrous.Tests.Examples
             {
                 _solutionsReceived++;
                 Console.WriteLine(_solutionsReceived + ") " + solvedQuadratic);
-                // Once we have received all the solved equations we are interested
-                // in, we stop.
-                if (_solutionsReceived == _numberToOutput)
-                {
-                    _fiber.Dispose();
-                }
             }
         }
 
@@ -248,6 +244,7 @@ namespace Fibrous.Tests.Examples
             var source = new QuadraticSource(quadraticChannels, quadraticChannels.Length, DateTime.Now.Millisecond);
             // Finally a sink to output our results.
             sinkFiber.Start();
+
             new SolvedQuadraticSink(sinkFiber, solvedChannel, quadraticChannels.Length);
             // This starts streaming the equations.
             source.PublishQuadratics();

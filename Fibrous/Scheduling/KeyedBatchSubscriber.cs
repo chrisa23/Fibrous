@@ -1,15 +1,18 @@
-using System;
-using System.Collections.Generic;
-
 namespace Fibrous.Scheduling
 {
-    public sealed class KeyedBatchSubscriber<TKey, T> : BatchSubscriberBase<T>
+    using System;
+    using System.Collections.Generic;
+
+    internal sealed class KeyedBatchSubscriber<TKey, T> : BatchSubscriberBase<T>
     {
         private readonly Action<IDictionary<TKey, T>> _target;
         private readonly Converter<T, TKey> _keyResolver;
         private Dictionary<TKey, T> _pending;
 
-        public KeyedBatchSubscriber(ISubscriberPort<T> channel, IFiber fiber, IScheduler scheduler, TimeSpan interval,
+        public KeyedBatchSubscriber(ISubscriberPort<T> channel,
+                                    IFiber fiber,
+                                    IScheduler scheduler,
+                                    TimeSpan interval,
                                     Converter<T, TKey> keyResolver,
                                     Action<IDictionary<TKey, T>> target)
             : base(channel, fiber, scheduler, interval)
@@ -26,7 +29,7 @@ namespace Fibrous.Scheduling
                 if (_pending == null)
                 {
                     _pending = new Dictionary<TKey, T>();
-                    Scheduler.Schedule(Fiber, Flush, (long) Interval.TotalMilliseconds);
+                    Scheduler.Schedule(Fiber, Flush, Interval);
                 }
                 _pending[key] = msg;
             }

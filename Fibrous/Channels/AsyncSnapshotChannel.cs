@@ -1,11 +1,10 @@
-using System;
-
 namespace Fibrous.Channels
 {
+    using System;
+
     public class AsyncSnapshotChannel<T, TSnapshot> : ISnapshotChannel<T, TSnapshot>
     {
         private readonly IChannel<T> _updatesChannel = new Channel<T>();
-
         private readonly IAsyncRequestReplyChannel<object, TSnapshot> _requestChannel =
             new AsyncRequestReplyChannel<object, TSnapshot>();
 
@@ -14,10 +13,10 @@ namespace Fibrous.Channels
         ///</summary>
         ///<param name="fiber">the target executor to receive the message</param>
         ///<param name="receive"></param>
-        ///<param name="snapshotReceive"> </param>
-        public IDisposable PrimedSubscribe(IFiber fiber, Action<T> receive, Action<TSnapshot> snapshotReceive)
+        ///<param name="receiveSnapshot"> </param>
+        public IDisposable PrimedSubscribe(IFiber fiber, Action<T> receive, Action<TSnapshot> receiveSnapshot)
         {
-            var primedSubscribe = new SnapshotRequest(fiber, _updatesChannel, receive, snapshotReceive);
+            var primedSubscribe = new SnapshotRequest(fiber, _updatesChannel, receive, receiveSnapshot);
             _requestChannel.SendRequest(null, fiber, x => primedSubscribe.Publish(x));
             return primedSubscribe;
         }
@@ -37,29 +36,31 @@ namespace Fibrous.Channels
             private readonly IFiber _fiber;
             private readonly IChannel<T> _updatesChannel;
             private readonly Action<T> _receive;
-            private readonly Action<TSnapshot> _snapshotReceive;
+            private readonly Action<TSnapshot> _receiveSnapshot;
             private bool _disposed;
             private IDisposable _sub;
 
-            public SnapshotRequest(IFiber fiber, IChannel<T> updatesChannel, Action<T> receive,
-                                   Action<TSnapshot> snapshotReceive)
+            public SnapshotRequest(IFiber fiber,
+                                   IChannel<T> updatesChannel,
+                                   Action<T> receive,
+                                   Action<TSnapshot> receiveSnapshot)
             {
                 _fiber = fiber;
                 _updatesChannel = updatesChannel;
                 _receive = receive;
-                _snapshotReceive = snapshotReceive;
+                _receiveSnapshot = receiveSnapshot;
                 _fiber.Add(this);
             }
 
             public bool Publish(TSnapshot msg)
             {
-                if (_disposed) return false;
-
-                _fiber.Enqueue(() => _snapshotReceive(msg));
-
+                if (_disposed)
+                {
+                    return false;
+                }
+                _fiber.Enqueue(() => _receiveSnapshot(msg));
                 //publishing the snapshot subscribes the updates...
                 _sub = _updatesChannel.Subscribe(_fiber, _receive);
-
                 return true;
             }
 
@@ -68,7 +69,9 @@ namespace Fibrous.Channels
                 _disposed = true;
                 _fiber.Remove(this);
                 if (_sub != null)
+                {
                     _sub.Dispose();
+                }
             }
         }
     }

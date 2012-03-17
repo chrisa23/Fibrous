@@ -1,19 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Timers;
 using System.Diagnostics;
 using NUnit.Framework;
 
-namespace RetlangTests
+namespace Fibrous.Tests
 {
     public class ActionFactory<T>
     {
         private readonly Action<T> on;
+
         public ActionFactory(Action<T> onMsg)
         {
-            this.on = onMsg;
+            @on = onMsg;
         }
 
         public Action Create(T msg)
@@ -23,11 +20,12 @@ namespace RetlangTests
 
         public Action CreateObject(object obj)
         {
-            return () => on((T)obj);
+            return () => on((T) obj);
         }
+
         public static Action Create(T msg, Action<T> target)
         {
-            return ()=> target(msg);
+            return () => target(msg);
         }
     }
 
@@ -54,7 +52,7 @@ namespace RetlangTests
         public void PerfTestWithString()
         {
             Action<string> onMsg = x => { if (x == "end") Console.WriteLine(x); };
-            ActionFactory<string> fact = new ActionFactory<string>(onMsg);
+            var fact = new ActionFactory<string>(onMsg);
             Stopwatch watch = Stopwatch.StartNew();
             for (int i = 0; i < 5000000; i++)
             {
@@ -70,7 +68,7 @@ namespace RetlangTests
         public void PerfTestWithObjectString()
         {
             Action<string> onMsg = x => { if (x == "end") Console.WriteLine(x); };
-            ActionFactory<string> fact = new ActionFactory<string>(onMsg);
+            var fact = new ActionFactory<string>(onMsg);
             Stopwatch watch = Stopwatch.StartNew();
             for (int i = 0; i < 5000000; i++)
             {
@@ -126,7 +124,7 @@ namespace RetlangTests
         public void PerfTestWithInt()
         {
             Action<int> onMsg = x => { };
-            ActionFactory<int> fact = new ActionFactory<int>(onMsg);
+            var fact = new ActionFactory<int>(onMsg);
             Stopwatch watch = Stopwatch.StartNew();
             for (int i = 0; i < 5000000; i++)
             {
@@ -135,6 +133,5 @@ namespace RetlangTests
             watch.Stop();
             Console.WriteLine("Elapsed: " + watch.ElapsedMilliseconds);
         }
-
     }
 }

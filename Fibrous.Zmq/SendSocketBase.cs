@@ -5,10 +5,10 @@ namespace Fibrous.Zmq
 {
     public class SendSocketBase<T> : IPublisherPort<T>, IDisposable
     {
-        protected ISendSocket Socket;
-        private readonly Action<T, ISendSocket> _msgSender;
+        protected ZmqSocket Socket;
+        private readonly Action<T, ZmqSocket> _msgSender;
 
-        protected SendSocketBase(Action<T, ISendSocket> msgSender)
+        protected SendSocketBase(Action<T, ZmqSocket> msgSender)
         {
             _msgSender = msgSender;
         }

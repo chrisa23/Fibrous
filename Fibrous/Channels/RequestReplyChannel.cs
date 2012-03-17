@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-
 namespace Fibrous.Channels
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
+
     public sealed class RequestReplyChannel<TRequest, TReply> : IRequestReplyChannel<TRequest, TReply>
     {
         private readonly IChannel<IRequest<TRequest, TReply>> _requestChannel =
@@ -42,7 +42,10 @@ namespace Fibrous.Channels
 
             public TRequest Request
             {
-                get { return _req; }
+                get
+                {
+                    return _req;
+                }
             }
 
             public bool Publish(TReply response)

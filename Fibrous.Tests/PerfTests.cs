@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Fibrous.Channels;
 using Fibrous.Fibers;
-using Fibrous.Fibers.Thread;
+
 using NUnit.Framework;
 
 namespace Fibrous.Tests
@@ -44,19 +44,15 @@ namespace Fibrous.Tests
         [Explicit]
         public void TestBoundedQueue()
         {
-            PointToPointPerfTestWithStruct(new ThreadFiber(new BoundedQueue(new PerfExecutor())
-                                                               {MaxDepth = 10000, MaxEnqueueWaitTime = 1000}));
-            PointToPointPerfTestWithInt(
-                new ThreadFiber(new BoundedQueue(new PerfExecutor()) {MaxDepth = 10000, MaxEnqueueWaitTime = 1000}));
-            PointToPointPerfTestWithObject(
-                new ThreadFiber(new BoundedQueue(new PerfExecutor()) {MaxDepth = 10000, MaxEnqueueWaitTime = 1000}));
+            PointToPointPerfTestWithStruct(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000,1000 )));
+            PointToPointPerfTestWithInt(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000,1000 )));
+            PointToPointPerfTestWithObject(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000,1000 )));
         }
 
         [Test]
         [Explicit]
         public void TestBusyWait()
         {
-            // RunQueue(new BusyWaitQueue(new PerfExecutor(), 100000, 30000));
             PointToPointPerfTestWithStruct(new ThreadFiber(new BusyWaitQueue(new PerfExecutor(), 1000, 25)));
             PointToPointPerfTestWithInt(new ThreadFiber(new BusyWaitQueue(new PerfExecutor(), 1000, 25)));
             PointToPointPerfTestWithObject(new ThreadFiber(new BusyWaitQueue(new PerfExecutor(), 1000, 25)));
@@ -66,7 +62,6 @@ namespace Fibrous.Tests
         [Explicit]
         public void TestDefault()
         {
-            // RunQueue(new BusyWaitQueue(new PerfExecutor(), 100000, 30000));
             PointToPointPerfTestWithStruct(new ThreadFiber(new DefaultQueue(new PerfExecutor())));
             PointToPointPerfTestWithInt(new ThreadFiber(new DefaultQueue(new PerfExecutor())));
             PointToPointPerfTestWithObject(new ThreadFiber(new DefaultQueue(new PerfExecutor())));
@@ -76,7 +71,6 @@ namespace Fibrous.Tests
         [Explicit]
         public void TestPool()
         {
-            // RunQueue(new BusyWaitQueue(new PerfExecutor(), 100000, 30000));
             PointToPointPerfTestWithStruct(new PoolFiber(new PerfExecutor()));
             PointToPointPerfTestWithInt(new PoolFiber(new PerfExecutor()));
             PointToPointPerfTestWithObject(new PoolFiber(new PerfExecutor()));
@@ -217,61 +211,4 @@ namespace Fibrous.Tests
             }
         }
     }
-
-    //public class DisruptorQueue : IQueue
-    //{
-    //    private RingBuffer<ActionHolder> _ringBuffer;
-    //    private Disruptor<ActionHolder> _disruptor;
-    //    private BatchEventProcessor<ActionHolder> _eventHandler;
-
-    //    public DisruptorQueue(IExecutor executor)
-    //    {
-    //        //_disruptor = new Disruptor<ActionHolder>( () => new ActionHolder(),new SingleThreadedClaimStrategy(16777216), new YieldingWaitStrategy(), TaskScheduler.Default );
-    //        // _disruptor.HandleEventsWith(new EventHandler(executor));
-    //        _ringBuffer = new RingBuffer<ActionHolder>(() => new ActionHolder(), new SingleThreadedClaimStrategy((int)Math.Pow(2.0,24.0)), new YieldingWaitStrategy());
-    //        ISequenceBarrier sequenceBarrier = _ringBuffer.NewBarrier();
-
-    //        _eventHandler = new BatchEventProcessor<ActionHolder>(_ringBuffer, sequenceBarrier, new EventHandler(executor));
-    //        _ringBuffer.SetGatingSequences(_eventHandler.Sequence);
-    //    }
-
-    //    public void Enqueue(Action action)
-    //    {
-    //        long seq = _ringBuffer.Next();
-    //        var evt = _ringBuffer[seq];
-    //        evt.Action = action;
-    //        _ringBuffer.Publish(seq);
-    //    }
-
-    //    public void Run()
-    //    {
-    //       _eventHandler.Run();
-    //    }
-
-    //    public void Stop()
-    //    {
-    //        _eventHandler.Halt();
-    //    }
-
-    //    private class EventHandler : IEventHandler<ActionHolder>
-    //    {
-    //        private readonly IExecutor _executor;
-
-    //        public EventHandler(IExecutor executor)
-    //        {
-    //            _executor = executor;
-    //        }
-
-    //        public void OnNext(ActionHolder data, long sequence, bool endOfBatch)
-    //        {
-    //            if (data.Action != null)
-    //                _executor.Execute(data.Action);
-    //        }
-    //    }
-
-    //    private class ActionHolder
-    //    {
-    //        public Action Action;
-    //    }
-    //}
 }

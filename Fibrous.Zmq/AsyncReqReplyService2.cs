@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using ZeroMQ;
-using ZeroMQ.Sockets;
+
 
 namespace Fibrous.Zmq
 {
@@ -11,8 +11,8 @@ namespace Fibrous.Zmq
         private readonly Func<TRequest, TReply> _businessLogic;
         private readonly Func<TReply, byte[]> _replyMarshaller;
 
-        private readonly IZmqContext _context;
-        private readonly IDuplexSocket _socket;
+        private readonly ZmqContext _context;
+        private readonly ZmqSocket _socket;
 
         private volatile bool _running = true;
 
@@ -29,7 +29,7 @@ namespace Fibrous.Zmq
             _replyMarshaller = replyMarshaller;
 
             _context = ZmqContext.Create();
-            _socket = _context.CreateRouterSocket();
+            _socket = _context.CreateSocket(SocketType.ROUTER);
             _socket.ReceiveHighWatermark = 10000;
             _socket.SendHighWatermark = 10000;
 
@@ -67,8 +67,8 @@ namespace Fibrous.Zmq
 
         private void ProcessRequest()
         {
-            var req = _requestUnmarshaller(_message.Body);
-            var reply = _businessLogic(req);
+            TRequest req = _requestUnmarshaller(_message.Body);
+            TReply reply = _businessLogic(req);
             byte[] data = _replyMarshaller(reply);
             _message.Body = data;
             _message.Send(_socket);

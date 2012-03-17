@@ -1,14 +1,17 @@
-using System;
-using System.Collections.Generic;
-
 namespace Fibrous.Scheduling
 {
-    public sealed class BatchSubscriber<T> : BatchSubscriberBase<T>
+    using System;
+    using System.Collections.Generic;
+
+    internal sealed class BatchSubscriber<T> : BatchSubscriberBase<T>
     {
         private readonly Action<IList<T>> _receive;
         private List<T> _pending;
 
-        public BatchSubscriber(ISubscriberPort<T> channel, IFiber fiber, IScheduler scheduler, TimeSpan interval,
+        public BatchSubscriber(ISubscriberPort<T> channel,
+                               IFiber fiber,
+                               IScheduler scheduler,
+                               TimeSpan interval,
                                Action<IList<T>> receive)
             : base(channel, fiber, scheduler, interval)
         {
@@ -22,7 +25,7 @@ namespace Fibrous.Scheduling
                 if (_pending == null)
                 {
                     _pending = new List<T>();
-                    Scheduler.Schedule(Fiber, Flush, (long) Interval.TotalMilliseconds);
+                    Scheduler.Schedule(Fiber, Flush, Interval);
                 }
                 _pending.Add(msg);
             }

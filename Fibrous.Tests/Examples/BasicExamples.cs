@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Fibrous.Channels;
 using Fibrous.Fibers;
-using Fibrous.Fibers.Thread;
-using Fibrous.Scheduling;
+
 using NUnit.Framework;
 
 namespace Fibrous.Tests.Examples
@@ -16,9 +15,8 @@ namespace Fibrous.Tests.Examples
         public void PubSubWithPool()
         {
             //PoolFiber uses the .NET thread pool by default
-            using (var fiber = new PoolFiber())
+            using (IFiber fiber = PoolFiber.StartNew())
             {
-                fiber.Start();
                 var channel = new Channel<string>();
 
                 var reset = new AutoResetEvent(false);
@@ -32,9 +30,8 @@ namespace Fibrous.Tests.Examples
         [Test]
         public void PubSubWithDedicatedThread()
         {
-            using (var fiber = new ThreadFiber())
+            using (IFiber fiber = ThreadFiber.StartNew())
             {
-                fiber.Start();
                 var channel = new Channel<string>();
 
                 var reset = new AutoResetEvent(false);
@@ -94,7 +91,6 @@ namespace Fibrous.Tests.Examples
 
                 using (counter.SubscribeToBatch(fiber, cb, TimeSpan.FromMilliseconds(1)))
                 {
-
                     for (int i = 0; i < 10; i++)
                     {
                         counter.Publish(i);
@@ -123,7 +119,6 @@ namespace Fibrous.Tests.Examples
                 Converter<int, String> keyResolver = x => x.ToString();
                 using (counter.SubscribeToKeyedBatch(fiber, keyResolver, cb, TimeSpan.FromMilliseconds(1)))
                 {
-
                     for (int i = 0; i < 10; i++)
                     {
                         counter.Publish(i);

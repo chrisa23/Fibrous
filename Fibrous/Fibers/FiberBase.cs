@@ -1,7 +1,7 @@
-using System;
-
 namespace Fibrous.Fibers
 {
+    using System;
+
     public abstract class FiberBase : Disposables, IFiber
     {
         public abstract void Start();

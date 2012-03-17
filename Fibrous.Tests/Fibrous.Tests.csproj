@@ -68,18 +68,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BoundedQueueTests.cs" />
+    <Compile Include="ActorTests.cs" />
+    <Compile Include="AsyncSnapshotTests.cs" />
     <Compile Include="AsyncRequestReplyChannelTests.cs" />
     <Compile Include="Examples\AlgebraDemonstration.cs" />
     <Compile Include="Examples\BasicExamples.cs" />
     <Compile Include="Examples\FibonacciDemonstration.cs" />
+    <Compile Include="PerfBug.cs" />
     <Compile Include="PerfSettings.cs" />
     <Compile Include="PerfTests.cs" />
     <Compile Include="PerfTimer.cs" />
     <Compile Include="BusyWaitQueueLatencyTests.cs" />
+    <Compile Include="PoolFiberTests.cs" />
     <Compile Include="QueueChannelTests.cs" />
     <Compile Include="RequestReplyChannelTests.cs" />
-    <Compile Include="StubFiberTests.cs" />
     <Compile Include="TimerActionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

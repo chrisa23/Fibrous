@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace Fibrous.Channels
+﻿namespace Fibrous.Channels
 {
+    using System;
+
     public interface ISnapshotPublisherPort<in T, in TSnapshot> : IPublisherPort<T>
     {
         IDisposable ReplyToPrimingRequest(IFiber fiber, Func<TSnapshot> reply);

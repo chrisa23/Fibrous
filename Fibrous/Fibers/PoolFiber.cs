@@ -1,43 +1,44 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Fibrous.Internal;
-
 namespace Fibrous.Fibers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Fibrous.Utility;
+
     /// <summary>
     /// Fiber that uses a thread pool for execution.
     /// </summary>
     public sealed class PoolFiber : FiberBase
     {
-        private enum ExecutionState
-        {
-            Created,
-            Running,
-            Stopped
-        }
-
         private readonly object _lock = new object();
-
         private readonly IExecutor _executor;
-
         private List<Action> _queue = new List<Action>();
         private List<Action> _toPass = new List<Action>();
-
         private ExecutionState _started = ExecutionState.Created;
         private bool _flushPending;
         private readonly TaskFactory _taskFactory;
 
-        public PoolFiber(IExecutor executor)
+        public PoolFiber(IExecutor executor, TaskFactory taskFactory)
         {
             _executor = executor;
-            _taskFactory = new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None);
+            _taskFactory = taskFactory;
         }
 
+        public PoolFiber(IExecutor executor)
+            : this(executor, new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None))
+        {
+        }
+
+        public PoolFiber(TaskFactory taskFactory)
+            : this(new DefaultExecutor(), taskFactory)
+        {
+        }
 
         public PoolFiber()
-            : this(new DefaultExecutor())
+            : this(
+                new DefaultExecutor(), new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None)
+                )
         {
         }
 
@@ -48,18 +49,40 @@ namespace Fibrous.Fibers
             return fiber;
         }
 
+        public static IFiber StartNew(IExecutor executor)
+        {
+            var fiber = new PoolFiber(executor);
+            fiber.Start();
+            return fiber;
+        }
+
+        public static IFiber StartNew(TaskFactory taskFactory)
+        {
+            var fiber = new PoolFiber(taskFactory);
+            fiber.Start();
+            return fiber;
+        }
+
+        public static IFiber StartNew(IExecutor executor, TaskFactory taskFactory)
+        {
+            var fiber = new PoolFiber(executor, taskFactory);
+            fiber.Start();
+            return fiber;
+        }
+
         public override void Enqueue(Action action)
         {
             if (_started == ExecutionState.Stopped)
+            {
                 return;
-
+            }
             lock (_lock)
             {
                 _queue.Add(action);
-
                 if (_started == ExecutionState.Created)
+                {
                     return;
-
+                }
                 if (!_flushPending)
                 {
                     _taskFactory.StartNew(Flush);
@@ -104,21 +127,24 @@ namespace Fibrous.Fibers
             }
         }
 
-
         public override void Start()
         {
             if (_started == ExecutionState.Running)
+            {
                 throw new ThreadStateException("Already Started");
-
+            }
             _started = ExecutionState.Running;
             //flush any pending events in queue
             Enqueue(() => { });
         }
 
-        public override void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            _started = ExecutionState.Stopped;
-            base.Dispose();
+            if (disposing)
+            {
+                _started = ExecutionState.Stopped;
+            }
+            base.Dispose(disposing);
         }
     }
 }

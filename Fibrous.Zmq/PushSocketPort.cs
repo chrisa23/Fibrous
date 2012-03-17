@@ -1,14 +1,14 @@
-using System;
-using ZeroMQ;
-
 namespace Fibrous.Zmq
 {
+    using System;
+    using ZeroMQ;
+    
     public sealed class PushSocketPort<T> : SendSocketBase<T>
     {
-        public PushSocketPort(IZmqContext context, string address, Action<T, ISendSocket> msgSender, bool bind = false)
+        public PushSocketPort(ZmqContext context, string address, Action<T, ZmqSocket> msgSender, bool bind = false)
             : base(msgSender)
         {
-            Socket = context.CreatePushSocket();
+            Socket = context.CreateSocket(SocketType.PUSH);
 
             if (bind)
                 Socket.Bind(address);

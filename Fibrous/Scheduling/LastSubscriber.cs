@@ -1,14 +1,17 @@
-using System;
-
 namespace Fibrous.Scheduling
 {
-    public sealed class LastSubscriber<T> : BatchSubscriberBase<T>
+    using System;
+
+    internal sealed class LastSubscriber<T> : BatchSubscriberBase<T>
     {
         private readonly Action<T> _target;
         private bool _flushPending;
         private T _pending;
 
-        public LastSubscriber(ISubscriberPort<T> channel, IFiber fiber, IScheduler scheduler, TimeSpan interval,
+        public LastSubscriber(ISubscriberPort<T> channel,
+                              IFiber fiber,
+                              IScheduler scheduler,
+                              TimeSpan interval,
                               Action<T> target)
             : base(channel, fiber, scheduler, interval)
         {
@@ -21,7 +24,7 @@ namespace Fibrous.Scheduling
             {
                 if (!_flushPending)
                 {
-                    Scheduler.Schedule(Fiber, Flush, (long) Interval.TotalMilliseconds);
+                    Scheduler.Schedule(Fiber, Flush, Interval);
                     _flushPending = true;
                 }
                 _pending = msg;

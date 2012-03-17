@@ -1,11 +1,13 @@
 using System;
 using System.Threading;
 using Fibrous.Channels;
-using Fibrous.Fibers.Thread;
+
 using NUnit.Framework;
 
 namespace Fibrous.Tests.Examples
 {
+    using Fibrous.Fibers;
+
     [TestFixture]
     [Category("Demo")]
     //[Ignore("Demo")]
@@ -41,13 +43,13 @@ namespace Fibrous.Tests.Examples
         // When a specified limit is reached, it stops processing.
         private class FibonacciCalculator
         {
-            private readonly ThreadFiber _threadFiber;
+            private readonly IFiber _threadFiber;
             private readonly string _name;
             private readonly IChannel<IntPair> _inboundChannel;
             private readonly IChannel<IntPair> _outboundChannel;
             private readonly int _limit;
 
-            public FibonacciCalculator(ThreadFiber fiber, string name,
+            public FibonacciCalculator(IFiber fiber, string name,
                                        IChannel<IntPair> inboundChannel,
                                        IChannel<IntPair> outboundChannel,
                                        int limit)
@@ -99,15 +101,10 @@ namespace Fibrous.Tests.Examples
             var oddChannel = new Channel<IntPair>();
             var evenChannel = new Channel<IntPair>();
 
-            using (ThreadFiber oddFiber = new ThreadFiber(), evenFiber = new ThreadFiber())
+            using (IFiber oddFiber = ThreadFiber.StartNew(), evenFiber = ThreadFiber.StartNew())
             {
-                oddFiber.Start();
-
                 var oddCalculator = new FibonacciCalculator(oddFiber, "Odd", oddChannel, evenChannel, limit);
-
-                evenFiber.Start();
-
-                new FibonacciCalculator(evenFiber, "Even", evenChannel, oddChannel, limit);
+                var evenCalculator = new FibonacciCalculator(evenFiber, "Even", evenChannel, oddChannel, limit);
 
                 oddCalculator.Begin(new IntPair(0, 1));
 

@@ -1,7 +1,7 @@
-using System;
-
 namespace Fibrous.Channels
 {
+    using System;
+
     public sealed class AsyncRequestReplyChannel<TRequest, TReply> : IAsyncRequestReplyChannel<TRequest, TReply>
     {
         private readonly IChannel<IRequest<TRequest, TReply>> _requestChannel =
@@ -20,7 +20,6 @@ namespace Fibrous.Channels
             {
                 throw new ArgumentException("No one is listening on AsyncRequestReplyChannel");
             }
-
             return channelRequest;
         }
 
@@ -38,7 +37,10 @@ namespace Fibrous.Channels
 
             public TRequest Request
             {
-                get { return _request; }
+                get
+                {
+                    return _request;
+                }
             }
 
             public bool Publish(TReply response)
