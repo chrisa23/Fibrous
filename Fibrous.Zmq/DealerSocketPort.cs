@@ -10,6 +10,7 @@ namespace Fibrous.Zmq
             : base(context, msgReceiver)
         {
             Socket = context.CreateSocket(SocketType.DEALER);
+
             if (useBind)
                 Socket.Bind(address);
             else
