@@ -25,9 +25,9 @@
             _fiber.Start();
         }
 
-        public void Send(TMsg msg)
+        public bool Send(TMsg msg)
         {
-            _channel.Publish(msg);
+            return _channel.Send(msg);
         }
 
         public static IActor<TMsg> StartNew(Action<TMsg> handler)

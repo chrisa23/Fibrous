@@ -10,9 +10,9 @@ namespace Fibrous.Channels
     {
         private readonly EventChannel<T> _internalChannel = new EventChannel<T>();
 
-        public bool Publish(T msg)
+        public bool Send(T msg)
         {
-            return _internalChannel.Publish(msg);
+            return _internalChannel.Send(msg);
         }
 
         public IDisposable Subscribe(IFiber fiber, Action<T> receive)
@@ -40,7 +40,7 @@ namespace Fibrous.Channels
             }
         }
 
-        private sealed class EventChannel<TEvent> : IPublisherPort<TEvent>
+        private sealed class EventChannel<TEvent> : ISenderPort<TEvent>
         {
             private event Action<TEvent> InternalEvent;
 
@@ -50,7 +50,7 @@ namespace Fibrous.Channels
                 return new DisposeAction(() => InternalEvent -= receive);
             }
 
-            public bool Publish(TEvent msg)
+            public bool Send(TEvent msg)
             {
                 Action<TEvent> internalEvent = InternalEvent;
                 if (internalEvent != null)

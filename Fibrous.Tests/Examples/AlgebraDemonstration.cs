@@ -1,13 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using Fibrous.Channels;
-
-using NUnit.Framework;
-
 namespace Fibrous.Tests.Examples
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
+    using Fibrous.Channels;
     using Fibrous.Fibers;
+    using NUnit.Framework;
 
     /*
      * This demonstration imagines the following scenario:  A stream
@@ -70,12 +68,17 @@ namespace Fibrous.Tests.Examples
 
             public string SolutionOne
             {
-                get { return _solutionOne + ImaginarySuffix(); }
+                get
+                {
+                    return _solutionOne + ImaginarySuffix();
+                }
             }
-
             public string SolutionTwo
             {
-                get { return _solutionTwo + ImaginarySuffix(); }
+                get
+                {
+                    return _solutionTwo + ImaginarySuffix();
+                }
             }
 
             private string ImaginarySuffix()
@@ -101,8 +104,11 @@ namespace Fibrous.Tests.Examples
             public override string ToString()
             {
                 return string.Format("The quadratic {0} * x^2 + {1} * x + {2} has zeroes at {3} and {4}.",
-                                     _quadratic.A, _quadratic.B, _quadratic.C, _solutions.SolutionOne,
-                                     _solutions.SolutionTwo);
+                    _quadratic.A,
+                    _quadratic.B,
+                    _quadratic.C,
+                    _solutions.SolutionOne,
+                    _solutions.SolutionTwo);
             }
         }
 
@@ -113,14 +119,12 @@ namespace Fibrous.Tests.Examples
         // publishes them out.
         private class QuadraticSource
         {
-            // The class has its own thread to use for publishing.
+            // The class runs on the test running thread
             private readonly IChannel<Quadratic>[] _channels;
             private readonly int _numberToGenerate;
             private readonly Random _random;
 
-
             public QuadraticSource(IChannel<Quadratic>[] channels, int numberToGenerate, int seed)
-
             {
                 _channels = channels;
                 _numberToGenerate = numberToGenerate;
@@ -134,7 +138,7 @@ namespace Fibrous.Tests.Examples
                     Quadratic quadratic = Next();
                     // As agreed, we publish to a topic that is defined
                     // by the square term of the quadratic.
-                    _channels[quadratic.A].Publish(quadratic);
+                    _channels[quadratic.A].Send(quadratic);
                 }
             }
 
@@ -153,7 +157,8 @@ namespace Fibrous.Tests.Examples
         {
             private readonly IChannel<SolvedQuadratic> _solvedChannel;
 
-            public QuadraticSolver(IFiber fiber, ISubscriberPort<Quadratic> channel,
+            public QuadraticSolver(IFiber fiber,
+                                   ISubscriberPort<Quadratic> channel,
                                    IChannel<SolvedQuadratic> solvedChannel)
             {
                 _solvedChannel = solvedChannel;
@@ -164,7 +169,7 @@ namespace Fibrous.Tests.Examples
             {
                 QuadraticSolutions solutions = Solve(quadratic);
                 var solvedQuadratic = new SolvedQuadratic(quadratic, solutions);
-                _solvedChannel.Publish(solvedQuadratic);
+                _solvedChannel.Send(solvedQuadratic);
             }
 
             private static QuadraticSolutions Solve(Quadratic quadratic)
@@ -173,20 +178,15 @@ namespace Fibrous.Tests.Examples
                 int b = quadratic.B;
                 int c = quadratic.C;
                 bool imaginary = false;
-
-                int discriminant = ((b*b) - (4*a*c));
-
+                int discriminant = ((b * b) - (4 * a * c));
                 if (discriminant < 0)
                 {
                     discriminant = -discriminant;
                     imaginary = true;
                 }
-
                 double tmp = Math.Sqrt(discriminant);
-
-                double solutionOne = (-b + tmp)/(2*a);
-                double solutionTwo = (-b - tmp)/(2*a);
-
+                double solutionOne = (-b + tmp) / (2 * a);
+                double solutionTwo = (-b - tmp) / (2 * a);
                 return new QuadraticSolutions(solutionOne, solutionTwo, imaginary);
             }
         }
@@ -197,15 +197,10 @@ namespace Fibrous.Tests.Examples
         // the same socket.
         private class SolvedQuadraticSink
         {
-            private readonly IFiber _fiber;
-            private readonly int _numberToOutput;
             private int _solutionsReceived;
 
-            public SolvedQuadraticSink(IFiber fiber, ISubscriberPort<SolvedQuadratic> solvedChannel, int numberToOutput)
+            public SolvedQuadraticSink(IFiber fiber, ISubscriberPort<SolvedQuadratic> solvedChannel)
             {
-                _fiber = fiber;
-                _numberToOutput = numberToOutput;
-
                 solvedChannel.Subscribe(fiber, PrintSolution);
             }
 
@@ -221,38 +216,30 @@ namespace Fibrous.Tests.Examples
         public void DoDemonstration()
         {
             // We create a source to generate the quadratics.
-            var sinkFiber = new ThreadFiber("sink");
-
-            // We create and store a reference to 10 solvers,
-            // one for each possible square term being published.
-            var quadraticChannels = new IChannel<Quadratic>[10];
-
-            // reference-preservation list to prevent GC'ing of solvers
-            var solvers = new List<QuadraticSolver>();
-            var solvedChannel = new Channel<SolvedQuadratic>();
-
-            for (int i = 0; i < quadraticChannels.Length; i++)
+            using (var sinkFiber = new ThreadFiber("sink"))
             {
-                var fiber = new ThreadFiber("solver " + (i + 1));
-                fiber.Start();
-
-                quadraticChannels[i] = new Channel<Quadratic>();
-                solvers.Add(new QuadraticSolver(fiber, quadraticChannels[i], solvedChannel));
+                // We create and store a reference to 10 solvers,
+                // one for each possible square term being published.
+                var quadraticChannels = new IChannel<Quadratic>[10];
+                // reference-preservation list to prevent GC'ing of solvers
+                var solvers = new List<QuadraticSolver>();
+                var solvedChannel = new Channel<SolvedQuadratic>();
+                for (int i = 0; i < quadraticChannels.Length; i++)
+                {
+                    IFiber fiber = ThreadFiber.StartNew("solver " + (i + 1));
+                    sinkFiber.Add(fiber);
+                    quadraticChannels[i] = new Channel<Quadratic>();
+                    solvers.Add(new QuadraticSolver(fiber, quadraticChannels[i], solvedChannel));
+                }
+                var source = new QuadraticSource(quadraticChannels, quadraticChannels.Length, DateTime.Now.Millisecond);
+                // Finally a sink to output our results.
+                sinkFiber.Start();
+                new SolvedQuadraticSink(sinkFiber, solvedChannel);
+                // This starts streaming the equations.
+                source.PublishQuadratics();
+                // We pause here to allow all the problems to be solved.
+                Thread.Sleep(100);
             }
-
-
-            var source = new QuadraticSource(quadraticChannels, quadraticChannels.Length, DateTime.Now.Millisecond);
-            // Finally a sink to output our results.
-            sinkFiber.Start();
-
-            new SolvedQuadraticSink(sinkFiber, solvedChannel, quadraticChannels.Length);
-            // This starts streaming the equations.
-            source.PublishQuadratics();
-            // We pause here to allow all the problems to be solved.
-            Thread.Sleep(100);
-            sinkFiber.Dispose();
-
-
             Console.WriteLine("Demonstration complete.");
         }
     }

@@ -1,8 +1,8 @@
-using System;
-using ZeroMQ;
-
 namespace Fibrous.Zmq
 {
+    using System;
+    using ZeroMQ;
+
     public class SubscribeSocketPort<T> : ReceiveSocketBase<T>
     {
         public SubscribeSocketPort(ZmqContext context, string address, Func<ZmqSocket, T> msgReceiver)
@@ -10,7 +10,6 @@ namespace Fibrous.Zmq
         {
             Socket = Context.CreateSocket(SocketType.SUB);
             Socket.Connect(address);
-
             Initialize();
         }
 

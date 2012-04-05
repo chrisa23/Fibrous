@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using Fibrous.Channels;
-using Fibrous.Fibers;
-
-using NUnit.Framework;
-
-namespace Fibrous.Tests.Examples
+﻿namespace Fibrous.Tests.Examples
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
+    using Fibrous.Channels;
+    using Fibrous.Fibers;
+    using NUnit.Framework;
+
     [TestFixture]
     public class BasicExamples
     {
@@ -18,11 +17,9 @@ namespace Fibrous.Tests.Examples
             using (IFiber fiber = PoolFiber.StartNew())
             {
                 var channel = new Channel<string>();
-
                 var reset = new AutoResetEvent(false);
                 channel.Subscribe(fiber, delegate { reset.Set(); });
-                channel.Publish("hello");
-
+                channel.Send("hello");
                 Assert.IsTrue(reset.WaitOne(5000, false));
             }
         }
@@ -33,11 +30,9 @@ namespace Fibrous.Tests.Examples
             using (IFiber fiber = ThreadFiber.StartNew())
             {
                 var channel = new Channel<string>();
-
                 var reset = new AutoResetEvent(false);
                 channel.Subscribe(fiber, delegate { reset.Set(); });
-                channel.Publish("hello");
-
+                channel.Send("hello");
                 Assert.IsTrue(reset.WaitOne(5000, false));
             }
         }
@@ -49,24 +44,22 @@ namespace Fibrous.Tests.Examples
             {
                 fiber.Start();
                 var channel = new Channel<int>();
-
                 var reset = new AutoResetEvent(false);
                 Action<int> onMsg = x =>
+                {
+                    Assert.IsTrue(x % 2 == 0);
+                    if (x == 4)
                     {
-                        Assert.IsTrue(x%2 == 0);
-                        if (x == 4)
-                        {
-                            reset.Set();
-                        }
-                    };
+                        reset.Set();
+                    }
+                };
                 //     var sub = new ChannelSubscription<int>(fiber, onMsg);
                 //sub.FilterOnProducerThread = ;
-                channel.Subscribe(fiber, onMsg, x => x%2 == 0);
-                channel.Publish(1);
-                channel.Publish(2);
-                channel.Publish(3);
-                channel.Publish(4);
-
+                channel.Subscribe(fiber, onMsg, x => x % 2 == 0);
+                channel.Send(1);
+                channel.Send(2);
+                channel.Send(3);
+                channel.Send(4);
                 Assert.IsTrue(reset.WaitOne(5000, false));
             }
         }
@@ -81,19 +74,18 @@ namespace Fibrous.Tests.Examples
                 var reset = new ManualResetEvent(false);
                 int total = 0;
                 Action<IList<int>> cb = delegate(IList<int> batch)
+                {
+                    total += batch.Count;
+                    if (total == 10)
                     {
-                        total += batch.Count;
-                        if (total == 10)
-                        {
-                            reset.Set();
-                        }
-                    };
-
+                        reset.Set();
+                    }
+                };
                 using (counter.SubscribeToBatch(fiber, cb, TimeSpan.FromMilliseconds(1)))
                 {
                     for (int i = 0; i < 10; i++)
                     {
-                        counter.Publish(i);
+                        counter.Send(i);
                     }
                 }
                 Assert.IsTrue(reset.WaitOne(10000, false));
@@ -109,19 +101,18 @@ namespace Fibrous.Tests.Examples
                 var counter = new Channel<int>();
                 var reset = new ManualResetEvent(false);
                 Action<IDictionary<String, int>> cb = delegate(IDictionary<String, int> batch)
+                {
+                    if (batch.ContainsKey("9"))
                     {
-                        if (batch.ContainsKey("9"))
-                        {
-                            reset.Set();
-                        }
-                    };
-
+                        reset.Set();
+                    }
+                };
                 Converter<int, String> keyResolver = x => x.ToString();
                 using (counter.SubscribeToKeyedBatch(fiber, keyResolver, cb, TimeSpan.FromMilliseconds(1)))
                 {
                     for (int i = 0; i < 10; i++)
                     {
-                        counter.Publish(i);
+                        counter.Send(i);
                     }
                 }
                 Assert.IsTrue(reset.WaitOne(10000, false));
@@ -135,148 +126,35 @@ namespace Fibrous.Tests.Examples
             {
                 fiber.Start();
                 var channel = new RequestReplyChannel<string, string>();
-                using (channel.SetRequestHandler(fiber, req => req.Publish("bye")))
+                using (channel.SetRequestHandler(fiber, req => req.Send("bye")))
                 {
                     string reply = channel.SendRequest("hello", TimeSpan.FromSeconds(1));
-
                     Assert.AreEqual("bye", reply);
                 }
             }
         }
 
-        //[Test]
-        //public void ShouldIncreasePoolFiberSubscriberCountByOne()
-        //{
-        //    var fiber = new PoolFiber();
-        //    fiber.Start();
-        //    var channel = new Channel<int>();
-
-        //    Assert.AreEqual(0, fiber.NumSubscriptions);
-        //    Assert.AreEqual(0, channel.NumSubscribers);
-        //    channel.Subscribe(fiber, x => { });
-
-        //    Assert.AreEqual(1, fiber.NumSubscriptions);
-        //    Assert.AreEqual(1, channel.NumSubscribers);
-        //    fiber.Dispose();
-
-        //    Assert.AreEqual(0, fiber.NumSubscriptions);
-        //    Assert.AreEqual(0, channel.NumSubscribers);
-        //}
-
-        //[Test]
-        //public void ShouldIncreaseThreadFiberSubscriberCountByOne()
-        //{
-        //    var fiber = new ThreadFiber();
-        //    fiber.Start();
-        //    var channel = new Channel<int>();
-
-        //    Assert.AreEqual(0, fiber.NumSubscriptions);
-        //    Assert.AreEqual(0, channel.NumSubscribers);
-        //    channel.Subscribe(fiber, x => { });
-
-        //    Assert.AreEqual(1, fiber.NumSubscriptions);
-        //    Assert.AreEqual(1, channel.NumSubscribers);
-        //    fiber.Dispose();
-
-        //    Assert.AreEqual(0, fiber.NumSubscriptions);
-        //    Assert.AreEqual(0, channel.NumSubscribers);
-        //}
-
-        //[Test]
-        //public void ShouldIncreaseStubFiberSubscriberCountByOne()
-        //{
-        //    var fiber = new TestFiber();
-        //    fiber.Start();
-        //    var channel = new Channel<int>();
-
-        //    Assert.AreEqual(0, fiber.NumSubscriptions);
-        //    Assert.AreEqual(0, channel.NumSubscribers);
-        //    channel.Subscribe(fiber, x => { });
-
-        //    Assert.AreEqual(1, fiber.NumSubscriptions);
-        //    Assert.AreEqual(1, channel.NumSubscribers);
-        //    fiber.Dispose();
-
-        //    Assert.AreEqual(0, fiber.NumSubscriptions);
-        //    Assert.AreEqual(0, channel.NumSubscribers);
-        //}
-
-        //[Test]
-        //public void UnsubscriptionShouldRemoveSubscriber()
-        //{
-        //    var fiber = new PoolFiber();
-        //    fiber.Start();
-        //    var channel = new Channel<int>();
-
-        //    Assert.AreEqual(0, fiber.NumSubscriptions);
-        //    Assert.AreEqual(0, channel.NumSubscribers);
-        //    IDisposable unsubscriber = channel.Subscribe(fiber, x => { });
-
-        //    Assert.AreEqual(1, fiber.NumSubscriptions);
-        //    Assert.AreEqual(1, channel.NumSubscribers);
-        //    unsubscriber.Dispose();
-
-        //    Assert.AreEqual(0, fiber.NumSubscriptions);
-        //    Assert.AreEqual(0, channel.NumSubscribers);
-        //}
-
-        //[Test]
-        //public void Snapshot()
-        //{
-        //    using (var fiber = new PoolFiber())
-        //    using (var fiber2 = new PoolFiber())
-        //    {
-        //        fiber.Start();
-        //        fiber2.Start();
-
-        //        var channel = new SnapshotChannel<string, string>(TimeSpan.FromSeconds(1));
-        //        channel.ReplyToPrimingRequest(fiber2, () => "Prime");
-        //        string primeResult = "";
-        //        string lastUpdate = "";
-        //        Action<string> primed = x => primeResult = x;
-        //        Action<string> update = x => lastUpdate = x;
-        //        channel.PrimedSubscribe(fiber, update, primed);
-        //        channel.Publish("hello");
-        //        channel.Publish("hello2");
-
-        //        Thread.Sleep(100);
-
-        //        Assert.AreEqual("Prime", primeResult);
-        //        Assert.AreEqual("hello2", lastUpdate);
-        //    }
-        //}
-
-        //[Test]
-        //public void AsyncSnapshot()
-        //{
-        //    using (var fiber = new PoolFiber())
-        //    using (var fiber2 = new PoolFiber())
-        //    {
-        //        fiber.Start();
-        //        fiber2.Start();
-        //        var list = new List<string>();
-
-        //        var channel = new AsyncSnapshotChannel<string, IEnumerable<string>>();
-        //        channel.ReplyToPrimingRequest(fiber2, () => list);
-        //        IEnumerable<string> primeResult;
-        //        string lastUpdate = "";
-        //        Action<IEnumerable<string>> primed = x => primeResult = x;
-        //        Action<string> update = x => lastUpdate = x;
-        //        channel.PrimedSubscribe(fiber, update, primed);
-
-        //        Thread.Sleep(100);
-        //              channel.Publish("hello");
-        //        channel.Publish("hello2");
-        //       // Assert.AreEqual("Prime", primeResult);
-        //        Assert.AreEqual("hello2", lastUpdate);
-        //    }
-
-
-        //}
-
-        //private class AsyncSnapshotUtil
-        //{
-        //    public string HandleRequest()
-        //}
+        [Test]
+        public void AsyncSnapshot()
+        {
+            using (IFiber fiber = PoolFiber.StartNew())
+            using (IFiber fiber2 = PoolFiber.StartNew())
+            {
+                var list = new List<string> { "Prime" };
+                var channel = new AsyncSnapshotChannel<string, IEnumerable<string>>();
+                channel.ReplyToPrimingRequest(fiber2, list.ToArray);
+                var primeResult = new List<string>();
+                string lastUpdate = "";
+                Action<IEnumerable<string>> primed = primeResult.AddRange;
+                Action<string> update = x => lastUpdate = x;
+                channel.PrimedSubscribe(fiber, update, primed);
+                Thread.Sleep(100);
+                channel.Send("hello");
+                channel.Send("hello2");
+                Thread.Sleep(100);
+                Assert.AreEqual("Prime", primeResult[0]);
+                Assert.AreEqual("hello2", lastUpdate);
+            }
+        }
     }
 }

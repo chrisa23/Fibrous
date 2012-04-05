@@ -10,6 +10,7 @@ namespace Fibrous
     /// <typeparam name="TReply"></typeparam>
     public interface IAsyncRequestPort<in TRequest, out TReply>
     {
+        //PostAndAsyncReply
         IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply);
     }
 }

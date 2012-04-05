@@ -1,34 +1,26 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Fibrous.Channels;
-using Fibrous.Fibers;
-using ZeroMQ;
-
-
 namespace Fibrous.Zmq
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using Fibrous.Channels;
+    using Fibrous.Fibers;
+    using ZeroMQ;
+
     public class AsyncReqReplyClient2<TRequest, TReply> : IAsyncRequestPort<TRequest, TReply>, IDisposable
     {
-        private readonly IAsyncRequestReplyChannel<TRequest, TReply> _internalChannel
-            = new AsyncRequestReplyChannel<TRequest, TReply>();
-
+        private readonly IAsyncRequestReplyChannel<TRequest, TReply> _internalChannel =
+            new AsyncRequestReplyChannel<TRequest, TReply>();
         private volatile bool _running = true;
-
         private readonly ZmqContext _context;
         private readonly ZmqSocket _socket;
-
         private readonly Func<byte[], TReply> _replyUnmarshaller;
         private readonly Func<TRequest, byte[]> _requestMarshaller;
-
         //TODO flushing of requests...
-        private readonly Dictionary<Guid, IRequest<TRequest, TReply>> _requests
-            = new Dictionary<Guid, IRequest<TRequest, TReply>>();
-
+        private readonly Dictionary<Guid, IRequest<TRequest, TReply>> _requests =
+            new Dictionary<Guid, IRequest<TRequest, TReply>>();
         private readonly IFiber _fiber;
-
         private readonly Task _task;
-
         private readonly ZMessage _request = new ZMessage();
         private readonly ZMessage _reply = new ZMessage();
 
@@ -41,20 +33,18 @@ namespace Fibrous.Zmq
 
         public AsyncReqReplyClient2(string address,
                                     Func<TRequest, byte[]> requestMarshaller,
-                                    Func<byte[], TReply> replyUnmarshaller, IFiber fiber)
+                                    Func<byte[], TReply> replyUnmarshaller,
+                                    IFiber fiber)
         {
             _requestMarshaller = requestMarshaller;
             _replyUnmarshaller = replyUnmarshaller;
-
             _fiber = fiber;
             _fiber.Start();
             _internalChannel.SetRequestHandler(_fiber, OnRequest);
-
             //set up sockets and subscribe to pub socket
             _context = ZmqContext.Create(1);
             _socket = _context.CreateSocket(SocketType.DEALER);
             _socket.Connect(address);
-
             _task = Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
 
@@ -70,8 +60,9 @@ namespace Fibrous.Zmq
             while (_running)
             {
                 if (!_reply.Recv(_socket, _timeout))
+                {
                     continue;
-
+                }
                 ProcessReply();
             }
             InternalDispose();
@@ -87,7 +78,7 @@ namespace Fibrous.Zmq
         private void Send(Guid guid, TReply reply)
         {
             IRequest<TRequest, TReply> request = _requests[guid];
-            request.Publish(reply);
+            request.Send(reply);
         }
 
         private void InternalDispose()

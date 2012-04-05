@@ -1,12 +1,10 @@
-using System;
-using System.Threading;
-using Fibrous.Channels;
-
-using NUnit.Framework;
-
 namespace Fibrous.Tests.Examples
 {
+    using System;
+    using System.Threading;
+    using Fibrous.Channels;
     using Fibrous.Fibers;
+    using NUnit.Framework;
 
     [TestFixture]
     [Category("Demo")]
@@ -28,12 +26,17 @@ namespace Fibrous.Tests.Examples
 
             public int First
             {
-                get { return _first; }
+                get
+                {
+                    return _first;
+                }
             }
-
             public int Second
             {
-                get { return _second; }
+                get
+                {
+                    return _second;
+                }
             }
         }
 
@@ -49,7 +52,8 @@ namespace Fibrous.Tests.Examples
             private readonly IChannel<IntPair> _outboundChannel;
             private readonly int _limit;
 
-            public FibonacciCalculator(IFiber fiber, string name,
+            public FibonacciCalculator(IFiber fiber,
+                                       string name,
                                        IChannel<IntPair> inboundChannel,
                                        IChannel<IntPair> outboundChannel,
                                        int limit)
@@ -59,29 +63,24 @@ namespace Fibrous.Tests.Examples
                 _inboundChannel = inboundChannel;
                 _outboundChannel = outboundChannel;
                 _inboundChannel.Subscribe(fiber, CalculateNext);
-
-
                 _limit = limit;
             }
 
             public void Begin(IntPair pair)
             {
                 Console.WriteLine(_name + " " + pair.Second);
-                _outboundChannel.Publish(pair);
+                _outboundChannel.Send(pair);
             }
 
             private void CalculateNext(IntPair receivedPair)
             {
                 int next = receivedPair.First + receivedPair.Second;
-
                 var pairToPublish = new IntPair(receivedPair.Second, next);
-                _outboundChannel.Publish(pairToPublish);
-
+                _outboundChannel.Send(pairToPublish);
                 if (next > _limit)
                 {
                     Console.WriteLine("Stopping " + _name);
                     _threadFiber.Dispose();
-
                     return;
                 }
                 Console.WriteLine(_name + " " + next);
@@ -96,18 +95,14 @@ namespace Fibrous.Tests.Examples
             // other is named "Even".  They message each other back and forth
             // with the latest two values and successively build the sequence.
             int limit = 1000;
-
             // Two channels for communication.  Naming convention is inbound.
             var oddChannel = new Channel<IntPair>();
             var evenChannel = new Channel<IntPair>();
-
             using (IFiber oddFiber = ThreadFiber.StartNew(), evenFiber = ThreadFiber.StartNew())
             {
                 var oddCalculator = new FibonacciCalculator(oddFiber, "Odd", oddChannel, evenChannel, limit);
                 var evenCalculator = new FibonacciCalculator(evenFiber, "Even", evenChannel, oddChannel, limit);
-
                 oddCalculator.Begin(new IntPair(0, 1));
-
                 Thread.Sleep(100);
             }
         }

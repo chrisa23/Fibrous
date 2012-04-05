@@ -1,10 +1,10 @@
-using System;
-using Fibrous.Channels;
-using Fibrous.Fibers;
-using NUnit.Framework;
-
 namespace Fibrous.Tests
 {
+    using System;
+    using Fibrous.Channels;
+    using Fibrous.Fibers;
+    using NUnit.Framework;
+
     [TestFixture]
     public class RequestReplyChannelTests
     {
@@ -15,10 +15,8 @@ namespace Fibrous.Tests
             {
                 responder.Start();
                 DateTime now = DateTime.Now;
-
                 var timeCheck = new RequestReplyChannel<string, DateTime>();
-                timeCheck.SetRequestHandler(responder, req => req.Publish(now));
-
+                timeCheck.SetRequestHandler(responder, req => req.Send(now));
                 DateTime result = timeCheck.SendRequest("hello", TimeSpan.FromMilliseconds(10000));
                 Assert.AreEqual(result, now);
             }

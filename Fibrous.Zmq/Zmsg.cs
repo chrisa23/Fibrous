@@ -1,22 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using ZeroMQ;
-
-namespace Fibrous.Zmq
+﻿namespace Fibrous.Zmq
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Text;
+    using ZeroMQ;
+
     public class ZMessage
     {
         private readonly Encoding _encoding = Encoding.Unicode;
         private readonly List<byte[]> _msgParts = new List<byte[]>();
-        byte[] _buffer = new byte[1024 * 1024 * 2];
+        private readonly byte[] _buffer = new byte[1024 * 1024 * 2];
+
         public ZMessage()
         {
         }
 
         public List<byte[]> MsgParts
         {
-            get { return _msgParts; }
+            get
+            {
+                return _msgParts;
+            }
         }
 
         public ZMessage(ZmqSocket skt)
@@ -49,34 +53,36 @@ namespace Fibrous.Zmq
                 _msgParts.Add(Receive(socket));
             }
         }
-        
-        private  byte[] Receive(ZmqSocket socket)
+
+        private byte[] Receive(ZmqSocket socket)
         {
-            int length =socket.Receive(_buffer);
-            byte[] reply = new byte[length];
+            int length = socket.Receive(_buffer);
+            var reply = new byte[length];
             Array.Copy(_buffer, reply, length);
             return reply;
         }
+
         private byte[] Receive(ZmqSocket socket, TimeSpan timeout)
         {
             int length = socket.Receive(_buffer, timeout);
-            byte[] reply = new byte[length];
+            var reply = new byte[length];
             Array.Copy(_buffer, reply, length);
             return reply;
         }
+
         public bool Recv(ZmqSocket socket, TimeSpan timeout)
         {
             _msgParts.Clear();
             byte[] receive = Receive(socket, timeout);
-
             if (receive == null || receive.Length == 0)
+            {
                 return false;
-
+            }
             _msgParts.Add(receive); //block before read more
-
             while (socket.ReceiveMore)
+            {
                 _msgParts.Add(Receive(socket));
-
+            }
             return true;
         }
 
@@ -145,19 +151,32 @@ namespace Fibrous.Zmq
 
         public int PartCount
         {
-            get { return _msgParts.Count; }
+            get
+            {
+                return _msgParts.Count;
+            }
         }
-
         public byte[] Address
         {
-            get { return _msgParts[0]; }
-            set { Push(value); }
+            get
+            {
+                return _msgParts[0];
+            }
+            set
+            {
+                Push(value);
+            }
         }
-
         public byte[] Body
         {
-            get { return _msgParts[_msgParts.Count - 1]; }
-            set { _msgParts[_msgParts.Count - 1] = value; }
+            get
+            {
+                return _msgParts[_msgParts.Count - 1];
+            }
+            set
+            {
+                _msgParts[_msgParts.Count - 1] = value;
+            }
         }
     }
 }

@@ -1,14 +1,15 @@
-using System;
-using ZeroMQ;
-
 namespace Fibrous.Zmq
 {
+    using System;
+    using ZeroMQ;
+
     public class ReqReplyClient<TRequest, TReply> : IRequestPort<TRequest, TReply>, IDisposable
     {
         private readonly Func<TRequest, byte[]> _requestMarshaller;
         private readonly Func<byte[], int, TReply> _replyUnmarshaller;
         private readonly ZmqSocket _socket;
-        byte[] _buffer = new byte[1024*1024*2];
+        private readonly byte[] _buffer = new byte[1024 * 1024 * 2];
+
         public ReqReplyClient(ZmqContext context,
                               string address,
                               Func<TRequest, byte[]> requestMarshaller,
@@ -31,10 +32,9 @@ namespace Fibrous.Zmq
             {
                 throw new Exception("Error sending message on socket");
             }
-
             int length = _socket.Receive(_buffer, timeout);
-            byte[] reply = new byte[length];
-            Array.Copy(_buffer,reply,length);
+            var reply = new byte[length];
+            Array.Copy(_buffer, reply, length);
             return reply;
         }
 
@@ -47,7 +47,7 @@ namespace Fibrous.Zmq
         {
             byte[] data = _requestMarshaller(request);
             byte[] replyData = Send(data, timeout);
-            TReply reply = _replyUnmarshaller(replyData,replyData.Length);
+            TReply reply = _replyUnmarshaller(replyData, replyData.Length);
             return reply;
         }
     }

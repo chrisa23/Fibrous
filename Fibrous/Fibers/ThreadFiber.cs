@@ -103,5 +103,12 @@ namespace Fibrous.Fibers
             fiber.Start();
             return fiber;
         }
+
+        public static IFiber StartNew(string name)
+        {
+            var fiber = new ThreadFiber(name);
+            fiber.Start();
+            return fiber;
+        }
     }
 }

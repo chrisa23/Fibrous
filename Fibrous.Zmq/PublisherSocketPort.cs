@@ -1,8 +1,8 @@
-﻿using System;
-using ZeroMQ;
-
-namespace Fibrous.Zmq
+﻿namespace Fibrous.Zmq
 {
+    using System;
+    using ZeroMQ;
+
     public sealed class PublisherSocketPort<T> : SendSocketBase<T>
     {
         public PublisherSocketPort(ZmqContext context, string address, Action<T, ZmqSocket> msgSender)

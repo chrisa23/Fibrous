@@ -1,11 +1,10 @@
-using System;
-using System.ComponentModel;
-using System.Threading;
-using Fibrous.Channels;
-using ZeroMQ;
-
 namespace Fibrous.Zmq
 {
+    using System;
+    using System.Threading;
+    using Fibrous.Channels;
+    using ZeroMQ;
+
     public abstract class ReceiveSocketBase<T> : ISubscriberPort<T>, IDisposable
     {
         private volatile bool _running = true;
@@ -14,10 +13,8 @@ namespace Fibrous.Zmq
         private Poller _poll;
         private readonly TimeSpan _timeout = TimeSpan.FromMilliseconds(10);
         private readonly IChannel<T> _internalChannel = new Channel<T>();
-
         protected readonly ZmqContext Context;
         protected ZmqSocket Socket;
-
 
         protected ReceiveSocketBase(ZmqContext context, Func<ZmqSocket, T> msgReceiver)
         {
@@ -28,17 +25,15 @@ namespace Fibrous.Zmq
         protected void Initialize()
         {
             Socket.ReceiveReady += SocketReceiveReady;
-
-            _poll = new Poller(new []{Socket});//Context.CreatePollSet(new ISocket[] {Socket});
-
-            _thread = new Thread(Run) {IsBackground = true};
+            _poll = new Poller(new[] { Socket }); //Context.CreatePollSet(new ISocket[] {Socket});
+            _thread = new Thread(Run) { IsBackground = true };
             _thread.Start();
         }
 
         private void SocketReceiveReady(object sender, SocketEventArgs e)
         {
             T msg = _msgReceiver(Socket);
-            _internalChannel.Publish(msg);
+            _internalChannel.Send(msg);
         }
 
         private void Run()

@@ -18,7 +18,7 @@ namespace Fibrous.Channels
         {
             using (var channelRequest = new ChannelRequest(request))
             {
-                _requestChannel.Publish(channelRequest);
+                _requestChannel.Send(channelRequest);
                 TReply reply;
                 if (!channelRequest.Receive(timeout, out reply))
                 {
@@ -48,7 +48,7 @@ namespace Fibrous.Channels
                 }
             }
 
-            public bool Publish(TReply response)
+            public bool Send(TReply response)
             {
                 lock (_lock)
                 {

@@ -27,12 +27,12 @@ namespace Fibrous.Channels
             }
         }
 
-        public bool Publish(T msg)
+        public bool Send(T msg)
         {
             lock (_lock)
             {
                 _list.Add(msg);
-                bool publish = _updateChannel.Publish(msg);
+                bool publish = _updateChannel.Send(msg);
                 Monitor.PulseAll(_lock);
                 return publish;
             }

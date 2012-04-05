@@ -8,18 +8,16 @@
     public class ActorTests
     {
         [Test]
-         public void AnonymousActorTest()
-         {
-             string result = "";
-
-             using(var actor = Actor<string>.StartNew(x => result = x))
-             {
-                 actor.Send("Test");
-                 Thread.Sleep(10);
-             }
-
-             Assert.AreEqual("Test",result);
-         }
+        public void AnonymousActorTest()
+        {
+            string result = "";
+            using (IActor<string> actor = Actor<string>.StartNew(x => result = x))
+            {
+                actor.Send("Test");
+                Thread.Sleep(10);
+            }
+            Assert.AreEqual("Test", result);
+        }
 
         [Test]
         public void ActorTest()
@@ -27,15 +25,11 @@
             using (var actor = new TheActor())
             {
                 actor.Start();
-
                 actor.Send("Test");
                 Thread.Sleep(10);
                 Assert.AreEqual("Test", actor.Result);
             }
-
-
         }
-
 
         private sealed class TheActor : ActorBase<string>
         {

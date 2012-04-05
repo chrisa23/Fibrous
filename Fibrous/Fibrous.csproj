@@ -49,7 +49,6 @@
     <Compile Include="Fibers\QueueFullException.cs" />
     <Compile Include="IActor.cs" />
     <Compile Include="Channels\AsyncSnapshotChannel.cs" />
-    <Compile Include="ExtensionsToISubscriberPort.cs" />
     <Compile Include="Fibers\DispatcherFiber.cs" />
     <Compile Include="Fibers\ExecutionState.cs" />
     <Compile Include="Fibers\FiberBase.cs" />
@@ -68,10 +67,9 @@
     <Compile Include="Scheduling\KeyedBatchSubscriber.cs" />
     <Compile Include="Scheduling\LastSubscriber.cs" />
     <Compile Include="Channels\Channel.cs" />
-    <Compile Include="IPublisherPort.cs" />
+    <Compile Include="ISenderPort.cs" />
     <Compile Include="ISubscriberPort.cs" />
     <Compile Include="Channels\RequestReplyChannel.cs" />
-    <Compile Include="ExtensionsToIFiber.cs" />
     <Compile Include="Scheduling\BatchSubscriberBase.cs" />
     <Compile Include="Channels\IChannel.cs" />
     <Compile Include="Channels\IRequestReplyChannel.cs" />

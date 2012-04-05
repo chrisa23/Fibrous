@@ -25,9 +25,9 @@ namespace Fibrous.Actors
             _fiber.Start();
         }
 
-        public void Send(TMsg msg)
+        public bool Send(TMsg msg)
         {
-            _channel.Publish(msg);
+            return _channel.Send(msg);
         }
 
         protected override void Dispose(bool disposing)

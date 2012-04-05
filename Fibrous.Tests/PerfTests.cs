@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using Fibrous.Channels;
-using Fibrous.Fibers;
-
-using NUnit.Framework;
-
-namespace Fibrous.Tests
+﻿namespace Fibrous.Tests
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
+    using Fibrous.Channels;
+    using Fibrous.Fibers;
+    using NUnit.Framework;
+
     public class PerfExecutor : IExecutor
     {
         public void Execute(IEnumerable<Action> toExecute)
@@ -44,9 +43,9 @@ namespace Fibrous.Tests
         [Explicit]
         public void TestBoundedQueue()
         {
-            PointToPointPerfTestWithStruct(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000,1000 )));
-            PointToPointPerfTestWithInt(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000,1000 )));
-            PointToPointPerfTestWithObject(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000,1000 )));
+            PointToPointPerfTestWithStruct(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000, 1000)));
+            PointToPointPerfTestWithInt(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000, 1000)));
+            PointToPointPerfTestWithObject(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000, 1000)));
         }
 
         [Test]
@@ -83,9 +82,7 @@ namespace Fibrous.Tests
         //    PointToPointPerfTestWithStruct(new ThreadFiber(new DisruptorQueue(new PerfExecutor())));
         //    PointToPointPerfTestWithInt(new ThreadFiber(new DisruptorQueue(new PerfExecutor())));
         //    PointToPointPerfTestWithObject(new ThreadFiber(new DisruptorQueue(new PerfExecutor())));
-
         //}
-
         //[Test]
         //public void TestBufferBlock()
         //{
@@ -94,7 +91,6 @@ namespace Fibrous.Tests
         //    PointToPointPerfTestWithObject(new BufferBlockQueue(new PerfExecutor()));
         //    //     RunQueue(new BufferBlockQueue(new PerfExecutor()));
         //}
-
         private static void PointToPointPerfTestWithStruct(IFiber fiber)
         {
             using (fiber)
@@ -110,7 +106,7 @@ namespace Fibrous.Tests
                 {
                     for (int i = 0; i <= max; i++)
                     {
-                        channel.Publish(new MsgStruct {count = i});
+                        channel.Send(new MsgStruct { count = i });
                     }
                     Assert.IsTrue(reset.WaitOne(30000, false));
                 }
@@ -134,7 +130,9 @@ namespace Fibrous.Tests
             {
                 Count++;
                 if (Count == _cutoff)
+                {
                     handle.Set();
+                }
             }
         }
 
@@ -152,7 +150,9 @@ namespace Fibrous.Tests
             public void OnMsg(int msg)
             {
                 if (msg == _cutoff)
+                {
                     handle.Set();
+                }
             }
         }
 
@@ -172,7 +172,7 @@ namespace Fibrous.Tests
                 {
                     for (int i = 0; i <= max; i++)
                     {
-                        channel.Publish(i);
+                        channel.Send(i);
                     }
                     Assert.IsTrue(reset.WaitOne(30000, false));
                 }
@@ -190,12 +190,12 @@ namespace Fibrous.Tests
                 var reset = new AutoResetEvent(false);
                 var end = new object();
                 Action<object> onMsg = delegate(object msg)
+                {
+                    if (msg == end)
                     {
-                        if (msg == end)
-                        {
-                            reset.Set();
-                        }
-                    };
+                        reset.Set();
+                    }
+                };
                 channel.Subscribe(fiber, onMsg);
                 Thread.Sleep(100);
                 using (new PerfTimer(max))
@@ -203,9 +203,9 @@ namespace Fibrous.Tests
                     var msg = new object();
                     for (int i = 0; i <= max; i++)
                     {
-                        channel.Publish(msg);
+                        channel.Send(msg);
                     }
-                    channel.Publish(end);
+                    channel.Send(end);
                     Assert.IsTrue(reset.WaitOne(30000, false));
                 }
             }

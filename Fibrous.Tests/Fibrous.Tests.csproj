@@ -69,7 +69,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActorTests.cs" />
-    <Compile Include="AsyncSnapshotTests.cs" />
     <Compile Include="AsyncRequestReplyChannelTests.cs" />
     <Compile Include="Examples\AlgebraDemonstration.cs" />
     <Compile Include="Examples\BasicExamples.cs" />

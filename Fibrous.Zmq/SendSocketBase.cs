@@ -1,9 +1,9 @@
-using System;
-using ZeroMQ;
-
 namespace Fibrous.Zmq
 {
-    public class SendSocketBase<T> : IPublisherPort<T>, IDisposable
+    using System;
+    using ZeroMQ;
+
+    public class SendSocketBase<T> : ISenderPort<T>, IDisposable
     {
         protected ZmqSocket Socket;
         private readonly Action<T, ZmqSocket> _msgSender;
@@ -13,7 +13,7 @@ namespace Fibrous.Zmq
             _msgSender = msgSender;
         }
 
-        public bool Publish(T msg)
+        public bool Send(T msg)
         {
             _msgSender(msg, Socket);
             return true;
