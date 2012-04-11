@@ -15,7 +15,7 @@ namespace Fibrous.Channels
         public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply)
         {
             var channelRequest = new AsyncChannelRequest(fiber, request, onReply);
-            bool sent = _requestChannel.Send(channelRequest);
+            bool sent = _requestChannel.Publish(channelRequest);
             if (!sent)
             {
                 throw new ArgumentException("No one is listening on AsyncRequestReplyChannel");
@@ -43,9 +43,9 @@ namespace Fibrous.Channels
                 }
             }
 
-            public bool Send(TReply response)
+            public bool Publish(TReply response)
             {
-                return _resp.Send(response);
+                return _resp.Publish(response);
             }
 
             public void Dispose()

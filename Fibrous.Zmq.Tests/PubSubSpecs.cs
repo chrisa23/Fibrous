@@ -6,6 +6,7 @@
     using Fibrous.Fibers;
     using Machine.Specifications;
     using ZeroMQ;
+    using ZeroMQ.Sockets;
 
     [Subject("PubSub")]
     public class WhenMsgIsSentPubSub : PubSubSpecs
@@ -19,7 +20,7 @@
                     RcvdSignal.Set();
                 });
             Thread.Sleep(10);
-            Publisher.Send("test");
+            Publisher.Publish("test");
             RcvdSignal.WaitOne(TimeSpan.FromSeconds(1));
         };
         private It shouldHaveReceivedMessage = () => Received.ShouldEqual("test");
@@ -27,8 +28,8 @@
 
     public abstract class PubSubSpecs
     {
-        protected static ZmqContext Context1;
-        protected static ZmqContext Context2;
+        protected static IZmqContext Context1;
+        protected static IZmqContext Context2;
         protected static PublisherSocketPort<string> Publisher;
         protected static SubscribeSocketPort<string> Subscriber;
         protected static IFiber ClientFiber;
@@ -39,13 +40,14 @@
             Context1 = ZmqContext.Create();
             Context2 = ZmqContext.Create();
             RcvdSignal = new ManualResetEvent(false);
-            ClientFiber = PoolFiber.StartNew();
+            ClientFiber = new PoolFiber();
+            ClientFiber.Start();
             Publisher = new PublisherSocketPort<string>(Context1,
                 "tcp://*:6001",
                 (s, socket) => socket.Send(Encoding.Unicode.GetBytes(s)));
             Subscriber = new SubscribeSocketPort<string>(Context2,
                 "tcp://localhost:6001",
-                socket => socket.Receive(Encoding.Unicode));
+                socket => Encoding.Unicode.GetString(socket.Receive()));
             Subscriber.SubscribeAll();
         };
         protected Cleanup cleanup = () =>

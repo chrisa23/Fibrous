@@ -5,10 +5,13 @@ namespace Fibrous.Zmq
 
     public class PullSocketPort<T> : ReceiveSocketBase<T>
     {
-        public PullSocketPort(ZmqContext context, string address, Func<ZmqSocket, T> msgReceiver, bool useBind = true)
+        public PullSocketPort(IZmqContext context,
+                              string address,
+                              Func<IReceiveSocket, T> msgReceiver,
+                              bool useBind = true)
             : base(context, msgReceiver)
         {
-            Socket = context.CreateSocket(SocketType.PULL);
+            Socket = context.CreatePullSocket();
             if (useBind)
             {
                 Socket.Bind(address);

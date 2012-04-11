@@ -69,14 +69,14 @@ namespace Fibrous.Tests.Examples
             public void Begin(IntPair pair)
             {
                 Console.WriteLine(_name + " " + pair.Second);
-                _outboundChannel.Send(pair);
+                _outboundChannel.Publish(pair);
             }
 
             private void CalculateNext(IntPair receivedPair)
             {
                 int next = receivedPair.First + receivedPair.Second;
                 var pairToPublish = new IntPair(receivedPair.Second, next);
-                _outboundChannel.Send(pairToPublish);
+                _outboundChannel.Publish(pairToPublish);
                 if (next > _limit)
                 {
                     Console.WriteLine("Stopping " + _name);

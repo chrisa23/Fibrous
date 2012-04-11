@@ -31,7 +31,7 @@ namespace Fibrous.Tests
                 channel.Subscribe(one, onMsg);
                 for (int i = 0; i < 20; i++)
                 {
-                    channel.Send(i);
+                    channel.Publish(i);
                 }
                 Assert.IsTrue(reset.WaitOne(10000, false));
             }
@@ -56,8 +56,8 @@ namespace Fibrous.Tests
                     reset.Set();
                 };
                 channel.Subscribe(one, onMsg);
-                channel.Send(0);
-                channel.Send(1);
+                channel.Publish(0);
+                channel.Publish(1);
                 Assert.IsTrue(reset.WaitOne(10000, false));
                 Assert.AreEqual(1, exec.failed.Count);
             }
@@ -93,7 +93,7 @@ namespace Fibrous.Tests
             }
             for (int i = 0; i < messageCount; i++)
             {
-                channel.Send(i);
+                channel.Publish(i);
             }
             Assert.IsTrue(reset.WaitOne(10000, false));
             queues.ForEach(delegate(IFiber q) { q.Dispose(); });

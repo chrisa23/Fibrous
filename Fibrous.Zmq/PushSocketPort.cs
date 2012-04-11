@@ -5,10 +5,10 @@ namespace Fibrous.Zmq
 
     public sealed class PushSocketPort<T> : SendSocketBase<T>
     {
-        public PushSocketPort(ZmqContext context, string address, Action<T, ZmqSocket> msgSender, bool bind = false)
+        public PushSocketPort(IZmqContext context, string address, Action<T, ISendSocket> msgSender, bool bind = false)
             : base(msgSender)
         {
-            Socket = context.CreateSocket(SocketType.PUSH);
+            Socket = context.CreatePushSocket();
             if (bind)
             {
                 Socket.Bind(address);

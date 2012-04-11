@@ -17,21 +17,21 @@ namespace Fibrous.Channels
         public IDisposable PrimedSubscribe(IFiber fiber, Action<T> receive, Action<TSnapshot> receiveSnapshot)
         {
             var primedSubscribe = new SnapshotRequest(fiber, _updatesChannel, receive, receiveSnapshot);
-            _requestChannel.SendRequest(null, fiber, x => primedSubscribe.Send(x));
+            _requestChannel.SendRequest(null, fiber, x => primedSubscribe.Publish(x));
             return primedSubscribe;
         }
 
         public IDisposable ReplyToPrimingRequest(IFiber fiber, Func<TSnapshot> reply)
         {
-            return _requestChannel.SetRequestHandler(fiber, x => x.Send(reply()));
+            return _requestChannel.SetRequestHandler(fiber, x => x.Publish(reply()));
         }
 
-        public bool Send(T msg)
+        public bool Publish(T msg)
         {
-            return _updatesChannel.Send(msg);
+            return _updatesChannel.Publish(msg);
         }
 
-        private class SnapshotRequest : ISenderPort<TSnapshot>, IDisposable
+        private class SnapshotRequest : IPublisherPort<TSnapshot>, IDisposable
         {
             private readonly IFiber _fiber;
             private readonly IChannel<T> _updatesChannel;
@@ -52,7 +52,7 @@ namespace Fibrous.Channels
                 _fiber.Add(this);
             }
 
-            public bool Send(TSnapshot msg)
+            public bool Publish(TSnapshot msg)
             {
                 if (_disposed)
                 {

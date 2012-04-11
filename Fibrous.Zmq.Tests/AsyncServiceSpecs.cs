@@ -87,13 +87,13 @@
             Reply = string.Empty;
             Replied = new ManualResetEvent(false);
             ClientFiber = new PoolFiber();
-            Func<byte[], int, string> unmarshaller = (x, y) => Encoding.Unicode.GetString(x, 0, y);
+            Func<byte[], string> unmarshaller = x => Encoding.Unicode.GetString(x);
             Func<string, string> businessLogic = x => x.ToUpper();
             Func<string, byte[]> marshaller = x => Encoding.Unicode.GetBytes(x);
             Service = new AsyncReqReplyService<string, string>("tcp://*:9998",
-                //   "inproc://test_serviceIn",
+                // "inproc://test_serviceIn",
                 "tcp://*:9999",
-                //   "inproc://test_serviceOut",
+                // "inproc://test_serviceOut",
                 unmarshaller,
                 businessLogic,
                 marshaller);
@@ -101,12 +101,11 @@
             ClientFiber.Start();
             Console.WriteLine("Start client fiber");
             Client = new AsyncReqReplyClient<string, string>("tcp://localhost:9998",
-                //   "inproc://test_serviceIn",
+                // "inproc://test_serviceIn",
                 "tcp://localhost:9999",
-                //   "inproc://test_serviceOut",
+                // "inproc://test_serviceOut",
                 marshaller,
-                unmarshaller,
-                1024);
+                unmarshaller);
             Console.WriteLine("Start client");
         };
         protected Cleanup cleanup = () =>

@@ -16,7 +16,7 @@ namespace Fibrous.Tests
                 responder.Start();
                 DateTime now = DateTime.Now;
                 var timeCheck = new RequestReplyChannel<string, DateTime>();
-                timeCheck.SetRequestHandler(responder, req => req.Send(now));
+                timeCheck.SetRequestHandler(responder, req => req.Publish(now));
                 DateTime result = timeCheck.SendRequest("hello", TimeSpan.FromMilliseconds(10000));
                 Assert.AreEqual(result, now);
             }

@@ -5,32 +5,32 @@ namespace Fibrous.Zmq
 
     public class SubscribeSocketPort<T> : ReceiveSocketBase<T>
     {
-        public SubscribeSocketPort(ZmqContext context, string address, Func<ZmqSocket, T> msgReceiver)
+        public SubscribeSocketPort(IZmqContext context, string address, Func<IReceiveSocket, T> msgReceiver)
             : base(context, msgReceiver)
         {
-            Socket = Context.CreateSocket(SocketType.SUB);
+            Socket = Context.CreateSubscribeSocket();
             Socket.Connect(address);
             Initialize();
         }
 
         public void SubscribeAll()
         {
-            Socket.SubscribeAll();
+            ((ISubscribeSocket)Socket).SubscribeAll();
         }
 
         public void Subscribe(byte[] key)
         {
-            Socket.Subscribe(key);
+            ((ISubscribeSocket)Socket).Subscribe(key);
         }
 
         public void UnsubscribeAll()
         {
-            Socket.UnsubscribeAll();
+            ((ISubscribeSocket)Socket).UnsubscribeAll();
         }
 
         public void Unsubscribe(byte[] key)
         {
-            Socket.Unsubscribe(key);
+            ((ISubscribeSocket)Socket).Unsubscribe(key);
         }
 
         public override void Dispose()

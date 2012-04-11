@@ -48,7 +48,7 @@
                     {
                         if (target != null)
                         {
-                            target.Send(message);
+                            target.Publish(message);
                         }
                         else
                         {
@@ -67,13 +67,13 @@
             for (int i = 0; i < 10000; i++)
             {
                 var s = new Msg(false);
-                channels[0].Send(s);
+                channels[0].Publish(s);
                 s.Latch.WaitOne();
             }
             for (int i = 0; i < 5; i++)
             {
                 var s = new Msg(true);
-                channels[0].Send(s);
+                channels[0].Publish(s);
                 Thread.Sleep(10);
             }
             foreach (ThreadFiber fiber in fibers)

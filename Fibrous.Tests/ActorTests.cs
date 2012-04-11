@@ -13,7 +13,7 @@
             string result = "";
             using (IActor<string> actor = Actor<string>.StartNew(x => result = x))
             {
-                actor.Send("Test");
+                actor.Publish("Test");
                 Thread.Sleep(10);
             }
             Assert.AreEqual("Test", result);
@@ -25,7 +25,7 @@
             using (var actor = new TheActor())
             {
                 actor.Start();
-                actor.Send("Test");
+                actor.Publish("Test");
                 Thread.Sleep(10);
                 Assert.AreEqual("Test", actor.Result);
             }

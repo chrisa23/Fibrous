@@ -19,7 +19,7 @@
                 var channel = new Channel<string>();
                 var reset = new AutoResetEvent(false);
                 channel.Subscribe(fiber, delegate { reset.Set(); });
-                channel.Send("hello");
+                channel.Publish("hello");
                 Assert.IsTrue(reset.WaitOne(5000, false));
             }
         }
@@ -32,7 +32,7 @@
                 var channel = new Channel<string>();
                 var reset = new AutoResetEvent(false);
                 channel.Subscribe(fiber, delegate { reset.Set(); });
-                channel.Send("hello");
+                channel.Publish("hello");
                 Assert.IsTrue(reset.WaitOne(5000, false));
             }
         }
@@ -56,10 +56,10 @@
                 //     var sub = new ChannelSubscription<int>(fiber, onMsg);
                 //sub.FilterOnProducerThread = ;
                 channel.Subscribe(fiber, onMsg, x => x % 2 == 0);
-                channel.Send(1);
-                channel.Send(2);
-                channel.Send(3);
-                channel.Send(4);
+                channel.Publish(1);
+                channel.Publish(2);
+                channel.Publish(3);
+                channel.Publish(4);
                 Assert.IsTrue(reset.WaitOne(5000, false));
             }
         }
@@ -85,7 +85,7 @@
                 {
                     for (int i = 0; i < 10; i++)
                     {
-                        counter.Send(i);
+                        counter.Publish(i);
                     }
                 }
                 Assert.IsTrue(reset.WaitOne(10000, false));
@@ -112,7 +112,7 @@
                 {
                     for (int i = 0; i < 10; i++)
                     {
-                        counter.Send(i);
+                        counter.Publish(i);
                     }
                 }
                 Assert.IsTrue(reset.WaitOne(10000, false));
@@ -126,7 +126,7 @@
             {
                 fiber.Start();
                 var channel = new RequestReplyChannel<string, string>();
-                using (channel.SetRequestHandler(fiber, req => req.Send("bye")))
+                using (channel.SetRequestHandler(fiber, req => req.Publish("bye")))
                 {
                     string reply = channel.SendRequest("hello", TimeSpan.FromSeconds(1));
                     Assert.AreEqual("bye", reply);
@@ -149,8 +149,8 @@
                 Action<string> update = x => lastUpdate = x;
                 channel.PrimedSubscribe(fiber, update, primed);
                 Thread.Sleep(100);
-                channel.Send("hello");
-                channel.Send("hello2");
+                channel.Publish("hello");
+                channel.Publish("hello2");
                 Thread.Sleep(100);
                 Assert.AreEqual("Prime", primeResult[0]);
                 Assert.AreEqual("hello2", lastUpdate);

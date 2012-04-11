@@ -6,6 +6,7 @@
     using System.Threading;
     using Machine.Specifications;
     using ZeroMQ;
+    using ZeroMQ.Sockets;
 
     [Subject("ReqReplyService")]
     public class WhenRequestIsSent : ReqReplyServiceSpecs
@@ -60,8 +61,8 @@
 
     public abstract class ReqReplyServiceSpecs
     {
-        protected static ZmqContext Context;
-        protected static ZmqContext Context2;
+        protected static IZmqContext Context;
+        protected static IZmqContext Context2;
         protected static ReqReplyService<string, string> Service;
         protected static ReqReplyClient<string, string> Client;
         protected static string Reply;
@@ -70,7 +71,7 @@
         {
             Context = ZmqContext.Create();
             Context2 = ZmqContext.Create();
-            Func<byte[], int, string> unmarshaller = (x, y) => Encoding.Unicode.GetString(x, 0, y);
+            Func<byte[], string> unmarshaller = x => Encoding.Unicode.GetString(x);
             Func<string, string> businessLogic = x => x.ToUpper();
             Func<string, byte[]> marshaller = x => Encoding.Unicode.GetBytes(x);
             Service = new ReqReplyService<string, string>(Context,

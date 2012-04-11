@@ -7,6 +7,7 @@
     using Fibrous.Fibers;
     using Machine.Specifications;
     using ZeroMQ;
+    using ZeroMQ.Sockets;
 
     [Subject("PushPull")] //queues
     public class WhenMsgIsSent : PushPullSocketPortSpecs
@@ -19,7 +20,7 @@
                     Received = s;
                     RcvdSignal.Set();
                 });
-            Push.Send("test");
+            Push.Publish("test");
             RcvdSignal.WaitOne(TimeSpan.FromSeconds(1));
         };
         private It shouldHaveReceivedMessage = () => Received.ShouldEqual("test");
@@ -42,7 +43,7 @@
             Stopwatch sw = Stopwatch.StartNew();
             for (int i = 0; i < 1000000; i++)
             {
-                Push.Send("test" + i);
+                Push.Publish("test" + i);
             }
             RcvdSignal.WaitOne(TimeSpan.FromSeconds(10));
             sw.Stop();
@@ -53,8 +54,8 @@
 
     public abstract class PushPullSocketPortSpecs
     {
-        protected static ZmqContext Context1;
-        protected static ZmqContext Context2;
+        protected static IZmqContext Context1;
+        protected static IZmqContext Context2;
         protected static PushSocketPort<string> Push;
         protected static PullSocketPort<string> Pull;
         protected static IFiber ClientFiber;
@@ -66,7 +67,9 @@
             Context2 = ZmqContext.Create();
             RcvdSignal = new ManualResetEvent(false);
             ClientFiber = new StubFiber();
-            Pull = new PullSocketPort<string>(Context1, "tcp://*:6001", socket => socket.Receive(Encoding.Unicode));
+            Pull = new PullSocketPort<string>(Context1,
+                "tcp://*:6001",
+                socket => Encoding.Unicode.GetString(socket.Receive()));
             Push = new PushSocketPort<string>(Context2,
                 "tcp://localhost:6001",
                 (s, socket) => socket.Send(Encoding.Unicode.GetBytes(s)));

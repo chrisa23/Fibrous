@@ -12,6 +12,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fibrous.Zmq.Tests", "Fibrous.Zmq.Tests\Fibrous.Zmq.Tests.csproj", "{EEA49BBF-B3AB-48C1-A25F-C2163CC42DB6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9DB6ECC4-534F-4A4C-90AB-FEEFFD136678}"
+	ProjectSection(SolutionItems) = preProject
+		README = README
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

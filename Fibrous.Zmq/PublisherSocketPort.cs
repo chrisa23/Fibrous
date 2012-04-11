@@ -5,10 +5,10 @@
 
     public sealed class PublisherSocketPort<T> : SendSocketBase<T>
     {
-        public PublisherSocketPort(ZmqContext context, string address, Action<T, ZmqSocket> msgSender)
+        public PublisherSocketPort(IZmqContext context, string address, Action<T, ISendSocket> msgSender)
             : base(msgSender)
         {
-            Socket = context.CreateSocket(SocketType.PUB);
+            Socket = context.CreatePublishSocket();
             Socket.Bind(address);
         }
     }

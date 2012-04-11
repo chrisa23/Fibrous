@@ -6,14 +6,15 @@ namespace Fibrous.Zmq
     using Fibrous.Channels;
     using Fibrous.Fibers;
     using ZeroMQ;
+    using ZeroMQ.Sockets;
 
     public class AsyncReqReplyClient2<TRequest, TReply> : IAsyncRequestPort<TRequest, TReply>, IDisposable
     {
         private readonly IAsyncRequestReplyChannel<TRequest, TReply> _internalChannel =
             new AsyncRequestReplyChannel<TRequest, TReply>();
         private volatile bool _running = true;
-        private readonly ZmqContext _context;
-        private readonly ZmqSocket _socket;
+        private readonly IZmqContext _context;
+        private readonly IDuplexSocket _socket;
         private readonly Func<byte[], TReply> _replyUnmarshaller;
         private readonly Func<TRequest, byte[]> _requestMarshaller;
         //TODO flushing of requests...
@@ -43,7 +44,7 @@ namespace Fibrous.Zmq
             _internalChannel.SetRequestHandler(_fiber, OnRequest);
             //set up sockets and subscribe to pub socket
             _context = ZmqContext.Create(1);
-            _socket = _context.CreateSocket(SocketType.DEALER);
+            _socket = _context.CreateDealerSocket();
             _socket.Connect(address);
             _task = Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
@@ -78,7 +79,7 @@ namespace Fibrous.Zmq
         private void Send(Guid guid, TReply reply)
         {
             IRequest<TRequest, TReply> request = _requests[guid];
-            request.Send(reply);
+            request.Publish(reply);
         }
 
         private void InternalDispose()

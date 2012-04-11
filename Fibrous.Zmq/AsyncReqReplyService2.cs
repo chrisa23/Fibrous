@@ -3,14 +3,15 @@ namespace Fibrous.Zmq
     using System;
     using System.Threading.Tasks;
     using ZeroMQ;
+    using ZeroMQ.Sockets;
 
     public class AsyncReqReplyService2<TRequest, TReply> : IDisposable
     {
         private readonly Func<byte[], TRequest> _requestUnmarshaller;
         private readonly Func<TRequest, TReply> _businessLogic;
         private readonly Func<TReply, byte[]> _replyMarshaller;
-        private readonly ZmqContext _context;
-        private readonly ZmqSocket _socket;
+        private readonly IZmqContext _context;
+        private readonly IDuplexSocket _socket;
         private volatile bool _running = true;
         private readonly ZMessage _message = new ZMessage();
         private readonly TimeSpan _timeout = TimeSpan.FromMilliseconds(100);
@@ -24,7 +25,7 @@ namespace Fibrous.Zmq
             _businessLogic = businessLogic;
             _replyMarshaller = replyMarshaller;
             _context = ZmqContext.Create();
-            _socket = _context.CreateSocket(SocketType.ROUTER);
+            _socket = _context.CreateRouterSocket();
             _socket.ReceiveHighWatermark = 10000;
             _socket.SendHighWatermark = 10000;
             _socket.Bind(address);

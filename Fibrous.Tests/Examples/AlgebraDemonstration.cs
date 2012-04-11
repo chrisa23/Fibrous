@@ -138,7 +138,7 @@ namespace Fibrous.Tests.Examples
                     Quadratic quadratic = Next();
                     // As agreed, we publish to a topic that is defined
                     // by the square term of the quadratic.
-                    _channels[quadratic.A].Send(quadratic);
+                    _channels[quadratic.A].Publish(quadratic);
                 }
             }
 
@@ -169,7 +169,7 @@ namespace Fibrous.Tests.Examples
             {
                 QuadraticSolutions solutions = Solve(quadratic);
                 var solvedQuadratic = new SolvedQuadratic(quadratic, solutions);
-                _solvedChannel.Send(solvedQuadratic);
+                _solvedChannel.Publish(solvedQuadratic);
             }
 
             private static QuadraticSolutions Solve(Quadratic quadratic)

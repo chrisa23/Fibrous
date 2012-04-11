@@ -38,7 +38,7 @@ namespace Fibrous.Channels
             }
         }
 
-        public bool Send(TMsg message)
+        public bool Publish(TMsg message)
         {
             lock (_queue)
             {

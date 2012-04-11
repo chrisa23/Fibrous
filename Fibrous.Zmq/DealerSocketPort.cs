@@ -5,10 +5,13 @@
 
     public class DealerSocketPort<T> : ReceiveSocketBase<T>
     {
-        public DealerSocketPort(ZmqContext context, string address, Func<ZmqSocket, T> msgReceiver, bool useBind = false)
+        public DealerSocketPort(IZmqContext context,
+                                string address,
+                                Func<IReceiveSocket, T> msgReceiver,
+                                bool useBind = false)
             : base(context, msgReceiver)
         {
-            Socket = context.CreateSocket(SocketType.DEALER);
+            Socket = context.CreateDealerSocket();
             if (useBind)
             {
                 Socket.Bind(address);

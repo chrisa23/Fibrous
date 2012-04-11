@@ -67,7 +67,7 @@
     <Compile Include="Scheduling\KeyedBatchSubscriber.cs" />
     <Compile Include="Scheduling\LastSubscriber.cs" />
     <Compile Include="Channels\Channel.cs" />
-    <Compile Include="ISenderPort.cs" />
+    <Compile Include="IPublisherPort.cs" />
     <Compile Include="ISubscriberPort.cs" />
     <Compile Include="Channels\RequestReplyChannel.cs" />
     <Compile Include="Scheduling\BatchSubscriberBase.cs" />

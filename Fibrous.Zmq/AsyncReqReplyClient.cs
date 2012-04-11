@@ -6,6 +6,7 @@ namespace Fibrous.Zmq
     using Fibrous.Channels;
     using Fibrous.Fibers;
     using ZeroMQ;
+    using ZeroMQ.Sockets;
 
     public class AsyncReqReplyClient<TRequest, TReply> : IAsyncRequestPort<TRequest, TReply>, IDisposable
     {
@@ -15,10 +16,10 @@ namespace Fibrous.Zmq
             new AsyncRequestReplyChannel<TRequest, TReply>();
         private readonly IFiber _fiber;
         private volatile bool _running = true;
-        private readonly ZmqContext _replyContext;
-        private readonly ZmqSocket _replySocket;
-        private readonly Func<byte[], int, TReply> _replyUnmarshaller;
-        private readonly ZmqSocket _requestSocket;
+        private readonly IZmqContext _replyContext;
+        private readonly ISubscribeSocket _replySocket;
+        private readonly Func<byte[], TReply> _replyUnmarshaller;
+        private readonly ISendSocket _requestSocket;
         private readonly Func<TRequest, byte[]> _requestMarshaller;
         private readonly Dictionary<Guid, IRequest<TRequest, TReply>> _requests =
             new Dictionary<Guid, IRequest<TRequest, TReply>>();
@@ -32,52 +33,45 @@ namespace Fibrous.Zmq
         public AsyncReqReplyClient(string requestAddress,
                                    string replyAddress,
                                    Func<TRequest, byte[]> requestMarshaller,
-                                   Func<byte[], int, TReply> replyUnmarshaller,
-                                   int bufferSize)
-            : this(requestAddress, replyAddress, requestMarshaller, replyUnmarshaller, bufferSize, new PoolFiber())
+                                   Func<byte[], TReply> replyUnmarshaller)
+            : this(requestAddress, replyAddress, requestMarshaller, replyUnmarshaller, new PoolFiber())
         {
         }
 
         public AsyncReqReplyClient(string requestAddress,
                                    string replyAddress,
                                    Func<TRequest, byte[]> requestMarshaller,
-                                   Func<byte[], int, TReply> replyUnmarshaller,
-                                   int bufferSize,
+                                   Func<byte[], TReply> replyUnmarshaller,
                                    IFiber fiber)
         {
             _requestMarshaller = requestMarshaller;
             _replyUnmarshaller = replyUnmarshaller;
             _fiber = fiber;
-            data = new byte[bufferSize];
             _internalChannel.SetRequestHandler(_fiber, OnRequest);
             //set up sockets and subscribe to pub socket
-            _replyContext = ZmqContext.Create();
-            _replySocket = _replyContext.CreateSocket(SocketType.SUB);
+            _replyContext = ZmqContext.Create(1);
+            _replySocket = _replyContext.CreateSubscribeSocket();
             _replySocket.Connect(replyAddress);
             _replySocket.Subscribe(_id);
-            _requestSocket = _replyContext.CreateSocket(SocketType.PUSH);
+            //  _requestContext = ZmqContext.Create(1);
+            _requestSocket = _replyContext.CreatePushSocket();
             _requestSocket.Connect(requestAddress);
             _fiber.Start();
             _task = Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
-
-        private readonly byte[] id = new byte[16];
-        private readonly byte[] reqId = new byte[16];
-        private readonly byte[] data;
 
         private void Run()
         {
             while (_running)
             {
                 //check for time/cutoffs to trigger events...
-                //   byte[] id = new byte[16];
-                int idCount = _replySocket.Receive(id, TimeSpan.FromMilliseconds(100));
-                if (idCount == 0)
+                byte[] id = _replySocket.Receive(TimeSpan.FromMilliseconds(100));
+                if (id == null || id.Length == 0 || !_running)
                 {
                     continue;
                 }
-                int reqIdCount = _replySocket.Receive(reqId, TimeSpan.FromSeconds(3));
-                if (reqIdCount != 16)
+                byte[] reqId = _replySocket.Receive(TimeSpan.FromSeconds(1));
+                if (reqId == null || reqId.Length != 16)
                 {
                     //ERROR
                     throw new Exception("Got id but no msg id");
@@ -87,13 +81,13 @@ namespace Fibrous.Zmq
                 {
                     throw new Exception("We don't have a msg SenderId for this reply");
                 }
-                int dataLength = _replySocket.Receive(data, TimeSpan.FromSeconds(3));
-                if (dataLength == 0)
+                byte[] data = _replySocket.Receive(TimeSpan.FromSeconds(1));
+                if (data == null)
                 {
                     //ERROR
                     throw new Exception("Got ids but no data");
                 }
-                TReply reply = _replyUnmarshaller(data, dataLength);
+                TReply reply = _replyUnmarshaller(data);
                 _fiber.Enqueue(() => Send(guid, reply));
             }
             InternalDispose();
@@ -102,7 +96,7 @@ namespace Fibrous.Zmq
         private void Send(Guid guid, TReply reply)
         {
             IRequest<TRequest, TReply> request = _requests[guid];
-            request.Send(reply);
+            request.Publish(reply);
         }
 
         private void InternalDispose()
@@ -119,8 +113,8 @@ namespace Fibrous.Zmq
             //serialize and compress and send...
             byte[] msgId = GetId();
             _requests[new Guid(msgId)] = obj;
-            _requestSocket.SendMore(_id);
-            _requestSocket.SendMore(msgId);
+            _requestSocket.SendPart(_id);
+            _requestSocket.SendPart(msgId);
             byte[] requestData = _requestMarshaller(obj.Request);
             _requestSocket.Send(requestData);
         }

@@ -9,7 +9,6 @@
     {
         private readonly Encoding _encoding = Encoding.Unicode;
         private readonly List<byte[]> _msgParts = new List<byte[]>();
-        private readonly byte[] _buffer = new byte[1024 * 1024 * 2];
 
         public ZMessage()
         {
@@ -23,7 +22,7 @@
             }
         }
 
-        public ZMessage(ZmqSocket skt)
+        public ZMessage(IReceiveSocket skt)
         {
             Recv(skt);
         }
@@ -44,36 +43,20 @@
             Append(body);
         }
 
-        public void Recv(ZmqSocket socket)
+        public void Recv(IReceiveSocket socket)
         {
             _msgParts.Clear();
-            _msgParts.Add(Receive(socket)); //block before read more
+            _msgParts.Add(socket.Receive()); //block before read more
             while (socket.ReceiveMore)
             {
-                _msgParts.Add(Receive(socket));
+                _msgParts.Add(socket.Receive());
             }
         }
 
-        private byte[] Receive(ZmqSocket socket)
-        {
-            int length = socket.Receive(_buffer);
-            var reply = new byte[length];
-            Array.Copy(_buffer, reply, length);
-            return reply;
-        }
-
-        private byte[] Receive(ZmqSocket socket, TimeSpan timeout)
-        {
-            int length = socket.Receive(_buffer, timeout);
-            var reply = new byte[length];
-            Array.Copy(_buffer, reply, length);
-            return reply;
-        }
-
-        public bool Recv(ZmqSocket socket, TimeSpan timeout)
+        public bool Recv(IReceiveSocket socket, TimeSpan timeout)
         {
             _msgParts.Clear();
-            byte[] receive = Receive(socket, timeout);
+            byte[] receive = socket.Receive(timeout);
             if (receive == null || receive.Length == 0)
             {
                 return false;
@@ -81,25 +64,25 @@
             _msgParts.Add(receive); //block before read more
             while (socket.ReceiveMore)
             {
-                _msgParts.Add(Receive(socket));
+                _msgParts.Add(socket.Receive());
             }
             return true;
         }
 
-        public void Send(ZmqSocket socket)
+        public void Send(ISendSocket socket)
         {
             try
             {
                 for (int index = 0; index < _msgParts.Count - 1; index++)
                 {
-                    socket.SendMore(_msgParts[index]);
+                    socket.SendPart(_msgParts[index]);
                 }
                 socket.Send(Body);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                //   throw;
+                // throw;
             }
         }
 

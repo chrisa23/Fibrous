@@ -106,7 +106,7 @@
                 {
                     for (int i = 0; i <= max; i++)
                     {
-                        channel.Send(new MsgStruct { count = i });
+                        channel.Publish(new MsgStruct { count = i });
                     }
                     Assert.IsTrue(reset.WaitOne(30000, false));
                 }
@@ -172,7 +172,7 @@
                 {
                     for (int i = 0; i <= max; i++)
                     {
-                        channel.Send(i);
+                        channel.Publish(i);
                     }
                     Assert.IsTrue(reset.WaitOne(30000, false));
                 }
@@ -203,9 +203,9 @@
                     var msg = new object();
                     for (int i = 0; i <= max; i++)
                     {
-                        channel.Send(msg);
+                        channel.Publish(msg);
                     }
-                    channel.Send(end);
+                    channel.Publish(end);
                     Assert.IsTrue(reset.WaitOne(30000, false));
                 }
             }

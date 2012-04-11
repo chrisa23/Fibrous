@@ -91,8 +91,8 @@
             Func<string, string> businessLogic = x => x.ToUpper();
             Func<string, byte[]> marshaller = x => Encoding.Unicode.GetBytes(x);
             Service = new AsyncReqReplyService2<string, string>("tcp://*:9998",
-                //   "inproc://test_serviceIn",
-                //    "tcp://*:9999", //   "inproc://test_serviceOut",
+                // "inproc://test_serviceIn",
+                // "tcp://*:9999", // "inproc://test_serviceOut",
                 unmarshaller,
                 businessLogic,
                 marshaller);
@@ -100,8 +100,8 @@
             ClientFiber.Start();
             Console.WriteLine("Start client fiber");
             Client = new AsyncReqReplyClient2<string, string>("tcp://localhost:9998",
-                //   "inproc://test_serviceIn",
-                //      "tcp://localhost:9999", //   "inproc://test_serviceOut",
+                // "inproc://test_serviceIn",
+                // "tcp://localhost:9999", // "inproc://test_serviceOut",
                 marshaller,
                 unmarshaller);
             Console.WriteLine("Start client");
