@@ -11,10 +11,10 @@
         public void AnonymousActorTest()
         {
             string result = "";
-            using (IActor<string> actor = Actor<string>.StartNew(x => result = x))
+            using (IActor<string> actor = Actor<string>.Start(x => result = x))
             {
                 actor.Publish("Test");
-                Thread.Sleep(10);
+                Thread.Sleep(15);
             }
             Assert.AreEqual("Test", result);
         }

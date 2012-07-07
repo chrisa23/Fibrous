@@ -7,7 +7,12 @@ namespace Fibrous
 
     public interface ISubscriberPort<out T>
     {
-        //push based Equiv of Receive
+        /// <summary>
+        /// Subscribe 
+        /// </summary>
+        /// <param name="fiber"></param>
+        /// <param name="receive"></param>
+        /// <returns></returns>
         IDisposable Subscribe(IFiber fiber, Action<T> receive);
     }
 

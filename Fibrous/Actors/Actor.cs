@@ -30,7 +30,7 @@
             return _channel.Publish(msg);
         }
 
-        public static IActor<TMsg> StartNew(Action<TMsg> handler)
+        public static IActor<TMsg> Start(Action<TMsg> handler)
         {
             var actor = new Actor<TMsg>(handler);
             actor.Start();
