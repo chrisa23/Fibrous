@@ -16,8 +16,7 @@
         private readonly Socket _replySocket;
         private volatile bool _running = true;
 
-        public AsyncReqReplyService(string requestAddress,
-                                    string replyAddress,
+        public AsyncReqReplyService(string address, int basePort,
                                     Func<byte[], int, TRequest> requestUnmarshaller,
                                     Func<TRequest, TReply> businessLogic,
                                     Func<TReply, byte[]> replyMarshaller)
@@ -27,9 +26,9 @@
             _replyMarshaller = replyMarshaller;
             _context = Context.Create();
             _requestSocket = _context.CreateSocket(SocketType.PULL);
-            _requestSocket.Bind(requestAddress);
+            _requestSocket.Bind(address + ":" + basePort);
             _replySocket = _context.CreateSocket(SocketType.PUB);
-            _replySocket.Bind(replyAddress);
+            _replySocket.Bind(address + ":" + (basePort+ 1));
             Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
 

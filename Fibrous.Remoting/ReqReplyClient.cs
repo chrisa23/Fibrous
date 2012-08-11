@@ -1,4 +1,4 @@
-namespace Fibrous.Zmq
+namespace Fibrous.Remoting
 {
     using System;
     using CrossroadsIO;

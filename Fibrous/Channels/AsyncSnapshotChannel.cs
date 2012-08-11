@@ -23,7 +23,7 @@ namespace Fibrous.Channels
 
         public IDisposable ReplyToPrimingRequest(IFiber fiber, Func<TSnapshot> reply)
         {
-            return _requestChannel.SetRequestHandler(fiber, x => x.Publish(reply()));
+            return _requestChannel.SetRequestHandler(fiber, x => x.PublishReply(reply()));
         }
 
         public bool Publish(T msg)

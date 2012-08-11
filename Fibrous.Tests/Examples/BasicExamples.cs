@@ -126,7 +126,7 @@
             {
                 fiber.Start();
                 var channel = new RequestReplyChannel<string, string>();
-                using (channel.SetRequestHandler(fiber, req => req.Publish("bye")))
+                using (channel.SetRequestHandler(fiber, req => req.PublishReply("bye")))
                 {
                     string reply = channel.SendRequest("hello", TimeSpan.FromSeconds(1));
                     Assert.AreEqual("bye", reply);

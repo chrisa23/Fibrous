@@ -31,7 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CrossroadsIO">
+    <Reference Include="CrossroadsIO, Version=1.0.0.0, Culture=neutral, PublicKeyToken=d1e4fdba0ad26d44, processorArchitecture=MSIL">
       <HintPath>..\packages\crossroads-net.1.0.0-beta1\lib\net40\CrossroadsIO.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -42,17 +42,12 @@
     <Compile Include="AsyncReqReplyService.cs" />
     <Compile Include="AsyncReqReplyService2.cs" />
     <Compile Include="AsyncReqReplyClient2.cs" />
-    <Compile Include="DealerSocketPort.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PublisherSocketPort.cs" />
-    <Compile Include="PullSocketPort.cs" />
-    <Compile Include="PushSocketPort.cs" />
     <Compile Include="ReceiveSocketBase.cs" />
     <Compile Include="ReqReplyClient.cs" />
     <Compile Include="ReqReplyService.cs" />
     <Compile Include="SendSocketBase.cs" />
     <Compile Include="SubscribeSocketPort.cs" />
-    <Compile Include="Zmsg.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Fibrous\Fibrous.csproj">
@@ -62,13 +57,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="lib\libxs-version.txt" />
-    <Content Include="lib\x64\libxs.dll" />
-    <Content Include="lib\x64\libxs.pdb" />
-    <Content Include="lib\x86\libxs.dll" />
-    <Content Include="lib\x86\libxs.pdb" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

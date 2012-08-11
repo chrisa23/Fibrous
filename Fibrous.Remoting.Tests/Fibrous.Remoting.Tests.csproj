@@ -31,7 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CrossroadsIO">
+    <Reference Include="CrossroadsIO, Version=1.0.0.0, Culture=neutral, PublicKeyToken=d1e4fdba0ad26d44, processorArchitecture=MSIL">
       <HintPath>..\packages\crossroads-net.1.0.0-beta1\lib\net40\CrossroadsIO.dll</HintPath>
     </Reference>
     <Reference Include="FluentAssertions">
@@ -47,7 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsyncServiceSpecs.cs" />
-    <Compile Include="AsyncServiceSpecs2.cs" />
     <Compile Include="ReqReplySpecs.cs" />
     <Compile Include="PubSubSpecs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -65,13 +64,6 @@
       <Project>{BE1E0573-3FDA-4988-A952-3AB8A338E99E}</Project>
       <Name>Fibrous</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="lib\libxs-version.txt" />
-    <Content Include="lib\x64\libxs.dll" />
-    <Content Include="lib\x64\libxs.pdb" />
-    <Content Include="lib\x86\libxs.dll" />
-    <Content Include="lib\x86\libxs.pdb" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -48,7 +48,7 @@ namespace Fibrous.Channels
                 }
             }
 
-            public bool Publish(TReply response)
+            public bool PublishReply(TReply response)
             {
                 lock (_lock)
                 {

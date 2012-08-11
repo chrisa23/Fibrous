@@ -8,6 +8,7 @@ namespace Fibrous.Zmq.Specs.PushPullSpecs
     using System.Threading;
     using CrossroadsIO;
     using Fibrous.Fibers;
+    using Fibrous.Remoting;
     using Fibrous.Zmq.Specs.PubSubSpecs;
     using NUnit.Framework;
     using FluentAssertions;

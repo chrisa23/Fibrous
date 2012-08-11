@@ -1,12 +1,12 @@
-namespace Fibrous.Zmq
+namespace Fibrous.Remoting
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Threading.Tasks;
     using CrossroadsIO;
     using Fibrous.Channels;
     using Fibrous.Fibers;
-    
 
     public class AsyncReqReplyClient2<TRequest, TReply> : IAsyncRequestPort<TRequest, TReply>, IDisposable
     {
@@ -15,38 +15,39 @@ namespace Fibrous.Zmq
         private volatile bool _running = true;
         private readonly Context _context;
         private readonly Socket _socket;
-        private readonly Func<byte[], TReply> _replyUnmarshaller;
+        private readonly Func<byte[], int, TReply> _replyUnmarshaller;
         private readonly Func<TRequest, byte[]> _requestMarshaller;
-        //TODO flushing of requests...
-        private readonly Dictionary<Guid, IRequest<TRequest, TReply>> _requests =
-            new Dictionary<Guid, IRequest<TRequest, TReply>>();
+        
+        private readonly Dictionary<Guid, IRequest<TRequest, TReply>> _requests = new Dictionary<Guid, IRequest<TRequest, TReply>>();
         private readonly IFiber _fiber;
         private readonly Task _task;
-        private readonly ZMessage _request = new ZMessage();
-        private readonly ZMessage _reply = new ZMessage();
+
+        private readonly byte[] _buffer = new byte[1024 * 1024 * 2];
+        private readonly byte[] _requestBuffer = new byte[1024 * 1024 * 2];
 
         public AsyncReqReplyClient2(string address,
                                     Func<TRequest, byte[]> requestMarshaller,
-                                    Func<byte[], TReply> replyUnmarshaller)
+                                    Func<byte[], int, TReply> replyUnmarshaller)
             : this(address, requestMarshaller, replyUnmarshaller, new PoolFiber())
         {
         }
 
         public AsyncReqReplyClient2(string address,
                                     Func<TRequest, byte[]> requestMarshaller,
-                                    Func<byte[], TReply> replyUnmarshaller,
+                                    Func<byte[], int, TReply> replyUnmarshaller,
                                     IFiber fiber)
         {
             _requestMarshaller = requestMarshaller;
             _replyUnmarshaller = replyUnmarshaller;
             _fiber = fiber;
-            _fiber.Start();
+            _fiber.Start();//??
             _internalChannel.SetRequestHandler(_fiber, OnRequest);
             //set up sockets and subscribe to pub socket
             _context = Context.Create();
             _socket = _context.CreateSocket(SocketType.XREQ);
             _socket.Connect(address);
-            _task = Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
+
+            _fiber.Enqueue(Run);
         }
 
         private static byte[] GetId()
@@ -54,32 +55,44 @@ namespace Fibrous.Zmq
             return Guid.NewGuid().ToByteArray();
         }
 
-        private readonly TimeSpan _timeout = TimeSpan.FromMilliseconds(100);
+        private readonly TimeSpan _timeout = TimeSpan.FromMilliseconds(10);
 
         private void Run()
         {
-            while (_running)
+            if (_running)
             {
-                if (!_reply.Recv(_socket, _timeout))
+                int length = 0;
+                if ((length = _socket.Receive(_buffer, _timeout)) != -1)
                 {
-                    continue;
+                    ProcessReply(length);    
                 }
-                ProcessReply();
+                
+                _fiber.Enqueue(Run);
             }
-            InternalDispose();
+            if(!_running)
+                InternalDispose();
         }
 
-        private void ProcessReply()
+        private void ProcessReply(int length)
         {
-            TReply reply = _replyUnmarshaller(_reply.Body);
-            var guid = new Guid(_reply.MsgParts[0]);
-            _fiber.Enqueue(() => Send(guid, reply));
+            //buffer has Id right now...
+            //length should be 16
+            Debug.Assert(length == 16);
+            Debug.Assert(_socket.ReceiveMore);
+            byte[] guidBytes = new byte[length];
+            Buffer.BlockCopy(_buffer,0,guidBytes,0,16);
+            
+            int bodyLength = _socket.Receive(_buffer);
+            
+            TReply reply = _replyUnmarshaller(_buffer,length);
+            var guid = new Guid(guidBytes);
+            Send(guid, reply);
         }
 
         private void Send(Guid guid, TReply reply)
         {
             IRequest<TRequest, TReply> request = _requests[guid];
-            request.Publish(reply);
+            request.PublishReply(reply);
         }
 
         private void InternalDispose()
@@ -95,10 +108,9 @@ namespace Fibrous.Zmq
             byte[] msgId = GetId();
             _requests[new Guid(msgId)] = obj;
             byte[] requestData = _requestMarshaller(obj.Request);
-            _request.MsgParts.Clear();
-            _request.Append(msgId);
-            _request.Append(requestData);
-            _request.Send(_socket);
+
+            _socket.SendMore(msgId);
+            _socket.Send(requestData);
         }
 
         public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply)
@@ -109,6 +121,7 @@ namespace Fibrous.Zmq
         public void Dispose()
         {
             _running = false;
+            _requests.Clear();
         }
     }
 }

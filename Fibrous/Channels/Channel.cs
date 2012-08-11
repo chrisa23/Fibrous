@@ -18,26 +18,7 @@ namespace Fibrous.Channels
         public IDisposable Subscribe(IFiber fiber, Action<T> receive)
         {
             IDisposable disposable = _internalChannel.Subscribe(msg => fiber.Enqueue(() => receive(msg)));
-            return new Unsubscriber(disposable, fiber);
-        }
-
-        private sealed class Unsubscriber : IDisposable
-        {
-            private readonly IDisposable _disposable;
-            private readonly IDisposableRegistry _disposables;
-
-            public Unsubscriber(IDisposable disposable, IDisposableRegistry disposables)
-            {
-                _disposable = disposable;
-                _disposables = disposables;
-                disposables.Add(_disposable);
-            }
-
-            public void Dispose()
-            {
-                _disposables.Remove(_disposable);
-                _disposable.Dispose();
-            }
+            return new Unsubscriber<T>(disposable, fiber);
         }
 
         private sealed class EventChannel<TEvent> : IPublisherPort<TEvent>

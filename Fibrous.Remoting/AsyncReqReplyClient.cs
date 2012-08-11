@@ -30,17 +30,15 @@ namespace Fibrous.Zmq
             return Guid.NewGuid().ToByteArray();
         }
 
-        public AsyncReqReplyClient(string requestAddress,
-                                   string replyAddress,
+        public AsyncReqReplyClient(string address, int basePort,
                                    Func<TRequest, byte[]> requestMarshaller,
                                    Func<byte[], int, TReply> replyUnmarshaller,
                                    int bufferSize)
-            : this(requestAddress, replyAddress, requestMarshaller, replyUnmarshaller, bufferSize, new PoolFiber())
+            : this(address, basePort, requestMarshaller, replyUnmarshaller, bufferSize, new PoolFiber())
         {
         }
 
-        public AsyncReqReplyClient(string requestAddress,
-                                   string replyAddress,
+        public AsyncReqReplyClient(string address, int basePort,
                                    Func<TRequest, byte[]> requestMarshaller,
                                    Func<byte[], int, TReply> replyUnmarshaller,
                                    int bufferSize,
@@ -54,10 +52,10 @@ namespace Fibrous.Zmq
             //set up sockets and subscribe to pub socket
             _replyContext = Context.Create();
             _replySocket = _replyContext.CreateSocket(SocketType.SUB);
-            _replySocket.Connect(replyAddress);
+            _replySocket.Connect(address + ":" +  (basePort + 1));
             _replySocket.Subscribe(_id);
             _requestSocket = _replyContext.CreateSocket(SocketType.PUSH);
-            _requestSocket.Connect(requestAddress);
+            _requestSocket.Connect(address + ":" +  basePort );
             _fiber.Start();
             _task = Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
@@ -103,13 +101,14 @@ namespace Fibrous.Zmq
         private void Send(Guid guid, TReply reply)
         {
             IRequest<TRequest, TReply> request = _requests[guid];
-            request.Publish(reply);
+            request.PublishReply(reply);
         }
 
         private void InternalDispose()
         {
             _replySocket.Dispose();
             _requestSocket.Dispose();
+
             _replyContext.Dispose();
             //_requestContext.Dispose();
             _fiber.Dispose();

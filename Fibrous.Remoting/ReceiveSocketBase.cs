@@ -1,10 +1,45 @@
-namespace Fibrous.Zmq
+namespace Fibrous.Remoting
 {
     using System;
     using System.Threading;
     using CrossroadsIO;
     using Fibrous.Channels;
-    
+
+    public class PullSocketPort<T> : ReceiveSocketBase<T>
+    {
+        public PullSocketPort(Context context, string address, Func<Socket, T> msgReceiver, bool useBind = true)
+            : base(context, msgReceiver)
+        {
+            Socket = context.CreateSocket(SocketType.PULL);
+            if (useBind)
+            {
+                Socket.Bind(address);
+            }
+            else
+            {
+                Socket.Connect(address);
+            }
+            Initialize();
+        }
+    }
+
+    public class DealerSocketPort<T> : ReceiveSocketBase<T>
+    {
+        public DealerSocketPort(Context context, string address, Func<Socket, T> msgReceiver, bool useBind = false)
+            : base(context, msgReceiver)
+        {
+            Socket = context.CreateSocket(SocketType.XREQ);
+            if (useBind)
+            {
+                Socket.Bind(address);
+            }
+            else
+            {
+                Socket.Connect(address);
+            }
+            Initialize();
+        }
+    }
 
     public abstract class ReceiveSocketBase<T> : ISubscriberPort<T>, IDisposable
     {

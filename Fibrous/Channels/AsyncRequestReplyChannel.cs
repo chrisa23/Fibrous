@@ -22,7 +22,7 @@ namespace Fibrous.Channels
             }
             return channelRequest;
         }
-
+        
         private class AsyncChannelRequest : IRequest<TRequest, TReply>, IDisposable
         {
             private readonly TRequest _request;
@@ -43,14 +43,15 @@ namespace Fibrous.Channels
                 }
             }
 
-            public bool Publish(TReply response)
+            public bool PublishReply(TReply response)
             {
                 return _resp.Publish(response);
             }
 
             public void Dispose()
             {
-                _sub.Dispose();
+                if(_sub!= null)
+                    _sub.Dispose();
             }
         }
     }

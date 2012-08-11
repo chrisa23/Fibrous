@@ -5,8 +5,9 @@
     using System.Text;
     using System.Threading;
     using Fibrous.Fibers;
-    using NUnit.Framework;
+    using Fibrous.Remoting;
     using FluentAssertions;
+    using NUnit.Framework;
 
     [TestFixture]
     public class WhenRequestIsSent : AsyncReqReplyServiceSpecs
@@ -48,7 +49,7 @@
                     });
             }
             Replied.WaitOne(TimeSpan.FromSeconds(10));
-         Reply.Should().BeEquivalentTo("TEST99");
+            Reply.Should().BeEquivalentTo("TEST99");
             Cleanup();
         }
     }
@@ -56,7 +57,7 @@
     [TestFixture]
     public class CanSendALotFast : AsyncReqReplyServiceSpecs
     {
-        private const int count = 100000;
+        private const int count = 10000;
         private static readonly string EndReply = "TEST" + (count - 1).ToString();
         [Test]
         public void Test()
@@ -75,11 +76,11 @@
                         }
                     });
             }
-            Replied.WaitOne(TimeSpan.FromSeconds(200));
+            Replied.WaitOne(TimeSpan.FromSeconds(20));
             sw.Stop();
             Console.WriteLine("Elapsed: " + sw.ElapsedMilliseconds);
-        
-             Reply.Should().BeEquivalentTo(EndReply);
+
+            Reply.Should().BeEquivalentTo(EndReply);
             Cleanup();
         }
     }
@@ -91,41 +92,35 @@
         protected static IFiber ClientFiber;
         protected static string Reply;
         protected static ManualResetEvent Replied;
-        protected AsyncReqReplyServiceSpecs() 
+
+        public AsyncReqReplyServiceSpecs()
         {
+            
             Reply = string.Empty;
             Replied = new ManualResetEvent(false);
-            ClientFiber = new StubFiber();
-            Func<byte[], int, string> unmarshaller = (x, y) => Encoding.Unicode.GetString(x, 0, y);
+            ClientFiber = ThreadFiber.StartNew();
+            Console.WriteLine("Start client fiber");
+            Func<byte[], int, string> unmarshaller = (x,y) => Encoding.Unicode.GetString(x,0,y);
             Func<string, string> businessLogic = x => x.ToUpper();
             Func<string, byte[]> marshaller = x => Encoding.Unicode.GetBytes(x);
-            Service = new AsyncReqReplyService<string, string>("tcp://*:9998",
+            Service = new AsyncReqReplyService<string, string>("tcp://*",9997,
                 //   "inproc://test_serviceIn",
-                "tcp://*:9999",
-                //   "inproc://test_serviceOut",
+                //    "tcp://*:9999", //   "inproc://test_serviceOut",
                 unmarshaller,
                 businessLogic,
                 marshaller);
             Console.WriteLine("Start service");
-            ClientFiber.Start();
-            Console.WriteLine("Start client fiber");
-            Client = new AsyncReqReplyClient<string, string>("tcp://localhost:9998",
-                //   "inproc://test_serviceIn",
-                "tcp://localhost:9999",
-                //   "inproc://test_serviceOut",
-                marshaller,
-                unmarshaller,
-                1024);
+            
+            
+            Client = new AsyncReqReplyClient<string, string>("tcp://localhost",9997,marshaller,unmarshaller,1024*1024);
             Console.WriteLine("Start client");
         }
-        protected void Cleanup()
+        protected void Cleanup() 
         {
-        
             ClientFiber.Dispose();
             Console.WriteLine("Dispose client fiber");
             Client.Dispose();
             Console.WriteLine("Dispose client");
-
             Service.Dispose();
             Console.WriteLine("Dispose service");
             Thread.Sleep(100);

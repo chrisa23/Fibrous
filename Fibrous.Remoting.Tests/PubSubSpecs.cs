@@ -5,6 +5,7 @@
     using System.Threading;
     using CrossroadsIO;
     using Fibrous.Fibers;
+    using Fibrous.Remoting;
     using NUnit.Framework;
     using FluentAssertions;
     [TestFixture]
