@@ -40,8 +40,6 @@
   <ItemGroup>
     <Compile Include="AsyncReqReplyClient.cs" />
     <Compile Include="AsyncReqReplyService.cs" />
-    <Compile Include="AsyncReqReplyService2.cs" />
-    <Compile Include="AsyncReqReplyClient2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReceiveSocketBase.cs" />
     <Compile Include="ReqReplyClient.cs" />

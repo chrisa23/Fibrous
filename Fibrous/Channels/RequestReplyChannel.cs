@@ -40,13 +40,7 @@ namespace Fibrous.Channels
                 _req = req;
             }
 
-            public TRequest Request
-            {
-                get
-                {
-                    return _req;
-                }
-            }
+            public TRequest Request { get { return _req; } }
 
             public bool PublishReply(TReply response)
             {

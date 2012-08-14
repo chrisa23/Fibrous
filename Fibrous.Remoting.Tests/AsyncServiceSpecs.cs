@@ -4,6 +4,8 @@
     using System.Diagnostics;
     using System.Text;
     using System.Threading;
+    using CrossroadsIO;
+    using Fibrous.Channels;
     using Fibrous.Fibers;
     using Fibrous.Remoting;
     using FluentAssertions;
@@ -26,7 +28,6 @@
             Reply.Should().BeEquivalentTo("TEST");
             Cleanup();
         }
-
     }
 
     [TestFixture]
@@ -57,8 +58,9 @@
     [TestFixture]
     public class CanSendALotFast : AsyncReqReplyServiceSpecs
     {
-        private const int count = 10000;
+        private const int count = 100000;
         private static readonly string EndReply = "TEST" + (count - 1).ToString();
+
         [Test]
         public void Test()
         {
@@ -79,7 +81,6 @@
             Replied.WaitOne(TimeSpan.FromSeconds(20));
             sw.Stop();
             Console.WriteLine("Elapsed: " + sw.ElapsedMilliseconds);
-
             Reply.Should().BeEquivalentTo(EndReply);
             Cleanup();
         }
@@ -90,38 +91,51 @@
         protected static AsyncReqReplyService<string, string> Service;
         protected static AsyncReqReplyClient<string, string> Client;
         protected static IFiber ClientFiber;
+        protected static IFiber ServerFiber;
         protected static string Reply;
         protected static ManualResetEvent Replied;
+        protected static AsyncRequestReplyChannel<string, string> Channel;
+        protected static Context ClientContext;
+        protected static Context ServerContext;
 
         public AsyncReqReplyServiceSpecs()
         {
-            
             Reply = string.Empty;
             Replied = new ManualResetEvent(false);
-            ClientFiber = ThreadFiber.StartNew();
             Console.WriteLine("Start client fiber");
-            Func<byte[], int, string> unmarshaller = (x,y) => Encoding.Unicode.GetString(x,0,y);
-            Func<string, string> businessLogic = x => x.ToUpper();
+            ClientFiber = PoolFiber.StartNew();
+            ClientContext = Context.Create();
+            ServerFiber = PoolFiber.StartNew();
+            ServerContext = Context.Create();
+            Channel = new AsyncRequestReplyChannel<string, string>();
+            Channel.SetRequestHandler(ServerFiber, request => request.PublishReply(request.Request.ToUpper()));
+            Func<byte[], int, string> unmarshaller = (x, y) => Encoding.Unicode.GetString(x, 0, y);
             Func<string, byte[]> marshaller = x => Encoding.Unicode.GetBytes(x);
-            Service = new AsyncReqReplyService<string, string>("tcp://*",9997,
-                //   "inproc://test_serviceIn",
-                //    "tcp://*:9999", //   "inproc://test_serviceOut",
+            Service = new AsyncReqReplyService<string, string>(ServerContext,
+                "tcp://*",
+                9997,
                 unmarshaller,
-                businessLogic,
+                Channel,
                 marshaller);
             Console.WriteLine("Start service");
-            
-            
-            Client = new AsyncReqReplyClient<string, string>("tcp://localhost",9997,marshaller,unmarshaller,1024*1024);
+            ServerFiber.Add(Service);
+            ServerFiber.Add(ServerContext);
+            Client = new AsyncReqReplyClient<string, string>(ClientContext,
+                "tcp://localhost",
+                9997,
+                marshaller,
+                unmarshaller,
+                1024 * 1024);
+            ClientFiber.Add(Client);
+            ClientFiber.Add(ClientContext);
             Console.WriteLine("Start client");
         }
-        protected void Cleanup() 
+
+        protected void Cleanup()
         {
             ClientFiber.Dispose();
             Console.WriteLine("Dispose client fiber");
-            Client.Dispose();
-            Console.WriteLine("Dispose client");
-            Service.Dispose();
+            ServerFiber.Dispose();
             Console.WriteLine("Dispose service");
             Thread.Sleep(100);
         }

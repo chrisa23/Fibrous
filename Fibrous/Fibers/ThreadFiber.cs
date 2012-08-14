@@ -80,13 +80,7 @@ namespace Fibrous.Fibers
             _thread.Start();
         }
 
-        public Thread Thread
-        {
-            get
-            {
-                return _thread;
-            }
-        }
+        public Thread Thread { get { return _thread; } }
 
         protected override void Dispose(bool disposing)
         {

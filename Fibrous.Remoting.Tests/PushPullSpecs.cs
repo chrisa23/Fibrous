@@ -1,6 +1,4 @@
-﻿using CrossroadsIO;
-
-namespace Fibrous.Zmq.Specs.PushPullSpecs
+﻿namespace Fibrous.Zmq.Specs.PushPullSpecs
 {
     using System;
     using System.Diagnostics;
@@ -9,9 +7,9 @@ namespace Fibrous.Zmq.Specs.PushPullSpecs
     using CrossroadsIO;
     using Fibrous.Fibers;
     using Fibrous.Remoting;
-    using Fibrous.Zmq.Specs.PubSubSpecs;
-    using NUnit.Framework;
     using FluentAssertions;
+    using NUnit.Framework;
+
     [TestFixture]
     public class WhenMsgIsSent : PushPullSocketPortSpecs
     {
@@ -26,16 +24,14 @@ namespace Fibrous.Zmq.Specs.PushPullSpecs
                 });
             Push.Publish("test");
             RcvdSignal.WaitOne(TimeSpan.FromSeconds(1));
-       
-            
             Received.Should().BeEquivalentTo("test");
         }
     }
 
-     [TestFixture]
+    [TestFixture]
     public class ShouldSendALotFast : PushPullSocketPortSpecs
     {
-       [Test]
+        [Test]
         public void Test()
         {
             Pull.Subscribe(ClientFiber,
@@ -55,12 +51,10 @@ namespace Fibrous.Zmq.Specs.PushPullSpecs
             RcvdSignal.WaitOne(TimeSpan.FromSeconds(10));
             sw.Stop();
             Console.WriteLine("Elapsed: " + sw.ElapsedMilliseconds);
-
             Received.Should().BeEquivalentTo("test999999");
             Cleanup();
         }
     }
-
 
     public abstract class PushPullSocketPortSpecs
     {
@@ -74,7 +68,6 @@ namespace Fibrous.Zmq.Specs.PushPullSpecs
 
         public PushPullSocketPortSpecs()
         {
-            
             Context1 = Context.Create();
             Context2 = Context.Create();
             RcvdSignal = new ManualResetEvent(false);
@@ -84,6 +77,7 @@ namespace Fibrous.Zmq.Specs.PushPullSpecs
                 "tcp://localhost:6002",
                 (s, socket) => socket.Send(Encoding.Unicode.GetBytes(s)));
         }
+
         protected void Cleanup()
         {
             RcvdSignal.Dispose();

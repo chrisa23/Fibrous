@@ -1,13 +1,15 @@
-﻿namespace Fibrous.Zmq
+﻿namespace Fibrous.Remoting
 {
     using System;
     using System.Threading.Tasks;
     using CrossroadsIO;
+    using Fibrous.Fibers;
 
+    //this does not lend itself to parallel workers for handling requests
     public class AsyncReqReplyService<TRequest, TReply> : IDisposable
     {
         private readonly Func<byte[], int, TRequest> _requestUnmarshaller;
-        private readonly Func<TRequest, TReply> _businessLogic;
+        private readonly IAsyncRequestPort<TRequest, TReply> _businessLogic; //Action<RequestWrapper>
         private readonly Func<TReply, byte[]> _replyMarshaller;
         //split InSocket
         private readonly Context _context;
@@ -15,20 +17,23 @@
         //split OutSocket
         private readonly Socket _replySocket;
         private volatile bool _running = true;
+        private readonly IFiber _fiber = PoolFiber.StartNew();
 
-        public AsyncReqReplyService(string address, int basePort,
+        public AsyncReqReplyService(Context context,
+                                    string address,
+                                    int basePort,
                                     Func<byte[], int, TRequest> requestUnmarshaller,
-                                    Func<TRequest, TReply> businessLogic,
+                                    IAsyncRequestPort<TRequest, TReply> logic,
                                     Func<TReply, byte[]> replyMarshaller)
         {
             _requestUnmarshaller = requestUnmarshaller;
-            _businessLogic = businessLogic;
+            _businessLogic = logic;
             _replyMarshaller = replyMarshaller;
-            _context = Context.Create();
+            _context = context;
             _requestSocket = _context.CreateSocket(SocketType.PULL);
             _requestSocket.Bind(address + ":" + basePort);
             _replySocket = _context.CreateSocket(SocketType.PUB);
-            _replySocket.Bind(address + ":" + (basePort+ 1));
+            _replySocket.Bind(address + ":" + (basePort + 1));
             Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
 
@@ -42,7 +47,7 @@
             {
                 //check for time/cutoffs to trigger events...
                 int idCount = _requestSocket.Receive(id, TimeSpan.FromMilliseconds(100));
-                if (idCount == 0 || !_running) //?? not sure on this
+                if (idCount == -1 || !_running) //?? not sure on this
                 {
                     continue;
                 }
@@ -52,7 +57,7 @@
                     throw new Exception("We don't have a msg SenderId for this request");
                 }
                 int dataCount = _requestSocket.Receive(data, TimeSpan.FromSeconds(1));
-                if (dataCount == 0)
+                if (dataCount == -1)
                 {
                     throw new Exception("We don't have a msg for the request");
                 }
@@ -64,8 +69,7 @@
         private void ProcessRequest(byte[] id, byte[] msgId, byte[] msgBuffer, int length)
         {
             TRequest req = _requestUnmarshaller(msgBuffer, length);
-            TReply reply = _businessLogic(req);
-            SendReply(id, msgId, reply);
+            _businessLogic.SendRequest(req, _fiber, reply => SendReply(id, msgId, reply));
         }
 
         private void SendReply(byte[] id, byte[] msgId, TReply reply)
@@ -80,7 +84,6 @@
         {
             _requestSocket.Dispose();
             _replySocket.Dispose();
-            _context.Dispose();
         }
 
         public void Dispose()

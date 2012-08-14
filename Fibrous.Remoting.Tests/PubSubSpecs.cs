@@ -6,8 +6,9 @@
     using CrossroadsIO;
     using Fibrous.Fibers;
     using Fibrous.Remoting;
-    using NUnit.Framework;
     using FluentAssertions;
+    using NUnit.Framework;
+
     [TestFixture]
     public class WhenMsgIsSentPubSub : PubSubSpecs
     {
@@ -23,8 +24,6 @@
             Thread.Sleep(10);
             Publisher.Publish("test");
             RcvdSignal.WaitOne(TimeSpan.FromSeconds(1));
-       
-            
             Received.Should().BeEquivalentTo("test");
             Cleanup();
         }
@@ -42,7 +41,6 @@
 
         public PubSubSpecs()
         {
-            
             Context1 = Context.Create();
             Context2 = Context.Create();
             RcvdSignal = new ManualResetEvent(false);
@@ -55,6 +53,7 @@
                 socket => socket.Receive(Encoding.Unicode));
             Subscriber.SubscribeAll();
         }
+
         protected void Cleanup()
         {
             RcvdSignal.Dispose();

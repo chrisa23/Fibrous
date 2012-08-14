@@ -66,20 +66,8 @@ namespace Fibrous.Tests.Examples
                 _complexSolutions = complexSolutions;
             }
 
-            public string SolutionOne
-            {
-                get
-                {
-                    return _solutionOne + ImaginarySuffix();
-                }
-            }
-            public string SolutionTwo
-            {
-                get
-                {
-                    return _solutionTwo + ImaginarySuffix();
-                }
-            }
+            public string SolutionOne { get { return _solutionOne + ImaginarySuffix(); } }
+            public string SolutionTwo { get { return _solutionTwo + ImaginarySuffix(); } }
 
             private string ImaginarySuffix()
             {

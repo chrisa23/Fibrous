@@ -1,4 +1,4 @@
-namespace Fibrous.Zmq
+namespace Fibrous.Remoting
 {
     using System;
     using System.Collections.Generic;
@@ -6,7 +6,6 @@ namespace Fibrous.Zmq
     using CrossroadsIO;
     using Fibrous.Channels;
     using Fibrous.Fibers;
-    
 
     public class AsyncReqReplyClient<TRequest, TReply> : IAsyncRequestPort<TRequest, TReply>, IDisposable
     {
@@ -30,15 +29,19 @@ namespace Fibrous.Zmq
             return Guid.NewGuid().ToByteArray();
         }
 
-        public AsyncReqReplyClient(string address, int basePort,
+        public AsyncReqReplyClient(Context context,
+                                   string address,
+                                   int basePort,
                                    Func<TRequest, byte[]> requestMarshaller,
                                    Func<byte[], int, TReply> replyUnmarshaller,
                                    int bufferSize)
-            : this(address, basePort, requestMarshaller, replyUnmarshaller, bufferSize, new PoolFiber())
+            : this(context, address, basePort, requestMarshaller, replyUnmarshaller, bufferSize, new PoolFiber())
         {
         }
 
-        public AsyncReqReplyClient(string address, int basePort,
+        public AsyncReqReplyClient(Context context,
+                                   string address,
+                                   int basePort,
                                    Func<TRequest, byte[]> requestMarshaller,
                                    Func<byte[], int, TReply> replyUnmarshaller,
                                    int bufferSize,
@@ -50,12 +53,12 @@ namespace Fibrous.Zmq
             data = new byte[bufferSize];
             _internalChannel.SetRequestHandler(_fiber, OnRequest);
             //set up sockets and subscribe to pub socket
-            _replyContext = Context.Create();
+            _replyContext = context;
             _replySocket = _replyContext.CreateSocket(SocketType.SUB);
-            _replySocket.Connect(address + ":" +  (basePort + 1));
+            _replySocket.Connect(address + ":" + (basePort + 1));
             _replySocket.Subscribe(_id);
             _requestSocket = _replyContext.CreateSocket(SocketType.PUSH);
-            _requestSocket.Connect(address + ":" +  basePort );
+            _requestSocket.Connect(address + ":" + basePort);
             _fiber.Start();
             _task = Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
@@ -71,7 +74,7 @@ namespace Fibrous.Zmq
                 //check for time/cutoffs to trigger events...
                 //   byte[] id = new byte[16];
                 int idCount = _replySocket.Receive(id, TimeSpan.FromMilliseconds(100));
-                if (idCount == 0)
+                if (idCount == -1)
                 {
                     continue;
                 }
@@ -87,7 +90,7 @@ namespace Fibrous.Zmq
                     throw new Exception("We don't have a msg SenderId for this reply");
                 }
                 int dataLength = _replySocket.Receive(data, TimeSpan.FromSeconds(3));
-                if (dataLength == 0)
+                if (dataLength == -1)
                 {
                     //ERROR
                     throw new Exception("Got ids but no data");
@@ -108,9 +111,6 @@ namespace Fibrous.Zmq
         {
             _replySocket.Dispose();
             _requestSocket.Dispose();
-
-            _replyContext.Dispose();
-            //_requestContext.Dispose();
             _fiber.Dispose();
         }
 

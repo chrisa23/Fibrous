@@ -12,6 +12,7 @@ namespace Fibrous.Remoting
             Socket.Bind(address);
         }
     }
+
     public class SendSocketBase<T> : IPublisherPort<T>, IDisposable
     {
         protected Socket Socket;

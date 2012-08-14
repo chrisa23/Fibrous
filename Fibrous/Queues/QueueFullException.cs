@@ -24,12 +24,6 @@ namespace Fibrous.Fibers
         {
         }
 
-        public int Depth
-        {
-            get
-            {
-                return _depth;
-            }
-        }
+        public int Depth { get { return _depth; } }
     }
 }

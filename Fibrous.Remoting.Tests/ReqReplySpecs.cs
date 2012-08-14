@@ -6,47 +6,47 @@
     using System.Threading;
     using CrossroadsIO;
     using Fibrous.Remoting;
-    using NUnit.Framework;
     using FluentAssertions;
+    using NUnit.Framework;
+
     [TestFixture]
     public class WhenRequestIsSent : ReqReplyServiceSpecs
     {
         [Test]
         public void Test()
         {
-
-   
             Reply = Client.SendRequest("test", TimeSpan.FromSeconds(1));
             Replied.Set();
             WaitHandle.WaitAny(new WaitHandle[] { Replied }, TimeSpan.FromSeconds(1));
-    Reply.Should().BeEquivalentTo("TEST");
-    }
+            Reply.Should().BeEquivalentTo("TEST");
+        }
     }
 
-     [TestFixture]
+    [TestFixture]
     public class WhenMultipleRequestsAreSent : ReqReplyServiceSpecs
     {
-         [Test]
-         public void Test()
-         {
-             for (int i = 0; i < 100; i++)
-             {
-                 Reply = Client.SendRequest("test" + i, TimeSpan.FromSeconds(1));
-                 if (Reply == "TEST99")
-                 {
-                     Replied.Set();
-                 }
-             }
-             WaitHandle.WaitAny(new WaitHandle[] { Replied }, TimeSpan.FromSeconds(1));
-             Reply.Should().BeEquivalentTo("TEST99");
-             Cleanup();
-         }
+        [Test]
+        public void Test()
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                Reply = Client.SendRequest("test" + i, TimeSpan.FromSeconds(1));
+                if (Reply == "TEST99")
+                {
+                    Replied.Set();
+                }
+            }
+            WaitHandle.WaitAny(new WaitHandle[] { Replied }, TimeSpan.FromSeconds(1));
+            Reply.Should().BeEquivalentTo("TEST99");
+            Cleanup();
+        }
     }
 
-   [TestFixture]
+    [TestFixture]
     public class IsSlowerThanAsyncBy10X : ReqReplyServiceSpecs
     {
         private const string EndReply = "TEST99";
+
         [Test]
         public void Test()
         {
@@ -63,7 +63,7 @@
             }
             WaitHandle.WaitAny(new WaitHandle[] { Replied }, TimeSpan.FromSeconds(15));
             Console.WriteLine("Elapsed: " + sw.ElapsedMilliseconds);
-          Assert.AreEqual( Reply,EndReply);
+            Assert.AreEqual(Reply, EndReply);
             Cleanup();
         }
     }
@@ -79,7 +79,6 @@
 
         public ReqReplyServiceSpecs()
         {
-            
             Context = Context.Create();
             Context2 = Context.Create();
             Func<byte[], int, string> unmarshaller = (x, y) => Encoding.Unicode.GetString(x, 0, y);
@@ -94,6 +93,7 @@
             Client = new ReqReplyClient<string, string>(Context2, "tcp://localhost:9995", marshaller, unmarshaller);
             Console.WriteLine("Start client");
         }
+
         protected void Cleanup()
         {
             Client.Dispose();
