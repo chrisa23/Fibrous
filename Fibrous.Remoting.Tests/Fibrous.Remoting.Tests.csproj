@@ -8,8 +8,8 @@
     <ProjectGuid>{EEA49BBF-B3AB-48C1-A25F-C2163CC42DB6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Fibrous.Zmq.Specs</RootNamespace>
-    <AssemblyName>Fibrous.Zmq.Specs</AssemblyName>
+    <RootNamespace>Fibrous.Remoting.Tests</RootNamespace>
+    <AssemblyName>Fibrous.Remoting.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
