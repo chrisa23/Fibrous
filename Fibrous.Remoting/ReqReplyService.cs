@@ -7,21 +7,22 @@ namespace Fibrous.Remoting
     public class ReqReplyService<TRequest, TReply> : IDisposable
     {
         private readonly Func<byte[], int, TRequest> _requestUnmarshaller;
-        private readonly Func<TRequest, TReply> _businessLogic;
+        private readonly IRequestPort<TRequest, TReply> _businessLogic;
         private readonly Func<TReply, byte[]> _replyMarshaller;
         private bool _running = true;
         private readonly Socket _socket;
         private readonly Thread _thread;
         private readonly Poller _poll;
         private readonly TimeSpan _timeout;
-        private readonly byte[] _buffer = new byte[1024 * 1024 * 2];
+        private readonly byte[] _buffer;
 
         public ReqReplyService(Context context,
                                string address,
                                Func<byte[], int, TRequest> requestUnmarshaller,
-                               Func<TRequest, TReply> businessLogic,
-                               Func<TReply, byte[]> replyMarshaller)
+                                IRequestPort<TRequest,TReply> businessLogic,
+                               Func<TReply, byte[]> replyMarshaller, int bufferSize)
         {
+            _buffer = new byte[bufferSize];
             _requestUnmarshaller = requestUnmarshaller;
             _businessLogic = businessLogic;
             _replyMarshaller = replyMarshaller;
@@ -38,7 +39,7 @@ namespace Fibrous.Remoting
         {
             int requestLength = _socket.Receive(_buffer);
             TRequest request = _requestUnmarshaller(_buffer, requestLength);
-            TReply reply = _businessLogic(request);
+            TReply reply = _businessLogic.SendRequest(request, TimeSpan.FromDays(1));//??
             byte[] replyData = _replyMarshaller(reply);
             _socket.Send(replyData);
         }

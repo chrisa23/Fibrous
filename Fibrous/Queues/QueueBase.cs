@@ -1,8 +1,9 @@
-namespace Fibrous.Fibers
+namespace Fibrous.Queues
 {
     using System;
     using System.Collections.Generic;
     using System.Threading;
+    using Fibrous.Fibers;
 
     public abstract class QueueBase : IQueue
     {

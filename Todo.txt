@@ -1,7 +1,3 @@
 - Update queues to higher performance
-- Cleanup remoting library and remove or fix Zmsg
-- Double check remoting unit tests now that MSpec is gone
 - check all internal subscription paths to make sure they are disposed by their fiber if not disposed by other code
-- Add SnapshotChannel
-- add optimizations for Multi->Single , Single->Single, Single->Multi and Multi->Multi
- 
+- Add SnapshotChannel(s) that are missing

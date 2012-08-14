@@ -1,4 +1,4 @@
-namespace Fibrous.Fibers
+namespace Fibrous.Queues
 {
     using System;
     using System.Runtime.Serialization;

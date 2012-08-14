@@ -5,6 +5,7 @@
     using System.Threading;
     using Fibrous.Channels;
     using Fibrous.Fibers;
+    using Fibrous.Queues;
     using NUnit.Framework;
 
     public class PerfExecutor : IExecutor

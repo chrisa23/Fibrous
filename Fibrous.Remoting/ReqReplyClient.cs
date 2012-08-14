@@ -23,7 +23,7 @@ namespace Fibrous.Remoting
 
         private byte[] Send(byte[] request, TimeSpan timeout)
         {
-            SendStatus result = _socket.Send(request);
+            SendStatus result = _socket.Send(request, timeout);
             while (result == SendStatus.TryAgain)
             {
                 result = _socket.Send(request);
@@ -33,6 +33,10 @@ namespace Fibrous.Remoting
                 throw new Exception("Error sending message on socket");
             }
             int length = _socket.Receive(_buffer, timeout);
+            if(length == -1)
+            {
+                return new byte[0];
+            }
             var reply = new byte[length];
             Array.Copy(_buffer, reply, length);
             return reply;

@@ -5,6 +5,8 @@ namespace Fibrous.Remoting
     using CrossroadsIO;
     using Fibrous.Channels;
 
+
+
     public class PullSocketPort<T> : ReceiveSocketBase<T>
     {
         public PullSocketPort(Context context, string address, Func<Socket, T> msgReceiver, bool useBind = true)
@@ -23,21 +25,40 @@ namespace Fibrous.Remoting
         }
     }
 
-    public class DealerSocketPort<T> : ReceiveSocketBase<T>
+    public class SubscribeSocketPort<T> : ReceiveSocketBase<T>
     {
-        public DealerSocketPort(Context context, string address, Func<Socket, T> msgReceiver, bool useBind = false)
+        public SubscribeSocketPort(Context context, string address, Func<Socket, T> msgReceiver)
             : base(context, msgReceiver)
         {
-            Socket = context.CreateSocket(SocketType.XREQ);
-            if (useBind)
-            {
-                Socket.Bind(address);
-            }
-            else
-            {
-                Socket.Connect(address);
-            }
+            Socket = Context.CreateSocket(SocketType.SUB);
+            Socket.Connect(address);
             Initialize();
+        }
+
+        public void SubscribeAll()
+        {
+            Socket.SubscribeAll();
+        }
+
+        public void Subscribe(byte[] key)
+        {
+            Socket.Subscribe(key);
+        }
+
+        public void UnsubscribeAll()
+        {
+            Socket.UnsubscribeAll();
+        }
+
+        public void Unsubscribe(byte[] key)
+        {
+            Socket.Unsubscribe(key);
+        }
+
+        public override void Dispose()
+        {
+            UnsubscribeAll();
+            base.Dispose();
         }
     }
 
@@ -61,7 +82,7 @@ namespace Fibrous.Remoting
         protected void Initialize()
         {
             Socket.ReceiveReady += SocketReceiveReady;
-            _poll = new Poller(new[] { Socket }); //Context.CreatePollSet(new ISocket[] {Socket});
+            _poll = new Poller(new[] { Socket }); 
             _thread = new Thread(Run) { IsBackground = true };
             _thread.Start();
         }

@@ -1,4 +1,4 @@
-﻿namespace Fibrous.Utility
+﻿namespace Fibrous.Queues
 {
     using System;
     using System.Collections.Generic;

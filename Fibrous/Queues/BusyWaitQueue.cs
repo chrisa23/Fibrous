@@ -1,10 +1,10 @@
-﻿namespace Fibrous.Fibers
+﻿namespace Fibrous.Queues
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading;
-    using Fibrous.Utility;
+    using Fibrous.Fibers;
 
     public sealed class BusyWaitQueue : QueueBase
     {

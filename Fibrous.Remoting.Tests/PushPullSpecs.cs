@@ -60,7 +60,7 @@
     {
         protected static Context Context1;
         protected static Context Context2;
-        protected static PushSocketPort<string> Push;
+        protected static PublisherSocket<string> Push;
         protected static PullSocketPort<string> Pull;
         protected static IFiber ClientFiber;
         protected static string Received;
@@ -73,9 +73,9 @@
             RcvdSignal = new ManualResetEvent(false);
             ClientFiber = new StubFiber();
             Pull = new PullSocketPort<string>(Context1, "tcp://*:6002", socket => socket.Receive(Encoding.Unicode));
-            Push = new PushSocketPort<string>(Context2,
+            Push = new PublisherSocket<string>(Context2,
                 "tcp://localhost:6002",
-                (s, socket) => socket.Send(Encoding.Unicode.GetBytes(s)));
+                (s, socket) => socket.Send(Encoding.Unicode.GetBytes(s)), SendType.Push, false);
         }
 
         protected void Cleanup()

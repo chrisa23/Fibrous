@@ -44,8 +44,7 @@
     <Compile Include="ReceiveSocketBase.cs" />
     <Compile Include="ReqReplyClient.cs" />
     <Compile Include="ReqReplyService.cs" />
-    <Compile Include="SendSocketBase.cs" />
-    <Compile Include="SubscribeSocketPort.cs" />
+    <Compile Include="PublisherSocket.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Fibrous\Fibrous.csproj">
