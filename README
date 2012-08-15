@@ -9,4 +9,4 @@ Fibrous uses the concept of Fibers and Ports as abstractions.  Fibers represent 
 
 Scheduling is implemented slightly differently than Retlang to allow extensibility, but exposes an almost identical Api.  IFiber does not implement IScheduler so that we can implement schedulers not based on system timers.  Extension methods give IFiber the default ability to schedule using system timers.
 
-A CrossroadsIO based library for ports over sockets is provided. (Experimental)
+A CrossroadsIO based library for ports over sockets is provided. 

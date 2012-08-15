@@ -34,7 +34,7 @@
             _requestSocket.Bind(address + ":" + basePort);
             _replySocket = _context.CreateSocket(SocketType.PUB);
             _replySocket.Bind(address + ":" + (basePort + 1));
-             Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
+            Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
 
         private readonly byte[] _id = new byte[16];
@@ -62,9 +62,9 @@
                     throw new Exception("We don't have a msg for the request");
                 }
                 //copy so we aren't using a callback to an updated Id or rId buffer
-                byte[] id = new byte[16];
-                Buffer.BlockCopy(_id,0,id,0,16);
-                byte[] rid = new byte[16];
+                var id = new byte[16];
+                Buffer.BlockCopy(_id, 0, id, 0, 16);
+                var rid = new byte[16];
                 Buffer.BlockCopy(reqId, 0, rid, 0, 16);
                 ProcessRequest(id, rid, data, dataCount);
             }
