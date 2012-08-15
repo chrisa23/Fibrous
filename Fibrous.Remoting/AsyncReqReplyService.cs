@@ -34,10 +34,10 @@
             _requestSocket.Bind(address + ":" + basePort);
             _replySocket = _context.CreateSocket(SocketType.PUB);
             _replySocket.Bind(address + ":" + (basePort + 1));
-            Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
+             Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
 
-        private readonly byte[] id = new byte[16];
+        private readonly byte[] _id = new byte[16];
         private readonly byte[] reqId = new byte[16];
         private readonly byte[] data = new byte[1024 * 1024 * 2];
 
@@ -46,7 +46,7 @@
             while (_running)
             {
                 //check for time/cutoffs to trigger events...
-                int idCount = _requestSocket.Receive(id, TimeSpan.FromMilliseconds(100));
+                int idCount = _requestSocket.Receive(_id, TimeSpan.FromMilliseconds(100));
                 if (idCount == -1 || !_running) //?? not sure on this
                 {
                     continue;
@@ -61,7 +61,12 @@
                 {
                     throw new Exception("We don't have a msg for the request");
                 }
-                ProcessRequest(id, reqId, data, dataCount);
+                //copy so we aren't using a callback to an updated Id or rId buffer
+                byte[] id = new byte[16];
+                Buffer.BlockCopy(_id,0,id,0,16);
+                byte[] rid = new byte[16];
+                Buffer.BlockCopy(reqId, 0, rid, 0, 16);
+                ProcessRequest(id, rid, data, dataCount);
             }
             InternalDispose();
         }

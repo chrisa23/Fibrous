@@ -21,7 +21,7 @@ namespace Fibrous.Tests
             var timeCheck = new AsyncRequestReplyChannel<string, DateTime>();
             timeCheck.SetRequestHandler(replier, req => req.PublishReply(now));
             DateTime result = DateTime.MinValue;
-            IDisposable response = timeCheck.SendRequest("hello",
+            timeCheck.SendRequest("hello",
                 requester,
                 x =>
                 {
@@ -50,7 +50,7 @@ namespace Fibrous.Tests
                 });
             var received = new CountdownEvent(5);
             int result = -1;
-            IDisposable response = countChannel.SendRequest("hello",
+            countChannel.SendRequest("hello",
                 requester,
                 x =>
                 {

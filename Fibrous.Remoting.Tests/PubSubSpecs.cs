@@ -22,7 +22,7 @@
                     RcvdSignal.Set();
                 });
             Thread.Sleep(10);
-            Publisher.Publish("test");
+            Send.Publish("test");
             RcvdSignal.WaitOne(TimeSpan.FromSeconds(1));
             Received.Should().BeEquivalentTo("test");
             Cleanup();
@@ -33,7 +33,7 @@
     {
         protected static Context Context1;
         protected static Context Context2;
-        protected static PublisherSocket<string> Publisher;
+        protected static SendSocket<string> Send;
         protected static SubscribeSocketPort<string> Subscriber;
         protected static IFiber ClientFiber;
         protected static string Received;
@@ -45,13 +45,12 @@
             Context2 = Context.Create();
             RcvdSignal = new ManualResetEvent(false);
             ClientFiber = PoolFiber.StartNew();
-            Publisher = new PublisherSocket<string>(Context1,
+            Send = new SendSocket<string>(Context1,
                 "tcp://*:6001",
                 (s, socket) => socket.Send(Encoding.Unicode.GetBytes(s)));
             Subscriber = new SubscribeSocketPort<string>(Context2,
                 "tcp://localhost:6001",
                 socket => socket.Receive(Encoding.Unicode));
-
             Subscriber.SubscribeAll();
         }
 
@@ -59,7 +58,7 @@
         {
             RcvdSignal.Dispose();
             ClientFiber.Dispose();
-            Publisher.Dispose();
+            Send.Dispose();
             Console.WriteLine("Dispose pub");
             Subscriber.Dispose();
             Console.WriteLine("Dispose sub");

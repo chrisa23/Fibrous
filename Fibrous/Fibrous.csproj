@@ -48,7 +48,7 @@
     <Compile Include="Channels\Unsubscriber.cs" />
     <Compile Include="Queues\BoundedQueue.cs" />
     <Compile Include="Queues\QueueFullException.cs" />
-    <Compile Include="IActor.cs" />
+    <Compile Include="Actors\IActor.cs" />
     <Compile Include="Channels\AsyncSnapshotChannel.cs" />
     <Compile Include="Fibers\DispatcherFiber.cs" />
     <Compile Include="Fibers\ExecutionState.cs" />

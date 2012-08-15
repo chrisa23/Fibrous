@@ -5,8 +5,6 @@ namespace Fibrous.Remoting
     using CrossroadsIO;
     using Fibrous.Channels;
 
-
-
     public class PullSocketPort<T> : ReceiveSocketBase<T>
     {
         public PullSocketPort(Context context, string address, Func<Socket, T> msgReceiver, bool useBind = true)
@@ -82,7 +80,7 @@ namespace Fibrous.Remoting
         protected void Initialize()
         {
             Socket.ReceiveReady += SocketReceiveReady;
-            _poll = new Poller(new[] { Socket }); 
+            _poll = new Poller(new[] { Socket });
             _thread = new Thread(Run) { IsBackground = true };
             _thread.Start();
         }

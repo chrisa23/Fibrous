@@ -9,7 +9,6 @@ namespace Fibrous.Remoting
 
     public class AsyncReqReplyClient<TRequest, TReply> : IAsyncRequestPort<TRequest, TReply>, IDisposable
     {
-        //I can apparently get rid of this and use XREQ/XREP sockets
         private readonly byte[] _id = GetId();
         private readonly IAsyncRequestReplyChannel<TRequest, TReply> _internalChannel =
             new AsyncRequestReplyChannel<TRequest, TReply>();
@@ -22,7 +21,6 @@ namespace Fibrous.Remoting
         private readonly Func<TRequest, byte[]> _requestMarshaller;
         private readonly Dictionary<Guid, IRequest<TRequest, TReply>> _requests =
             new Dictionary<Guid, IRequest<TRequest, TReply>>();
-        private readonly Task _task;
 
         private static byte[] GetId()
         {
@@ -60,7 +58,7 @@ namespace Fibrous.Remoting
             _requestSocket = _replyContext.CreateSocket(SocketType.PUSH);
             _requestSocket.Connect(address + ":" + basePort);
             _fiber.Start();
-            _task = Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
+            Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
 
         private readonly byte[] id = new byte[16];

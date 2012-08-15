@@ -1,4 +1,4 @@
-namespace Fibrous
+namespace Fibrous.Actors
 {
     /// <summary>   Interface for actor. </summary>
     ///

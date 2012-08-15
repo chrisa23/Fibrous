@@ -18,7 +18,10 @@
         public void Test()
         {
             Reply = Client.SendRequest("test", TimeSpan.FromSeconds(2));
-            if(Reply == "TEST") Replied.Set();
+            if (Reply == "TEST")
+            {
+                Replied.Set();
+            }
             WaitHandle.WaitAny(new WaitHandle[] { Replied }, TimeSpan.FromSeconds(1));
             Reply.Should().BeEquivalentTo("TEST");
             Cleanup();
@@ -51,7 +54,6 @@
         private const string EndReply = "TEST9999";
 
         [Test]
-        
         public void Test()
         {
             Stopwatch sw = Stopwatch.StartNew();
@@ -76,12 +78,9 @@
     {
         protected static Context Context;
         protected static Context Context2;
-
         protected static ReqReplyService<string, string> Service;
         protected static ReqReplyClient<string, string> Client;
-
-        protected static RequestReplyChannel<string,string> _channel = new RequestReplyChannel<string, string>();
-
+        protected static RequestReplyChannel<string, string> _channel = new RequestReplyChannel<string, string>();
         protected static IFiber Fiber = PoolFiber.StartNew();
         protected static string Reply;
         protected static ManualResetEvent Replied = new ManualResetEvent(false);
@@ -92,31 +91,28 @@
             Context2 = Context.Create();
             Func<byte[], int, string> unmarshaller = (x, y) => Encoding.Unicode.GetString(x, 0, y);
             _channel.SetRequestHandler(Fiber, request => request.PublishReply(request.Request.ToUpper()));
-            
             Func<string, byte[]> marshaller = x => Encoding.Unicode.GetBytes(x);
             Service = new ReqReplyService<string, string>(Context,
                 "tcp://*:9995",
                 unmarshaller,
                 _channel,
-                marshaller,256);
+                marshaller,
+                256);
             Console.WriteLine("Start service");
             Client = new ReqReplyClient<string, string>(Context2, "tcp://localhost:9995", marshaller, unmarshaller);
-
             Fiber.Add(Client);
             Fiber.Add(Context2);
-
             Fiber.Add(Service);
             Fiber.Add(Context);
             Console.WriteLine("Start client");
         }
 
+        //TODO:  seems to be cleanup issues 
         protected void Cleanup()
         {
             Fiber.Dispose();
-            
             Console.WriteLine("Dispose");
-            
-            Thread.Sleep(100);
+            Thread.Sleep(1000);
         }
     }
 }

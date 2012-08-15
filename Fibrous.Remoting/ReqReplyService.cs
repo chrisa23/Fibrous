@@ -19,8 +19,9 @@ namespace Fibrous.Remoting
         public ReqReplyService(Context context,
                                string address,
                                Func<byte[], int, TRequest> requestUnmarshaller,
-                                IRequestPort<TRequest,TReply> businessLogic,
-                               Func<TReply, byte[]> replyMarshaller, int bufferSize)
+                               IRequestPort<TRequest, TReply> businessLogic,
+                               Func<TReply, byte[]> replyMarshaller,
+                               int bufferSize)
         {
             _buffer = new byte[bufferSize];
             _requestUnmarshaller = requestUnmarshaller;
@@ -39,7 +40,7 @@ namespace Fibrous.Remoting
         {
             int requestLength = _socket.Receive(_buffer);
             TRequest request = _requestUnmarshaller(_buffer, requestLength);
-            TReply reply = _businessLogic.SendRequest(request, TimeSpan.FromDays(1));//??
+            TReply reply = _businessLogic.SendRequest(request, TimeSpan.FromDays(1)); //??
             byte[] replyData = _replyMarshaller(reply);
             _socket.Send(replyData);
         }

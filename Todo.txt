@@ -1,3 +1,6 @@
+- Add fluent builder for Remoting library
 - Update queues to higher performance
+	- Switch to Disruptor fiber for thread fiber and remove Queues.
+	- Create a simplified disruptor that is internal to Fibrous
 - check all internal subscription paths to make sure they are disposed by their fiber if not disposed by other code
 - Add SnapshotChannel(s) that are missing

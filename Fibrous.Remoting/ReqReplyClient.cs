@@ -33,7 +33,7 @@ namespace Fibrous.Remoting
                 throw new Exception("Error sending message on socket");
             }
             int length = _socket.Receive(_buffer, timeout);
-            if(length == -1)
+            if (length == -1)
             {
                 return new byte[0];
             }
