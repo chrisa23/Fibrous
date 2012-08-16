@@ -1,4 +1,4 @@
-﻿namespace Fibrous.Zmq.Specs.AsyncServiceSpecs
+﻿namespace Fibrous.Remoting.Tests.Async
 {
     using System;
     using System.Diagnostics;
@@ -7,7 +7,6 @@
     using CrossroadsIO;
     using Fibrous.Channels;
     using Fibrous.Fibers;
-    using Fibrous.Remoting;
     using FluentAssertions;
     using NUnit.Framework;
 

@@ -1,4 +1,5 @@
 - update Xml docs
+- update error handling in remoting library
 - Add fluent builder for Remoting library
 - Add examples
 - Switch to Disruptor fiber for thread fiber and remove Queues.

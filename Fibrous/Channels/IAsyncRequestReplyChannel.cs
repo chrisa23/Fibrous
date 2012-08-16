@@ -3,7 +3,7 @@ namespace Fibrous.Channels
     using System;
 
     /// <summary>
-    /// Can receive more than one reply
+    /// Asynchronous ReqReply channel
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>
     /// <typeparam name="TReply"></typeparam>

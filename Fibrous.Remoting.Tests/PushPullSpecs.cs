@@ -1,4 +1,4 @@
-﻿namespace Fibrous.Zmq.Specs.PushPullSpecs
+﻿namespace Fibrous.Remoting.Tests.PushPull
 {
     using System;
     using System.Diagnostics;
@@ -6,7 +6,6 @@
     using System.Threading;
     using CrossroadsIO;
     using Fibrous.Fibers;
-    using Fibrous.Remoting;
     using FluentAssertions;
     using NUnit.Framework;
 

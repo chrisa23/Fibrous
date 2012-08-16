@@ -1,4 +1,4 @@
-﻿namespace Fibrous.Zmq.Specs.ReqReplySpecs
+﻿namespace Fibrous.Remoting.Tests.ReqReply
 {
     using System;
     using System.Diagnostics;
@@ -7,7 +7,6 @@
     using CrossroadsIO;
     using Fibrous.Channels;
     using Fibrous.Fibers;
-    using Fibrous.Remoting;
     using FluentAssertions;
     using NUnit.Framework;
 

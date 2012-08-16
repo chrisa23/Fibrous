@@ -101,8 +101,10 @@ namespace Fibrous.Remoting
 
         private void Send(Guid guid, TReply reply)
         {
+            //TODO:  add check for request.
             IRequest<TRequest, TReply> request = _requests[guid];
             request.PublishReply(reply);
+            _requests.Remove(guid);
         }
 
         private void InternalDispose()

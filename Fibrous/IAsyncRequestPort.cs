@@ -3,8 +3,7 @@ namespace Fibrous
     using System;
 
     /// <summary>
-    /// Sends a request with a callback and fiber for replies
-    /// Can receive multiple replies. (but its probably a bad pattern to use multiple replies)
+    /// Sends a request with a callback and fiber for the reply
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>
     /// <typeparam name="TReply"></typeparam>

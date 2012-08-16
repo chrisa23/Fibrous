@@ -1,4 +1,4 @@
-namespace Fibrous.Queues
+namespace Fibrous.Fibers.Queues
 {
     using System;
 

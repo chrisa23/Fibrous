@@ -1,11 +1,10 @@
-﻿namespace Fibrous.Zmq.Specs.PubSubSpecs
+﻿namespace Fibrous.Remoting.Tests.PubSub
 {
     using System;
     using System.Text;
     using System.Threading;
     using CrossroadsIO;
     using Fibrous.Fibers;
-    using Fibrous.Remoting;
     using FluentAssertions;
     using NUnit.Framework;
 

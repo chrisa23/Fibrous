@@ -47,20 +47,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Channels\Unsubscriber.cs" />
-    <Compile Include="Queues\BoundedQueue.cs" />
-    <Compile Include="Queues\QueueFullException.cs" />
+    <Compile Include="Fibers\Queues\BoundedQueue.cs" />
+    <Compile Include="Fibers\Queues\QueueFullException.cs" />
     <Compile Include="Channels\AsyncSnapshotChannel.cs" />
     <Compile Include="Fibers\DispatcherFiber.cs" />
     <Compile Include="Fibers\ExecutionState.cs" />
     <Compile Include="Fibers\FiberBase.cs" />
     <Compile Include="Fibers\FormFiber.cs" />
     <Compile Include="Fibers\GuiFiberBase.cs" />
-    <Compile Include="Queues\QueueBase.cs" />
+    <Compile Include="Fibers\Queues\QueueBase.cs" />
     <Compile Include="IRequestPort.cs" />
     <Compile Include="IAsyncRequestPort.cs" />
     <Compile Include="Channels\ListChannel.cs" />
     <Compile Include="Channels\AsyncRequestReplyChannel.cs" />
-    <Compile Include="IStartable.cs" />
     <Compile Include="Scheduling\BatchSubscriber.cs" />
     <Compile Include="Channels\IAsyncRequestReplyChannel.cs" />
     <Compile Include="Channels\IRequest.cs" />
@@ -75,15 +74,15 @@
     <Compile Include="Channels\IChannel.cs" />
     <Compile Include="Channels\IRequestReplyChannel.cs" />
     <Compile Include="Channels\QueueChannel.cs" />
-    <Compile Include="Queues\BusyWaitQueue.cs" />
+    <Compile Include="Fibers\Queues\BusyWaitQueue.cs" />
     <Compile Include="Fibers\DefaultExecutor.cs" />
-    <Compile Include="Queues\DefaultQueue.cs" />
+    <Compile Include="Fibers\Queues\DefaultQueue.cs" />
     <Compile Include="IExecutionContext.cs" />
     <Compile Include="IExecutor.cs" />
-    <Compile Include="Queues\IQueue.cs" />
+    <Compile Include="Fibers\Queues\IQueue.cs" />
     <Compile Include="Scheduling\IScheduler.cs" />
     <Compile Include="IDisposableRegistry.cs" />
-    <Compile Include="Queues\Lists.cs" />
+    <Compile Include="Fibers\Queues\Lists.cs" />
     <Compile Include="Scheduling\TimerScheduler.cs" />
     <Compile Include="Fibers\Disposables.cs" />
     <Compile Include="IFiber.cs" />

@@ -4,7 +4,7 @@ namespace Fibrous.Fibers
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
-    using Fibrous.Queues;
+    using Fibrous.Fibers.Queues;
 
     /// <summary>
     /// Fiber that uses a thread pool for execution.

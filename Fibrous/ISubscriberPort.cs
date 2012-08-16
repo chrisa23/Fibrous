@@ -16,7 +16,7 @@ namespace Fibrous
         IDisposable Subscribe(IFiber fiber, Action<T> receive);
     }
 
-    public static class ExtensionsToISubscriberPort
+    public static class ISubscriberPortExtensions
     {
         /// <summary>   An ISubscriberPort&lt;T&gt; extension method that subscribe to a periodic batch. </summary>
         /// <typeparam name="T">    Generic type parameter. </typeparam>

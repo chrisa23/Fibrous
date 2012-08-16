@@ -2,7 +2,7 @@ namespace Fibrous.Fibers
 {
     using System;
     using System.Threading;
-    using Fibrous.Queues;
+    using Fibrous.Fibers.Queues;
 
     /// <summary>
     ///   Fiber implementation backed by a dedicated thread.

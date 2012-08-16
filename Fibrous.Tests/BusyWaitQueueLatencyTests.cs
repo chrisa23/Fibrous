@@ -5,7 +5,7 @@
     using System.Threading;
     using Fibrous.Channels;
     using Fibrous.Fibers;
-    using Fibrous.Queues;
+    using Fibrous.Fibers.Queues;
     using NUnit.Framework;
 
     [TestFixture]
