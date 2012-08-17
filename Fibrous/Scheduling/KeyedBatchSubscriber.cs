@@ -9,7 +9,7 @@ namespace Fibrous.Scheduling
         private readonly Converter<T, TKey> _keyResolver;
         private Dictionary<TKey, T> _pending;
 
-        public KeyedBatchSubscriber(ISubscriberPort<T> channel,
+        public KeyedBatchSubscriber(ISubscribePort<T> channel,
                                     IFiber fiber,
                                     IScheduler scheduler,
                                     TimeSpan interval,

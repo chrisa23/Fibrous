@@ -41,12 +41,12 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsyncReqReplyClient.cs" />
-    <Compile Include="AsyncReqReplyService.cs" />
+    <Compile Include="AsyncRequestClient.cs" />
+    <Compile Include="AsyncRequestService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReceiveSocketBase.cs" />
-    <Compile Include="ReqReplyClient.cs" />
-    <Compile Include="ReqReplyService.cs" />
+    <Compile Include="RequestClient.cs" />
+    <Compile Include="RequestService.cs" />
     <Compile Include="SendSocket.cs" />
   </ItemGroup>
   <ItemGroup>

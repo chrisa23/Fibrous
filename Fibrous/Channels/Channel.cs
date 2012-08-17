@@ -1,6 +1,7 @@
 namespace Fibrous.Channels
 {
     using System;
+    using Fibrous.Utility;
 
     /// <summary>
     /// Channels are in memory conduits...
@@ -17,18 +18,24 @@ namespace Fibrous.Channels
 
         public IDisposable Subscribe(IFiber fiber, Action<T> receive)
         {
-            IDisposable disposable = _internalChannel.Subscribe(msg => fiber.Enqueue(() => receive(msg)));
-            return new Unsubscriber<T>(disposable, fiber);
+            IDisposable disposable = _internalChannel.Subscribe(Receive(fiber, receive));
+            return new Unsubscriber(disposable, fiber);
         }
 
-        private sealed class EventChannel<TEvent> : IPublisherPort<TEvent>
+        private static Action<T> Receive(IFiber fiber, Action<T> receive)
+        {
+            return msg => fiber.Enqueue(() => receive(msg));
+        }
+
+        private sealed class EventChannel<TEvent>
         {
             private event Action<TEvent> InternalEvent;
 
             public IDisposable Subscribe(Action<TEvent> receive)
             {
                 InternalEvent += receive;
-                return new DisposeAction(() => InternalEvent -= receive);
+                var disposeAction = new DisposeAction(() => InternalEvent -= receive);
+                return disposeAction;
             }
 
             public bool Publish(TEvent msg)
@@ -40,21 +47,6 @@ namespace Fibrous.Channels
                     return true;
                 }
                 return false;
-            }
-
-            private sealed class DisposeAction : IDisposable
-            {
-                private readonly Action _action;
-
-                public DisposeAction(Action action)
-                {
-                    _action = action;
-                }
-
-                public void Dispose()
-                {
-                    _action();
-                }
             }
         }
     }

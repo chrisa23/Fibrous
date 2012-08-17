@@ -5,7 +5,7 @@ namespace Fibrous
     using Fibrous.Fibers;
     using Fibrous.Scheduling;
 
-    public interface ISubscriberPort<out T>
+    public interface ISubscribePort<out T>
     {
         /// <summary>
         /// Subscribe 
@@ -16,7 +16,7 @@ namespace Fibrous
         IDisposable Subscribe(IFiber fiber, Action<T> receive);
     }
 
-    public static class ISubscriberPortExtensions
+    public static class SubscribePort
     {
         /// <summary>   An ISubscriberPort&lt;T&gt; extension method that subscribe to a periodic batch. </summary>
         /// <typeparam name="T">    Generic type parameter. </typeparam>
@@ -25,7 +25,7 @@ namespace Fibrous
         /// <param name="receive">  The receive. </param>
         /// <param name="interval"> The interval. </param>
         /// <returns>   . </returns>
-        public static IDisposable SubscribeToBatch<T>(this ISubscriberPort<T> port,
+        public static IDisposable SubscribeToBatch<T>(this ISubscribePort<T> port,
                                                       IFiber fiber,
                                                       Action<IList<T>> receive,
                                                       TimeSpan interval)
@@ -33,7 +33,7 @@ namespace Fibrous
             return new BatchSubscriber<T>(port, fiber, new TimerScheduler(), interval, receive);
         }
 
-        public static IDisposable SubscribeToKeyedBatch<TKey, T>(this ISubscriberPort<T> port,
+        public static IDisposable SubscribeToKeyedBatch<TKey, T>(this ISubscribePort<T> port,
                                                                  IFiber fiber,
                                                                  Converter<T, TKey> keyResolver,
                                                                  Action<IDictionary<TKey, T>> receive,
@@ -42,7 +42,7 @@ namespace Fibrous
             return new KeyedBatchSubscriber<TKey, T>(port, fiber, new TimerScheduler(), interval, keyResolver, receive);
         }
 
-        public static IDisposable SubscribeToLast<T>(this ISubscriberPort<T> port,
+        public static IDisposable SubscribeToLast<T>(this ISubscribePort<T> port,
                                                      IFiber fiber,
                                                      Action<T> receive,
                                                      TimeSpan interval)
@@ -50,7 +50,7 @@ namespace Fibrous
             return new LastSubscriber<T>(port, fiber, new TimerScheduler(), interval, receive);
         }
 
-        public static IDisposable Subscribe<T>(this ISubscriberPort<T> port,
+        public static IDisposable Subscribe<T>(this ISubscribePort<T> port,
                                                IFiber fiber,
                                                Action<T> receive,
                                                Predicate<T> filter)

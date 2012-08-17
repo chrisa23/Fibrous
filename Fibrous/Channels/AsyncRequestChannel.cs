@@ -2,7 +2,7 @@ namespace Fibrous.Channels
 {
     using System;
 
-    public sealed class AsyncRequestReplyChannel<TRequest, TReply> : IAsyncRequestReplyChannel<TRequest, TReply>
+    public sealed class AsyncRequestChannel<TRequest, TReply> : IAsyncRequestChannel<TRequest, TReply>
     {
         private readonly IChannel<IRequest<TRequest, TReply>> _requestChannel =
             new Channel<IRequest<TRequest, TReply>>();
@@ -37,7 +37,7 @@ namespace Fibrous.Channels
 
             public TRequest Request { get { return _request; } }
 
-            public bool PublishReply(TReply response)
+            public bool Reply(TReply response)
             {
                 return _resp.Publish(response);
             }

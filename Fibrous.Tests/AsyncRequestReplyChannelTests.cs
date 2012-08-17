@@ -18,8 +18,8 @@ namespace Fibrous.Tests
             replier.Start();
             var received = new AutoResetEvent(false);
             DateTime now = DateTime.Now;
-            var timeCheck = new AsyncRequestReplyChannel<string, DateTime>();
-            timeCheck.SetRequestHandler(replier, req => req.PublishReply(now));
+            var timeCheck = new AsyncRequestChannel<string, DateTime>();
+            timeCheck.SetRequestHandler(replier, req => req.Reply(now));
             DateTime result = DateTime.MinValue;
             timeCheck.SendRequest("hello",
                 requester,
@@ -39,13 +39,13 @@ namespace Fibrous.Tests
             requester.Start();
             var replier = new PoolFiber();
             replier.Start();
-            var countChannel = new AsyncRequestReplyChannel<string, int>();
+            var countChannel = new AsyncRequestChannel<string, int>();
             countChannel.SetRequestHandler(replier,
                 req =>
                 {
                     for (int i = 0; i < 5; i++)
                     {
-                        req.PublishReply(i);
+                        req.Reply(i);
                     }
                 });
             var received = new CountdownEvent(5);

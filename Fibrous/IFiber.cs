@@ -12,7 +12,7 @@ namespace Fibrous
         void Start();
     }
 
-    public static class IFiberExtensions
+    public static class Fiber
     {
         private static readonly TimerScheduler Scheduler = new TimerScheduler();
 

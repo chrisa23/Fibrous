@@ -1,6 +1,6 @@
 ﻿namespace Fibrous.Channels
 {
-    public interface IChannel<T> : IPublisherPort<T>, ISubscriberPort<T>
+    public interface IChannel<T> : IPublishPort<T>, ISubscribePort<T>
     {
     }
 }

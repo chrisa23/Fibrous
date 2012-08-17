@@ -77,9 +77,9 @@
     {
         protected static Context Context;
         protected static Context Context2;
-        protected static ReqReplyService<string, string> Service;
-        protected static ReqReplyClient<string, string> Client;
-        protected static RequestReplyChannel<string, string> _channel = new RequestReplyChannel<string, string>();
+        protected static RequestService<string, string> Service;
+        protected static RequestClient<string, string> Client;
+        protected static RequestChannel<string, string> _channel = new RequestChannel<string, string>();
         protected static IFiber Fiber = PoolFiber.StartNew();
         protected static string Reply;
         protected static ManualResetEvent Replied = new ManualResetEvent(false);
@@ -89,20 +89,18 @@
             Context = Context.Create();
             Context2 = Context.Create();
             Func<byte[], int, string> unmarshaller = (x, y) => Encoding.Unicode.GetString(x, 0, y);
-            _channel.SetRequestHandler(Fiber, request => request.PublishReply(request.Request.ToUpper()));
+         Fiber.Add(  _channel.SetRequestHandler(Fiber, request => request.Reply(request.Request.ToUpper())));
             Func<string, byte[]> marshaller = x => Encoding.Unicode.GetBytes(x);
-            Service = new ReqReplyService<string, string>(Context,
+            Service = new RequestService<string, string>(Context,
                 "tcp://*:9995",
                 unmarshaller,
                 _channel,
                 marshaller,
                 256);
             Console.WriteLine("Start service");
-            Client = new ReqReplyClient<string, string>(Context2, "tcp://localhost:9995", marshaller, unmarshaller);
+            Client = new RequestClient<string, string>(Context2, "tcp://localhost:9995", marshaller, unmarshaller);
             Fiber.Add(Client);
-            Fiber.Add(Context2);
             Fiber.Add(Service);
-            Fiber.Add(Context);
             Console.WriteLine("Start client");
         }
 
@@ -110,8 +108,10 @@
         protected void Cleanup()
         {
             Fiber.Dispose();
+            Context2.Dispose();
+            Context.Dispose();
             Console.WriteLine("Dispose");
-            Thread.Sleep(1000);
+            Thread.Sleep(100);
         }
     }
 }

@@ -8,7 +8,7 @@ namespace Fibrous.Scheduling
         private readonly Action<IList<T>> _receive;
         private List<T> _pending;
 
-        public BatchSubscriber(ISubscriberPort<T> channel,
+        public BatchSubscriber(ISubscribePort<T> channel,
                                IFiber fiber,
                                IScheduler scheduler,
                                TimeSpan interval,

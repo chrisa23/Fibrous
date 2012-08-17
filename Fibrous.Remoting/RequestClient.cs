@@ -3,17 +3,17 @@ namespace Fibrous.Remoting
     using System;
     using CrossroadsIO;
 
-    public class ReqReplyClient<TRequest, TReply> : IRequestPort<TRequest, TReply>, IDisposable
+    public class RequestClient<TRequest, TReply> : IRequestPort<TRequest, TReply>, IDisposable
     {
         private readonly Func<TRequest, byte[]> _requestMarshaller;
         private readonly Func<byte[], int, TReply> _replyUnmarshaller;
         private readonly Socket _socket;
         private readonly byte[] _buffer = new byte[1024 * 1024 * 2];
 
-        public ReqReplyClient(Context context,
-                              string address,
-                              Func<TRequest, byte[]> requestMarshaller,
-                              Func<byte[], int, TReply> replyUnmarshaller)
+        public RequestClient(Context context,
+                             string address,
+                             Func<TRequest, byte[]> requestMarshaller,
+                             Func<byte[], int, TReply> replyUnmarshaller)
         {
             _requestMarshaller = requestMarshaller;
             _replyUnmarshaller = replyUnmarshaller;
@@ -26,7 +26,7 @@ namespace Fibrous.Remoting
             SendStatus result = _socket.Send(request, timeout);
             while (result == SendStatus.TryAgain)
             {
-                result = _socket.Send(request);
+                result = _socket.Send(request, timeout);
             }
             if (result != SendStatus.Sent)
             {

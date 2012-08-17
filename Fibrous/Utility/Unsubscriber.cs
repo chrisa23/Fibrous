@@ -1,8 +1,8 @@
-namespace Fibrous.Channels
+namespace Fibrous.Utility
 {
     using System;
 
-    internal sealed class Unsubscriber<T> : IDisposable
+    internal sealed class Unsubscriber : IDisposable
     {
         private readonly IDisposable _disposable;
         private readonly IDisposableRegistry _disposables;

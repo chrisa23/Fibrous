@@ -7,11 +7,11 @@ namespace Fibrous.Remoting
     using Fibrous.Channels;
     using Fibrous.Fibers;
 
-    public class AsyncReqReplyClient<TRequest, TReply> : IAsyncRequestPort<TRequest, TReply>, IDisposable
+    public class AsyncRequestClient<TRequest, TReply> : IAsyncRequestPort<TRequest, TReply>, IDisposable
     {
         private readonly byte[] _id = GetId();
-        private readonly IAsyncRequestReplyChannel<TRequest, TReply> _internalChannel =
-            new AsyncRequestReplyChannel<TRequest, TReply>();
+        private readonly IAsyncRequestChannel<TRequest, TReply> _internalChannel =
+            new AsyncRequestChannel<TRequest, TReply>();
         private readonly IFiber _fiber;
         private volatile bool _running = true;
         private readonly Context _replyContext;
@@ -27,23 +27,23 @@ namespace Fibrous.Remoting
             return Guid.NewGuid().ToByteArray();
         }
 
-        public AsyncReqReplyClient(Context context,
-                                   string address,
-                                   int basePort,
-                                   Func<TRequest, byte[]> requestMarshaller,
-                                   Func<byte[], int, TReply> replyUnmarshaller,
-                                   int bufferSize)
+        public AsyncRequestClient(Context context,
+                                  string address,
+                                  int basePort,
+                                  Func<TRequest, byte[]> requestMarshaller,
+                                  Func<byte[], int, TReply> replyUnmarshaller,
+                                  int bufferSize)
             : this(context, address, basePort, requestMarshaller, replyUnmarshaller, bufferSize, new PoolFiber())
         {
         }
 
-        public AsyncReqReplyClient(Context context,
-                                   string address,
-                                   int basePort,
-                                   Func<TRequest, byte[]> requestMarshaller,
-                                   Func<byte[], int, TReply> replyUnmarshaller,
-                                   int bufferSize,
-                                   IFiber fiber)
+        public AsyncRequestClient(Context context,
+                                  string address,
+                                  int basePort,
+                                  Func<TRequest, byte[]> requestMarshaller,
+                                  Func<byte[], int, TReply> replyUnmarshaller,
+                                  int bufferSize,
+                                  IFiber fiber)
         {
             _requestMarshaller = requestMarshaller;
             _replyUnmarshaller = replyUnmarshaller;
@@ -103,7 +103,7 @@ namespace Fibrous.Remoting
         {
             //TODO:  add check for request.
             IRequest<TRequest, TReply> request = _requests[guid];
-            request.PublishReply(reply);
+            request.Reply(reply);
             _requests.Remove(guid);
         }
 

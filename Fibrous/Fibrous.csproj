@@ -46,7 +46,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Channels\Unsubscriber.cs" />
+    <Compile Include="Channels\SnapshotRequest.cs" />
+    <Compile Include="Utility\DisposeAction.cs" />
+    <Compile Include="Utility\Unsubscriber.cs" />
     <Compile Include="Fibers\Queues\BoundedQueue.cs" />
     <Compile Include="Fibers\Queues\QueueFullException.cs" />
     <Compile Include="Channels\AsyncSnapshotChannel.cs" />
@@ -59,20 +61,20 @@
     <Compile Include="IRequestPort.cs" />
     <Compile Include="IAsyncRequestPort.cs" />
     <Compile Include="Channels\ListChannel.cs" />
-    <Compile Include="Channels\AsyncRequestReplyChannel.cs" />
+    <Compile Include="Channels\AsyncRequestChannel.cs" />
     <Compile Include="Scheduling\BatchSubscriber.cs" />
-    <Compile Include="Channels\IAsyncRequestReplyChannel.cs" />
+    <Compile Include="Channels\IAsyncRequestChannel.cs" />
     <Compile Include="Channels\IRequest.cs" />
     <Compile Include="Channels\ISnapshotChannel.cs" />
     <Compile Include="Scheduling\KeyedBatchSubscriber.cs" />
     <Compile Include="Scheduling\LastSubscriber.cs" />
     <Compile Include="Channels\Channel.cs" />
-    <Compile Include="IPublisherPort.cs" />
-    <Compile Include="ISubscriberPort.cs" />
-    <Compile Include="Channels\RequestReplyChannel.cs" />
+    <Compile Include="IPublishPort.cs" />
+    <Compile Include="ISubscribePort.cs" />
+    <Compile Include="Channels\RequestChannel.cs" />
     <Compile Include="Scheduling\BatchSubscriberBase.cs" />
     <Compile Include="Channels\IChannel.cs" />
-    <Compile Include="Channels\IRequestReplyChannel.cs" />
+    <Compile Include="Channels\IRequestChannel.cs" />
     <Compile Include="Channels\QueueChannel.cs" />
     <Compile Include="Fibers\Queues\BusyWaitQueue.cs" />
     <Compile Include="Fibers\DefaultExecutor.cs" />

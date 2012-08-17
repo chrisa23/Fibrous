@@ -4,7 +4,7 @@ namespace Fibrous.Channels
     using System.Collections.Generic;
     using System.Threading;
 
-    public sealed class RequestReplyChannel<TRequest, TReply> : IRequestReplyChannel<TRequest, TReply>
+    public sealed class RequestChannel<TRequest, TReply> : IRequestChannel<TRequest, TReply>
     {
         private readonly IChannel<IRequest<TRequest, TReply>> _requestChannel =
             new Channel<IRequest<TRequest, TReply>>();
@@ -42,7 +42,7 @@ namespace Fibrous.Channels
 
             public TRequest Request { get { return _req; } }
 
-            public bool PublishReply(TReply response)
+            public bool Reply(TReply response)
             {
                 lock (_lock)
                 {

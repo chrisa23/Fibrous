@@ -6,7 +6,7 @@
     using Fibrous.Fibers;
 
     //this does not lend itself to parallel workers for handling requests
-    public class AsyncReqReplyService<TRequest, TReply> : IDisposable
+    public class AsyncRequestService<TRequest, TReply> : IDisposable
     {
         private readonly Func<byte[], int, TRequest> _requestUnmarshaller;
         private readonly IAsyncRequestPort<TRequest, TReply> _businessLogic; //Action<RequestWrapper>
@@ -19,12 +19,12 @@
         private volatile bool _running = true;
         private readonly IFiber _fiber = PoolFiber.StartNew();
 
-        public AsyncReqReplyService(Context context,
-                                    string address,
-                                    int basePort,
-                                    Func<byte[], int, TRequest> requestUnmarshaller,
-                                    IAsyncRequestPort<TRequest, TReply> logic,
-                                    Func<TReply, byte[]> replyMarshaller)
+        public AsyncRequestService(Context context,
+                                   string address,
+                                   int basePort,
+                                   Func<byte[], int, TRequest> requestUnmarshaller,
+                                   IAsyncRequestPort<TRequest, TReply> logic,
+                                   Func<TReply, byte[]> replyMarshaller)
         {
             _requestUnmarshaller = requestUnmarshaller;
             _businessLogic = logic;

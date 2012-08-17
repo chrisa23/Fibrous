@@ -1,6 +1,6 @@
 namespace Fibrous
 {
-    public interface IPublisherPort<in T>
+    public interface IPublishPort<in T>
     {
         bool Publish(T msg);
     }

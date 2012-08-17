@@ -8,7 +8,7 @@ namespace Fibrous.Scheduling
         private bool _flushPending;
         private T _pending;
 
-        public LastSubscriber(ISubscriberPort<T> channel,
+        public LastSubscriber(ISubscribePort<T> channel,
                               IFiber fiber,
                               IScheduler scheduler,
                               TimeSpan interval,

@@ -146,7 +146,7 @@ namespace Fibrous.Tests.Examples
             private readonly IChannel<SolvedQuadratic> _solvedChannel;
 
             public QuadraticSolver(IFiber fiber,
-                                   ISubscriberPort<Quadratic> channel,
+                                   ISubscribePort<Quadratic> channel,
                                    IChannel<SolvedQuadratic> solvedChannel)
             {
                 _solvedChannel = solvedChannel;
@@ -187,7 +187,7 @@ namespace Fibrous.Tests.Examples
         {
             private int _solutionsReceived;
 
-            public SolvedQuadraticSink(IFiber fiber, ISubscriberPort<SolvedQuadratic> solvedChannel)
+            public SolvedQuadraticSink(IFiber fiber, ISubscribePort<SolvedQuadratic> solvedChannel)
             {
                 solvedChannel.Subscribe(fiber, PrintSolution);
             }

@@ -60,7 +60,7 @@ namespace Fibrous.Remoting
         }
     }
 
-    public abstract class ReceiveSocketBase<T> : ISubscriberPort<T>, IDisposable
+    public abstract class ReceiveSocketBase<T> : ISubscribePort<T>, IDisposable
     {
         private volatile bool _running = true;
         private readonly Func<Socket, T> _msgReceiver;

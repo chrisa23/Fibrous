@@ -10,7 +10,7 @@ namespace Fibrous.Scheduling
         protected readonly TimeSpan Interval;
         private readonly IDisposable _sub;
 
-        protected BatchSubscriberBase(ISubscriberPort<T> channel, IFiber fiber, IScheduler scheduler, TimeSpan interval)
+        protected BatchSubscriberBase(ISubscribePort<T> channel, IFiber fiber, IScheduler scheduler, TimeSpan interval)
         {
             Scheduler = scheduler;
             _sub = channel.Subscribe(fiber, OnMessage);

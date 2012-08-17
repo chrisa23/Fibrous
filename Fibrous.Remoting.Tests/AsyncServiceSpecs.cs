@@ -87,13 +87,13 @@
 
     public abstract class AsyncReqReplyServiceSpecs
     {
-        protected static AsyncReqReplyService<string, string> Service;
-        protected static AsyncReqReplyClient<string, string> Client;
+        protected static AsyncRequestService<string, string> Service;
+        protected static AsyncRequestClient<string, string> Client;
         protected static IFiber ClientFiber;
         protected static IFiber ServerFiber;
         protected static string Reply;
         protected static ManualResetEvent Replied;
-        protected static AsyncRequestReplyChannel<string, string> Channel;
+        protected static AsyncRequestChannel<string, string> Channel;
         protected static Context ClientContext;
         protected static Context ServerContext;
 
@@ -106,11 +106,11 @@
             ClientContext = Context.Create();
             ServerFiber = PoolFiber.StartNew();
             ServerContext = Context.Create();
-            Channel = new AsyncRequestReplyChannel<string, string>();
-            Channel.SetRequestHandler(ServerFiber, request => request.PublishReply(request.Request.ToUpper()));
+            Channel = new AsyncRequestChannel<string, string>();
+            Channel.SetRequestHandler(ServerFiber, request => request.Reply(request.Request.ToUpper()));
             Func<byte[], int, string> unmarshaller = (x, y) => Encoding.Unicode.GetString(x, 0, y);
             Func<string, byte[]> marshaller = x => Encoding.Unicode.GetBytes(x);
-            Service = new AsyncReqReplyService<string, string>(ServerContext,
+            Service = new AsyncRequestService<string, string>(ServerContext,
                 "tcp://*",
                 9997,
                 unmarshaller,
@@ -119,7 +119,7 @@
             Console.WriteLine("Start service");
             ServerFiber.Add(Service);
             ServerFiber.Add(ServerContext);
-            Client = new AsyncReqReplyClient<string, string>(ClientContext,
+            Client = new AsyncRequestClient<string, string>(ClientContext,
                 "tcp://localhost",
                 9997,
                 marshaller,

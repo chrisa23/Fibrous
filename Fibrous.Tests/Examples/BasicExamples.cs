@@ -125,8 +125,8 @@
             using (var fiber = new PoolFiber())
             {
                 fiber.Start();
-                var channel = new RequestReplyChannel<string, string>();
-                using (channel.SetRequestHandler(fiber, req => req.PublishReply("bye")))
+                var channel = new RequestChannel<string, string>();
+                using (channel.SetRequestHandler(fiber, req => req.Reply("bye")))
                 {
                     string reply = channel.SendRequest("hello", TimeSpan.FromSeconds(1));
                     Assert.AreEqual("bye", reply);
