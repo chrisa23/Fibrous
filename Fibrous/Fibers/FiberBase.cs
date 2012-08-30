@@ -1,6 +1,7 @@
 namespace Fibrous.Fibers
 {
     using System;
+    using Fibrous.Utility;
 
     public abstract class FiberBase : Disposables, IFiber
     {

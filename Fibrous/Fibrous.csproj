@@ -47,6 +47,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Channels\SnapshotRequest.cs" />
+    <Compile Include="Fibers\ExceptionHandlingExecutor.cs" />
+    <Compile Include="Scheduling\TimerAction.cs" />
+    <Compile Include="Utility\PendingAction.cs" />
     <Compile Include="Utility\DisposeAction.cs" />
     <Compile Include="Utility\Unsubscriber.cs" />
     <Compile Include="Fibers\Queues\BoundedQueue.cs" />
@@ -86,7 +89,7 @@
     <Compile Include="IDisposableRegistry.cs" />
     <Compile Include="Fibers\Queues\Lists.cs" />
     <Compile Include="Scheduling\TimerScheduler.cs" />
-    <Compile Include="Fibers\Disposables.cs" />
+    <Compile Include="Utility\Disposables.cs" />
     <Compile Include="IFiber.cs" />
     <Compile Include="Fibers\PoolFiber.cs" />
     <Compile Include="Fibers\StubFiber.cs" />

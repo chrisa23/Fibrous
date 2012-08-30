@@ -37,7 +37,7 @@
         protected static IFiber ClientFiber;
         protected static string Received;
         protected static ManualResetEvent RcvdSignal;
-
+        
         public PubSubSpecs()
         {
             Context1 = Context.Create();
@@ -46,10 +46,10 @@
             ClientFiber = PoolFiber.StartNew();
             Send = new SendSocket<string>(Context1,
                 "tcp://*:6001",
-                (s, socket) => socket.Send(Encoding.Unicode.GetBytes(s)));
+                s =>Encoding.Unicode.GetBytes(s));
             Subscriber = new SubscribeSocketPort<string>(Context2,
                 "tcp://localhost:6001",
-                socket => socket.Receive(Encoding.Unicode));
+               (x, y) => Encoding.Unicode.GetString(x, 0, y));
             Subscriber.SubscribeAll();
         }
 

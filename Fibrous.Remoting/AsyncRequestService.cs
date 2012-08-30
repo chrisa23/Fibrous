@@ -5,11 +5,10 @@
     using CrossroadsIO;
     using Fibrous.Fibers;
 
-    //this does not lend itself to parallel workers for handling requests
     public class AsyncRequestService<TRequest, TReply> : IDisposable
     {
         private readonly Func<byte[], int, TRequest> _requestUnmarshaller;
-        private readonly IAsyncRequestPort<TRequest, TReply> _businessLogic; //Action<RequestWrapper>
+        private readonly IAsyncRequestPort<TRequest, TReply> _businessLogic; 
         private readonly Func<TReply, byte[]> _replyMarshaller;
         //split InSocket
         private readonly Context _context;
@@ -36,37 +35,20 @@
             _replySocket.Bind(address + ":" + (basePort + 1));
             Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
-
-        private readonly byte[] _id = new byte[16];
-        private readonly byte[] reqId = new byte[16];
-        private readonly byte[] data = new byte[1024 * 1024 * 2];
-
+    
         private void Run()
         {
             while (_running)
             {
-                //check for time/cutoffs to trigger events...
-                int idCount = _requestSocket.Receive(_id, TimeSpan.FromMilliseconds(100));
-                if (idCount == -1 || !_running) //?? not sure on this
+
+                Message message = _requestSocket.ReceiveMessage();
+                if(message.IsEmpty)
                 {
                     continue;
                 }
-                int reqIdCount = _requestSocket.Receive(reqId, TimeSpan.FromSeconds(1));
-                if (reqIdCount != 16)
-                {
-                    throw new Exception("We don't have a msg SenderId for this request");
-                }
-                int dataCount = _requestSocket.Receive(data, TimeSpan.FromSeconds(1));
-                if (dataCount == -1)
-                {
-                    throw new Exception("We don't have a msg for the request");
-                }
-                //copy so we aren't using a callback to an updated Id or rId buffer
-                var id = new byte[16];
-                Buffer.BlockCopy(_id, 0, id, 0, 16);
-                var rid = new byte[16];
-                Buffer.BlockCopy(reqId, 0, rid, 0, 16);
-                ProcessRequest(id, rid, data, dataCount);
+                var id = message[0].Buffer;
+                var rid = message[1].Buffer;
+                ProcessRequest(id, rid, message[2].Buffer, message[2].BufferSize);
             }
             InternalDispose();
         }

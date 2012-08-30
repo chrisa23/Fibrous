@@ -1,9 +1,9 @@
-namespace Fibrous.Fibers
+namespace Fibrous.Utility
 {
     using System;
     using System.Collections.Generic;
 
-    public abstract class Disposables : IDisposableRegistry
+    public class Disposables : IDisposableRegistry
     {
         private readonly object _lock = new object();
         private readonly List<IDisposable> _items = new List<IDisposable>();

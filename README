@@ -5,8 +5,15 @@ High performace message passing concurrency library for the .Net platform.
 
 Fibrous is a fork of Retlang [http://code.google.com/p/retlang/], and has a very similar Api.  
 
-Fibrous uses the concept of Fibers and Ports as abstractions.  Fibers represent execution contexts and Ports represent end points that you can send messages to or a Fiber can receive messages from.  Channels are in memory conduits, but ports can be implemented on top of network sockets.
+Fibrous uses the concept of Fibers and Ports as abstractions.  Fibers represent execution contexts (aka thread/actor) and Ports represent messaging end points.  Channels are in memory conduits, but ports can be implemented on top of network sockets.
 
-Scheduling is implemented slightly differently than Retlang to allow extensibility, but exposes an almost identical Api.  IFiber does not implement IScheduler so that we can implement schedulers not based on system timers.  Extension methods give IFiber the default ability to schedule using system timers.
+Some of the library benefits:
+ - Small simple library 
+ - 
+ - UI thread/dispatcher marshalling
+ - Good batched subscription support
+ - UI throttling and redraw can be controlled easily
+
+Async Request/Reply is a first class pattern in Fibrous, including remotely.
 
 A CrossroadsIO based library for ports over sockets is provided. 

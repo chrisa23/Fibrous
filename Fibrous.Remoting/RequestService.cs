@@ -13,16 +13,13 @@ namespace Fibrous.Remoting
         private bool _running = true;
         private readonly Socket _socket;
         private readonly TimeSpan _timeout;
-        private readonly byte[] _buffer;
 
         public RequestService(Context context,
                               string address,
                               Func<byte[], int, TRequest> requestUnmarshaller,
                               IRequestPort<TRequest, TReply> businessLogic,
-                              Func<TReply, byte[]> replyMarshaller,
-                              int bufferSize)
+                              Func<TReply, byte[]> replyMarshaller)
         {
-            _buffer = new byte[bufferSize];
             _requestUnmarshaller = requestUnmarshaller;
             _businessLogic = businessLogic;
             _replyMarshaller = replyMarshaller;
@@ -33,9 +30,9 @@ namespace Fibrous.Remoting
             Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
 
-        private void ProcessRequest(int requestLength)
+        private void ProcessRequest(byte[] buffer)
         {
-            TRequest request = _requestUnmarshaller(_buffer, requestLength);
+            TRequest request = _requestUnmarshaller(buffer, buffer.Length);
             TReply reply = _businessLogic.SendRequest(request, TimeSpan.FromDays(1)); //??
             byte[] replyData = _replyMarshaller(reply);
             _socket.Send(replyData, _timeout);
@@ -46,14 +43,14 @@ namespace Fibrous.Remoting
             while (_running)
             {
                 //check for time/cutoffs to trigger events...
-                int dataCount = _socket.Receive(_buffer, _timeout);
-                if (dataCount == -1)
+                Message msg = _socket.ReceiveMessage( _timeout);
+                if (msg.IsEmpty)
                 {
                     continue;
                 }
                 //copy so we aren't using a callback to an updated Id or rId buffer
 
-                ProcessRequest(dataCount);
+                ProcessRequest(msg[0].Buffer);
             }
             InternalDispose();
         }

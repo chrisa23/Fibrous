@@ -71,10 +71,10 @@
             Context2 = Context.Create();
             RcvdSignal = new ManualResetEvent(false);
             ClientFiber = new StubFiber();
-            Pull = new PullSocketPort<string>(Context1, "tcp://*:6002", socket => socket.Receive(Encoding.Unicode));
+            Pull = new PullSocketPort<string>(Context1, "tcp://*:6002", (x, y) => Encoding.Unicode.GetString(x, 0, y));
             Push = new SendSocket<string>(Context2,
                 "tcp://localhost:6002",
-                (s, socket) => socket.Send(Encoding.Unicode.GetBytes(s)),
+                s => Encoding.Unicode.GetBytes(s),
                 SocketType.PUSH,
                 false);
         }

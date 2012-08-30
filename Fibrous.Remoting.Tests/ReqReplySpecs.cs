@@ -95,8 +95,7 @@
                 "tcp://*:9995",
                 unmarshaller,
                 _channel,
-                marshaller,
-                256);
+                marshaller);
             Console.WriteLine("Start service");
             Client = new RequestClient<string, string>(Context2, "tcp://localhost:9995", marshaller, unmarshaller);
             Fiber.Add(Client);

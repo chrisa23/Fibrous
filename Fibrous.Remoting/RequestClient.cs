@@ -8,7 +8,6 @@ namespace Fibrous.Remoting
         private readonly Func<TRequest, byte[]> _requestMarshaller;
         private readonly Func<byte[], int, TReply> _replyUnmarshaller;
         private readonly Socket _socket;
-        private readonly byte[] _buffer = new byte[1024 * 1024 * 2];
 
         public RequestClient(Context context,
                              string address,
@@ -23,23 +22,18 @@ namespace Fibrous.Remoting
 
         private byte[] Send(byte[] request, TimeSpan timeout)
         {
-            SendStatus result = _socket.Send(request, timeout);
-            while (result == SendStatus.TryAgain)
-            {
-                result = _socket.Send(request, timeout);
-            }
+            SendStatus result = _socket.Send(request);
             if (result != SendStatus.Sent)
             {
                 throw new Exception("Error sending message on socket");
             }
-            int length = _socket.Receive(_buffer, timeout);
-            if (length == -1)
+            Message msg = _socket.ReceiveMessage(timeout);
+            if (msg.IsEmpty)
             {
                 return new byte[0];
             }
-            var reply = new byte[length];
-            Array.Copy(_buffer, reply, length);
-            return reply;
+            
+            return msg[0].Buffer;
         }
 
         public void Dispose()

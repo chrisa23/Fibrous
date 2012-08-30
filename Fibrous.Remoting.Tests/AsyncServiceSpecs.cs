@@ -123,8 +123,7 @@
                 "tcp://localhost",
                 9997,
                 marshaller,
-                unmarshaller,
-                1024 * 1024);
+                unmarshaller);
             ClientFiber.Add(Client);
             ClientFiber.Add(ClientContext);
             Console.WriteLine("Start client");

@@ -7,7 +7,7 @@ namespace Fibrous.Tests
     using NUnit.Framework;
 
     [TestFixture]
-    public class AsyncRequestReplyChannelTests
+    public class AsyncRequestChannelTests
     {
         [Test]
         public void AsynchronousRequestReply()

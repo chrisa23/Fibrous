@@ -31,9 +31,8 @@ namespace Fibrous.Remoting
                                   string address,
                                   int basePort,
                                   Func<TRequest, byte[]> requestMarshaller,
-                                  Func<byte[], int, TReply> replyUnmarshaller,
-                                  int bufferSize)
-            : this(context, address, basePort, requestMarshaller, replyUnmarshaller, bufferSize, new PoolFiber())
+                                  Func<byte[], int, TReply> replyUnmarshaller)
+            : this(context, address, basePort, requestMarshaller, replyUnmarshaller, new PoolFiber())
         {
         }
 
@@ -42,15 +41,12 @@ namespace Fibrous.Remoting
                                   int basePort,
                                   Func<TRequest, byte[]> requestMarshaller,
                                   Func<byte[], int, TReply> replyUnmarshaller,
-                                  int bufferSize,
                                   IFiber fiber)
         {
             _requestMarshaller = requestMarshaller;
             _replyUnmarshaller = replyUnmarshaller;
             _fiber = fiber;
-            data = new byte[bufferSize];
             _internalChannel.SetRequestHandler(_fiber, OnRequest);
-            //set up sockets and subscribe to pub socket
             _replyContext = context;
             _replySocket = _replyContext.CreateSocket(SocketType.SUB);
             _replySocket.Connect(address + ":" + (basePort + 1));
@@ -61,39 +57,27 @@ namespace Fibrous.Remoting
             Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
 
-        private readonly byte[] id = new byte[16];
-        private readonly byte[] reqId = new byte[16];
-        private readonly byte[] data;
 
         private void Run()
         {
             while (_running)
             {
-                //check for time/cutoffs to trigger events...
-                //   byte[] id = new byte[16];
-                int idCount = _replySocket.Receive(id, TimeSpan.FromMilliseconds(100));
-                if (idCount == -1)
-                {
+                Message msg = _replySocket.ReceiveMessage();//_fromMilliseconds);
+
+                if (msg.IsEmpty)
                     continue;
-                }
-                int reqIdCount = _replySocket.Receive(reqId, TimeSpan.FromSeconds(3));
-                if (reqIdCount != 16)
+                
+                if(msg.FrameCount != 3)
                 {
-                    //ERROR
-                    throw new Exception("Got id but no msg id");
+                    throw new Exception("Msg error");
                 }
-                var guid = new Guid(reqId);
+                var guid = new Guid(msg[1]);
                 if (!_requests.ContainsKey(guid))
                 {
                     throw new Exception("We don't have a msg SenderId for this reply");
                 }
-                int dataLength = _replySocket.Receive(data, TimeSpan.FromSeconds(3));
-                if (dataLength == -1)
-                {
-                    //ERROR
-                    throw new Exception("Got ids but no data");
-                }
-                TReply reply = _replyUnmarshaller(data, dataLength);
+        
+                TReply reply = _replyUnmarshaller(msg[2].Buffer,msg[2].BufferSize);
                 _fiber.Enqueue(() => Send(guid, reply));
             }
             InternalDispose();
@@ -116,7 +100,6 @@ namespace Fibrous.Remoting
 
         private void OnRequest(IRequest<TRequest, TReply> obj)
         {
-            //serialize and compress and send...
             byte[] msgId = GetId();
             _requests[new Guid(msgId)] = obj;
             _requestSocket.SendMore(_id);

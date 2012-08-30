@@ -65,9 +65,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NUnit.2.6.0.12054\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Rhino.Mocks">
-      <HintPath>..\lib\Rhino.Mocks.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -76,19 +73,20 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsyncRequestReplyChannelTests.cs" />
+    <Compile Include="Channels\AsyncRequestChannelTests.cs" />
+    <Compile Include="Channels\AsyncSnapshotChannel.cs" />
     <Compile Include="Examples\AlgebraDemonstration.cs" />
-    <Compile Include="Examples\BasicExamples.cs" />
+    <Compile Include="Examples\BasicTests.cs" />
     <Compile Include="Examples\FibonacciDemonstration.cs" />
     <Compile Include="PerfBug.cs" />
     <Compile Include="PerfSettings.cs" />
     <Compile Include="PerfTests.cs" />
     <Compile Include="PerfTimer.cs" />
-    <Compile Include="BusyWaitQueueLatencyTests.cs" />
-    <Compile Include="PoolFiberTests.cs" />
-    <Compile Include="QueueChannelTests.cs" />
-    <Compile Include="RequestReplyChannelTests.cs" />
-    <Compile Include="TimerActionTests.cs" />
+    <Compile Include="Latency\BusyWaitQueueLatencyTests.cs" />
+    <Compile Include="Fibers\PoolFiberTests.cs" />
+    <Compile Include="Channels\QueueChannelTests.cs" />
+    <Compile Include="Channels\RequestChannelTests.cs" />
+    <Compile Include="Scheduling\TimerActionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -131,6 +129,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Throughput\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

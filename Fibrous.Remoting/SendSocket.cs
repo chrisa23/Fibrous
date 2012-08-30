@@ -6,15 +6,15 @@ namespace Fibrous.Remoting
     public sealed class SendSocket<T> : IPublishPort<T>, IDisposable
     {
         private readonly Socket _socket;
-        private readonly Action<T, Socket> _msgSender;
+        private readonly Func<T, byte[]> _msgSender;
         //? swtich to ctor with Socket and Sender?  move setup to factory?
         public SendSocket(Context context,
                           string address,
-                          Action<T, Socket> msgSender,
+                          Func<T, byte[]> marshaller,
                           SocketType type = SocketType.PUB,
                           bool bind = true)
         {
-            _msgSender = msgSender;
+            _msgSender = marshaller;
             _socket = context.CreateSocket(type);
             if (bind)
             {
@@ -28,7 +28,8 @@ namespace Fibrous.Remoting
 
         public bool Publish(T msg)
         {
-            _msgSender(msg, _socket);
+            //intended to allow multipart messages.. but inconsistent'
+            _socket.Send(_msgSender(msg));
             return true;
         }
 
@@ -37,14 +38,14 @@ namespace Fibrous.Remoting
             _socket.Dispose();
         }
 
-        public static SendSocket<A> NewPubSocket<A>(Context context, string address, Action<A, Socket> msgSender)
+        public static SendSocket<A> NewPubSocket<A>(Context context, string address, Func<A, byte[]> msgSender)
         {
             return new SendSocket<A>(context, address, msgSender);
         }
 
         public static SendSocket<A> NewPushSocket<A>(Context context,
                                                      string address,
-                                                     Action<A, Socket> msgSender,
+                                                     Func<A, byte[]> msgSender,
                                                      bool bind = false)
         {
             return new SendSocket<A>(context, address, msgSender, SocketType.PUSH, bind);

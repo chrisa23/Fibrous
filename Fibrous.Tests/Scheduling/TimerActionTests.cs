@@ -14,7 +14,7 @@ namespace Fibrous.Tests
         {
             int executionCount = 0;
             Action action = () => executionCount++;
-            var timer = new TimerScheduler.TimerAction(new StubFiber(), action, TimeSpan.FromMilliseconds(2));
+            var timer = new TimerAction(new StubFiber(), action, TimeSpan.FromMilliseconds(2));
             Thread.Sleep(100);
             Assert.AreEqual(1, executionCount);
             timer.Dispose();
@@ -27,7 +27,7 @@ namespace Fibrous.Tests
         {
             int executionCount = 0;
             Action action = () => executionCount++;
-            var timer = new TimerScheduler.TimerAction(new StubFiber(),
+            var timer = new TimerAction(new StubFiber(),
                 action,
                 TimeSpan.FromMilliseconds(2),
                 TimeSpan.FromMilliseconds(150));
