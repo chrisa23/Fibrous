@@ -108,7 +108,7 @@
             ServerContext = Context.Create();
             Channel = new AsyncRequestChannel<string, string>();
             Channel.SetRequestHandler(ServerFiber, request => request.Reply(request.Request.ToUpper()));
-            Func<byte[], int, string> unmarshaller = (x, y) => Encoding.Unicode.GetString(x, 0, y);
+            Func<byte[], string> unmarshaller = x => Encoding.Unicode.GetString(x);
             Func<string, byte[]> marshaller = x => Encoding.Unicode.GetBytes(x);
             Service = new AsyncRequestService<string, string>(ServerContext,
                 "tcp://*",

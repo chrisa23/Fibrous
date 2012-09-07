@@ -7,8 +7,8 @@
 
     public class AsyncRequestService<TRequest, TReply> : IDisposable
     {
-        private readonly Func<byte[], int, TRequest> _requestUnmarshaller;
-        private readonly IAsyncRequestPort<TRequest, TReply> _businessLogic; 
+        private readonly Func<byte[], TRequest> _requestUnmarshaller;
+        private readonly IAsyncRequestPort<TRequest, TReply> _businessLogic;
         private readonly Func<TReply, byte[]> _replyMarshaller;
         //split InSocket
         private readonly Context _context;
@@ -21,7 +21,7 @@
         public AsyncRequestService(Context context,
                                    string address,
                                    int basePort,
-                                   Func<byte[], int, TRequest> requestUnmarshaller,
+                                   Func<byte[], TRequest> requestUnmarshaller,
                                    IAsyncRequestPort<TRequest, TReply> logic,
                                    Func<TReply, byte[]> replyMarshaller)
         {
@@ -35,27 +35,26 @@
             _replySocket.Bind(address + ":" + (basePort + 1));
             Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
-    
+
         private void Run()
         {
             while (_running)
             {
-
                 Message message = _requestSocket.ReceiveMessage();
-                if(message.IsEmpty)
+                if (message.IsEmpty)
                 {
                     continue;
                 }
-                var id = message[0].Buffer;
-                var rid = message[1].Buffer;
-                ProcessRequest(id, rid, message[2].Buffer, message[2].BufferSize);
+                byte[] id = message[0].Buffer;
+                byte[] rid = message[1].Buffer;
+                ProcessRequest(id, rid, message[2].Buffer);
             }
             InternalDispose();
         }
 
-        private void ProcessRequest(byte[] id, byte[] msgId, byte[] msgBuffer, int length)
+        private void ProcessRequest(byte[] id, byte[] msgId, byte[] msgBuffer)
         {
-            TRequest req = _requestUnmarshaller(msgBuffer, length);
+            TRequest req = _requestUnmarshaller(msgBuffer);
             _businessLogic.SendRequest(req, _fiber, reply => SendReply(id, msgId, reply));
         }
 

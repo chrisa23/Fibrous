@@ -1,7 +1,6 @@
 namespace Fibrous.Remoting
 {
     using System;
-    using System.Threading;
     using System.Threading.Tasks;
     using CrossroadsIO;
     using Fibrous.Channels;
@@ -26,7 +25,7 @@ namespace Fibrous.Remoting
 
     public class SubscribeSocketPort<T> : ReceiveSocketBase<T>
     {
-        public SubscribeSocketPort(Context context, string address, Func<byte[],int, T> msgReceiver)
+        public SubscribeSocketPort(Context context, string address, Func<byte[], int, T> msgReceiver)
             : base(context, msgReceiver)
         {
             Socket = Context.CreateSocket(SocketType.SUB);
@@ -85,11 +84,12 @@ namespace Fibrous.Remoting
         {
             while (_running)
             {
-                Message message = Socket.ReceiveMessage();//_timeout);
-               if (message.IsEmpty)
+                Message message = Socket.ReceiveMessage(); //_timeout);
+                if (message.IsEmpty)
+                {
                     continue;
-
-               T msg = _msgReceiver(message[0].Buffer, message[0].BufferSize);
+                }
+                T msg = _msgReceiver(message[0].Buffer, message[0].BufferSize);
                 _internalChannel.Publish(msg);
             }
             InternalDispose();

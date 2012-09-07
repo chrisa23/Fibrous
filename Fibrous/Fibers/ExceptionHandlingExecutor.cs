@@ -3,7 +3,7 @@ namespace Fibrous.Fibers
     using System;
     using System.Collections.Generic;
 
-    public sealed class ExceptionHandlingExecutor:IExecutor
+    public sealed class ExceptionHandlingExecutor : IExecutor
     {
         private readonly Action<Exception> _callback;
 

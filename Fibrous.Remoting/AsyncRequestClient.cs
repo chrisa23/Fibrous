@@ -16,7 +16,7 @@ namespace Fibrous.Remoting
         private volatile bool _running = true;
         private readonly Context _replyContext;
         private readonly Socket _replySocket;
-        private readonly Func<byte[], int, TReply> _replyUnmarshaller;
+        private readonly Func<byte[], TReply> _replyUnmarshaller;
         private readonly Socket _requestSocket;
         private readonly Func<TRequest, byte[]> _requestMarshaller;
         private readonly Dictionary<Guid, IRequest<TRequest, TReply>> _requests =
@@ -31,7 +31,7 @@ namespace Fibrous.Remoting
                                   string address,
                                   int basePort,
                                   Func<TRequest, byte[]> requestMarshaller,
-                                  Func<byte[], int, TReply> replyUnmarshaller)
+                                  Func<byte[], TReply> replyUnmarshaller)
             : this(context, address, basePort, requestMarshaller, replyUnmarshaller, new PoolFiber())
         {
         }
@@ -40,7 +40,7 @@ namespace Fibrous.Remoting
                                   string address,
                                   int basePort,
                                   Func<TRequest, byte[]> requestMarshaller,
-                                  Func<byte[], int, TReply> replyUnmarshaller,
+                                  Func<byte[], TReply> replyUnmarshaller,
                                   IFiber fiber)
         {
             _requestMarshaller = requestMarshaller;
@@ -57,17 +57,16 @@ namespace Fibrous.Remoting
             Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
 
-
         private void Run()
         {
             while (_running)
             {
-                Message msg = _replySocket.ReceiveMessage();//_fromMilliseconds);
-
+                Message msg = _replySocket.ReceiveMessage(); //_fromMilliseconds);
                 if (msg.IsEmpty)
+                {
                     continue;
-                
-                if(msg.FrameCount != 3)
+                }
+                if (msg.FrameCount != 3)
                 {
                     throw new Exception("Msg error");
                 }
@@ -76,8 +75,7 @@ namespace Fibrous.Remoting
                 {
                     throw new Exception("We don't have a msg SenderId for this reply");
                 }
-        
-                TReply reply = _replyUnmarshaller(msg[2].Buffer,msg[2].BufferSize);
+                TReply reply = _replyUnmarshaller(msg[2].Buffer);
                 _fiber.Enqueue(() => Send(guid, reply));
             }
             InternalDispose();

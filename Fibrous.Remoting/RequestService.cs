@@ -1,13 +1,12 @@
 namespace Fibrous.Remoting
 {
     using System;
-    using System.Threading;
     using System.Threading.Tasks;
     using CrossroadsIO;
 
     public class RequestService<TRequest, TReply> : IDisposable
     {
-        private readonly Func<byte[], int, TRequest> _requestUnmarshaller;
+        private readonly Func<byte[], TRequest> _requestUnmarshaller;
         private readonly IRequestPort<TRequest, TReply> _businessLogic;
         private readonly Func<TReply, byte[]> _replyMarshaller;
         private bool _running = true;
@@ -16,7 +15,7 @@ namespace Fibrous.Remoting
 
         public RequestService(Context context,
                               string address,
-                              Func<byte[], int, TRequest> requestUnmarshaller,
+                              Func<byte[], TRequest> requestUnmarshaller,
                               IRequestPort<TRequest, TReply> businessLogic,
                               Func<TReply, byte[]> replyMarshaller)
         {
@@ -26,13 +25,12 @@ namespace Fibrous.Remoting
             _timeout = TimeSpan.FromMilliseconds(100);
             _socket = context.CreateSocket(SocketType.REP);
             _socket.Bind(address);
-            
             Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
 
         private void ProcessRequest(byte[] buffer)
         {
-            TRequest request = _requestUnmarshaller(buffer, buffer.Length);
+            TRequest request = _requestUnmarshaller(buffer);
             TReply reply = _businessLogic.SendRequest(request, TimeSpan.FromDays(1)); //??
             byte[] replyData = _replyMarshaller(reply);
             _socket.Send(replyData, _timeout);
@@ -43,13 +41,12 @@ namespace Fibrous.Remoting
             while (_running)
             {
                 //check for time/cutoffs to trigger events...
-                Message msg = _socket.ReceiveMessage( _timeout);
+                Message msg = _socket.ReceiveMessage(_timeout);
                 if (msg.IsEmpty)
                 {
                     continue;
                 }
                 //copy so we aren't using a callback to an updated Id or rId buffer
-
                 ProcessRequest(msg[0].Buffer);
             }
             InternalDispose();
@@ -63,7 +60,6 @@ namespace Fibrous.Remoting
         public void Dispose()
         {
             _running = false;
-            
         }
     }
 }

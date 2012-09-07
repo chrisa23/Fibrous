@@ -6,13 +6,13 @@ namespace Fibrous.Remoting
     public class RequestClient<TRequest, TReply> : IRequestPort<TRequest, TReply>, IDisposable
     {
         private readonly Func<TRequest, byte[]> _requestMarshaller;
-        private readonly Func<byte[], int, TReply> _replyUnmarshaller;
+        private readonly Func<byte[], TReply> _replyUnmarshaller;
         private readonly Socket _socket;
 
         public RequestClient(Context context,
                              string address,
                              Func<TRequest, byte[]> requestMarshaller,
-                             Func<byte[], int, TReply> replyUnmarshaller)
+                             Func<byte[], TReply> replyUnmarshaller)
         {
             _requestMarshaller = requestMarshaller;
             _replyUnmarshaller = replyUnmarshaller;
@@ -32,7 +32,6 @@ namespace Fibrous.Remoting
             {
                 return new byte[0];
             }
-            
             return msg[0].Buffer;
         }
 
@@ -45,7 +44,7 @@ namespace Fibrous.Remoting
         {
             byte[] data = _requestMarshaller(request);
             byte[] replyData = Send(data, timeout);
-            TReply reply = _replyUnmarshaller(replyData, replyData.Length);
+            TReply reply = _replyUnmarshaller(replyData);
             return reply;
         }
     }

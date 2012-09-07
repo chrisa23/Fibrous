@@ -1,20 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Fibrous.Tests.Channels
+﻿namespace Fibrous.Tests.Channels
 {
+    using System;
+    using System.Collections.Generic;
     using System.Threading;
     using Fibrous.Channels;
     using Fibrous.Fibers;
     using NUnit.Framework;
 
     [TestFixture]
-    class AsyncSnapshotChannel
+    internal class AsyncSnapshotChannel
     {
-
         [Test]
         public void AsyncSnapshot()
         {

@@ -45,11 +45,13 @@ namespace Fibrous.Channels
         ///<param name="receive"></param>
         ///<param name="receiveSnapshot"> </param>
         ///<param name="timeout"> </param>
-        public IDisposable PrimedSubscribe(IFiber fiber, Action<T> receive, Action<TSnapshot> receiveSnapshot, TimeSpan timeout)
+        public IDisposable PrimedSubscribe(IFiber fiber,
+                                           Action<T> receive,
+                                           Action<TSnapshot> receiveSnapshot,
+                                           TimeSpan timeout)
         {
             var primedSubscribe = new SnapshotRequest<T, TSnapshot>(fiber, _updatesChannel, receive, receiveSnapshot);
-
-            TSnapshot reply  = _requestChannel.SendRequest(null,timeout);
+            TSnapshot reply = _requestChannel.SendRequest(null, timeout);
             receiveSnapshot(reply);
             return primedSubscribe;
         }

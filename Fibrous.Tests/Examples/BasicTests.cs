@@ -43,7 +43,7 @@
         [Test]
         public void PubSubWithDedicatedThreadWithFilter()
         {
-            using (var fiber = ThreadFiber.StartNew())
+            using (IFiber fiber = ThreadFiber.StartNew())
             {
                 var channel = new Channel<int>();
                 using (var reset = new AutoResetEvent(false))
@@ -69,7 +69,7 @@
         [Test]
         public void Batching()
         {
-            using (var fiber = ThreadFiber.StartNew())
+            using (IFiber fiber = ThreadFiber.StartNew())
             {
                 var counter = new Channel<int>();
                 var reset = new ManualResetEvent(false);
@@ -96,7 +96,7 @@
         [Test]
         public void BatchingWithKey()
         {
-            using (var fiber = ThreadFiber.StartNew())
+            using (IFiber fiber = ThreadFiber.StartNew())
             {
                 var counter = new Channel<int>();
                 var reset = new ManualResetEvent(false);
@@ -116,10 +116,7 @@
                     }
                 }
                 Assert.IsTrue(reset.WaitOne(10000, false));
-                
             }
         }
-
-
     }
 }

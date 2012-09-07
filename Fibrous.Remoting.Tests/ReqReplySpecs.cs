@@ -88,8 +88,8 @@
         {
             Context = Context.Create();
             Context2 = Context.Create();
-            Func<byte[], int, string> unmarshaller = (x, y) => Encoding.Unicode.GetString(x, 0, y);
-         Fiber.Add(  _channel.SetRequestHandler(Fiber, request => request.Reply(request.Request.ToUpper())));
+            Func<byte[], string> unmarshaller = (x) => Encoding.Unicode.GetString(x);
+            Fiber.Add(_channel.SetRequestHandler(Fiber, request => request.Reply(request.Request.ToUpper())));
             Func<string, byte[]> marshaller = x => Encoding.Unicode.GetBytes(x);
             Service = new RequestService<string, string>(Context,
                 "tcp://*:9995",

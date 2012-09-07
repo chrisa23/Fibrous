@@ -11,7 +11,7 @@ namespace Fibrous.Tests
         [Test]
         public void SynchronousRequestReply()
         {
-            using (var responder = PoolFiber.StartNew())
+            using (IFiber responder = PoolFiber.StartNew())
             {
                 DateTime now = DateTime.Now;
                 var timeCheck = new RequestChannel<string, DateTime>();
@@ -23,11 +23,10 @@ namespace Fibrous.Tests
             }
         }
 
-
         [Test]
         public void RequestChannelTest()
         {
-            using (var fiber = PoolFiber.StartNew())
+            using (IFiber fiber = PoolFiber.StartNew())
             {
                 var channel = new RequestChannel<string, string>();
                 using (channel.SetRequestHandler(fiber, req => req.Reply("bye")))
