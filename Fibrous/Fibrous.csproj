@@ -46,9 +46,15 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Channels\IAsyncSnapshotChannel.cs" />
+    <Compile Include="Channels\ISnapshotPublishPort.cs" />
+    <Compile Include="Channels\SnapshotChannel.cs" />
     <Compile Include="Channels\SnapshotRequest.cs" />
+    <Compile Include="FiberExtensions.cs" />
     <Compile Include="Fibers\ExceptionHandlingExecutor.cs" />
+    <Compile Include="RequestPortExtensions.cs" />
     <Compile Include="Scheduling\TimerAction.cs" />
+    <Compile Include="SubscribePortExtensions.cs" />
     <Compile Include="Utility\PendingAction.cs" />
     <Compile Include="Utility\DisposeAction.cs" />
     <Compile Include="Utility\Unsubscriber.cs" />
