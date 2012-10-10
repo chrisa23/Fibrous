@@ -42,9 +42,7 @@
             {
                 Message message = _requestSocket.ReceiveMessage();
                 if (message.IsEmpty)
-                {
                     continue;
-                }
                 byte[] id = message[0].Buffer;
                 byte[] rid = message[1].Buffer;
                 ProcessRequest(id, rid, message[2].Buffer);

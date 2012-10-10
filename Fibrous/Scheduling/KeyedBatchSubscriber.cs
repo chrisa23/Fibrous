@@ -39,9 +39,7 @@ namespace Fibrous.Scheduling
         {
             IDictionary<TKey, T> toReturn = ClearPending();
             if (toReturn != null)
-            {
                 _target(toReturn);
-            }
         }
 
         private IDictionary<TKey, T> ClearPending()

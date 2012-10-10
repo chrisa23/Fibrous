@@ -16,7 +16,7 @@ namespace Fibrous
         /// <returns>   . </returns>
         public static IDisposable SubscribeToBatch<T>(this ISubscribePort<T> port,
                                                       IFiber fiber,
-                                                      Action<IList<T>> receive,
+                                                      Action<T[]> receive,
                                                       TimeSpan interval)
         {
             return new BatchSubscriber<T>(port, fiber, new TimerScheduler(), interval, receive);
@@ -47,9 +47,7 @@ namespace Fibrous
             Action<T> filteredReceiver = x =>
             {
                 if (filter(x))
-                {
                     fiber.Enqueue(() => receive(x));
-                }
             };
             return port.Subscribe(new StubFiber(), filteredReceiver);
         }

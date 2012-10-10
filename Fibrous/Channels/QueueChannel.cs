@@ -46,9 +46,7 @@ namespace Fibrous.Channels
             }
             Action onSignal = SignalEvent;
             if (onSignal != null)
-            {
                 onSignal();
-            }
             return true;
         }
 
@@ -72,9 +70,7 @@ namespace Fibrous.Channels
                 lock (this)
                 {
                     if (_flushPending)
-                    {
                         return;
-                    }
                     _target.Enqueue(ConsumeNext);
                     _flushPending = true;
                 }
@@ -86,22 +82,16 @@ namespace Fibrous.Channels
                 {
                     TMsg msg;
                     if (_eventChannel.Pop(out msg))
-                    {
                         _callback(msg);
-                    }
                 }
                 finally
                 {
                     lock (this)
                     {
                         if (_eventChannel.Count == 0)
-                        {
                             _flushPending = false;
-                        }
                         else
-                        {
                             _target.Enqueue(ConsumeNext);
-                        }
                     }
                 }
             }

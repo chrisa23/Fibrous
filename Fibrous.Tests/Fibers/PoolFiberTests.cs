@@ -21,14 +21,10 @@ namespace Fibrous.Tests
                 {
                     result.Add(count++);
                     if (count == 100)
-                    {
                         reset.Set();
-                    }
                 };
                 for (int i = 0; i < 100; i++)
-                {
                     fiber.Enqueue(command);
-                }
                 Assert.IsTrue(reset.WaitOne(10000, false));
                 Assert.AreEqual(100, count);
             }

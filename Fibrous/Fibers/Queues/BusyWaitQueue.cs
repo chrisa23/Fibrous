@@ -34,25 +34,17 @@
                     {
                     }
                     if (!Running)
-                    {
                         break;
-                    }
                     List<Action> toReturn = TryDequeue();
                     if (toReturn != null)
-                    {
                         return toReturn;
-                    }
                     if (TryBlockingWait(stopwatch, ref spins))
                     {
                         if (!Running)
-                        {
                             break;
-                        }
                         toReturn = TryDequeue();
                         if (toReturn != null)
-                        {
                             return toReturn;
-                        }
                     }
                 }
                 finally
@@ -67,9 +59,7 @@
         private bool TryBlockingWait(Stopwatch stopwatch, ref int spins)
         {
             if (spins++ < _spinsBeforeTimeCheck)
-            {
                 return false;
-            }
             spins = 0;
             if (stopwatch.ElapsedMilliseconds > _msBeforeBlockingWait)
             {

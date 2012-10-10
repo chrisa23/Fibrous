@@ -86,9 +86,7 @@ namespace Fibrous.Fibers
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-            {
                 _queue.Stop();
-            }
             base.Dispose(disposing);
         }
 

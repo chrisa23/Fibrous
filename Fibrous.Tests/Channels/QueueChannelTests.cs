@@ -24,15 +24,11 @@ namespace Fibrous.Tests
                 {
                     oneConsumed++;
                     if (oneConsumed == 20)
-                    {
                         reset.Set();
-                    }
                 };
                 channel.Subscribe(one, onMsg);
                 for (int i = 0; i < 20; i++)
-                {
                     channel.Publish(i);
-                }
                 Assert.IsTrue(reset.WaitOne(10000, false));
             }
         }
@@ -50,9 +46,7 @@ namespace Fibrous.Tests
                 Action<int> onMsg = delegate(int num)
                 {
                     if (num == 0)
-                    {
                         throw new Exception();
-                    }
                     reset.Set();
                 };
                 channel.Subscribe(one, onMsg);
@@ -81,9 +75,7 @@ namespace Fibrous.Tests
                     {
                         receiveCount++;
                         if (receiveCount == messageCount)
-                        {
                             reset.Set();
-                        }
                     }
                 };
                 var fiber = new PoolFiber();
@@ -92,9 +84,7 @@ namespace Fibrous.Tests
                 channel.Subscribe(fiber, onReceive);
             }
             for (int i = 0; i < messageCount; i++)
-            {
                 channel.Publish(i);
-            }
             Assert.IsTrue(reset.WaitOne(10000, false));
             queues.ForEach(delegate(IFiber q) { q.Dispose(); });
         }
@@ -107,9 +97,7 @@ namespace Fibrous.Tests
         public void Execute(IEnumerable<Action> toExecute)
         {
             foreach (Action action in toExecute)
-            {
                 Execute(action);
-            }
         }
 
         public void Execute(Action toExecute)

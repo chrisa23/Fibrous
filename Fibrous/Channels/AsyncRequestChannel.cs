@@ -17,9 +17,7 @@ namespace Fibrous.Channels
             var channelRequest = new AsyncChannelRequest(fiber, request, onReply);
             bool sent = _requestChannel.Publish(channelRequest);
             if (!sent)
-            {
                 throw new ArgumentException("No one is listening on AsyncRequestReplyChannel");
-            }
             return channelRequest;
         }
 
@@ -45,9 +43,7 @@ namespace Fibrous.Channels
             public void Dispose()
             {
                 if (_sub != null)
-                {
                     _sub.Dispose();
-                }
             }
         }
     }

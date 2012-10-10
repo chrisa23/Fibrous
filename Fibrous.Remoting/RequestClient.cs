@@ -24,14 +24,10 @@ namespace Fibrous.Remoting
         {
             SendStatus result = _socket.Send(request);
             if (result != SendStatus.Sent)
-            {
                 throw new Exception("Error sending message on socket");
-            }
             Message msg = _socket.ReceiveMessage(timeout);
             if (msg.IsEmpty)
-            {
                 return new byte[0];
-            }
             return msg[0].Buffer;
         }
 

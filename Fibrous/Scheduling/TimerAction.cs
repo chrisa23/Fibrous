@@ -34,17 +34,13 @@ namespace Fibrous.Scheduling
                 DisposeTimer();
             }
             if (!_cancelled)
-            {
                 fiber.Enqueue(Execute);
-            }
         }
 
         private void Execute()
         {
             if (!_cancelled)
-            {
                 _action();
-            }
         }
 
         public void Dispose()

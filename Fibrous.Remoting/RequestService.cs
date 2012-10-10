@@ -43,9 +43,7 @@ namespace Fibrous.Remoting
                 //check for time/cutoffs to trigger events...
                 Message msg = _socket.ReceiveMessage(_timeout);
                 if (msg.IsEmpty)
-                {
                     continue;
-                }
                 //copy so we aren't using a callback to an updated Id or rId buffer
                 ProcessRequest(msg[0].Buffer);
             }

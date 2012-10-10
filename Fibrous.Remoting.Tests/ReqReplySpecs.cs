@@ -18,9 +18,7 @@
         {
             Reply = Client.SendRequest("test", TimeSpan.FromSeconds(2));
             if (Reply == "TEST")
-            {
                 Replied.Set();
-            }
             WaitHandle.WaitAny(new WaitHandle[] { Replied }, TimeSpan.FromSeconds(1));
             Reply.Should().BeEquivalentTo("TEST");
             Cleanup();
@@ -37,9 +35,7 @@
             {
                 Reply = Client.SendRequest("test" + i, TimeSpan.FromSeconds(1));
                 if (Reply == "TEST99")
-                {
                     Replied.Set();
-                }
             }
             WaitHandle.WaitAny(new WaitHandle[] { Replied }, TimeSpan.FromSeconds(1));
             Reply.Should().BeEquivalentTo("TEST99");

@@ -37,24 +37,16 @@
         private bool SpaceAvailable(int toAdd)
         {
             if (!Running)
-            {
                 return false;
-            }
             while (_maxQueueDepth > 0 && Actions.Count + toAdd > _maxQueueDepth)
             {
                 if (_maxEnqueueWaitTime <= 0)
-                {
                     throw new QueueFullException(Actions.Count);
-                }
                 Monitor.Wait(SyncRoot, _maxEnqueueWaitTime);
                 if (!Running)
-                {
                     return false;
-                }
                 if (_maxQueueDepth > 0 && Actions.Count + toAdd > _maxQueueDepth)
-                {
                     throw new QueueFullException(Actions.Count);
-                }
             }
             return true;
         }
@@ -77,13 +69,9 @@
         private bool ReadyToDequeue()
         {
             while (Actions.Count == 0 && Running)
-            {
                 Monitor.Wait(SyncRoot);
-            }
             if (!Running)
-            {
                 return false;
-            }
             return true;
         }
     }

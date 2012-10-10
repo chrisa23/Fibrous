@@ -26,9 +26,7 @@ namespace Fibrous.Channels
         public bool Publish(TSnapshot msg)
         {
             if (_disposed)
-            {
                 return false;
-            }
             _fiber.Enqueue(() => _receiveSnapshot(msg));
             //publishing the snapshot subscribes the updates...
             _sub = _updatesPort.Subscribe(_fiber, _receive);
@@ -40,9 +38,7 @@ namespace Fibrous.Channels
             _disposed = true;
             _fiber.Remove(this);
             if (_sub != null)
-            {
                 _sub.Dispose();
-            }
         }
     }
 }

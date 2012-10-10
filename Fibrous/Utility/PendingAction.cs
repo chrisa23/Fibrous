@@ -20,9 +20,7 @@ namespace Fibrous.Utility
         public void Execute()
         {
             if (!_cancelled)
-            {
                 _action();
-            }
         }
     }
 }

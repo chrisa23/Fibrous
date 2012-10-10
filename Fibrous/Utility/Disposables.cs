@@ -36,9 +36,7 @@ namespace Fibrous.Utility
             if (!_disposed)
             {
                 if (disposing)
-                {
                     DisposeOfMembers();
-                }
                 _disposed = true;
             }
         }
@@ -52,9 +50,7 @@ namespace Fibrous.Utility
                 _items.Clear();
             }
             foreach (IDisposable victim in disposables)
-            {
                 victim.Dispose();
-            }
         }
     }
 }

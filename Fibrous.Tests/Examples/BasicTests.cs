@@ -52,9 +52,7 @@
                     {
                         Assert.IsTrue(x % 2 == 0);
                         if (x == 4)
-                        {
                             reset.Set();
-                        }
                     };
                     channel.Subscribe(fiber, onMsg, x => x % 2 == 0);
                     channel.Publish(1);
@@ -78,16 +76,12 @@
                 {
                     total += batch.Count;
                     if (total == 10)
-                    {
                         reset.Set();
-                    }
                 };
                 using (counter.SubscribeToBatch(fiber, cb, TimeSpan.FromMilliseconds(1)))
                 {
                     for (int i = 0; i < 10; i++)
-                    {
                         counter.Publish(i);
-                    }
                 }
                 Assert.IsTrue(reset.WaitOne(10000, false));
             }
@@ -103,17 +97,13 @@
                 Action<IDictionary<String, int>> cb = delegate(IDictionary<String, int> batch)
                 {
                     if (batch.ContainsKey("9"))
-                    {
                         reset.Set();
-                    }
                 };
                 Converter<int, String> keyResolver = x => x.ToString();
                 using (counter.SubscribeToKeyedBatch(fiber, keyResolver, cb, TimeSpan.FromMilliseconds(1)))
                 {
                     for (int i = 0; i < 10; i++)
-                    {
                         counter.Publish(i);
-                    }
                 }
                 Assert.IsTrue(reset.WaitOne(10000, false));
             }

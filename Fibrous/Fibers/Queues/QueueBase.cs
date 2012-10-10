@@ -53,9 +53,7 @@ namespace Fibrous.Fibers.Queues
         {
             IEnumerable<Action> toExecute = DequeueAll();
             if (toExecute == null)
-            {
                 return false;
-            }
             _executor.Execute(toExecute);
             return true;
         }

@@ -38,15 +38,11 @@
                 {
                     Received = s;
                     if (s == "test999999")
-                    {
                         RcvdSignal.Set();
-                    }
                 });
             Stopwatch sw = Stopwatch.StartNew();
             for (int i = 0; i < 1000000; i++)
-            {
                 Push.Publish("test" + i);
-            }
             RcvdSignal.WaitOne(TimeSpan.FromSeconds(10));
             sw.Stop();
             Console.WriteLine("Elapsed: " + sw.ElapsedMilliseconds);

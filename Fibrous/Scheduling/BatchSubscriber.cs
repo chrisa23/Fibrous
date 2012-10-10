@@ -5,14 +5,14 @@ namespace Fibrous.Scheduling
 
     internal sealed class BatchSubscriber<T> : BatchSubscriberBase<T>
     {
-        private readonly Action<IList<T>> _receive;
+        private readonly Action<T[]> _receive;
         private List<T> _pending;
 
         public BatchSubscriber(ISubscribePort<T> channel,
                                IFiber fiber,
                                IScheduler scheduler,
                                TimeSpan interval,
-                               Action<IList<T>> receive)
+                               Action<T[]> receive)
             : base(channel, fiber, scheduler, interval)
         {
             _receive = receive;
@@ -33,19 +33,17 @@ namespace Fibrous.Scheduling
 
         private void Flush()
         {
-            IList<T> toFlush = null;
+            T[] toFlush = null;
             lock (BatchLock)
             {
                 if (_pending != null)
                 {
-                    toFlush = _pending;
+                    toFlush = _pending.ToArray();
                     _pending = null;
                 }
             }
             if (toFlush != null)
-            {
                 _receive(toFlush);
-            }
         }
     }
 }

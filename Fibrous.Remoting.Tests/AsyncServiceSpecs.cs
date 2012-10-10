@@ -43,9 +43,7 @@
                     {
                         Reply = x;
                         if (x == "TEST99")
-                        {
                             Replied.Set();
-                        }
                     });
             }
             Replied.WaitOne(TimeSpan.FromSeconds(10));
@@ -72,9 +70,7 @@
                     {
                         Reply = x;
                         if (x == EndReply)
-                        {
                             Replied.Set();
-                        }
                     });
             }
             Replied.WaitOne(TimeSpan.FromSeconds(20));

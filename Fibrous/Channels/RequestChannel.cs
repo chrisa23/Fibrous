@@ -21,9 +21,7 @@ namespace Fibrous.Channels
                 _requestChannel.Publish(channelRequest);
                 TReply reply;
                 if (!channelRequest.Receive(timeout, out reply))
-                {
                     throw new TimeoutException("Timeout waiting for reply");
-                }
                 return reply;
             }
         }
@@ -47,9 +45,7 @@ namespace Fibrous.Channels
                 lock (_lock)
                 {
                     if (_disposed)
-                    {
                         return false;
-                    }
                     _resp.Enqueue(response);
                     Monitor.PulseAll(_lock);
                     return true;

@@ -44,9 +44,7 @@ namespace Fibrous.Tests
                 req =>
                 {
                     for (int i = 0; i < 5; i++)
-                    {
                         req.Reply(i);
-                    }
                 });
             var received = new CountdownEvent(5);
             int result = -1;

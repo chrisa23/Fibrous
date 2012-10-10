@@ -46,11 +46,15 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actors\ActorBase.cs" />
+    <Compile Include="Actors\BatchingActor.cs" />
+    <Compile Include="Actors\IActor.cs" />
     <Compile Include="Channels\IAsyncSnapshotChannel.cs" />
     <Compile Include="Channels\ISnapshotPublishPort.cs" />
     <Compile Include="Channels\SnapshotChannel.cs" />
     <Compile Include="Channels\SnapshotRequest.cs" />
     <Compile Include="FiberExtensions.cs" />
+    <Compile Include="Actors\Actor.cs" />
     <Compile Include="Fibers\ExceptionHandlingExecutor.cs" />
     <Compile Include="RequestPortExtensions.cs" />
     <Compile Include="Scheduling\TimerAction.cs" />
@@ -102,6 +106,7 @@
     <Compile Include="Fibers\ThreadFiber.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

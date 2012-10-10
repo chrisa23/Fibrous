@@ -12,13 +12,9 @@ namespace Fibrous.Remoting
         {
             Socket = context.CreateSocket(SocketType.PULL);
             if (useBind)
-            {
                 Socket.Bind(address);
-            }
             else
-            {
                 Socket.Connect(address);
-            }
             Initialize();
         }
     }
@@ -86,9 +82,7 @@ namespace Fibrous.Remoting
             {
                 Message message = Socket.ReceiveMessage(); //_timeout);
                 if (message.IsEmpty)
-                {
                     continue;
-                }
                 T msg = _msgReceiver(message[0].Buffer, message[0].BufferSize);
                 _internalChannel.Publish(msg);
             }

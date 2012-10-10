@@ -32,9 +32,7 @@ namespace Fibrous.Fibers.Queues
         private bool ReadyToDequeue()
         {
             while (Actions.Count == 0 && Running)
-            {
                 Monitor.Wait(SyncRoot);
-            }
             return Running;
         }
     }

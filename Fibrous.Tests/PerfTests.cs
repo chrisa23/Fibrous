@@ -20,9 +20,7 @@
                 count++;
             }
             if (count < 10000)
-            {
                 Thread.Sleep(1);
-            }
         }
 
         public void Execute(Action toExecute)
@@ -106,9 +104,7 @@
                 using (new PerfTimer(max))
                 {
                     for (int i = 0; i <= max; i++)
-                    {
                         channel.Publish(new MsgStruct { count = i });
-                    }
                     Assert.IsTrue(reset.WaitOne(30000, false));
                 }
             }
@@ -131,9 +127,7 @@
             {
                 Count++;
                 if (Count == _cutoff)
-                {
                     handle.Set();
-                }
             }
         }
 
@@ -151,9 +145,7 @@
             public void OnMsg(int msg)
             {
                 if (msg == _cutoff)
-                {
                     handle.Set();
-                }
             }
         }
 
@@ -172,9 +164,7 @@
                 using (new PerfTimer(max))
                 {
                     for (int i = 0; i <= max; i++)
-                    {
                         channel.Publish(i);
-                    }
                     Assert.IsTrue(reset.WaitOne(30000, false));
                 }
             }
@@ -193,9 +183,7 @@
                 Action<object> onMsg = delegate(object msg)
                 {
                     if (msg == end)
-                    {
                         reset.Set();
-                    }
                 };
                 channel.Subscribe(fiber, onMsg);
                 Thread.Sleep(100);
@@ -203,9 +191,7 @@
                 {
                     var msg = new object();
                     for (int i = 0; i <= max; i++)
-                    {
                         channel.Publish(msg);
-                    }
                     channel.Publish(end);
                     Assert.IsTrue(reset.WaitOne(30000, false));
                 }

@@ -32,9 +32,7 @@
             double msPerTick = 1000.0 / Stopwatch.Frequency;
             var channels = new IChannel<Msg>[channelCount];
             for (int i = 0; i < channels.Length; i++)
-            {
                 channels[i] = new Channel<Msg>();
-            }
             var fibers = new ThreadFiber[channelCount];
             for (int i = 0; i < fibers.Length; i++)
             {
@@ -48,17 +46,13 @@
                     Action<Msg> cb = delegate(Msg message)
                     {
                         if (target != null)
-                        {
                             target.Publish(message);
-                        }
                         else
                         {
                             long now = Stopwatch.GetTimestamp();
                             long diff = now - message.Time;
                             if (message.Log)
-                            {
                                 Console.WriteLine("qTime: " + diff * msPerTick);
-                            }
                             message.Latch.Set();
                         }
                     };
@@ -78,9 +72,7 @@
                 Thread.Sleep(10);
             }
             foreach (ThreadFiber fiber in fibers)
-            {
                 fiber.Dispose();
-            }
         }
 
         private class Msg

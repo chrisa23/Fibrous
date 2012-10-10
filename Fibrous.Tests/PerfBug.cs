@@ -38,9 +38,7 @@
             Action<string> onMsg = x =>
             {
                 if (x == "end")
-                {
                     Console.WriteLine(x);
-                }
             };
             Stopwatch watch = Stopwatch.StartNew();
             for (int i = 0; i < 5000000; i++)
@@ -60,9 +58,7 @@
             Action<string> onMsg = x =>
             {
                 if (x == "end")
-                {
                     Console.WriteLine(x);
-                }
             };
             var fact = new ActionFactory<string>(onMsg);
             Stopwatch watch = Stopwatch.StartNew();
@@ -82,9 +78,7 @@
             Action<string> onMsg = x =>
             {
                 if (x == "end")
-                {
                     Console.WriteLine(x);
-                }
             };
             var fact = new ActionFactory<string>(onMsg);
             Stopwatch watch = Stopwatch.StartNew();
@@ -143,9 +137,7 @@
             var fact = new ActionFactory<int>(onMsg);
             Stopwatch watch = Stopwatch.StartNew();
             for (int i = 0; i < 5000000; i++)
-            {
                 fact.Create(1);
-            }
             watch.Stop();
             Console.WriteLine("Elapsed: " + watch.ElapsedMilliseconds);
         }

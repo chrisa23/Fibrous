@@ -22,9 +22,7 @@ namespace Fibrous.Fibers
         public override void Enqueue(Action action)
         {
             if (_started == ExecutionState.Stopped)
-            {
                 return;
-            }
             if (_started == ExecutionState.Created)
             {
                 lock (_lock)
@@ -42,17 +40,13 @@ namespace Fibrous.Fibers
         public override void Start()
         {
             if (_started == ExecutionState.Running)
-            {
                 throw new ThreadStateException("Already Started");
-            }
             lock (_lock)
             {
                 List<Action> actions = _queue.ToList();
                 _queue.Clear();
                 if (actions.Count > 0)
-                {
                     _executionContext.Enqueue(() => _executor.Execute(actions));
-                }
                 _started = ExecutionState.Running;
             }
         }
@@ -60,9 +54,7 @@ namespace Fibrous.Fibers
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-            {
                 _started = ExecutionState.Stopped;
-            }
             base.Dispose(disposing);
         }
     }

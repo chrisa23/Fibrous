@@ -17,13 +17,9 @@ namespace Fibrous.Remoting
             _msgSender = marshaller;
             _socket = context.CreateSocket(type);
             if (bind)
-            {
                 _socket.Bind(address);
-            }
             else
-            {
                 _socket.Connect(address);
-            }
         }
 
         public bool Publish(T msg)
