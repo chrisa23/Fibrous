@@ -7,17 +7,13 @@ namespace Fibrous.Actors
     public abstract class ActorBase<TMsg> : IActor<TMsg>
     {
         protected readonly IFiber Fiber;
-        private readonly IChannel<TMsg> _channel = new Channel<TMsg>();
+        protected readonly IChannel<TMsg> Channel = new Channel<TMsg>();
 
         protected ActorBase(IFiber fiber)
         {
             Fiber = fiber;
-            // ReSharper disable DoNotCallOverridableMethodsInConstructor
-            HandleSubscribe(_channel);
-            // ReSharper restore DoNotCallOverridableMethodsInConstructor
         }
 
-        //All classes inheriting from this class must override this and should be sealed.
         protected abstract void HandleSubscribe(ISubscribePort<TMsg> port);
 
         protected ActorBase()
@@ -32,7 +28,7 @@ namespace Fibrous.Actors
 
         public bool Publish(TMsg msg)
         {
-            return _channel.Publish(msg);
+            return Channel.Publish(msg);
         }
 
         public void Dispose()

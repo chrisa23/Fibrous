@@ -13,6 +13,7 @@ namespace Fibrous.Actors
         {
             _handler = handler;
             _time = time;
+            HandleSubscribe(Channel);
         }
 
         public BatchingActor(Action<TMsg[]> handler, TimeSpan time)

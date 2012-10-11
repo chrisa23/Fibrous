@@ -10,6 +10,7 @@
         public Actor(IFiber fiber, Action<TMsg> handler) : base(fiber)
         {
             _handler = handler;
+            HandleSubscribe(Channel);
         }
 
         public Actor(Action<TMsg> handler)
