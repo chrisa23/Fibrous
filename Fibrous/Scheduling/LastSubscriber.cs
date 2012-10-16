@@ -1,7 +1,7 @@
+using System;
+
 namespace Fibrous.Scheduling
 {
-    using System;
-
     internal sealed class LastSubscriber<T> : BatchSubscriberBase<T>
     {
         private readonly Action<T> _target;

@@ -1,8 +1,8 @@
-﻿namespace Fibrous.Actors
-{
-    using System;
-    using Fibrous.Fibers;
+﻿using System;
+using Fibrous.Fibers;
 
+namespace Fibrous.Actors
+{
     public sealed class Actor<TMsg> : ActorBase<TMsg>
     {
         private readonly Action<TMsg> _handler;

@@ -1,8 +1,8 @@
+using System;
+using Fibrous.Fibers;
+
 namespace Fibrous.Actors
 {
-    using System;
-    using Fibrous.Fibers;
-
     public sealed class BatchingActor<TMsg> : ActorBase<TMsg>
     {
         private readonly Action<TMsg[]> _handler;

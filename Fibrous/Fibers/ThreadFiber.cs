@@ -1,9 +1,9 @@
+using System;
+using System.Threading;
+using Fibrous.Fibers.Queues;
+
 namespace Fibrous.Fibers
 {
-    using System;
-    using System.Threading;
-    using Fibrous.Fibers.Queues;
-
     /// <summary>
     ///   Fiber implementation backed by a dedicated thread.
     ///   <see cref = "IFiber" />
@@ -11,10 +11,10 @@ namespace Fibrous.Fibers
     public sealed class ThreadFiber : FiberBase
     {
         private static int threadCount;
-        private readonly Thread _thread;
-        private readonly IQueue _queue;
         private readonly bool _isBackground;
         private readonly ThreadPriority _priority;
+        private readonly IQueue _queue;
+        private readonly Thread _thread;
 
         /// <summary>
         ///   Create a thread fiber with the default queue.
@@ -58,7 +58,12 @@ namespace Fibrous.Fibers
             _queue = queue;
             _isBackground = isBackground;
             _priority = priority;
-            _thread = new Thread(RunThread) { Name = threadName, IsBackground = _isBackground, Priority = _priority };
+            _thread = new Thread(RunThread) {Name = threadName, IsBackground = _isBackground, Priority = _priority};
+        }
+
+        public Thread Thread
+        {
+            get { return _thread; }
         }
 
         private static int GetNextThreadId()
@@ -80,8 +85,6 @@ namespace Fibrous.Fibers
         {
             _thread.Start();
         }
-
-        public Thread Thread { get { return _thread; } }
 
         protected override void Dispose(bool disposing)
         {

@@ -1,14 +1,14 @@
-﻿namespace Fibrous.Fibers.Queues
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Threading;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
 
+namespace Fibrous.Fibers.Queues
+{
     public sealed class BusyWaitQueue : QueueBase
     {
-        private readonly int _spinsBeforeTimeCheck;
         private readonly int _msBeforeBlockingWait;
+        private readonly int _spinsBeforeTimeCheck;
 
         public BusyWaitQueue(IExecutor executor, int spinsBeforeTimeCheck, int msBeforeBlockingWait)
             : base(executor)

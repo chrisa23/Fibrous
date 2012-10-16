@@ -1,11 +1,11 @@
+using System;
+using System.Threading;
+using Fibrous.Channels;
+using Fibrous.Fibers;
+using NUnit.Framework;
+
 namespace Fibrous.Tests
 {
-    using System;
-    using System.Threading;
-    using Fibrous.Channels;
-    using Fibrous.Fibers;
-    using NUnit.Framework;
-
     [TestFixture]
     public class AsyncRequestChannelTests
     {
@@ -22,12 +22,12 @@ namespace Fibrous.Tests
             timeCheck.SetRequestHandler(replier, req => req.Reply(now));
             DateTime result = DateTime.MinValue;
             timeCheck.SendRequest("hello",
-                requester,
-                x =>
-                {
-                    result = x;
-                    received.Set();
-                });
+                                  requester,
+                                  x =>
+                                      {
+                                          result = x;
+                                          received.Set();
+                                      });
             received.WaitOne(1000, false);
             Assert.AreEqual(result, now);
         }
@@ -41,20 +41,20 @@ namespace Fibrous.Tests
             replier.Start();
             var countChannel = new AsyncRequestChannel<string, int>();
             countChannel.SetRequestHandler(replier,
-                req =>
-                {
-                    for (int i = 0; i < 5; i++)
-                        req.Reply(i);
-                });
+                                           req =>
+                                               {
+                                                   for (int i = 0; i < 5; i++)
+                                                       req.Reply(i);
+                                               });
             var received = new CountdownEvent(5);
             int result = -1;
             countChannel.SendRequest("hello",
-                requester,
-                x =>
-                {
-                    result = x;
-                    received.Signal();
-                });
+                                     requester,
+                                     x =>
+                                         {
+                                             result = x;
+                                             received.Signal();
+                                         });
             received.Wait(1000);
             Assert.AreEqual(4, result);
         }

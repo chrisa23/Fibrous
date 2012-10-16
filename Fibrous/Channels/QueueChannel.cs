@@ -1,17 +1,45 @@
+using System;
+using System.Collections.Generic;
+
 namespace Fibrous.Channels
 {
-    using System;
-    using System.Collections.Generic;
-
     public sealed class QueueChannel<TMsg> : IChannel<TMsg>
     {
         private readonly Queue<TMsg> _queue = new Queue<TMsg>();
-        internal event Action SignalEvent;
+
+        private int Count
+        {
+            get
+            {
+                lock (_queue)
+                {
+                    return _queue.Count;
+                }
+            }
+        }
+
+        #region IChannel<TMsg> Members
 
         public IDisposable Subscribe(IFiber fiber, Action<TMsg> onMessage)
         {
             return new QueueConsumer(fiber, onMessage, this);
         }
+
+        public bool Publish(TMsg message)
+        {
+            lock (_queue)
+            {
+                _queue.Enqueue(message);
+            }
+            Action onSignal = SignalEvent;
+            if (onSignal != null)
+                onSignal();
+            return true;
+        }
+
+        #endregion
+
+        internal event Action SignalEvent;
 
         private bool Pop(out TMsg msg)
         {
@@ -27,35 +55,14 @@ namespace Fibrous.Channels
             return false;
         }
 
-        private int Count
-        {
-            get
-            {
-                lock (_queue)
-                {
-                    return _queue.Count;
-                }
-            }
-        }
-
-        public bool Publish(TMsg message)
-        {
-            lock (_queue)
-            {
-                _queue.Enqueue(message);
-            }
-            Action onSignal = SignalEvent;
-            if (onSignal != null)
-                onSignal();
-            return true;
-        }
+        #region Nested type: QueueConsumer
 
         private sealed class QueueConsumer : IDisposable
         {
-            private bool _flushPending;
-            private readonly IExecutionContext _target;
             private readonly Action<TMsg> _callback;
             private readonly QueueChannel<TMsg> _eventChannel;
+            private readonly IExecutionContext _target;
+            private bool _flushPending;
 
             public QueueConsumer(IExecutionContext target, Action<TMsg> callback, QueueChannel<TMsg> eventChannel)
             {
@@ -64,6 +71,15 @@ namespace Fibrous.Channels
                 _eventChannel = eventChannel;
                 _eventChannel.SignalEvent += Signal;
             }
+
+            #region IDisposable Members
+
+            public void Dispose()
+            {
+                _eventChannel.SignalEvent -= Signal;
+            }
+
+            #endregion
 
             private void Signal()
             {
@@ -95,11 +111,8 @@ namespace Fibrous.Channels
                     }
                 }
             }
-
-            public void Dispose()
-            {
-                _eventChannel.SignalEvent -= Signal;
-            }
         }
+
+        #endregion
     }
 }

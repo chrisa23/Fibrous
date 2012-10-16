@@ -1,9 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+
 namespace Fibrous.Fibers.Queues
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-
     public sealed class DefaultQueue : QueueBase
     {
         public DefaultQueue(IExecutor executor)

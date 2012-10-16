@@ -1,15 +1,15 @@
-﻿namespace Fibrous.Remoting.Tests.ReqReply
-{
-    using System;
-    using System.Diagnostics;
-    using System.Text;
-    using System.Threading;
-    using CrossroadsIO;
-    using Fibrous.Channels;
-    using Fibrous.Fibers;
-    using FluentAssertions;
-    using NUnit.Framework;
+﻿using System;
+using System.Diagnostics;
+using System.Text;
+using System.Threading;
+using CrossroadsIO;
+using Fibrous.Channels;
+using Fibrous.Fibers;
+using FluentAssertions;
+using NUnit.Framework;
 
+namespace Fibrous.Remoting.Tests.ReqReply
+{
     [TestFixture]
     public class WhenRequestIsSent : ReqReplyServiceSpecs
     {
@@ -19,7 +19,7 @@
             Reply = Client.SendRequest("test", TimeSpan.FromSeconds(2));
             if (Reply == "TEST")
                 Replied.Set();
-            WaitHandle.WaitAny(new WaitHandle[] { Replied }, TimeSpan.FromSeconds(1));
+            WaitHandle.WaitAny(new WaitHandle[] {Replied}, TimeSpan.FromSeconds(1));
             Reply.Should().BeEquivalentTo("TEST");
             Cleanup();
         }
@@ -37,7 +37,7 @@
                 if (Reply == "TEST99")
                     Replied.Set();
             }
-            WaitHandle.WaitAny(new WaitHandle[] { Replied }, TimeSpan.FromSeconds(1));
+            WaitHandle.WaitAny(new WaitHandle[] {Replied}, TimeSpan.FromSeconds(1));
             Reply.Should().BeEquivalentTo("TEST99");
             Cleanup();
         }
@@ -62,7 +62,7 @@
                     Replied.Set();
                 }
             }
-            WaitHandle.WaitAny(new WaitHandle[] { Replied }, TimeSpan.FromSeconds(15));
+            WaitHandle.WaitAny(new WaitHandle[] {Replied}, TimeSpan.FromSeconds(15));
             Console.WriteLine("Elapsed: " + sw.ElapsedMilliseconds);
             Assert.AreEqual(Reply, EndReply);
             Cleanup();
@@ -88,10 +88,10 @@
             Fiber.Add(_channel.SetRequestHandler(Fiber, request => request.Reply(request.Request.ToUpper())));
             Func<string, byte[]> marshaller = x => Encoding.Unicode.GetBytes(x);
             Service = new RequestService<string, string>(Context,
-                "tcp://*:9995",
-                unmarshaller,
-                _channel,
-                marshaller);
+                                                         "tcp://*:9995",
+                                                         unmarshaller,
+                                                         _channel,
+                                                         marshaller);
             Console.WriteLine("Start service");
             Client = new RequestClient<string, string>(Context2, "tcp://localhost:9995", marshaller, unmarshaller);
             Fiber.Add(Client);

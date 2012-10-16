@@ -1,31 +1,30 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using CrossroadsIO;
+using Fibrous.Channels;
+using Fibrous.Fibers;
+
 namespace Fibrous.Remoting
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using CrossroadsIO;
-    using Fibrous.Channels;
-    using Fibrous.Fibers;
-
     public class AsyncRequestClient<TRequest, TReply> : IAsyncRequestPort<TRequest, TReply>, IDisposable
     {
+        private readonly IFiber _fiber;
         private readonly byte[] _id = GetId();
+
         private readonly IAsyncRequestChannel<TRequest, TReply> _internalChannel =
             new AsyncRequestChannel<TRequest, TReply>();
-        private readonly IFiber _fiber;
-        private volatile bool _running = true;
+
         private readonly Context _replyContext;
         private readonly Socket _replySocket;
         private readonly Func<byte[], TReply> _replyUnmarshaller;
-        private readonly Socket _requestSocket;
         private readonly Func<TRequest, byte[]> _requestMarshaller;
+        private readonly Socket _requestSocket;
+
         private readonly Dictionary<Guid, IRequest<TRequest, TReply>> _requests =
             new Dictionary<Guid, IRequest<TRequest, TReply>>();
 
-        private static byte[] GetId()
-        {
-            return Guid.NewGuid().ToByteArray();
-        }
+        private volatile bool _running = true;
 
         public AsyncRequestClient(Context context,
                                   string address,
@@ -55,6 +54,29 @@ namespace Fibrous.Remoting
             _requestSocket.Connect(address + ":" + basePort);
             _fiber.Start();
             Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
+        }
+
+        #region IAsyncRequestPort<TRequest,TReply> Members
+
+        public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply)
+        {
+            return _internalChannel.SendRequest(request, fiber, onReply);
+        }
+
+        #endregion
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            _running = false;
+        }
+
+        #endregion
+
+        private static byte[] GetId()
+        {
+            return Guid.NewGuid().ToByteArray();
         }
 
         private void Run()
@@ -98,16 +120,6 @@ namespace Fibrous.Remoting
             _requestSocket.SendMore(msgId);
             byte[] requestData = _requestMarshaller(obj.Request);
             _requestSocket.Send(requestData);
-        }
-
-        public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply)
-        {
-            return _internalChannel.SendRequest(request, fiber, onReply);
-        }
-
-        public void Dispose()
-        {
-            _running = false;
         }
     }
 }

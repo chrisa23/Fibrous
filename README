@@ -9,7 +9,6 @@ Fibrous uses the concept of Fibers and Ports as abstractions.  Fibers represent 
 
 Some of the library benefits:
  - Small simple library 
- - 
  - UI thread/dispatcher marshalling
  - Good batched subscription support
  - UI throttling and redraw can be controlled easily

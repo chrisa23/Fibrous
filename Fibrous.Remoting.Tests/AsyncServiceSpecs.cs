@@ -1,15 +1,15 @@
-﻿namespace Fibrous.Remoting.Tests.Async
-{
-    using System;
-    using System.Diagnostics;
-    using System.Text;
-    using System.Threading;
-    using CrossroadsIO;
-    using Fibrous.Channels;
-    using Fibrous.Fibers;
-    using FluentAssertions;
-    using NUnit.Framework;
+﻿using System;
+using System.Diagnostics;
+using System.Text;
+using System.Threading;
+using CrossroadsIO;
+using Fibrous.Channels;
+using Fibrous.Fibers;
+using FluentAssertions;
+using NUnit.Framework;
 
+namespace Fibrous.Remoting.Tests.Async
+{
     [TestFixture]
     public class WhenRequestIsSent : AsyncReqReplyServiceSpecs
     {
@@ -17,12 +17,12 @@
         public void Test()
         {
             Client.SendRequest("test",
-                ClientFiber,
-                x =>
-                {
-                    Reply = x;
-                    Replied.Set();
-                });
+                               ClientFiber,
+                               x =>
+                                   {
+                                       Reply = x;
+                                       Replied.Set();
+                                   });
             Replied.WaitOne(TimeSpan.FromSeconds(1));
             Reply.Should().BeEquivalentTo("TEST");
             Cleanup();
@@ -38,13 +38,13 @@
             for (int i = 0; i < 100; i++)
             {
                 Client.SendRequest("test" + i,
-                    ClientFiber,
-                    x =>
-                    {
-                        Reply = x;
-                        if (x == "TEST99")
-                            Replied.Set();
-                    });
+                                   ClientFiber,
+                                   x =>
+                                       {
+                                           Reply = x;
+                                           if (x == "TEST99")
+                                               Replied.Set();
+                                       });
             }
             Replied.WaitOne(TimeSpan.FromSeconds(10));
             Reply.Should().BeEquivalentTo("TEST99");
@@ -65,13 +65,13 @@
             for (int i = 0; i < count; i++)
             {
                 Client.SendRequest("test" + i,
-                    ClientFiber,
-                    x =>
-                    {
-                        Reply = x;
-                        if (x == EndReply)
-                            Replied.Set();
-                    });
+                                   ClientFiber,
+                                   x =>
+                                       {
+                                           Reply = x;
+                                           if (x == EndReply)
+                                               Replied.Set();
+                                       });
             }
             Replied.WaitOne(TimeSpan.FromSeconds(20));
             sw.Stop();
@@ -107,19 +107,19 @@
             Func<byte[], string> unmarshaller = x => Encoding.Unicode.GetString(x);
             Func<string, byte[]> marshaller = x => Encoding.Unicode.GetBytes(x);
             Service = new AsyncRequestService<string, string>(ServerContext,
-                "tcp://*",
-                9997,
-                unmarshaller,
-                Channel,
-                marshaller);
+                                                              "tcp://*",
+                                                              9997,
+                                                              unmarshaller,
+                                                              Channel,
+                                                              marshaller);
             Console.WriteLine("Start service");
             ServerFiber.Add(Service);
             ServerFiber.Add(ServerContext);
             Client = new AsyncRequestClient<string, string>(ClientContext,
-                "tcp://localhost",
-                9997,
-                marshaller,
-                unmarshaller);
+                                                            "tcp://localhost",
+                                                            9997,
+                                                            marshaller,
+                                                            unmarshaller);
             ClientFiber.Add(Client);
             ClientFiber.Add(ClientContext);
             Console.WriteLine("Start client");

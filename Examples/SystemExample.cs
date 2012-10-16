@@ -1,27 +1,27 @@
-﻿namespace Examples
-{
-    using System;
-    using System.Collections.Generic;
-    using Fibrous;
-    using Fibrous.Actors;
-    using Fibrous.Channels;
-    using Fibrous.Fibers;
+﻿using System;
+using System.Collections.Generic;
+using Fibrous;
+using Fibrous.Actors;
+using Fibrous.Channels;
+using Fibrous.Fibers;
 
+namespace Examples
+{
     /// <summary>
     /// Very simple, non-functioning, system example.
     /// </summary>
     public class Channels
     {
-        public readonly IChannel<object> SystemIn = new Channel<object>();
-        public readonly IChannel<string> LogsOut = new Channel<string>();
         public readonly IChannel<double> DataOut = new Channel<double>();
+        public readonly IChannel<string> LogsOut = new Channel<string>();
+        public readonly IChannel<object> SystemIn = new Channel<object>();
     }
 
     public class BusinessLogic
     {
         //work going on and outputing messages or information
-        private readonly IFiber _fiber;
         private readonly Channels _channels;
+        private readonly IFiber _fiber;
 
         public BusinessLogic(IFiber fiber, Channels channels)
         {
@@ -47,14 +47,18 @@
             _actor = BatchingActor<string>.Start(x => LogToFile(_path, x), new TimeSpan(0, 0, 1));
         }
 
-        private static void LogToFile(string path, IList<string> items)
-        {
-            //log the lines to file... File.AppendLines
-        }
+        #region IDisposable Members
 
         public void Dispose()
         {
             _actor.Dispose();
+        }
+
+        #endregion
+
+        private static void LogToFile(string path, IList<string> items)
+        {
+            //log the lines to file... File.AppendLines
         }
     }
 
@@ -77,11 +81,11 @@
 
     public class SystemExample
     {
-        private readonly Channels _channels = new Channels();
         private readonly IFiber _blFiber;
+        private readonly Channels _channels = new Channels();
         private BusinessLogic _bl;
-        private FileLogging _logging;
         private UIDisplay _display;
+        private FileLogging _logging;
 
         public SystemExample()
         {

@@ -1,23 +1,23 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Fibrous.Fibers.Queues;
+
 namespace Fibrous.Fibers
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Fibrous.Fibers.Queues;
-
     /// <summary>
     /// Fiber that uses a thread pool for execution.
     /// </summary>
     public sealed class PoolFiber : FiberBase
     {
-        private readonly object _lock = new object();
         private readonly IExecutor _executor;
-        private List<Action> _queue = new List<Action>();
-        private List<Action> _toPass = new List<Action>();
-        private ExecutionState _started = ExecutionState.Created;
-        private bool _flushPending;
+        private readonly object _lock = new object();
         private readonly TaskFactory _taskFactory;
+        private bool _flushPending;
+        private List<Action> _queue = new List<Action>();
+        private ExecutionState _started = ExecutionState.Created;
+        private List<Action> _toPass = new List<Action>();
 
         public PoolFiber(IExecutor executor, TaskFactory taskFactory)
         {

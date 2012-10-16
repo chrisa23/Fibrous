@@ -1,15 +1,17 @@
-﻿namespace Fibrous.Tests
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-    using Fibrous.Channels;
-    using Fibrous.Fibers;
-    using Fibrous.Fibers.Queues;
-    using NUnit.Framework;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using Fibrous.Channels;
+using Fibrous.Fibers;
+using Fibrous.Fibers.Queues;
+using NUnit.Framework;
 
+namespace Fibrous.Tests
+{
     public class PerfExecutor : IExecutor
     {
+        #region IExecutor Members
+
         public void Execute(IEnumerable<Action> toExecute)
         {
             //    Console.WriteLine("execute_more");
@@ -28,6 +30,8 @@
             //   Console.WriteLine("execute");
             toExecute();
         }
+
+        #endregion
     }
 
     public struct MsgStruct
@@ -38,42 +42,6 @@
     [TestFixture]
     public class PerfTests
     {
-        [Test]
-        [Explicit]
-        public void TestBoundedQueue()
-        {
-            PointToPointPerfTestWithStruct(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000, 1000)));
-            PointToPointPerfTestWithInt(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000, 1000)));
-            PointToPointPerfTestWithObject(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000, 1000)));
-        }
-
-        [Test]
-        [Explicit]
-        public void TestBusyWait()
-        {
-            PointToPointPerfTestWithStruct(new ThreadFiber(new BusyWaitQueue(new PerfExecutor(), 1000, 25)));
-            PointToPointPerfTestWithInt(new ThreadFiber(new BusyWaitQueue(new PerfExecutor(), 1000, 25)));
-            PointToPointPerfTestWithObject(new ThreadFiber(new BusyWaitQueue(new PerfExecutor(), 1000, 25)));
-        }
-
-        [Test]
-        [Explicit]
-        public void TestDefault()
-        {
-            PointToPointPerfTestWithStruct(new ThreadFiber(new DefaultQueue(new PerfExecutor())));
-            PointToPointPerfTestWithInt(new ThreadFiber(new DefaultQueue(new PerfExecutor())));
-            PointToPointPerfTestWithObject(new ThreadFiber(new DefaultQueue(new PerfExecutor())));
-        }
-
-        [Test]
-        [Explicit]
-        public void TestPool()
-        {
-            PointToPointPerfTestWithStruct(new PoolFiber(new PerfExecutor()));
-            PointToPointPerfTestWithInt(new PoolFiber(new PerfExecutor()));
-            PointToPointPerfTestWithObject(new PoolFiber(new PerfExecutor()));
-        }
-
         //[Test]
         //public void TestDisruptor()
         //{
@@ -104,7 +72,7 @@
                 using (new PerfTimer(max))
                 {
                     for (int i = 0; i <= max; i++)
-                        channel.Publish(new MsgStruct { count = i });
+                        channel.Publish(new MsgStruct {count = i});
                     Assert.IsTrue(reset.WaitOne(30000, false));
                 }
             }
@@ -112,8 +80,8 @@
 
         private class Counter
         {
-            private readonly AutoResetEvent handle;
             private readonly int _cutoff;
+            private readonly AutoResetEvent handle;
 
             public Counter(AutoResetEvent handle, int cutoff)
             {
@@ -133,8 +101,8 @@
 
         private class CounterInt
         {
-            private readonly AutoResetEvent handle;
             private readonly int _cutoff;
+            private readonly AutoResetEvent handle;
 
             public CounterInt(AutoResetEvent handle, int cutoff)
             {
@@ -181,10 +149,10 @@
                 var reset = new AutoResetEvent(false);
                 var end = new object();
                 Action<object> onMsg = delegate(object msg)
-                {
-                    if (msg == end)
-                        reset.Set();
-                };
+                                           {
+                                               if (msg == end)
+                                                   reset.Set();
+                                           };
                 channel.Subscribe(fiber, onMsg);
                 Thread.Sleep(100);
                 using (new PerfTimer(max))
@@ -196,6 +164,42 @@
                     Assert.IsTrue(reset.WaitOne(30000, false));
                 }
             }
+        }
+
+        [Test]
+        [Explicit]
+        public void TestBoundedQueue()
+        {
+            PointToPointPerfTestWithStruct(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000, 1000)));
+            PointToPointPerfTestWithInt(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000, 1000)));
+            PointToPointPerfTestWithObject(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000, 1000)));
+        }
+
+        [Test]
+        [Explicit]
+        public void TestBusyWait()
+        {
+            PointToPointPerfTestWithStruct(new ThreadFiber(new BusyWaitQueue(new PerfExecutor(), 1000, 25)));
+            PointToPointPerfTestWithInt(new ThreadFiber(new BusyWaitQueue(new PerfExecutor(), 1000, 25)));
+            PointToPointPerfTestWithObject(new ThreadFiber(new BusyWaitQueue(new PerfExecutor(), 1000, 25)));
+        }
+
+        [Test]
+        [Explicit]
+        public void TestDefault()
+        {
+            PointToPointPerfTestWithStruct(new ThreadFiber(new DefaultQueue(new PerfExecutor())));
+            PointToPointPerfTestWithInt(new ThreadFiber(new DefaultQueue(new PerfExecutor())));
+            PointToPointPerfTestWithObject(new ThreadFiber(new DefaultQueue(new PerfExecutor())));
+        }
+
+        [Test]
+        [Explicit]
+        public void TestPool()
+        {
+            PointToPointPerfTestWithStruct(new PoolFiber(new PerfExecutor()));
+            PointToPointPerfTestWithInt(new PoolFiber(new PerfExecutor()));
+            PointToPointPerfTestWithObject(new PoolFiber(new PerfExecutor()));
         }
     }
 }

@@ -1,13 +1,13 @@
-﻿namespace Fibrous.Fibers.Queues
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 
+namespace Fibrous.Fibers.Queues
+{
     public sealed class BoundedQueue : QueueBase
     {
-        private readonly int _maxQueueDepth = -1;
         private readonly int _maxEnqueueWaitTime;
+        private readonly int _maxQueueDepth = -1;
 
         public BoundedQueue(IExecutor executor, int maxQueueDepth, int maxEnqueueWaitTime)
             : base(executor)

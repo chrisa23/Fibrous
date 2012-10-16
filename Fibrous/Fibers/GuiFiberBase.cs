@@ -1,15 +1,15 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+
 namespace Fibrous.Fibers
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
-
     public abstract class GuiFiberBase : FiberBase
     {
-        private readonly object _lock = new object();
         private readonly IExecutionContext _executionContext;
         private readonly IExecutor _executor;
+        private readonly object _lock = new object();
         private readonly List<Action> _queue = new List<Action>();
         private volatile ExecutionState _started = ExecutionState.Created;
 

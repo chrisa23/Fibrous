@@ -1,12 +1,12 @@
+using System;
+using CrossroadsIO;
+
 namespace Fibrous.Remoting
 {
-    using System;
-    using CrossroadsIO;
-
     public sealed class SendSocket<T> : IPublishPort<T>, IDisposable
     {
-        private readonly Socket _socket;
         private readonly Func<T, byte[]> _msgSender;
+        private readonly Socket _socket;
         //? swtich to ctor with Socket and Sender?  move setup to factory?
         public SendSocket(Context context,
                           string address,
@@ -22,6 +22,17 @@ namespace Fibrous.Remoting
                 _socket.Connect(address);
         }
 
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            _socket.Dispose();
+        }
+
+        #endregion
+
+        #region IPublishPort<T> Members
+
         public bool Publish(T msg)
         {
             //intended to allow multipart messages.. but inconsistent'
@@ -29,10 +40,7 @@ namespace Fibrous.Remoting
             return true;
         }
 
-        public void Dispose()
-        {
-            _socket.Dispose();
-        }
+        #endregion
 
         public static SendSocket<A> NewPubSocket<A>(Context context, string address, Func<A, byte[]> msgSender)
         {

@@ -1,12 +1,12 @@
+using System;
+using CrossroadsIO;
+
 namespace Fibrous.Remoting
 {
-    using System;
-    using CrossroadsIO;
-
     public class RequestClient<TRequest, TReply> : IRequestPort<TRequest, TReply>, IDisposable
     {
-        private readonly Func<TRequest, byte[]> _requestMarshaller;
         private readonly Func<byte[], TReply> _replyUnmarshaller;
+        private readonly Func<TRequest, byte[]> _requestMarshaller;
         private readonly Socket _socket;
 
         public RequestClient(Context context,
@@ -20,6 +20,27 @@ namespace Fibrous.Remoting
             _socket.Connect(address);
         }
 
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            _socket.Dispose();
+        }
+
+        #endregion
+
+        #region IRequestPort<TRequest,TReply> Members
+
+        public TReply SendRequest(TRequest request, TimeSpan timeout)
+        {
+            byte[] data = _requestMarshaller(request);
+            byte[] replyData = Send(data, timeout);
+            TReply reply = _replyUnmarshaller(replyData);
+            return reply;
+        }
+
+        #endregion
+
         private byte[] Send(byte[] request, TimeSpan timeout)
         {
             SendStatus result = _socket.Send(request);
@@ -29,19 +50,6 @@ namespace Fibrous.Remoting
             if (msg.IsEmpty)
                 return new byte[0];
             return msg[0].Buffer;
-        }
-
-        public void Dispose()
-        {
-            _socket.Dispose();
-        }
-
-        public TReply SendRequest(TRequest request, TimeSpan timeout)
-        {
-            byte[] data = _requestMarshaller(request);
-            byte[] replyData = Send(data, timeout);
-            TReply reply = _replyUnmarshaller(replyData);
-            return reply;
         }
     }
 }

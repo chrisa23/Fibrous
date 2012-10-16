@@ -1,17 +1,17 @@
+using System;
+using System.Threading.Tasks;
+using CrossroadsIO;
+
 namespace Fibrous.Remoting
 {
-    using System;
-    using System.Threading.Tasks;
-    using CrossroadsIO;
-
     public class RequestService<TRequest, TReply> : IDisposable
     {
-        private readonly Func<byte[], TRequest> _requestUnmarshaller;
         private readonly IRequestPort<TRequest, TReply> _businessLogic;
         private readonly Func<TReply, byte[]> _replyMarshaller;
-        private bool _running = true;
+        private readonly Func<byte[], TRequest> _requestUnmarshaller;
         private readonly Socket _socket;
         private readonly TimeSpan _timeout;
+        private bool _running = true;
 
         public RequestService(Context context,
                               string address,
@@ -27,6 +27,15 @@ namespace Fibrous.Remoting
             _socket.Bind(address);
             Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            _running = false;
+        }
+
+        #endregion
 
         private void ProcessRequest(byte[] buffer)
         {
@@ -53,11 +62,6 @@ namespace Fibrous.Remoting
         private void InternalDispose()
         {
             _socket.Dispose();
-        }
-
-        public void Dispose()
-        {
-            _running = false;
         }
     }
 }

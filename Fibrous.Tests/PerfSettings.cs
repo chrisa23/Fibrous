@@ -1,11 +1,11 @@
+using System.Runtime.InteropServices;
+
 namespace Fibrous.Tests
 {
-    using System.Runtime.InteropServices;
-
     public struct TIMECAPS
     {
-        public uint PeriodMin;
         public uint PeriodMax;
+        public uint PeriodMin;
     }
 
     public static class PerfSettings

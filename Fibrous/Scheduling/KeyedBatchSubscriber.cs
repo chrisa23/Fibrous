@@ -1,12 +1,12 @@
+using System;
+using System.Collections.Generic;
+
 namespace Fibrous.Scheduling
 {
-    using System;
-    using System.Collections.Generic;
-
     internal sealed class KeyedBatchSubscriber<TKey, T> : BatchSubscriberBase<T>
     {
-        private readonly Action<IDictionary<TKey, T>> _target;
         private readonly Converter<T, TKey> _keyResolver;
+        private readonly Action<IDictionary<TKey, T>> _target;
         private Dictionary<TKey, T> _pending;
 
         public KeyedBatchSubscriber(ISubscribePort<T> channel,

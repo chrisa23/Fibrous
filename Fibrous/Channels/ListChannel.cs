@@ -1,16 +1,18 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+
 namespace Fibrous.Channels
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-
     //simple snapshots...
     //this one enqueues actions to fiber...
     public sealed class ListChannel<T> : IChannel<T>
     {
-        private readonly object _lock = new object();
         private readonly List<T> _list = new List<T>();
+        private readonly object _lock = new object();
         private readonly IChannel<T> _updateChannel = new Channel<T>();
+
+        #region IChannel<T> Members
 
         public IDisposable Subscribe(IFiber fiber, Action<T> handler)
         {
@@ -37,5 +39,7 @@ namespace Fibrous.Channels
                 return publish;
             }
         }
+
+        #endregion
     }
 }

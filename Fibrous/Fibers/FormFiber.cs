@@ -1,8 +1,8 @@
+using System;
+using System.ComponentModel;
+
 namespace Fibrous.Fibers
 {
-    using System;
-    using System.ComponentModel;
-
     public sealed class FormFiber : GuiFiberBase
     {
         public FormFiber(ISynchronizeInvoke invoker, IExecutor executor)
@@ -29,6 +29,8 @@ namespace Fibrous.Fibers
             return fiber;
         }
 
+        #region Nested type: FormAdapter
+
         private class FormAdapter : IExecutionContext
         {
             private readonly ISynchronizeInvoke _invoker;
@@ -38,10 +40,16 @@ namespace Fibrous.Fibers
                 _invoker = invoker;
             }
 
+            #region IExecutionContext Members
+
             public void Enqueue(Action action)
             {
                 _invoker.BeginInvoke(action, null);
             }
+
+            #endregion
         }
+
+        #endregion
     }
 }

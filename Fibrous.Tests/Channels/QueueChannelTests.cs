@@ -1,15 +1,47 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using Fibrous.Channels;
+using Fibrous.Fibers;
+using NUnit.Framework;
+
 namespace Fibrous.Tests
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-    using Fibrous.Channels;
-    using Fibrous.Fibers;
-    using NUnit.Framework;
-
     [TestFixture]
     public class QueueChannelTests
     {
+        [Test]
+        public void Multiple()
+        {
+            var queues = new List<IFiber>();
+            int receiveCount = 0;
+            var reset = new AutoResetEvent(false);
+            var channel = new QueueChannel<int>();
+            int messageCount = 100;
+            var updateLock = new object();
+            for (int i = 0; i < 5; i++)
+            {
+                Action<int> onReceive = delegate
+                                            {
+                                                Thread.Sleep(15);
+                                                lock (updateLock)
+                                                {
+                                                    receiveCount++;
+                                                    if (receiveCount == messageCount)
+                                                        reset.Set();
+                                                }
+                                            };
+                var fiber = new PoolFiber();
+                fiber.Start();
+                queues.Add(fiber);
+                channel.Subscribe(fiber, onReceive);
+            }
+            for (int i = 0; i < messageCount; i++)
+                channel.Publish(i);
+            Assert.IsTrue(reset.WaitOne(10000, false));
+            queues.ForEach(delegate(IFiber q) { q.Dispose(); });
+        }
+
         [Test]
         public void SingleConsumer()
         {
@@ -21,11 +53,11 @@ namespace Fibrous.Tests
             {
                 var channel = new QueueChannel<int>();
                 Action<int> onMsg = delegate
-                {
-                    oneConsumed++;
-                    if (oneConsumed == 20)
-                        reset.Set();
-                };
+                                        {
+                                            oneConsumed++;
+                                            if (oneConsumed == 20)
+                                                reset.Set();
+                                        };
                 channel.Subscribe(one, onMsg);
                 for (int i = 0; i < 20; i++)
                     channel.Publish(i);
@@ -44,11 +76,11 @@ namespace Fibrous.Tests
             {
                 var channel = new QueueChannel<int>();
                 Action<int> onMsg = delegate(int num)
-                {
-                    if (num == 0)
-                        throw new Exception();
-                    reset.Set();
-                };
+                                        {
+                                            if (num == 0)
+                                                throw new Exception();
+                                            reset.Set();
+                                        };
                 channel.Subscribe(one, onMsg);
                 channel.Publish(0);
                 channel.Publish(1);
@@ -56,43 +88,13 @@ namespace Fibrous.Tests
                 Assert.AreEqual(1, exec.failed.Count);
             }
         }
-
-        [Test]
-        public void Multiple()
-        {
-            var queues = new List<IFiber>();
-            int receiveCount = 0;
-            var reset = new AutoResetEvent(false);
-            var channel = new QueueChannel<int>();
-            int messageCount = 100;
-            var updateLock = new object();
-            for (int i = 0; i < 5; i++)
-            {
-                Action<int> onReceive = delegate
-                {
-                    Thread.Sleep(15);
-                    lock (updateLock)
-                    {
-                        receiveCount++;
-                        if (receiveCount == messageCount)
-                            reset.Set();
-                    }
-                };
-                var fiber = new PoolFiber();
-                fiber.Start();
-                queues.Add(fiber);
-                channel.Subscribe(fiber, onReceive);
-            }
-            for (int i = 0; i < messageCount; i++)
-                channel.Publish(i);
-            Assert.IsTrue(reset.WaitOne(10000, false));
-            queues.ForEach(delegate(IFiber q) { q.Dispose(); });
-        }
     }
 
     public class StubExecutor : IExecutor
     {
         public List<Exception> failed = new List<Exception>();
+
+        #region IExecutor Members
 
         public void Execute(IEnumerable<Action> toExecute)
         {
@@ -111,5 +113,7 @@ namespace Fibrous.Tests
                 failed.Add(e);
             }
         }
+
+        #endregion
     }
 }

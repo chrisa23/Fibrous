@@ -1,35 +1,21 @@
-﻿namespace Fibrous.Tests
-{
-    using System;
-    using System.Diagnostics;
-    using System.Threading;
-    using Fibrous.Channels;
-    using Fibrous.Fibers;
-    using Fibrous.Fibers.Queues;
-    using NUnit.Framework;
+﻿using System;
+using System.Diagnostics;
+using System.Threading;
+using Fibrous.Channels;
+using Fibrous.Fibers;
+using Fibrous.Fibers.Queues;
+using NUnit.Framework;
 
+namespace Fibrous.Tests
+{
     [TestFixture]
     public class BusyWaitQueueLatencyTests
     {
-        [Test]
-        [Explicit]
-        public void CompareBusyWaitQueueVsDefaultQueueLatency()
-        {
-            Func<ThreadFiber> blocking = () => new ThreadFiber();
-            Func<ThreadFiber> polling = () => new ThreadFiber(new BusyWaitQueue(100000, 30000));
-            for (int i = 0; i < 20; i++)
-            {
-                Execute(blocking, "Blocking");
-                Execute(polling, "Polling");
-                Console.WriteLine();
-            }
-        }
-
         private static void Execute(Func<ThreadFiber> creator, String name)
         {
             Console.WriteLine(name);
             const int channelCount = 5;
-            double msPerTick = 1000.0 / Stopwatch.Frequency;
+            double msPerTick = 1000.0/Stopwatch.Frequency;
             var channels = new IChannel<Msg>[channelCount];
             for (int i = 0; i < channels.Length; i++)
                 channels[i] = new Channel<Msg>();
@@ -44,18 +30,18 @@
                 if (prior >= 0)
                 {
                     Action<Msg> cb = delegate(Msg message)
-                    {
-                        if (target != null)
-                            target.Publish(message);
-                        else
-                        {
-                            long now = Stopwatch.GetTimestamp();
-                            long diff = now - message.Time;
-                            if (message.Log)
-                                Console.WriteLine("qTime: " + diff * msPerTick);
-                            message.Latch.Set();
-                        }
-                    };
+                                         {
+                                             if (target != null)
+                                                 target.Publish(message);
+                                             else
+                                             {
+                                                 long now = Stopwatch.GetTimestamp();
+                                                 long diff = now - message.Time;
+                                                 if (message.Log)
+                                                     Console.WriteLine("qTime: " + diff*msPerTick);
+                                                 message.Latch.Set();
+                                             }
+                                         };
                     channels[prior].Subscribe(fibers[i], cb);
                 }
             }
@@ -77,13 +63,27 @@
 
         private class Msg
         {
+            public readonly ManualResetEvent Latch = new ManualResetEvent(false);
             public readonly bool Log;
             public readonly long Time = Stopwatch.GetTimestamp();
-            public readonly ManualResetEvent Latch = new ManualResetEvent(false);
 
             public Msg(bool log)
             {
                 Log = log;
+            }
+        }
+
+        [Test]
+        [Explicit]
+        public void CompareBusyWaitQueueVsDefaultQueueLatency()
+        {
+            Func<ThreadFiber> blocking = () => new ThreadFiber();
+            Func<ThreadFiber> polling = () => new ThreadFiber(new BusyWaitQueue(100000, 30000));
+            for (int i = 0; i < 20; i++)
+            {
+                Execute(blocking, "Blocking");
+                Execute(polling, "Polling");
+                Console.WriteLine();
             }
         }
     }

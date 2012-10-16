@@ -1,8 +1,8 @@
-﻿namespace Fibrous.Fibers.Queues
-{
-    using System;
-    using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
+namespace Fibrous.Fibers.Queues
+{
     public static class Lists
     {
         /// <summary>

@@ -1,11 +1,11 @@
+using System;
+using System.Threading;
+using Fibrous.Channels;
+using Fibrous.Fibers;
+using NUnit.Framework;
+
 namespace Fibrous.Tests.Examples
 {
-    using System;
-    using System.Threading;
-    using Fibrous.Channels;
-    using Fibrous.Fibers;
-    using NUnit.Framework;
-
     [TestFixture]
     [Category("Demo")]
     //[Ignore("Demo")]
@@ -24,8 +24,15 @@ namespace Fibrous.Tests.Examples
                 _second = second;
             }
 
-            public int First { get { return _first; } }
-            public int Second { get { return _second; } }
+            public int First
+            {
+                get { return _first; }
+            }
+
+            public int Second
+            {
+                get { return _second; }
+            }
         }
 
         // This class calculates the next value in a Fibonacci sequence.
@@ -34,11 +41,11 @@ namespace Fibrous.Tests.Examples
         // When a specified limit is reached, it stops processing.
         private class FibonacciCalculator
         {
-            private readonly IFiber _threadFiber;
-            private readonly string _name;
             private readonly IChannel<IntPair> _inboundChannel;
-            private readonly IChannel<IntPair> _outboundChannel;
             private readonly int _limit;
+            private readonly string _name;
+            private readonly IChannel<IntPair> _outboundChannel;
+            private readonly IFiber _threadFiber;
 
             public FibonacciCalculator(IFiber fiber,
                                        string name,

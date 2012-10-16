@@ -1,8 +1,8 @@
+using System;
+using System.Collections.Generic;
+
 namespace Fibrous.Fibers
 {
-    using System;
-    using System.Collections.Generic;
-
     public sealed class ExceptionHandlingExecutor : IExecutor
     {
         private readonly Action<Exception> _callback;
@@ -11,6 +11,8 @@ namespace Fibrous.Fibers
         {
             _callback = callback;
         }
+
+        #region IExecutor Members
 
         public void Execute(IEnumerable<Action> toExecute)
         {
@@ -29,5 +31,7 @@ namespace Fibrous.Fibers
                 _callback(e);
             }
         }
+
+        #endregion
     }
 }

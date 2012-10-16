@@ -1,10 +1,10 @@
+using System;
+using System.Threading.Tasks;
+using CrossroadsIO;
+using Fibrous.Channels;
+
 namespace Fibrous.Remoting
 {
-    using System;
-    using System.Threading.Tasks;
-    using CrossroadsIO;
-    using Fibrous.Channels;
-
     public class PullSocketPort<T> : ReceiveSocketBase<T>
     {
         public PullSocketPort(Context context, string address, Func<byte[], int, T> msgReceiver, bool useBind = true)
@@ -58,18 +58,36 @@ namespace Fibrous.Remoting
 
     public abstract class ReceiveSocketBase<T> : ISubscribePort<T>, IDisposable
     {
-        private volatile bool _running = true;
+        protected readonly Context Context;
+        private readonly IChannel<T> _internalChannel = new Channel<T>();
         private readonly Func<byte[], int, T> _msgReceiver;
         private readonly TimeSpan _timeout = TimeSpan.FromMilliseconds(100);
-        private readonly IChannel<T> _internalChannel = new Channel<T>();
-        protected readonly Context Context;
         protected Socket Socket;
+        private volatile bool _running = true;
 
         protected ReceiveSocketBase(Context context, Func<byte[], int, T> receiver)
         {
             _msgReceiver = receiver;
             Context = context;
         }
+
+        #region IDisposable Members
+
+        public virtual void Dispose()
+        {
+            _running = false;
+        }
+
+        #endregion
+
+        #region ISubscribePort<T> Members
+
+        public IDisposable Subscribe(IFiber fiber, Action<T> receive)
+        {
+            return _internalChannel.Subscribe(fiber, receive);
+        }
+
+        #endregion
 
         protected void Initialize()
         {
@@ -92,16 +110,6 @@ namespace Fibrous.Remoting
         private void InternalDispose()
         {
             Socket.Dispose();
-        }
-
-        public virtual void Dispose()
-        {
-            _running = false;
-        }
-
-        public IDisposable Subscribe(IFiber fiber, Action<T> receive)
-        {
-            return _internalChannel.Subscribe(fiber, receive);
         }
     }
 }

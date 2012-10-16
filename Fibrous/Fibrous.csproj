@@ -50,7 +50,10 @@
     <Compile Include="Actors\BatchingActor.cs" />
     <Compile Include="Actors\IActor.cs" />
     <Compile Include="Channels\IAsyncSnapshotChannel.cs" />
-    <Compile Include="Channels\ISnapshotPublishPort.cs" />
+    <Compile Include="IAsyncSnapshotPort.cs" />
+    <Compile Include="ISnapshotPort.cs" />
+    <Compile Include="IRequestHandlerPort.cs" />
+    <Compile Include="ISnapshotPublishPort.cs" />
     <Compile Include="Channels\SnapshotChannel.cs" />
     <Compile Include="Channels\SnapshotRequest.cs" />
     <Compile Include="FiberExtensions.cs" />

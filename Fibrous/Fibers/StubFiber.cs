@@ -1,7 +1,7 @@
-﻿namespace Fibrous.Fibers
-{
-    using System;
+﻿using System;
 
+namespace Fibrous.Fibers
+{
     public sealed class StubFiber : FiberBase
     {
         private readonly IExecutor _executor;

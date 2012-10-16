@@ -1,8 +1,8 @@
+using System;
+using System.Windows.Threading;
+
 namespace Fibrous.Fibers
 {
-    using System;
-    using System.Windows.Threading;
-
     public sealed class DispatcherFiber : GuiFiberBase
     {
         public DispatcherFiber(Dispatcher dispatcher, DispatcherPriority priority, IExecutor executor)
@@ -35,6 +35,8 @@ namespace Fibrous.Fibers
         {
         }
 
+        #region Nested type: DispatcherAdapter
+
         private class DispatcherAdapter : IExecutionContext
         {
             private readonly Dispatcher _dispatcher;
@@ -46,10 +48,16 @@ namespace Fibrous.Fibers
                 _priority = priority;
             }
 
+            #region IExecutionContext Members
+
             public void Enqueue(Action action)
             {
                 _dispatcher.BeginInvoke(action, _priority);
             }
+
+            #endregion
         }
+
+        #endregion
     }
 }

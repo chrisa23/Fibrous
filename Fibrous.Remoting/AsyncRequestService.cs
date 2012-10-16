@@ -1,22 +1,22 @@
-﻿namespace Fibrous.Remoting
-{
-    using System;
-    using System.Threading.Tasks;
-    using CrossroadsIO;
-    using Fibrous.Fibers;
+﻿using System;
+using System.Threading.Tasks;
+using CrossroadsIO;
+using Fibrous.Fibers;
 
+namespace Fibrous.Remoting
+{
     public class AsyncRequestService<TRequest, TReply> : IDisposable
     {
-        private readonly Func<byte[], TRequest> _requestUnmarshaller;
         private readonly IAsyncRequestPort<TRequest, TReply> _businessLogic;
-        private readonly Func<TReply, byte[]> _replyMarshaller;
         //split InSocket
         private readonly Context _context;
-        private readonly Socket _requestSocket;
+        private readonly IFiber _fiber = PoolFiber.StartNew();
+        private readonly Func<TReply, byte[]> _replyMarshaller;
         //split OutSocket
         private readonly Socket _replySocket;
+        private readonly Socket _requestSocket;
+        private readonly Func<byte[], TRequest> _requestUnmarshaller;
         private volatile bool _running = true;
-        private readonly IFiber _fiber = PoolFiber.StartNew();
 
         public AsyncRequestService(Context context,
                                    string address,
@@ -35,6 +35,15 @@
             _replySocket.Bind(address + ":" + (basePort + 1));
             Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            _running = false;
+        }
+
+        #endregion
 
         private void Run()
         {
@@ -68,11 +77,6 @@
         {
             _requestSocket.Dispose();
             _replySocket.Dispose();
-        }
-
-        public void Dispose()
-        {
-            _running = false;
         }
     }
 }

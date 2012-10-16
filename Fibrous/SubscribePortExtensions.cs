@@ -1,10 +1,10 @@
+using System;
+using System.Collections.Generic;
+using Fibrous.Fibers;
+using Fibrous.Scheduling;
+
 namespace Fibrous
 {
-    using System;
-    using System.Collections.Generic;
-    using Fibrous.Fibers;
-    using Fibrous.Scheduling;
-
     public static class SubscribePortExtensions
     {
         /// <summary>   An ISubscriberPort&lt;T&gt; extension method that subscribe to a periodic batch. </summary>
@@ -45,10 +45,10 @@ namespace Fibrous
                                                Predicate<T> filter)
         {
             Action<T> filteredReceiver = x =>
-            {
-                if (filter(x))
-                    fiber.Enqueue(() => receive(x));
-            };
+                                             {
+                                                 if (filter(x))
+                                                     fiber.Enqueue(() => receive(x));
+                                             };
             return port.Subscribe(new StubFiber(), filteredReceiver);
         }
     }

@@ -1,8 +1,8 @@
+using System;
+using Fibrous.Scheduling;
+
 namespace Fibrous
 {
-    using System;
-    using Fibrous.Scheduling;
-
     public static class FiberExtensions
     {
         private static readonly TimerScheduler Scheduler = new TimerScheduler();

@@ -1,20 +1,23 @@
+using System;
+using System.Threading;
+using Fibrous.Fibers;
+using Fibrous.Scheduling;
+using NUnit.Framework;
+
 namespace Fibrous.Tests
 {
-    using System;
-    using System.Threading;
-    using Fibrous.Fibers;
-    using Fibrous.Scheduling;
-    using NUnit.Framework;
-
     [TestFixture]
     public class TimerActionTests
     {
         [Test]
-        public void Cancel()
+        public void CallbackFromIntervalTimerWithCancel()
         {
             int executionCount = 0;
             Action action = () => executionCount++;
-            var timer = new TimerAction(new StubFiber(), action, TimeSpan.FromMilliseconds(2));
+            var timer = new TimerAction(new StubFiber(),
+                                        action,
+                                        TimeSpan.FromMilliseconds(2),
+                                        TimeSpan.FromMilliseconds(150));
             Thread.Sleep(100);
             Assert.AreEqual(1, executionCount);
             timer.Dispose();
@@ -23,14 +26,11 @@ namespace Fibrous.Tests
         }
 
         [Test]
-        public void CallbackFromIntervalTimerWithCancel()
+        public void Cancel()
         {
             int executionCount = 0;
             Action action = () => executionCount++;
-            var timer = new TimerAction(new StubFiber(),
-                action,
-                TimeSpan.FromMilliseconds(2),
-                TimeSpan.FromMilliseconds(150));
+            var timer = new TimerAction(new StubFiber(), action, TimeSpan.FromMilliseconds(2));
             Thread.Sleep(100);
             Assert.AreEqual(1, executionCount);
             timer.Dispose();

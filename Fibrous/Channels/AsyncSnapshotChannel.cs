@@ -1,12 +1,15 @@
+using System;
+
 namespace Fibrous.Channels
 {
-    using System;
-
     public sealed class AsyncSnapshotChannel<T, TSnapshot> : IAsyncSnapshotChannel<T, TSnapshot>
     {
-        private readonly IChannel<T> _updatesChannel = new Channel<T>();
         private readonly IAsyncRequestChannel<object, TSnapshot> _requestChannel =
             new AsyncRequestChannel<object, TSnapshot>();
+
+        private readonly IChannel<T> _updatesChannel = new Channel<T>();
+
+        #region IAsyncSnapshotChannel<T,TSnapshot> Members
 
         ///<summary>
         /// Subscribes for an initial snapshot and then incremental update.
@@ -30,5 +33,7 @@ namespace Fibrous.Channels
         {
             return _updatesChannel.Publish(msg);
         }
+
+        #endregion
     }
 }

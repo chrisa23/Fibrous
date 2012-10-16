@@ -1,8 +1,8 @@
+using System;
+using System.Runtime.Serialization;
+
 namespace Fibrous.Fibers.Queues
 {
-    using System;
-    using System.Runtime.Serialization;
-
     [Serializable]
     public sealed class QueueFullException : Exception
     {
@@ -24,6 +24,9 @@ namespace Fibrous.Fibers.Queues
         {
         }
 
-        public int Depth { get { return _depth; } }
+        public int Depth
+        {
+            get { return _depth; }
+        }
     }
 }

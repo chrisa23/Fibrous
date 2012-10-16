@@ -1,12 +1,12 @@
-﻿namespace Fibrous.Tests.Channels
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-    using Fibrous.Channels;
-    using Fibrous.Fibers;
-    using NUnit.Framework;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using Fibrous.Channels;
+using Fibrous.Fibers;
+using NUnit.Framework;
 
+namespace Fibrous.Tests.Channels
+{
     [TestFixture]
     internal class AsyncSnapshotChannel
     {
@@ -16,7 +16,7 @@
             using (IFiber fiber = PoolFiber.StartNew())
             using (IFiber fiber2 = PoolFiber.StartNew())
             {
-                var list = new List<string> { "Prime" };
+                var list = new List<string> {"Prime"};
                 var channel = new AsyncSnapshotChannel<string, IEnumerable<string>>();
                 channel.ReplyToPrimingRequest(fiber2, list.ToArray);
                 var primeResult = new List<string>();

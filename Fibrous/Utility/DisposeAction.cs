@@ -1,7 +1,7 @@
+using System;
+
 namespace Fibrous.Utility
 {
-    using System;
-
     public sealed class DisposeAction : IDisposable
     {
         private readonly Action _action;
@@ -11,9 +11,13 @@ namespace Fibrous.Utility
             _action = action;
         }
 
+        #region IDisposable Members
+
         public void Dispose()
         {
             _action();
         }
+
+        #endregion
     }
 }

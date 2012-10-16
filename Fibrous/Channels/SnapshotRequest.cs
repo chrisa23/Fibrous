@@ -1,13 +1,13 @@
+using System;
+
 namespace Fibrous.Channels
 {
-    using System;
-
     internal sealed class SnapshotRequest<T, TSnapshot> : IPublishPort<TSnapshot>, IDisposable
     {
         private readonly IFiber _fiber;
-        private readonly ISubscribePort<T> _updatesPort;
         private readonly Action<T> _receive;
         private readonly Action<TSnapshot> _receiveSnapshot;
+        private readonly ISubscribePort<T> _updatesPort;
         private bool _disposed;
         private IDisposable _sub;
 
@@ -23,6 +23,20 @@ namespace Fibrous.Channels
             _fiber.Add(this);
         }
 
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            _disposed = true;
+            _fiber.Remove(this);
+            if (_sub != null)
+                _sub.Dispose();
+        }
+
+        #endregion
+
+        #region IPublishPort<TSnapshot> Members
+
         public bool Publish(TSnapshot msg)
         {
             if (_disposed)
@@ -33,12 +47,6 @@ namespace Fibrous.Channels
             return true;
         }
 
-        public void Dispose()
-        {
-            _disposed = true;
-            _fiber.Remove(this);
-            if (_sub != null)
-                _sub.Dispose();
-        }
+        #endregion
     }
 }
