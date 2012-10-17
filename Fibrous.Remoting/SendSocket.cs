@@ -1,8 +1,8 @@
-using System;
-using CrossroadsIO;
-
 namespace Fibrous.Remoting
 {
+    using System;
+    using CrossroadsIO;
+
     public sealed class SendSocket<T> : IPublishPort<T>, IDisposable
     {
         private readonly Func<T, byte[]> _msgSender;
@@ -22,16 +22,10 @@ namespace Fibrous.Remoting
                 _socket.Connect(address);
         }
 
-        #region IDisposable Members
-
         public void Dispose()
         {
             _socket.Dispose();
         }
-
-        #endregion
-
-        #region IPublishPort<T> Members
 
         public bool Publish(T msg)
         {
@@ -39,8 +33,6 @@ namespace Fibrous.Remoting
             _socket.Send(_msgSender(msg));
             return true;
         }
-
-        #endregion
 
         public static SendSocket<A> NewPubSocket<A>(Context context, string address, Func<A, byte[]> msgSender)
         {

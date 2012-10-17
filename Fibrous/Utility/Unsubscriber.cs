@@ -1,7 +1,7 @@
-using System;
-
 namespace Fibrous.Utility
 {
+    using System;
+
     internal sealed class Unsubscriber : IDisposable
     {
         private readonly IDisposable _disposable;
@@ -14,14 +14,10 @@ namespace Fibrous.Utility
             disposables.Add(_disposable);
         }
 
-        #region IDisposable Members
-
         public void Dispose()
         {
             _disposables.Remove(_disposable);
             _disposable.Dispose();
         }
-
-        #endregion
     }
 }

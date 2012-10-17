@@ -83,13 +83,12 @@ namespace Fibrous.Remoting.Tests.Async
 
     public abstract class AsyncReqReplyServiceSpecs
     {
-        protected static AsyncRequestService<string, string> Service;
-        protected static AsyncRequestClient<string, string> Client;
+        protected static IRequestHandlerPort<string, string> Service;
+        protected static IAsyncRequestPort<string, string> Client;
         protected static IFiber ClientFiber;
         protected static IFiber ServerFiber;
         protected static string Reply;
         protected static ManualResetEvent Replied;
-        protected static AsyncRequestChannel<string, string> Channel;
         protected static Context ClientContext;
         protected static Context ServerContext;
 
@@ -102,25 +101,24 @@ namespace Fibrous.Remoting.Tests.Async
             ClientContext = Context.Create();
             ServerFiber = PoolFiber.StartNew();
             ServerContext = Context.Create();
-            Channel = new AsyncRequestChannel<string, string>();
-            Channel.SetRequestHandler(ServerFiber, request => request.Reply(request.Request.ToUpper()));
+           
+            Service.SetRequestHandler(ServerFiber, request => request.Reply(request.Request.ToUpper()));
             Func<byte[], string> unmarshaller = x => Encoding.Unicode.GetString(x);
             Func<string, byte[]> marshaller = x => Encoding.Unicode.GetBytes(x);
-            Service = new AsyncRequestService<string, string>(ServerContext,
+            Service = new AsyncRequestHandlerRemotingPort<string, string>(ServerContext,
                                                               "tcp://*",
                                                               9997,
                                                               unmarshaller,
-                                                              Channel,
                                                               marshaller);
             Console.WriteLine("Start service");
-            ServerFiber.Add(Service);
+            ServerFiber.Add((AsyncRequestHandlerRemotingPort<string,string>)Service);
             ServerFiber.Add(ServerContext);
-            Client = new AsyncRequestClient<string, string>(ClientContext,
+            Client = new AsyncRequestRemotingPort<string, string>(ClientContext,
                                                             "tcp://localhost",
                                                             9997,
                                                             marshaller,
                                                             unmarshaller);
-            ClientFiber.Add(Client);
+            ClientFiber.Add((AsyncRequestRemotingPort<string, string>)Client);
             ClientFiber.Add(ClientContext);
             Console.WriteLine("Start client");
         }

@@ -1,9 +1,9 @@
-using System;
-using Fibrous.Channels;
-using Fibrous.Fibers;
-
 namespace Fibrous.Actors
 {
+    using System;
+    using Fibrous.Channels;
+    using Fibrous.Fibers;
+
     public abstract class ActorBase<TMsg> : IActor<TMsg>
     {
         protected readonly IChannel<TMsg> Channel = new Channel<TMsg>();
@@ -18,8 +18,6 @@ namespace Fibrous.Actors
             : this(new PoolFiber())
         {
         }
-
-        #region IActor<TMsg> Members
 
         public void Start()
         {
@@ -46,8 +44,6 @@ namespace Fibrous.Actors
         {
             Fiber.Remove(toRemove);
         }
-
-        #endregion
 
         protected abstract void HandleSubscribe(ISubscribePort<TMsg> port);
     }

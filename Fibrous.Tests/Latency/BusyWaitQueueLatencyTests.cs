@@ -1,13 +1,13 @@
-﻿using System;
-using System.Diagnostics;
-using System.Threading;
-using Fibrous.Channels;
-using Fibrous.Fibers;
-using Fibrous.Fibers.Queues;
-using NUnit.Framework;
-
-namespace Fibrous.Tests
+﻿namespace Fibrous.Tests
 {
+    using System;
+    using System.Diagnostics;
+    using System.Threading;
+    using Fibrous.Channels;
+    using Fibrous.Fibers;
+    using Fibrous.Fibers.Queues;
+    using NUnit.Framework;
+
     [TestFixture]
     public class BusyWaitQueueLatencyTests
     {
@@ -15,7 +15,7 @@ namespace Fibrous.Tests
         {
             Console.WriteLine(name);
             const int channelCount = 5;
-            double msPerTick = 1000.0/Stopwatch.Frequency;
+            double msPerTick = 1000.0 / Stopwatch.Frequency;
             var channels = new IChannel<Msg>[channelCount];
             for (int i = 0; i < channels.Length; i++)
                 channels[i] = new Channel<Msg>();
@@ -30,18 +30,18 @@ namespace Fibrous.Tests
                 if (prior >= 0)
                 {
                     Action<Msg> cb = delegate(Msg message)
-                                         {
-                                             if (target != null)
-                                                 target.Publish(message);
-                                             else
-                                             {
-                                                 long now = Stopwatch.GetTimestamp();
-                                                 long diff = now - message.Time;
-                                                 if (message.Log)
-                                                     Console.WriteLine("qTime: " + diff*msPerTick);
-                                                 message.Latch.Set();
-                                             }
-                                         };
+                    {
+                        if (target != null)
+                            target.Publish(message);
+                        else
+                        {
+                            long now = Stopwatch.GetTimestamp();
+                            long diff = now - message.Time;
+                            if (message.Log)
+                                Console.WriteLine("qTime: " + diff * msPerTick);
+                            message.Latch.Set();
+                        }
+                    };
                     channels[prior].Subscribe(fibers[i], cb);
                 }
             }

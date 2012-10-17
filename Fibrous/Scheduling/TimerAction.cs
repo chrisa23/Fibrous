@@ -1,8 +1,8 @@
-using System;
-using System.Threading;
-
 namespace Fibrous.Scheduling
 {
+    using System;
+    using System.Threading;
+
     public sealed class TimerAction : IDisposable
     {
         private readonly Action _action;
@@ -26,15 +26,11 @@ namespace Fibrous.Scheduling
             fiber.Add(this);
         }
 
-        #region IDisposable Members
-
         public void Dispose()
         {
             _cancelled = true;
             DisposeTimer();
         }
-
-        #endregion
 
         private void ExecuteOnTimerThread(IFiber fiber)
         {

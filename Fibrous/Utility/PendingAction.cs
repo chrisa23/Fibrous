@@ -1,7 +1,7 @@
-using System;
-
 namespace Fibrous.Utility
 {
+    using System;
+
     public sealed class PendingAction : IDisposable
     {
         private readonly Action _action;
@@ -12,14 +12,10 @@ namespace Fibrous.Utility
             _action = action;
         }
 
-        #region IDisposable Members
-
         public void Dispose()
         {
             _cancelled = true;
         }
-
-        #endregion
 
         public void Execute()
         {

@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
-
-namespace Fibrous.Fibers.Queues
+﻿namespace Fibrous.Fibers.Queues
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Threading;
+
     public sealed class BusyWaitQueue : QueueBase
     {
         private readonly int _msBeforeBlockingWait;

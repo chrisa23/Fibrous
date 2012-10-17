@@ -1,10 +1,10 @@
-using System;
-using System.Threading.Tasks;
-using CrossroadsIO;
-using Fibrous.Channels;
-
 namespace Fibrous.Remoting
 {
+    using System;
+    using System.Threading.Tasks;
+    using CrossroadsIO;
+    using Fibrous.Channels;
+
     public class PullSocketPort<T> : ReceiveSocketBase<T>
     {
         public PullSocketPort(Context context, string address, Func<byte[], int, T> msgReceiver, bool useBind = true)
@@ -71,23 +71,15 @@ namespace Fibrous.Remoting
             Context = context;
         }
 
-        #region IDisposable Members
-
         public virtual void Dispose()
         {
             _running = false;
         }
 
-        #endregion
-
-        #region ISubscribePort<T> Members
-
         public IDisposable Subscribe(IFiber fiber, Action<T> receive)
         {
             return _internalChannel.Subscribe(fiber, receive);
         }
-
-        #endregion
 
         protected void Initialize()
         {

@@ -1,9 +1,9 @@
-using System;
-using System.Threading.Tasks;
-using CrossroadsIO;
-
 namespace Fibrous.Remoting
 {
+    using System;
+    using System.Threading.Tasks;
+    using CrossroadsIO;
+
     public class RequestService<TRequest, TReply> : IDisposable
     {
         private readonly IRequestPort<TRequest, TReply> _businessLogic;
@@ -28,14 +28,10 @@ namespace Fibrous.Remoting
             Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
 
-        #region IDisposable Members
-
         public void Dispose()
         {
             _running = false;
         }
-
-        #endregion
 
         private void ProcessRequest(byte[] buffer)
         {

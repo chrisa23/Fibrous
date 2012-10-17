@@ -49,6 +49,7 @@
     <Compile Include="Actors\ActorBase.cs" />
     <Compile Include="Actors\BatchingActor.cs" />
     <Compile Include="Actors\IActor.cs" />
+    <Compile Include="Utility\EventWrapper.cs" />
     <Compile Include="Channels\IAsyncSnapshotChannel.cs" />
     <Compile Include="IAsyncSnapshotPort.cs" />
     <Compile Include="ISnapshotPort.cs" />
@@ -62,6 +63,7 @@
     <Compile Include="RequestPortExtensions.cs" />
     <Compile Include="Scheduling\TimerAction.cs" />
     <Compile Include="SubscribePortExtensions.cs" />
+    <Compile Include="Utility\IEvent.cs" />
     <Compile Include="Utility\PendingAction.cs" />
     <Compile Include="Utility\DisposeAction.cs" />
     <Compile Include="Utility\Unsubscriber.cs" />

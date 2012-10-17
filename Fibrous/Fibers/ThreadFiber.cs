@@ -1,9 +1,9 @@
-using System;
-using System.Threading;
-using Fibrous.Fibers.Queues;
-
 namespace Fibrous.Fibers
 {
+    using System;
+    using System.Threading;
+    using Fibrous.Fibers.Queues;
+
     /// <summary>
     ///   Fiber implementation backed by a dedicated thread.
     ///   <see cref = "IFiber" />
@@ -58,13 +58,10 @@ namespace Fibrous.Fibers
             _queue = queue;
             _isBackground = isBackground;
             _priority = priority;
-            _thread = new Thread(RunThread) {Name = threadName, IsBackground = _isBackground, Priority = _priority};
+            _thread = new Thread(RunThread) { Name = threadName, IsBackground = _isBackground, Priority = _priority };
         }
 
-        public Thread Thread
-        {
-            get { return _thread; }
-        }
+        public Thread Thread { get { return _thread; } }
 
         private static int GetNextThreadId()
         {

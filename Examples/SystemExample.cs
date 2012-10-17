@@ -47,14 +47,12 @@ namespace Examples
             _actor = BatchingActor<string>.Start(x => LogToFile(_path, x), new TimeSpan(0, 0, 1));
         }
 
-        #region IDisposable Members
 
         public void Dispose()
         {
             _actor.Dispose();
         }
 
-        #endregion
 
         private static void LogToFile(string path, IList<string> items)
         {

@@ -1,15 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-
 namespace Fibrous.Channels
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
+
     public sealed class RequestChannel<TRequest, TReply> : IRequestChannel<TRequest, TReply>
     {
         private readonly IChannel<IRequest<TRequest, TReply>> _requestChannel =
             new Channel<IRequest<TRequest, TReply>>();
-
-        #region IRequestChannel<TRequest,TReply> Members
 
         public IDisposable SetRequestHandler(IFiber fiber, Action<IRequest<TRequest, TReply>> onRequest)
         {
@@ -28,10 +26,6 @@ namespace Fibrous.Channels
             }
         }
 
-        #endregion
-
-        #region Nested type: ChannelRequest
-
         private sealed class ChannelRequest : IRequest<TRequest, TReply>, IDisposable
         {
             private readonly object _lock = new object();
@@ -44,8 +38,6 @@ namespace Fibrous.Channels
                 _req = req;
             }
 
-            #region IDisposable Members
-
             public void Dispose()
             {
                 lock (_lock)
@@ -55,14 +47,7 @@ namespace Fibrous.Channels
                 }
             }
 
-            #endregion
-
-            #region IRequest<TRequest,TReply> Members
-
-            public TRequest Request
-            {
-                get { return _req; }
-            }
+            public TRequest Request { get { return _req; } }
 
             public bool Reply(TReply response)
             {
@@ -75,8 +60,6 @@ namespace Fibrous.Channels
                     return true;
                 }
             }
-
-            #endregion
 
             public bool Receive(TimeSpan timeout, out TReply result)
             {
@@ -103,7 +86,5 @@ namespace Fibrous.Channels
                 return false;
             }
         }
-
-        #endregion
     }
 }

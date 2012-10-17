@@ -1,10 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-
 namespace Fibrous.Fibers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading;
+
     public abstract class GuiFiberBase : FiberBase
     {
         private readonly IExecutionContext _executionContext;

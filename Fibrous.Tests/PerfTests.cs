@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using Fibrous.Channels;
-using Fibrous.Fibers;
-using Fibrous.Fibers.Queues;
-using NUnit.Framework;
-
-namespace Fibrous.Tests
+﻿namespace Fibrous.Tests
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
+    using Fibrous.Channels;
+    using Fibrous.Fibers;
+    using Fibrous.Fibers.Queues;
+    using NUnit.Framework;
+
     public class PerfExecutor : IExecutor
     {
-        #region IExecutor Members
-
         public void Execute(IEnumerable<Action> toExecute)
         {
             //    Console.WriteLine("execute_more");
@@ -30,8 +28,6 @@ namespace Fibrous.Tests
             //   Console.WriteLine("execute");
             toExecute();
         }
-
-        #endregion
     }
 
     public struct MsgStruct
@@ -72,7 +68,7 @@ namespace Fibrous.Tests
                 using (new PerfTimer(max))
                 {
                     for (int i = 0; i <= max; i++)
-                        channel.Publish(new MsgStruct {count = i});
+                        channel.Publish(new MsgStruct { count = i });
                     Assert.IsTrue(reset.WaitOne(30000, false));
                 }
             }
@@ -149,10 +145,10 @@ namespace Fibrous.Tests
                 var reset = new AutoResetEvent(false);
                 var end = new object();
                 Action<object> onMsg = delegate(object msg)
-                                           {
-                                               if (msg == end)
-                                                   reset.Set();
-                                           };
+                {
+                    if (msg == end)
+                        reset.Set();
+                };
                 channel.Subscribe(fiber, onMsg);
                 Thread.Sleep(100);
                 using (new PerfTimer(max))

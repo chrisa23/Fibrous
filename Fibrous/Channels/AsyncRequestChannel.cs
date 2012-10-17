@@ -1,13 +1,11 @@
-using System;
-
 namespace Fibrous.Channels
 {
+    using System;
+
     public sealed class AsyncRequestChannel<TRequest, TReply> : IAsyncRequestChannel<TRequest, TReply>
     {
         private readonly IChannel<IRequest<TRequest, TReply>> _requestChannel =
             new Channel<IRequest<TRequest, TReply>>();
-
-        #region IAsyncRequestChannel<TRequest,TReply> Members
 
         public IDisposable SetRequestHandler(IFiber fiber, Action<IRequest<TRequest, TReply>> onRequest)
         {
@@ -23,10 +21,6 @@ namespace Fibrous.Channels
             return channelRequest;
         }
 
-        #endregion
-
-        #region Nested type: AsyncChannelRequest
-
         private class AsyncChannelRequest : IRequest<TRequest, TReply>, IDisposable
         {
             private readonly TRequest _request;
@@ -39,31 +33,18 @@ namespace Fibrous.Channels
                 _sub = _resp.Subscribe(fiber, replier);
             }
 
-            #region IDisposable Members
-
             public void Dispose()
             {
                 if (_sub != null)
                     _sub.Dispose();
             }
 
-            #endregion
-
-            #region IRequest<TRequest,TReply> Members
-
-            public TRequest Request
-            {
-                get { return _request; }
-            }
+            public TRequest Request { get { return _request; } }
 
             public bool Reply(TReply response)
             {
                 return _resp.Publish(response);
             }
-
-            #endregion
         }
-
-        #endregion
     }
 }

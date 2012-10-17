@@ -1,7 +1,7 @@
-using System;
-
 namespace Fibrous.Scheduling
 {
+    using System;
+
     internal abstract class BatchSubscriberBase<T> : IDisposable
     {
         protected readonly object BatchLock = new object();
@@ -18,14 +18,10 @@ namespace Fibrous.Scheduling
             Interval = interval;
         }
 
-        #region IDisposable Members
-
         public void Dispose()
         {
             _sub.Dispose();
         }
-
-        #endregion
 
         protected abstract void OnMessage(T msg);
     }

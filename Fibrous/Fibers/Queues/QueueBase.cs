@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-
 namespace Fibrous.Fibers.Queues
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
+
     public abstract class QueueBase : IQueue
     {
         protected readonly object SyncRoot = new object();
@@ -21,8 +21,6 @@ namespace Fibrous.Fibers.Queues
             : this(new DefaultExecutor())
         {
         }
-
-        #region IQueue Members
 
         public virtual void Enqueue(Action action)
         {
@@ -48,8 +46,6 @@ namespace Fibrous.Fibers.Queues
                 Monitor.PulseAll(SyncRoot);
             }
         }
-
-        #endregion
 
         protected abstract IEnumerable<Action> DequeueAll();
 

@@ -1,8 +1,8 @@
-using System;
-using System.Collections.Generic;
-
 namespace Fibrous.Scheduling
 {
+    using System;
+    using System.Collections.Generic;
+
     internal sealed class KeyedBatchSubscriber<TKey, T> : BatchSubscriberBase<T>
     {
         private readonly Converter<T, TKey> _keyResolver;

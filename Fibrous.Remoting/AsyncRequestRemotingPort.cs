@@ -1,46 +1,42 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using CrossroadsIO;
-using Fibrous.Channels;
-using Fibrous.Fibers;
-
 namespace Fibrous.Remoting
 {
-    public class AsyncRequestClient<TRequest, TReply> : IAsyncRequestPort<TRequest, TReply>, IDisposable
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using CrossroadsIO;
+    using Fibrous.Channels;
+    using Fibrous.Fibers;
+
+    public class AsyncRequestRemotingPort<TRequest, TReply> : IAsyncRequestPort<TRequest, TReply>, IDisposable
     {
         private readonly IFiber _fiber;
         private readonly byte[] _id = GetId();
-
         private readonly IAsyncRequestChannel<TRequest, TReply> _internalChannel =
             new AsyncRequestChannel<TRequest, TReply>();
-
         private readonly Context _replyContext;
         private readonly Socket _replySocket;
         private readonly Func<byte[], TReply> _replyUnmarshaller;
         private readonly Func<TRequest, byte[]> _requestMarshaller;
         private readonly Socket _requestSocket;
-
         private readonly Dictionary<Guid, IRequest<TRequest, TReply>> _requests =
             new Dictionary<Guid, IRequest<TRequest, TReply>>();
-
         private volatile bool _running = true;
 
-        public AsyncRequestClient(Context context,
-                                  string address,
-                                  int basePort,
-                                  Func<TRequest, byte[]> requestMarshaller,
-                                  Func<byte[], TReply> replyUnmarshaller)
+        public AsyncRequestRemotingPort(Context context,
+                                        string address,
+                                        int basePort,
+                                        Func<TRequest, byte[]> requestMarshaller,
+                                        Func<byte[], TReply> replyUnmarshaller)
             : this(context, address, basePort, requestMarshaller, replyUnmarshaller, new PoolFiber())
         {
         }
 
-        public AsyncRequestClient(Context context,
-                                  string address,
-                                  int basePort,
-                                  Func<TRequest, byte[]> requestMarshaller,
-                                  Func<byte[], TReply> replyUnmarshaller,
-                                  IFiber fiber)
+        public AsyncRequestRemotingPort(Context context,
+                                        string address,
+                                        int basePort,
+                                        Func<TRequest, byte[]> requestMarshaller,
+                                        Func<byte[], TReply> replyUnmarshaller,
+                                        IFiber fiber)
         {
             _requestMarshaller = requestMarshaller;
             _replyUnmarshaller = replyUnmarshaller;
@@ -56,23 +52,15 @@ namespace Fibrous.Remoting
             Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
 
-        #region IAsyncRequestPort<TRequest,TReply> Members
-
         public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply)
         {
             return _internalChannel.SendRequest(request, fiber, onReply);
         }
 
-        #endregion
-
-        #region IDisposable Members
-
         public void Dispose()
         {
             _running = false;
         }
-
-        #endregion
 
         private static byte[] GetId()
         {

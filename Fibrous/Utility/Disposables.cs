@@ -1,15 +1,13 @@
-using System;
-using System.Collections.Generic;
-
 namespace Fibrous.Utility
 {
+    using System;
+    using System.Collections.Generic;
+
     public class Disposables : IDisposableRegistry
     {
         private readonly List<IDisposable> _items = new List<IDisposable>();
         private readonly object _lock = new object();
         private bool _disposed;
-
-        #region IDisposableRegistry Members
 
         public void Add(IDisposable toAdd)
         {
@@ -32,8 +30,6 @@ namespace Fibrous.Utility
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-
-        #endregion
 
         protected virtual void Dispose(bool disposing)
         {

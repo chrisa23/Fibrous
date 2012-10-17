@@ -1,16 +1,17 @@
-﻿using System;
-using System.Threading.Tasks;
-using CrossroadsIO;
-using Fibrous.Fibers;
-
-namespace Fibrous.Remoting
+﻿namespace Fibrous.Remoting
 {
-    public class AsyncRequestService<TRequest, TReply> : IDisposable
+    using System;
+    using System.Threading.Tasks;
+    using CrossroadsIO;
+    using Fibrous.Channels;
+    using Fibrous.Fibers;
+
+    public class AsyncRequestHandlerRemotingPort<TRequest, TReply> : IRequestHandlerPort<TRequest, TReply>, IDisposable
     {
-        private readonly IAsyncRequestPort<TRequest, TReply> _businessLogic;
+        private readonly IAsyncRequestChannel<TRequest, TReply> _internalChannel = new AsyncRequestChannel<TRequest, TReply>();
         //split InSocket
         private readonly Context _context;
-        private readonly IFiber _fiber = PoolFiber.StartNew();
+        private readonly IFiber _stub = new StubFiber();
         private readonly Func<TReply, byte[]> _replyMarshaller;
         //split OutSocket
         private readonly Socket _replySocket;
@@ -18,15 +19,13 @@ namespace Fibrous.Remoting
         private readonly Func<byte[], TRequest> _requestUnmarshaller;
         private volatile bool _running = true;
 
-        public AsyncRequestService(Context context,
-                                   string address,
-                                   int basePort,
-                                   Func<byte[], TRequest> requestUnmarshaller,
-                                   IAsyncRequestPort<TRequest, TReply> logic,
-                                   Func<TReply, byte[]> replyMarshaller)
+        public AsyncRequestHandlerRemotingPort(Context context,
+                                               string address,
+                                               int basePort,
+                                               Func<byte[], TRequest> requestUnmarshaller,
+                                               Func<TReply, byte[]> replyMarshaller)
         {
             _requestUnmarshaller = requestUnmarshaller;
-            _businessLogic = logic;
             _replyMarshaller = replyMarshaller;
             _context = context;
             _requestSocket = _context.CreateSocket(SocketType.PULL);
@@ -36,14 +35,10 @@ namespace Fibrous.Remoting
             Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
 
-        #region IDisposable Members
-
         public void Dispose()
         {
             _running = false;
         }
-
-        #endregion
 
         private void Run()
         {
@@ -62,7 +57,7 @@ namespace Fibrous.Remoting
         private void ProcessRequest(byte[] id, byte[] msgId, byte[] msgBuffer)
         {
             TRequest req = _requestUnmarshaller(msgBuffer);
-            _businessLogic.SendRequest(req, _fiber, reply => SendReply(id, msgId, reply));
+            _internalChannel.SendRequest(req, _stub, reply => SendReply(id, msgId, reply));
         }
 
         private void SendReply(byte[] id, byte[] msgId, TReply reply)
@@ -77,6 +72,11 @@ namespace Fibrous.Remoting
         {
             _requestSocket.Dispose();
             _replySocket.Dispose();
+        }
+
+        public IDisposable SetRequestHandler(IFiber fiber, Action<IRequest<TRequest, TReply>> onRequest)
+        {
+            return _internalChannel.SetRequestHandler(fiber, onRequest);
         }
     }
 }

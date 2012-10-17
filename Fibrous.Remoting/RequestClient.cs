@@ -1,8 +1,8 @@
-using System;
-using CrossroadsIO;
-
 namespace Fibrous.Remoting
 {
+    using System;
+    using CrossroadsIO;
+
     public class RequestClient<TRequest, TReply> : IRequestPort<TRequest, TReply>, IDisposable
     {
         private readonly Func<byte[], TReply> _replyUnmarshaller;
@@ -20,16 +20,10 @@ namespace Fibrous.Remoting
             _socket.Connect(address);
         }
 
-        #region IDisposable Members
-
         public void Dispose()
         {
             _socket.Dispose();
         }
-
-        #endregion
-
-        #region IRequestPort<TRequest,TReply> Members
 
         public TReply SendRequest(TRequest request, TimeSpan timeout)
         {
@@ -38,8 +32,6 @@ namespace Fibrous.Remoting
             TReply reply = _replyUnmarshaller(replyData);
             return reply;
         }
-
-        #endregion
 
         private byte[] Send(byte[] request, TimeSpan timeout)
         {

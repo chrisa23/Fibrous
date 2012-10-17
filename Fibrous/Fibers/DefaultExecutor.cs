@@ -1,12 +1,10 @@
-using System;
-using System.Collections.Generic;
-
 namespace Fibrous.Fibers
 {
+    using System;
+    using System.Collections.Generic;
+
     public sealed class DefaultExecutor : IExecutor
     {
-        #region IExecutor Members
-
         public void Execute(IEnumerable<Action> toExecute)
         {
             foreach (Action action in toExecute)
@@ -17,7 +15,5 @@ namespace Fibrous.Fibers
         {
             toExecute();
         }
-
-        #endregion
     }
 }

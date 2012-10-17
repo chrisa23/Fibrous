@@ -1,12 +1,11 @@
-using System;
-using System.Collections.Generic;
-
 namespace Fibrous.Channels
 {
+    using System;
+    using System.Collections.Generic;
+
     public sealed class QueueChannel<TMsg> : IChannel<TMsg>
     {
         private readonly Queue<TMsg> _queue = new Queue<TMsg>();
-
         private int Count
         {
             get
@@ -17,8 +16,6 @@ namespace Fibrous.Channels
                 }
             }
         }
-
-        #region IChannel<TMsg> Members
 
         public IDisposable Subscribe(IFiber fiber, Action<TMsg> onMessage)
         {
@@ -37,8 +34,6 @@ namespace Fibrous.Channels
             return true;
         }
 
-        #endregion
-
         internal event Action SignalEvent;
 
         private bool Pop(out TMsg msg)
@@ -55,8 +50,6 @@ namespace Fibrous.Channels
             return false;
         }
 
-        #region Nested type: QueueConsumer
-
         private sealed class QueueConsumer : IDisposable
         {
             private readonly Action<TMsg> _callback;
@@ -72,14 +65,10 @@ namespace Fibrous.Channels
                 _eventChannel.SignalEvent += Signal;
             }
 
-            #region IDisposable Members
-
             public void Dispose()
             {
                 _eventChannel.SignalEvent -= Signal;
             }
-
-            #endregion
 
             private void Signal()
             {
@@ -112,7 +101,5 @@ namespace Fibrous.Channels
                 }
             }
         }
-
-        #endregion
     }
 }

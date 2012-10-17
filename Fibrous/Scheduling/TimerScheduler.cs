@@ -1,12 +1,10 @@
-using System;
-using Fibrous.Utility;
-
 namespace Fibrous.Scheduling
 {
+    using System;
+    using Fibrous.Utility;
+
     public sealed class TimerScheduler : IScheduler
     {
-        #region IScheduler Members
-
         public IDisposable Schedule(IFiber fiber, Action action, TimeSpan dueTime)
         {
             if (dueTime.TotalMilliseconds <= 0)
@@ -22,7 +20,5 @@ namespace Fibrous.Scheduling
         {
             return new TimerAction(fiber, action, dueTime, interval);
         }
-
-        #endregion
     }
 }

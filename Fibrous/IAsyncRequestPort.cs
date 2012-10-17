@@ -1,7 +1,7 @@
-using System;
-
 namespace Fibrous
 {
+    using System;
+
     /// <summary>
     /// Sends a request with a callback and fiber for the reply
     /// </summary>
