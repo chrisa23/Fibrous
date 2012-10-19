@@ -1,25 +1,24 @@
-﻿using System;
-using System.Diagnostics;
-using System.Text;
-using System.Threading;
-using CrossroadsIO;
-using Fibrous.Channels;
-using Fibrous.Fibers;
-using FluentAssertions;
-using NUnit.Framework;
-
-namespace Fibrous.Remoting.Tests.ReqReply
+﻿namespace Fibrous.Remoting.Tests.ReqReply
 {
+    using System;
+    using System.Diagnostics;
+    using System.Text;
+    using System.Threading;
+    using CrossroadsIO;
+    using Fibrous.Fibers;
+    using FluentAssertions;
+    using NUnit.Framework;
+
     [TestFixture]
     public class WhenRequestIsSent : ReqReplyServiceSpecs
     {
         [Test]
         public void Test()
         {
-            Reply = Client.SendRequest("test", TimeSpan.FromSeconds(2));
+            Reply = Port.SendRequest("test", TimeSpan.FromSeconds(2));
             if (Reply == "TEST")
                 Replied.Set();
-            WaitHandle.WaitAny(new WaitHandle[] {Replied}, TimeSpan.FromSeconds(1));
+            WaitHandle.WaitAny(new WaitHandle[] { Replied }, TimeSpan.FromSeconds(1));
             Reply.Should().BeEquivalentTo("TEST");
             Cleanup();
         }
@@ -33,11 +32,11 @@ namespace Fibrous.Remoting.Tests.ReqReply
         {
             for (int i = 0; i < 100; i++)
             {
-                Reply = Client.SendRequest("test" + i, TimeSpan.FromSeconds(1));
+                Reply = Port.SendRequest("test" + i, TimeSpan.FromSeconds(1));
                 if (Reply == "TEST99")
                     Replied.Set();
             }
-            WaitHandle.WaitAny(new WaitHandle[] {Replied}, TimeSpan.FromSeconds(1));
+            WaitHandle.WaitAny(new WaitHandle[] { Replied }, TimeSpan.FromSeconds(5));
             Reply.Should().BeEquivalentTo("TEST99");
             Cleanup();
         }
@@ -54,7 +53,7 @@ namespace Fibrous.Remoting.Tests.ReqReply
             Stopwatch sw = Stopwatch.StartNew();
             for (int i = 0; i < 10000; i++)
             {
-                Reply = Client.SendRequest("test" + i, TimeSpan.FromSeconds(1));
+                Reply = Port.SendRequest("test" + i, TimeSpan.FromSeconds(1));
                 //Console.WriteLine(Reply);
                 if (Reply.Equals(EndReply))
                 {
@@ -62,7 +61,7 @@ namespace Fibrous.Remoting.Tests.ReqReply
                     Replied.Set();
                 }
             }
-            WaitHandle.WaitAny(new WaitHandle[] {Replied}, TimeSpan.FromSeconds(15));
+            WaitHandle.WaitAny(new WaitHandle[] { Replied }, TimeSpan.FromSeconds(15));
             Console.WriteLine("Elapsed: " + sw.ElapsedMilliseconds);
             Assert.AreEqual(Reply, EndReply);
             Cleanup();
@@ -73,10 +72,10 @@ namespace Fibrous.Remoting.Tests.ReqReply
     {
         protected static Context Context;
         protected static Context Context2;
-        protected static RequestService<string, string> Service;
-        protected static RequestClient<string, string> Client;
-        protected static RequestChannel<string, string> _channel = new RequestChannel<string, string>();
+        protected static IRequestHandlerPort<string, string> Service;
+        protected static IRequestPort<string, string> Port;
         protected static IFiber Fiber = PoolFiber.StartNew();
+        protected static IFiber ServerFiber = PoolFiber.StartNew();
         protected static string Reply;
         protected static ManualResetEvent Replied = new ManualResetEvent(false);
 
@@ -85,17 +84,16 @@ namespace Fibrous.Remoting.Tests.ReqReply
             Context = Context.Create();
             Context2 = Context.Create();
             Func<byte[], string> unmarshaller = (x) => Encoding.Unicode.GetString(x);
-            Fiber.Add(_channel.SetRequestHandler(Fiber, request => request.Reply(request.Request.ToUpper())));
             Func<string, byte[]> marshaller = x => Encoding.Unicode.GetBytes(x);
-            Service = new RequestService<string, string>(Context,
-                                                         "tcp://*:9995",
-                                                         unmarshaller,
-                                                         _channel,
-                                                         marshaller);
+            Service = new RemoteRequestHandlerPort<string, string>(Context, "tcp://*:9995", unmarshaller, marshaller);
+            ServerFiber.Add(Service.SetRequestHandler(ServerFiber, request => request.Reply(request.Request.ToUpper())));
+            ServerFiber.Add((RemoteRequestHandlerPort<string, string>)Service);
+            ServerFiber.Add(Context);
+
             Console.WriteLine("Start service");
-            Client = new RequestClient<string, string>(Context2, "tcp://localhost:9995", marshaller, unmarshaller);
-            Fiber.Add(Client);
-            Fiber.Add(Service);
+            Port = new RemoteRequestPort<string, string>(Context2, "tcp://localhost:9995", marshaller, unmarshaller);
+            Fiber.Add((RemoteRequestPort<string, string>)Port);
+            Fiber.Add(Context2);
             Console.WriteLine("Start client");
         }
 
@@ -103,8 +101,8 @@ namespace Fibrous.Remoting.Tests.ReqReply
         protected void Cleanup()
         {
             Fiber.Dispose();
-            Context2.Dispose();
-            Context.Dispose();
+            Thread.Sleep(100);
+            ServerFiber.Dispose();
             Console.WriteLine("Dispose");
             Thread.Sleep(100);
         }

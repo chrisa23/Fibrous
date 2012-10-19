@@ -1,13 +1,13 @@
-﻿using System;
-using System.Text;
-using System.Threading;
-using CrossroadsIO;
-using Fibrous.Fibers;
-using FluentAssertions;
-using NUnit.Framework;
-
-namespace Fibrous.Remoting.Tests.PubSub
+﻿namespace Fibrous.Remoting.Tests.PubSub
 {
+    using System;
+    using System.Text;
+    using System.Threading;
+    using CrossroadsIO;
+    using Fibrous.Fibers;
+    using FluentAssertions;
+    using NUnit.Framework;
+
     [TestFixture]
     public class WhenMsgIsSentPubSub : PubSubSpecs
     {
@@ -15,11 +15,11 @@ namespace Fibrous.Remoting.Tests.PubSub
         public void Test()
         {
             Subscriber.Subscribe(ClientFiber,
-                                 s =>
-                                     {
-                                         Received = s;
-                                         RcvdSignal.Set();
-                                     });
+                s =>
+                {
+                    Received = s;
+                    RcvdSignal.Set();
+                });
             Thread.Sleep(10);
             Send.Publish("test");
             RcvdSignal.WaitOne(TimeSpan.FromSeconds(1));
@@ -45,11 +45,11 @@ namespace Fibrous.Remoting.Tests.PubSub
             RcvdSignal = new ManualResetEvent(false);
             ClientFiber = PoolFiber.StartNew();
             Send = new SendSocket<string>(Context1,
-                                          "tcp://*:6001",
-                                          s => Encoding.Unicode.GetBytes(s));
+                "tcp://*:6001",
+                s => Encoding.Unicode.GetBytes(s));
             Subscriber = new SubscribeSocketPort<string>(Context2,
-                                                         "tcp://localhost:6001",
-                                                         (x, y) => Encoding.Unicode.GetString(x, 0, y));
+                "tcp://localhost:6001",
+                x => Encoding.Unicode.GetString(x));
             Subscriber.SubscribeAll();
         }
 

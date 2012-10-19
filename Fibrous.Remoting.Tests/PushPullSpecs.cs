@@ -1,14 +1,14 @@
-﻿using System;
-using System.Diagnostics;
-using System.Text;
-using System.Threading;
-using CrossroadsIO;
-using Fibrous.Fibers;
-using FluentAssertions;
-using NUnit.Framework;
-
-namespace Fibrous.Remoting.Tests.PushPull
+﻿namespace Fibrous.Remoting.Tests.PushPull
 {
+    using System;
+    using System.Diagnostics;
+    using System.Text;
+    using System.Threading;
+    using CrossroadsIO;
+    using Fibrous.Fibers;
+    using FluentAssertions;
+    using NUnit.Framework;
+
     [TestFixture]
     public class WhenMsgIsSent : PushPullSocketPortSpecs
     {
@@ -16,11 +16,11 @@ namespace Fibrous.Remoting.Tests.PushPull
         public void Test()
         {
             Pull.Subscribe(ClientFiber,
-                           s =>
-                               {
-                                   Received = s;
-                                   RcvdSignal.Set();
-                               });
+                s =>
+                {
+                    Received = s;
+                    RcvdSignal.Set();
+                });
             Push.Publish("test");
             RcvdSignal.WaitOne(TimeSpan.FromSeconds(1));
             Received.Should().BeEquivalentTo("test");
@@ -34,12 +34,12 @@ namespace Fibrous.Remoting.Tests.PushPull
         public void Test()
         {
             Pull.Subscribe(ClientFiber,
-                           s =>
-                               {
-                                   Received = s;
-                                   if (s == "test999999")
-                                       RcvdSignal.Set();
-                               });
+                s =>
+                {
+                    Received = s;
+                    if (s == "test999999")
+                        RcvdSignal.Set();
+                });
             Stopwatch sw = Stopwatch.StartNew();
             for (int i = 0; i < 1000000; i++)
                 Push.Publish("test" + i);
@@ -67,12 +67,12 @@ namespace Fibrous.Remoting.Tests.PushPull
             Context2 = Context.Create();
             RcvdSignal = new ManualResetEvent(false);
             ClientFiber = new StubFiber();
-            Pull = new PullSocketPort<string>(Context1, "tcp://*:6002", (x, y) => Encoding.Unicode.GetString(x, 0, y));
+            Pull = new PullSocketPort<string>(Context1, "tcp://*:6002", x => Encoding.Unicode.GetString(x));
             Push = new SendSocket<string>(Context2,
-                                          "tcp://localhost:6002",
-                                          s => Encoding.Unicode.GetBytes(s),
-                                          SocketType.PUSH,
-                                          false);
+                "tcp://localhost:6002",
+                s => Encoding.Unicode.GetBytes(s),
+                SocketType.PUSH,
+                false);
         }
 
         protected void Cleanup()

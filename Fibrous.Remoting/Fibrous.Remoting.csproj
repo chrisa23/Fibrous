@@ -44,10 +44,12 @@
     <Compile Include="AsyncRequestRemotingPort.cs" />
     <Compile Include="AsyncRequestHandlerRemotingPort.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PullSocketPort.cs" />
     <Compile Include="ReceiveSocketBase.cs" />
-    <Compile Include="RequestClient.cs" />
-    <Compile Include="RequestService.cs" />
+    <Compile Include="RemoteRequestHandlerPort.cs" />
+    <Compile Include="RemoteRequestPort.cs" />
     <Compile Include="SendSocket.cs" />
+    <Compile Include="SubscribeSocketPort.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Fibrous\Fibrous.csproj">

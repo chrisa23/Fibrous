@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using Fibrous.Channels;
-using Fibrous.Fibers;
-using NUnit.Framework;
-
-namespace Fibrous.Tests.Examples
+﻿namespace Fibrous.Tests.Examples
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
+    using Fibrous.Channels;
+    using Fibrous.Fibers;
+    using NUnit.Framework;
+
     [TestFixture]
     public class BasicTests
     {
@@ -19,11 +19,11 @@ namespace Fibrous.Tests.Examples
                 var reset = new ManualResetEvent(false);
                 int total = 0;
                 Action<IList<int>> cb = delegate(IList<int> batch)
-                                            {
-                                                total += batch.Count;
-                                                if (total == 10)
-                                                    reset.Set();
-                                            };
+                {
+                    total += batch.Count;
+                    if (total == 10)
+                        reset.Set();
+                };
                 using (counter.SubscribeToBatch(fiber, cb, TimeSpan.FromMilliseconds(1)))
                 {
                     for (int i = 0; i < 10; i++)
@@ -41,10 +41,10 @@ namespace Fibrous.Tests.Examples
                 var counter = new Channel<int>();
                 var reset = new ManualResetEvent(false);
                 Action<IDictionary<String, int>> cb = delegate(IDictionary<String, int> batch)
-                                                          {
-                                                              if (batch.ContainsKey("9"))
-                                                                  reset.Set();
-                                                          };
+                {
+                    if (batch.ContainsKey("9"))
+                        reset.Set();
+                };
                 Converter<int, String> keyResolver = x => x.ToString();
                 using (counter.SubscribeToKeyedBatch(fiber, keyResolver, cb, TimeSpan.FromMilliseconds(1)))
                 {
@@ -79,12 +79,12 @@ namespace Fibrous.Tests.Examples
                 using (var reset = new AutoResetEvent(false))
                 {
                     Action<int> onMsg = x =>
-                                            {
-                                                Assert.IsTrue(x%2 == 0);
-                                                if (x == 4)
-                                                    reset.Set();
-                                            };
-                    channel.Subscribe(fiber, onMsg, x => x%2 == 0);
+                    {
+                        Assert.IsTrue(x % 2 == 0);
+                        if (x == 4)
+                            reset.Set();
+                    };
+                    channel.Subscribe(fiber, onMsg, x => x % 2 == 0);
                     channel.Publish(1);
                     channel.Publish(2);
                     channel.Publish(3);

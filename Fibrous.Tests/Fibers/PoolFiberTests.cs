@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using Fibrous.Fibers;
-using NUnit.Framework;
-
 namespace Fibrous.Tests
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
+    using Fibrous.Fibers;
+    using NUnit.Framework;
+
     [TestFixture]
     public class PoolFiberTests
     {
@@ -31,11 +31,11 @@ namespace Fibrous.Tests
                 var reset = new AutoResetEvent(false);
                 var result = new List<int>();
                 Action command = () =>
-                                     {
-                                         result.Add(count++);
-                                         if (count == 100)
-                                             reset.Set();
-                                     };
+                {
+                    result.Add(count++);
+                    if (count == 100)
+                        reset.Set();
+                };
                 for (int i = 0; i < 100; i++)
                     fiber.Enqueue(command);
                 Assert.IsTrue(reset.WaitOne(10000, false));

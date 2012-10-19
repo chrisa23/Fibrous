@@ -18,6 +18,8 @@
         private readonly Socket _requestSocket;
         private readonly Func<byte[], TRequest> _requestUnmarshaller;
         private volatile bool _running = true;
+        private readonly Task _task;
+        private readonly TimeSpan _timeout = TimeSpan.FromMilliseconds(100);
 
         public AsyncRequestHandlerRemotingPort(Context context,
                                                string address,
@@ -32,7 +34,7 @@
             _requestSocket.Bind(address + ":" + basePort);
             _replySocket = _context.CreateSocket(SocketType.PUB);
             _replySocket.Bind(address + ":" + (basePort + 1));
-            Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
+            _task = Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
 
         public void Dispose()
@@ -44,7 +46,7 @@
         {
             while (_running)
             {
-                Message message = _requestSocket.ReceiveMessage();
+                Message message = _requestSocket.ReceiveMessage(_timeout);
                 if (message.IsEmpty)
                     continue;
                 byte[] id = message[0].Buffer;

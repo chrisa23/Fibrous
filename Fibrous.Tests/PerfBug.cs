@@ -1,9 +1,9 @@
-﻿using System;
-using System.Diagnostics;
-using NUnit.Framework;
-
-namespace Fibrous.Tests
+﻿namespace Fibrous.Tests
 {
+    using System;
+    using System.Diagnostics;
+    using NUnit.Framework;
+
     public class ActionFactory<T>
     {
         private readonly Action<T> on;
@@ -20,7 +20,7 @@ namespace Fibrous.Tests
 
         public Action CreateObject(object obj)
         {
-            return () => on((T) obj);
+            return () => on((T)obj);
         }
 
         public static Action Create(T msg, Action<T> target)
@@ -58,10 +58,10 @@ namespace Fibrous.Tests
         public void PerfTestWithObjectString()
         {
             Action<string> onMsg = x =>
-                                       {
-                                           if (x == "end")
-                                               Console.WriteLine(x);
-                                       };
+            {
+                if (x == "end")
+                    Console.WriteLine(x);
+            };
             var fact = new ActionFactory<string>(onMsg);
             Stopwatch watch = Stopwatch.StartNew();
             for (int i = 0; i < 5000000; i++)
@@ -78,10 +78,10 @@ namespace Fibrous.Tests
         public void PerfTestWithString()
         {
             Action<string> onMsg = x =>
-                                       {
-                                           if (x == "end")
-                                               Console.WriteLine(x);
-                                       };
+            {
+                if (x == "end")
+                    Console.WriteLine(x);
+            };
             var fact = new ActionFactory<string>(onMsg);
             Stopwatch watch = Stopwatch.StartNew();
             for (int i = 0; i < 5000000; i++)
@@ -112,10 +112,10 @@ namespace Fibrous.Tests
         public void PerfTestWithStringInline()
         {
             Action<string> onMsg = x =>
-                                       {
-                                           if (x == "end")
-                                               Console.WriteLine(x);
-                                       };
+            {
+                if (x == "end")
+                    Console.WriteLine(x);
+            };
             Stopwatch watch = Stopwatch.StartNew();
             for (int i = 0; i < 5000000; i++)
             {

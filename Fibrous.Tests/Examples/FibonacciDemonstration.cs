@@ -1,11 +1,11 @@
-using System;
-using System.Threading;
-using Fibrous.Channels;
-using Fibrous.Fibers;
-using NUnit.Framework;
-
 namespace Fibrous.Tests.Examples
 {
+    using System;
+    using System.Threading;
+    using Fibrous.Channels;
+    using Fibrous.Fibers;
+    using NUnit.Framework;
+
     [TestFixture]
     [Category("Demo")]
     //[Ignore("Demo")]
@@ -24,15 +24,8 @@ namespace Fibrous.Tests.Examples
                 _second = second;
             }
 
-            public int First
-            {
-                get { return _first; }
-            }
-
-            public int Second
-            {
-                get { return _second; }
-            }
+            public int First { get { return _first; } }
+            public int Second { get { return _second; } }
         }
 
         // This class calculates the next value in a Fibonacci sequence.

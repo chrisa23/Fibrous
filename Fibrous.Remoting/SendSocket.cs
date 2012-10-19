@@ -29,7 +29,6 @@ namespace Fibrous.Remoting
 
         public bool Publish(T msg)
         {
-            //intended to allow multipart messages.. but inconsistent'
             _socket.Send(_msgSender(msg));
             return true;
         }

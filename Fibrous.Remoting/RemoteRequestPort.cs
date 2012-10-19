@@ -3,16 +3,16 @@ namespace Fibrous.Remoting
     using System;
     using CrossroadsIO;
 
-    public class RequestClient<TRequest, TReply> : IRequestPort<TRequest, TReply>, IDisposable
+    public class RemoteRequestPort<TRequest, TReply> : IRequestPort<TRequest, TReply>, IDisposable
     {
         private readonly Func<byte[], TReply> _replyUnmarshaller;
         private readonly Func<TRequest, byte[]> _requestMarshaller;
         private readonly Socket _socket;
 
-        public RequestClient(Context context,
-                             string address,
-                             Func<TRequest, byte[]> requestMarshaller,
-                             Func<byte[], TReply> replyUnmarshaller)
+        public RemoteRequestPort(Context context,
+                                 string address,
+                                 Func<TRequest, byte[]> requestMarshaller,
+                                 Func<byte[], TReply> replyUnmarshaller)
         {
             _requestMarshaller = requestMarshaller;
             _replyUnmarshaller = replyUnmarshaller;

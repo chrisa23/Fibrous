@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using Fibrous;
-using Fibrous.Actors;
-using Fibrous.Channels;
-using Fibrous.Fibers;
-
-namespace Examples
+﻿namespace Examples
 {
+    using System;
+    using System.Collections.Generic;
+    using Fibrous;
+    using Fibrous.Actors;
+    using Fibrous.Channels;
+    using Fibrous.Fibers;
+
     /// <summary>
     /// Very simple, non-functioning, system example.
     /// </summary>
@@ -47,12 +47,10 @@ namespace Examples
             _actor = BatchingActor<string>.Start(x => LogToFile(_path, x), new TimeSpan(0, 0, 1));
         }
 
-
         public void Dispose()
         {
             _actor.Dispose();
         }
-
 
         private static void LogToFile(string path, IList<string> items)
         {

@@ -1,3 +1,4 @@
+- Fix timeout on sockets issue.  
 - Adjust abstractions to match ZMQ socket type paradigm better (consider port combinations)
 - update Xml docs
 - update error handling in remoting library

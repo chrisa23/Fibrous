@@ -1,10 +1,10 @@
-using System;
-using Fibrous.Channels;
-using Fibrous.Fibers;
-using NUnit.Framework;
-
 namespace Fibrous.Tests
 {
+    using System;
+    using Fibrous.Channels;
+    using Fibrous.Fibers;
+    using NUnit.Framework;
+
     [TestFixture]
     public class RequestChannelTests
     {

@@ -1,12 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using Fibrous.Channels;
-using Fibrous.Fibers;
-using NUnit.Framework;
-
 namespace Fibrous.Tests.Examples
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
+    using Fibrous.Channels;
+    using Fibrous.Fibers;
+    using NUnit.Framework;
+
     /*
      * This demonstration imagines the following scenario:  A stream
      * of quadratic equations is being received.  Each equation must
@@ -66,15 +66,8 @@ namespace Fibrous.Tests.Examples
                 _complexSolutions = complexSolutions;
             }
 
-            public string SolutionOne
-            {
-                get { return _solutionOne + ImaginarySuffix(); }
-            }
-
-            public string SolutionTwo
-            {
-                get { return _solutionTwo + ImaginarySuffix(); }
-            }
+            public string SolutionOne { get { return _solutionOne + ImaginarySuffix(); } }
+            public string SolutionTwo { get { return _solutionTwo + ImaginarySuffix(); } }
 
             private string ImaginarySuffix()
             {
@@ -99,11 +92,11 @@ namespace Fibrous.Tests.Examples
             public override string ToString()
             {
                 return string.Format("The quadratic {0} * x^2 + {1} * x + {2} has zeroes at {3} and {4}.",
-                                     _quadratic.A,
-                                     _quadratic.B,
-                                     _quadratic.C,
-                                     _solutions.SolutionOne,
-                                     _solutions.SolutionTwo);
+                    _quadratic.A,
+                    _quadratic.B,
+                    _quadratic.C,
+                    _solutions.SolutionOne,
+                    _solutions.SolutionTwo);
             }
         }
 
@@ -173,15 +166,15 @@ namespace Fibrous.Tests.Examples
                 int b = quadratic.B;
                 int c = quadratic.C;
                 bool imaginary = false;
-                int discriminant = ((b*b) - (4*a*c));
+                int discriminant = ((b * b) - (4 * a * c));
                 if (discriminant < 0)
                 {
                     discriminant = -discriminant;
                     imaginary = true;
                 }
                 double tmp = Math.Sqrt(discriminant);
-                double solutionOne = (-b + tmp)/(2*a);
-                double solutionTwo = (-b - tmp)/(2*a);
+                double solutionOne = (-b + tmp) / (2 * a);
+                double solutionTwo = (-b - tmp) / (2 * a);
                 return new QuadraticSolutions(solutionOne, solutionTwo, imaginary);
             }
         }

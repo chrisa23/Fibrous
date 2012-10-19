@@ -21,6 +21,8 @@ namespace Fibrous.Remoting
         private readonly Dictionary<Guid, IRequest<TRequest, TReply>> _requests =
             new Dictionary<Guid, IRequest<TRequest, TReply>>();
         private volatile bool _running = true;
+        private readonly Task _task;
+        private readonly TimeSpan _fromMilliseconds = TimeSpan.FromMilliseconds(100);
 
         public AsyncRequestRemotingPort(Context context,
                                         string address,
@@ -49,7 +51,7 @@ namespace Fibrous.Remoting
             _requestSocket = _replyContext.CreateSocket(SocketType.PUSH);
             _requestSocket.Connect(address + ":" + basePort);
             _fiber.Start();
-            Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
+            _task = Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
 
         public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply)
@@ -71,7 +73,7 @@ namespace Fibrous.Remoting
         {
             while (_running)
             {
-                Message msg = _replySocket.ReceiveMessage(); //_fromMilliseconds);
+                Message msg = _replySocket.ReceiveMessage(_fromMilliseconds);
                 if (msg.IsEmpty)
                     continue;
                 if (msg.FrameCount != 3)

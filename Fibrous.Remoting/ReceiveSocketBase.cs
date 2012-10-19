@@ -5,67 +5,17 @@ namespace Fibrous.Remoting
     using CrossroadsIO;
     using Fibrous.Channels;
 
-    public class PullSocketPort<T> : ReceiveSocketBase<T>
-    {
-        public PullSocketPort(Context context, string address, Func<byte[], int, T> msgReceiver, bool useBind = true)
-            : base(context, msgReceiver)
-        {
-            Socket = context.CreateSocket(SocketType.PULL);
-            if (useBind)
-                Socket.Bind(address);
-            else
-                Socket.Connect(address);
-            Initialize();
-        }
-    }
-
-    public class SubscribeSocketPort<T> : ReceiveSocketBase<T>
-    {
-        public SubscribeSocketPort(Context context, string address, Func<byte[], int, T> msgReceiver)
-            : base(context, msgReceiver)
-        {
-            Socket = Context.CreateSocket(SocketType.SUB);
-            Socket.Connect(address);
-            Initialize();
-        }
-
-        public void SubscribeAll()
-        {
-            Socket.SubscribeAll();
-        }
-
-        public void Subscribe(byte[] key)
-        {
-            Socket.Subscribe(key);
-        }
-
-        public void UnsubscribeAll()
-        {
-            Socket.UnsubscribeAll();
-        }
-
-        public void Unsubscribe(byte[] key)
-        {
-            Socket.Unsubscribe(key);
-        }
-
-        public override void Dispose()
-        {
-            UnsubscribeAll();
-            base.Dispose();
-        }
-    }
-
     public abstract class ReceiveSocketBase<T> : ISubscribePort<T>, IDisposable
     {
         protected readonly Context Context;
         private readonly IChannel<T> _internalChannel = new Channel<T>();
-        private readonly Func<byte[], int, T> _msgReceiver;
-        private readonly TimeSpan _timeout = TimeSpan.FromMilliseconds(100);
+        private readonly Func<byte[], T> _msgReceiver;
         protected Socket Socket;
         private volatile bool _running = true;
+        private Task _task;
+        private readonly TimeSpan _timeout = TimeSpan.FromMilliseconds(100);
 
-        protected ReceiveSocketBase(Context context, Func<byte[], int, T> receiver)
+        protected ReceiveSocketBase(Context context, Func<byte[], T> receiver)
         {
             _msgReceiver = receiver;
             Context = context;
@@ -83,17 +33,17 @@ namespace Fibrous.Remoting
 
         protected void Initialize()
         {
-            Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
+            _task = Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
 
         private void Run()
         {
             while (_running)
             {
-                Message message = Socket.ReceiveMessage(); //_timeout);
+                Message message = Socket.ReceiveMessage(_timeout);
                 if (message.IsEmpty)
                     continue;
-                T msg = _msgReceiver(message[0].Buffer, message[0].BufferSize);
+                T msg = _msgReceiver(message[0].Buffer);
                 _internalChannel.Publish(msg);
             }
             InternalDispose();
