@@ -73,16 +73,23 @@ namespace Fibrous.Remoting
         {
             while (_running)
             {
-                Message msg = _replySocket.ReceiveMessage(_fromMilliseconds);
-                if (msg.IsEmpty)
-                    continue;
-                if (msg.FrameCount != 3)
-                    throw new Exception("Msg error");
-                var guid = new Guid(msg[1]);
-                if (!_requests.ContainsKey(guid))
-                    throw new Exception("We don't have a msg SenderId for this reply");
-                TReply reply = _replyUnmarshaller(msg[2].Buffer);
-                _fiber.Enqueue(() => Send(guid, reply));
+                try
+                {
+                    Message msg = _replySocket.ReceiveMessage();
+                    if (msg.IsEmpty)
+                        continue;
+                    if (msg.FrameCount != 3)
+                        throw new Exception("Msg error");
+                    var guid = new Guid(msg[1]);
+                    if (!_requests.ContainsKey(guid))
+                        throw new Exception("We don't have a msg SenderId for this reply");
+                    TReply reply = _replyUnmarshaller(msg[2].Buffer);
+                    _fiber.Enqueue(() => Send(guid, reply));
+                }
+                catch (Exception e)
+                {
+                    _running = false;
+                }
             }
             InternalDispose();
         }

@@ -98,6 +98,7 @@
             Console.WriteLine("Start client fiber");
             ClientFiber = PoolFiber.StartNew();
             ClientContext = Context.Create();
+
             ServerFiber = PoolFiber.StartNew();
             ServerContext = Context.Create();
             Func<byte[], string> unmarshaller = x => Encoding.Unicode.GetString(x);

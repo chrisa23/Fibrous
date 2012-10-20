@@ -40,11 +40,19 @@ namespace Fibrous.Remoting
         {
             while (_running)
             {
-                Message message = Socket.ReceiveMessage(_timeout);
-                if (message.IsEmpty)
-                    continue;
-                T msg = _msgReceiver(message[0].Buffer);
-                _internalChannel.Publish(msg);
+                try
+                {
+                    Message message = Socket.ReceiveMessage();//_timeout
+                    if (message.IsEmpty)
+                        continue;
+                    T msg = _msgReceiver(message[0].Buffer);
+                    _internalChannel.Publish(msg);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    _running = false;
+                }
             }
             InternalDispose();
         }

@@ -29,7 +29,7 @@ namespace Fibrous.Remoting
 
         public void Dispose()
         {
-            _socket.Dispose();
+            _socket.Close();
         }
 
         private void ProcessRequest(byte[] buffer)
@@ -58,13 +58,13 @@ namespace Fibrous.Remoting
                     _running = false;
                 }
             }
-          //  InternalDispose();
+            InternalDispose();
         }
 
-        //private void InternalDispose()
-        //{
-          
-        //}
+        private void InternalDispose()
+        {
+            _socket.Dispose();
+        }
 
         public IDisposable SetRequestHandler(IFiber fiber, Action<IRequest<TRequest, TReply>> onRequest)
         {

@@ -39,19 +39,26 @@
 
         public void Dispose()
         {
-            _running = false;
+            _requestSocket.Close();
         }
 
         private void Run()
         {
             while (_running)
             {
-                Message message = _requestSocket.ReceiveMessage(_timeout);
-                if (message.IsEmpty)
-                    continue;
-                byte[] id = message[0].Buffer;
-                byte[] rid = message[1].Buffer;
-                ProcessRequest(id, rid, message[2].Buffer);
+                try
+                {
+                    Message message = _requestSocket.ReceiveMessage();
+                    if (message.IsEmpty)
+                        continue;
+                    byte[] id = message[0].Buffer;
+                    byte[] rid = message[1].Buffer;
+                    ProcessRequest(id, rid, message[2].Buffer);
+                }
+                catch (Exception e)
+                {
+                    _running = false;
+                }
             }
             InternalDispose();
         }

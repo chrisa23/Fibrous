@@ -18,7 +18,7 @@
             Reply = Port.SendRequest("test", TimeSpan.FromSeconds(2));
             if (Reply == "TEST")
                 Replied.Set();
-            WaitHandle.WaitAny(new WaitHandle[] { Replied }, TimeSpan.FromSeconds(1));
+            WaitHandle.WaitAny(new WaitHandle[] { Replied }, TimeSpan.FromSeconds(5));
             Reply.Should().BeEquivalentTo("TEST");
             Cleanup();
         }
@@ -75,25 +75,25 @@
         protected static IRequestHandlerPort<string, string> Service;
         protected static IRequestPort<string, string> Port;
         protected static IFiber Fiber = PoolFiber.StartNew();
-        protected static IFiber ServerFiber = PoolFiber.StartNew();
         protected static string Reply;
         protected static ManualResetEvent Replied = new ManualResetEvent(false);
 
         public ReqReplyServiceSpecs()
         {
             Context = Context.Create();
-            Context2 = Context.Create();
             Func<byte[], string> unmarshaller = (x) => Encoding.Unicode.GetString(x);
             Func<string, byte[]> marshaller = x => Encoding.Unicode.GetBytes(x);
             Service = new RemoteRequestHandlerPort<string, string>(Context, "tcp://*:9995", unmarshaller, marshaller);
-            ServerFiber.Add(Service.SetRequestHandler(ServerFiber, request => request.Reply(request.Request.ToUpper())));
-            ServerFiber.Add((RemoteRequestHandlerPort<string, string>)Service);
-            ServerFiber.Add(Context);
-
             Console.WriteLine("Start service");
+            
+            Context2 = Context.Create();
             Port = new RemoteRequestPort<string, string>(Context2, "tcp://localhost:9995", marshaller, unmarshaller);
+            Fiber.Add(Replied);
             Fiber.Add((RemoteRequestPort<string, string>)Port);
             Fiber.Add(Context2);
+            Fiber.Add(Service.SetRequestHandler(new StubFiber(), request => request.Reply(request.Request.ToUpper())));
+            Fiber.Add((RemoteRequestHandlerPort<string, string>)Service);
+            Fiber.Add(Context);
             Console.WriteLine("Start client");
         }
 
@@ -101,8 +101,6 @@
         protected void Cleanup()
         {
             Fiber.Dispose();
-            Thread.Sleep(100);
-            ServerFiber.Dispose();
             Console.WriteLine("Dispose");
             Thread.Sleep(100);
         }
