@@ -1,7 +1,6 @@
 namespace Fibrous
 {
     using System;
-    using Fibrous.Channels;
 
     public interface IRequestHandlerPort<out TRequest, in TReply>
     {

@@ -2,21 +2,18 @@ namespace Fibrous.Fibers
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
 
     public abstract class GuiFiberBase : FiberBase
     {
         private readonly IExecutionContext _executionContext;
-        private readonly IExecutor _executor;
         private readonly object _lock = new object();
         private readonly List<Action> _queue = new List<Action>();
         private volatile ExecutionState _started = ExecutionState.Created;
 
-        protected GuiFiberBase(IExecutionContext executionContext, IExecutor executor)
+        protected GuiFiberBase(FiberConfig config, IExecutionContext executionContext) : base(config)
         {
             _executionContext = executionContext;
-            _executor = executor;
         }
 
         public override void Enqueue(Action action)
@@ -34,7 +31,7 @@ namespace Fibrous.Fibers
                     }
                 }
             }
-            _executionContext.Enqueue(() => _executor.Execute(action));
+            _executionContext.Enqueue(() => Executor.Execute(action));
         }
 
         public override void Start()
@@ -43,10 +40,10 @@ namespace Fibrous.Fibers
                 throw new ThreadStateException("Already Started");
             lock (_lock)
             {
-                List<Action> actions = _queue.ToList();
+                Action[] actions = _queue.ToArray();
                 _queue.Clear();
-                if (actions.Count > 0)
-                    _executionContext.Enqueue(() => _executor.Execute(actions));
+                if (actions.Length > 0)
+                    _executionContext.Enqueue(() => Executor.Execute(actions));
                 _started = ExecutionState.Running;
             }
         }

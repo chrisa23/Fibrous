@@ -10,10 +10,9 @@ namespace Fibrous.Scheduling
 
         public BatchSubscriber(ISubscribePort<T> channel,
                                IFiber fiber,
-                               IScheduler scheduler,
                                TimeSpan interval,
                                Action<T[]> receive)
-            : base(channel, fiber, scheduler, interval)
+            : base(channel, fiber, interval)
         {
             _receive = receive;
         }
@@ -25,7 +24,7 @@ namespace Fibrous.Scheduling
                 if (_pending == null)
                 {
                     _pending = new List<T>();
-                    Scheduler.Schedule(Fiber, Flush, Interval);
+                    Fiber.Schedule(Flush, Interval);
                 }
                 _pending.Add(msg);
             }

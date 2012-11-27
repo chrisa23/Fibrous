@@ -6,21 +6,10 @@ namespace Fibrous.Fibers.Queues
 
     public abstract class QueueBase : IQueue
     {
+        protected static readonly Action[] Empty = new Action[0];
         protected readonly object SyncRoot = new object();
-        private readonly IExecutor _executor;
         protected List<Action> Actions = new List<Action>();
-        protected volatile bool Running = true;
         protected List<Action> ToPass = new List<Action>();
-
-        protected QueueBase(IExecutor executor)
-        {
-            _executor = executor;
-        }
-
-        protected QueueBase()
-            : this(new DefaultExecutor())
-        {
-        }
 
         public virtual void Enqueue(Action action)
         {
@@ -31,31 +20,22 @@ namespace Fibrous.Fibers.Queues
             }
         }
 
-        public void Run()
-        {
-            while (ExecuteNextBatch())
-            {
-            }
-        }
-
-        public void Stop()
+        public bool HasItems()
         {
             lock (SyncRoot)
             {
-                Running = false;
-                Monitor.PulseAll(SyncRoot);
+                return Actions.Count > 0;
             }
         }
 
-        protected abstract IEnumerable<Action> DequeueAll();
+        public abstract IEnumerable<Action> DequeueAll();
 
-        private bool ExecuteNextBatch()
+        public void Dispose()
         {
-            IEnumerable<Action> toExecute = DequeueAll();
-            if (toExecute == null)
-                return false;
-            _executor.Execute(toExecute);
-            return true;
+            lock (SyncRoot)
+            {
+                Monitor.PulseAll(SyncRoot);
+            }
         }
     }
 }

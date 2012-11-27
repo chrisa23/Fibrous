@@ -42,7 +42,7 @@ namespace Fibrous.Remoting
             {
                 try
                 {
-                    Message message = Socket.ReceiveMessage();//_timeout
+                    Message message = Socket.ReceiveMessage(); //_timeout
                     if (message.IsEmpty)
                         continue;
                     T msg = _msgReceiver(message[0].Buffer);

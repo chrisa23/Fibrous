@@ -11,63 +11,37 @@ namespace Fibrous.Fibers
     /// </summary>
     public sealed class PoolFiber : FiberBase
     {
-        private readonly IExecutor _executor;
+        //private readonly IExecutor _executor;
         private readonly object _lock = new object();
         private readonly TaskFactory _taskFactory;
         private bool _flushPending;
-        private List<Action> _queue = new List<Action>();
         private ExecutionState _started = ExecutionState.Created;
+        private List<Action> _queue = new List<Action>();
         private List<Action> _toPass = new List<Action>();
-
-        public PoolFiber(IExecutor executor, TaskFactory taskFactory)
+        //switch back to IPool 
+        public PoolFiber(FiberConfig config, TaskFactory taskFactory) : base(config)
         {
-            _executor = executor;
             _taskFactory = taskFactory;
         }
 
         public PoolFiber(IExecutor executor)
-            : this(executor, new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None))
+            : this(new FiberConfig(executor), new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None))
+        {
+        }
+
+        public PoolFiber(IExecutor executor, TaskFactory taskFactory)
+            : this(new FiberConfig(executor), taskFactory)
         {
         }
 
         public PoolFiber(TaskFactory taskFactory)
-            : this(new DefaultExecutor(), taskFactory)
+            : this(FiberConfig.Default, taskFactory)
         {
         }
 
         public PoolFiber()
-            : this(
-                new DefaultExecutor(), new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None)
-                )
+            : this(FiberConfig.Default, new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None))
         {
-        }
-
-        public static IFiber StartNew()
-        {
-            var fiber = new PoolFiber();
-            fiber.Start();
-            return fiber;
-        }
-
-        public static IFiber StartNew(IExecutor executor)
-        {
-            var fiber = new PoolFiber(executor);
-            fiber.Start();
-            return fiber;
-        }
-
-        public static IFiber StartNew(TaskFactory taskFactory)
-        {
-            var fiber = new PoolFiber(taskFactory);
-            fiber.Start();
-            return fiber;
-        }
-
-        public static IFiber StartNew(IExecutor executor, TaskFactory taskFactory)
-        {
-            var fiber = new PoolFiber(executor, taskFactory);
-            fiber.Start();
-            return fiber;
         }
 
         public override void Enqueue(Action action)
@@ -92,7 +66,7 @@ namespace Fibrous.Fibers
             IEnumerable<Action> toExecute = ClearActions();
             if (toExecute != null)
             {
-                _executor.Execute(toExecute);
+                Executor.Execute(toExecute);
                 lock (_lock)
                 {
                     if (_queue.Count > 0)
@@ -136,5 +110,37 @@ namespace Fibrous.Fibers
                 _started = ExecutionState.Stopped;
             base.Dispose(disposing);
         }
+
+        #region StartNew
+
+        public static IFiber StartNew()
+        {
+            var fiber = new PoolFiber();
+            fiber.Start();
+            return fiber;
+        }
+
+        public static IFiber StartNew(IExecutor executor)
+        {
+            var fiber = new PoolFiber(executor);
+            fiber.Start();
+            return fiber;
+        }
+
+        public static IFiber StartNew(TaskFactory taskFactory)
+        {
+            var fiber = new PoolFiber(taskFactory);
+            fiber.Start();
+            return fiber;
+        }
+
+        public static IFiber StartNew(IExecutor executor, TaskFactory taskFactory)
+        {
+            var fiber = new PoolFiber(executor, taskFactory);
+            fiber.Start();
+            return fiber;
+        }
+
+        #endregion
     }
 }

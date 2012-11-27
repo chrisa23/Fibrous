@@ -5,7 +5,6 @@
     using System.Threading;
     using Fibrous.Channels;
     using Fibrous.Fibers;
-    using Fibrous.Fibers.Queues;
     using NUnit.Framework;
 
     public class PerfExecutor : IExecutor
@@ -162,31 +161,29 @@
             }
         }
 
-        [Test]
-        [Explicit]
-        public void TestBoundedQueue()
-        {
-            PointToPointPerfTestWithStruct(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000, 1000)));
-            PointToPointPerfTestWithInt(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000, 1000)));
-            PointToPointPerfTestWithObject(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000, 1000)));
-        }
-
-        [Test]
-        [Explicit]
-        public void TestBusyWait()
-        {
-            PointToPointPerfTestWithStruct(new ThreadFiber(new BusyWaitQueue(new PerfExecutor(), 1000, 25)));
-            PointToPointPerfTestWithInt(new ThreadFiber(new BusyWaitQueue(new PerfExecutor(), 1000, 25)));
-            PointToPointPerfTestWithObject(new ThreadFiber(new BusyWaitQueue(new PerfExecutor(), 1000, 25)));
-        }
-
+        //[Test]
+        //[Explicit]
+        //public void TestBoundedQueue()
+        //{
+        //    PointToPointPerfTestWithStruct(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000, 1000)));
+        //    PointToPointPerfTestWithInt(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000, 1000)));
+        //    PointToPointPerfTestWithObject(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000, 1000)));
+        //}
+        //[Test]
+        //[Explicit]
+        //public void TestBusyWait()
+        //{
+        //    PointToPointPerfTestWithStruct(new ThreadFiber(new BusyWaitQueue(new PerfExecutor(), 1000, 25)));
+        //    PointToPointPerfTestWithInt(new ThreadFiber(new BusyWaitQueue(new PerfExecutor(), 1000, 25)));
+        //    PointToPointPerfTestWithObject(new ThreadFiber(new BusyWaitQueue(new PerfExecutor(), 1000, 25)));
+        //}
         [Test]
         [Explicit]
         public void TestDefault()
         {
-            PointToPointPerfTestWithStruct(new ThreadFiber(new DefaultQueue(new PerfExecutor())));
-            PointToPointPerfTestWithInt(new ThreadFiber(new DefaultQueue(new PerfExecutor())));
-            PointToPointPerfTestWithObject(new ThreadFiber(new DefaultQueue(new PerfExecutor())));
+            PointToPointPerfTestWithStruct(new ThreadFiber(new PerfExecutor()));
+            PointToPointPerfTestWithInt(new ThreadFiber(new PerfExecutor()));
+            PointToPointPerfTestWithObject(new ThreadFiber(new PerfExecutor()));
         }
 
         [Test]

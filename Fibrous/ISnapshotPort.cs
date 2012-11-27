@@ -2,8 +2,8 @@ namespace Fibrous
 {
     using System;
 
-    public interface ISnapshotPort<T, TSnapshot>
+    public interface ISnapshotPort<T>
     {
-        IDisposable PrimedSubscribe(IFiber fiber, Action<T> receive, Action<TSnapshot> receiveSnapshot, TimeSpan timeout);
+        IDisposable PrimedSubscribe(IFiber fiber, Action<T> receive, Action<T[]> receiveSnapshot);
     }
 }

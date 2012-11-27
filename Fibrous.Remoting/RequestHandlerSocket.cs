@@ -6,9 +6,9 @@
     using Fibrous.Channels;
     using Fibrous.Fibers;
 
-    public class AsyncRequestHandlerRemotingPort<TRequest, TReply> : IRequestHandlerPort<TRequest, TReply>, IDisposable
+    public class RequestHandlerSocket<TRequest, TReply> : IRequestHandlerPort<TRequest, TReply>, IDisposable
     {
-        private readonly IAsyncRequestChannel<TRequest, TReply> _internalChannel = new AsyncRequestChannel<TRequest, TReply>();
+        private readonly IRequestChannel<TRequest, TReply> _internalChannel = new RequestChannel<TRequest, TReply>();
         //split InSocket
         private readonly Context _context;
         private readonly IFiber _stub = new StubFiber();
@@ -21,11 +21,11 @@
         private readonly Task _task;
         private readonly TimeSpan _timeout = TimeSpan.FromMilliseconds(100);
 
-        public AsyncRequestHandlerRemotingPort(Context context,
-                                               string address,
-                                               int basePort,
-                                               Func<byte[], TRequest> requestUnmarshaller,
-                                               Func<TReply, byte[]> replyMarshaller)
+        public RequestHandlerSocket(Context context,
+                                    string address,
+                                    int basePort,
+                                    Func<byte[], TRequest> requestUnmarshaller,
+                                    Func<TReply, byte[]> replyMarshaller)
         {
             _requestUnmarshaller = requestUnmarshaller;
             _replyMarshaller = replyMarshaller;

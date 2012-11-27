@@ -1,11 +1,10 @@
-﻿namespace Fibrous.Tests
+﻿namespace Fibrous.Tests.Latency
 {
     using System;
     using System.Diagnostics;
     using System.Threading;
     using Fibrous.Channels;
     using Fibrous.Fibers;
-    using Fibrous.Fibers.Queues;
     using NUnit.Framework;
 
     [TestFixture]
@@ -78,11 +77,11 @@
         public void CompareBusyWaitQueueVsDefaultQueueLatency()
         {
             Func<ThreadFiber> blocking = () => new ThreadFiber();
-            Func<ThreadFiber> polling = () => new ThreadFiber(new BusyWaitQueue(100000, 30000));
+            //Func<ThreadFiber> polling = () => new ThreadFiber(new BusyWaitQueue(100000, 30000));
             for (int i = 0; i < 20; i++)
             {
                 Execute(blocking, "Blocking");
-                Execute(polling, "Polling");
+                //  Execute(polling, "Polling");
                 Console.WriteLine();
             }
         }

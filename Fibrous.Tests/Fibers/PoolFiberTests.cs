@@ -1,4 +1,4 @@
-namespace Fibrous.Tests
+namespace Fibrous.Tests.Fibers
 {
     using System;
     using System.Collections.Generic;

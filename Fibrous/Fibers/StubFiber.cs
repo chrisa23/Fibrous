@@ -4,21 +4,18 @@
 
     public sealed class StubFiber : FiberBase
     {
-        private readonly IExecutor _executor;
-
-        public StubFiber(IExecutor executor)
+        public StubFiber(FiberConfig config) : base(config)
         {
-            _executor = executor;
         }
 
         public StubFiber()
-            : this(new DefaultExecutor())
+            : this(FiberConfig.Default)
         {
         }
 
         public override void Enqueue(Action action)
         {
-            _executor.Execute(action);
+            Executor.Execute(action);
         }
 
         public override void Start()

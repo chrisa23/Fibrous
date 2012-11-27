@@ -1,4 +1,4 @@
-namespace Fibrous.Tests
+namespace Fibrous.Tests.Scheduling
 {
     using System;
     using System.Threading;

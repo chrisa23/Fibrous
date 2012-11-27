@@ -11,11 +11,10 @@ namespace Fibrous.Scheduling
 
         public KeyedBatchSubscriber(ISubscribePort<T> channel,
                                     IFiber fiber,
-                                    IScheduler scheduler,
                                     TimeSpan interval,
                                     Converter<T, TKey> keyResolver,
                                     Action<IDictionary<TKey, T>> target)
-            : base(channel, fiber, scheduler, interval)
+            : base(channel, fiber, interval)
         {
             _keyResolver = keyResolver;
             _target = target;
@@ -29,7 +28,7 @@ namespace Fibrous.Scheduling
                 if (_pending == null)
                 {
                     _pending = new Dictionary<TKey, T>();
-                    Scheduler.Schedule(Fiber, Flush, Interval);
+                    Fiber.Schedule(Flush, Interval);
                 }
                 _pending[key] = msg;
             }

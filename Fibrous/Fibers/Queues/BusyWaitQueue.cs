@@ -10,50 +10,37 @@
         private readonly int _msBeforeBlockingWait;
         private readonly int _spinsBeforeTimeCheck;
 
-        public BusyWaitQueue(IExecutor executor, int spinsBeforeTimeCheck, int msBeforeBlockingWait)
-            : base(executor)
+        public BusyWaitQueue(int spinsBeforeTimeCheck, int msBeforeBlockingWait)
         {
             _spinsBeforeTimeCheck = spinsBeforeTimeCheck;
             _msBeforeBlockingWait = msBeforeBlockingWait;
         }
 
-        public BusyWaitQueue(int spinsBeforeTimeCheck, int msBeforeBlockingWait)
-            : this(new DefaultExecutor(), spinsBeforeTimeCheck, msBeforeBlockingWait)
-        {
-        }
-
-        protected override IEnumerable<Action> DequeueAll()
+        public override IEnumerable<Action> DequeueAll()
         {
             int spins = 0;
             Stopwatch stopwatch = Stopwatch.StartNew();
-            while (true)
+            try
             {
-                try
+                while (!Monitor.TryEnter(SyncRoot))
                 {
-                    while (!Monitor.TryEnter(SyncRoot))
-                    {
-                    }
-                    if (!Running)
-                        break;
-                    List<Action> toReturn = TryDequeue();
+                }
+                List<Action> toReturn = TryDequeue();
+                if (toReturn != null)
+                    return toReturn;
+                if (TryBlockingWait(stopwatch, ref spins))
+                {
+                    toReturn = TryDequeue();
                     if (toReturn != null)
                         return toReturn;
-                    if (TryBlockingWait(stopwatch, ref spins))
-                    {
-                        if (!Running)
-                            break;
-                        toReturn = TryDequeue();
-                        if (toReturn != null)
-                            return toReturn;
-                    }
                 }
-                finally
-                {
-                    Monitor.Exit(SyncRoot);
-                }
-                Thread.Yield();
             }
-            return null;
+            finally
+            {
+                Monitor.Exit(SyncRoot);
+            }
+            Thread.Yield();
+            return Empty;
         }
 
         private bool TryBlockingWait(Stopwatch stopwatch, ref int spins)

@@ -17,7 +17,7 @@
             using (IFiber fiber2 = PoolFiber.StartNew())
             {
                 var list = new List<string> { "Prime" };
-                var channel = new AsyncSnapshotChannel<string, IEnumerable<string>>();
+                var channel = new SnapshotChannel<string>();
                 channel.ReplyToPrimingRequest(fiber2, list.ToArray);
                 var primeResult = new List<string>();
                 string lastUpdate = "";

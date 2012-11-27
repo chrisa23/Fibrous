@@ -1,4 +1,4 @@
-﻿namespace Fibrous.Remoting.Tests.PushPull
+﻿namespace Fibrous.Remoting.Tests
 {
     using System;
     using System.Diagnostics;

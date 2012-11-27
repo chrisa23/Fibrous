@@ -2,38 +2,18 @@ namespace Fibrous.Fibers.Queues
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading;
 
     public sealed class DefaultQueue : QueueBase
     {
-        public DefaultQueue(IExecutor executor)
-            : base(executor)
+        public override IEnumerable<Action> DequeueAll()
         {
-        }
-
-        public DefaultQueue()
-        {
-        }
-
-        protected override IEnumerable<Action> DequeueAll()
-        {
+            if (!HasItems()) return Empty;
             lock (SyncRoot)
             {
-                if (ReadyToDequeue())
-                {
-                    Lists.Swap(ref Actions, ref ToPass);
-                    Actions.Clear();
-                    return ToPass;
-                }
-                return null;
+                Lists.Swap(ref Actions, ref ToPass);
+                Actions.Clear();
+                return ToPass;
             }
-        }
-
-        private bool ReadyToDequeue()
-        {
-            while (Actions.Count == 0 && Running)
-                Monitor.Wait(SyncRoot);
-            return Running;
         }
     }
 }

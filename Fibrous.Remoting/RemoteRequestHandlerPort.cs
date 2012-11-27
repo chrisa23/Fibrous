@@ -35,7 +35,7 @@ namespace Fibrous.Remoting
         private void ProcessRequest(byte[] buffer)
         {
             TRequest request = _requestUnmarshaller(buffer);
-            TReply reply = _internalChannel.SendRequest(request, TimeSpan.FromMinutes(5)); //??
+            TReply reply = _internalChannel.SendRequest(request).Receive(TimeSpan.FromMinutes(5)).Value; //??
             byte[] replyData = _replyMarshaller(reply);
             _socket.Send(replyData, _timeout);
         }

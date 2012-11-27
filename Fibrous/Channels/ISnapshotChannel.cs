@@ -1,7 +1,6 @@
-﻿namespace Fibrous.Channels
+namespace Fibrous.Channels
 {
-    public interface ISnapshotChannel<T, TSnapshot> : ISnapshotPublishPort<T, TSnapshot>,
-                                                      ISnapshotPort<T, TSnapshot>
+    public interface ISnapshotChannel<T> : ISnapshotPublishPort<T>, ISnapshotPort<T>
     {
     }
 }

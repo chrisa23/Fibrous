@@ -10,10 +10,9 @@ namespace Fibrous.Scheduling
 
         public LastSubscriber(ISubscribePort<T> channel,
                               IFiber fiber,
-                              IScheduler scheduler,
                               TimeSpan interval,
                               Action<T> target)
-            : base(channel, fiber, scheduler, interval)
+            : base(channel, fiber, interval)
         {
             _target = target;
         }
@@ -24,7 +23,7 @@ namespace Fibrous.Scheduling
             {
                 if (!_flushPending)
                 {
-                    Scheduler.Schedule(Fiber, Flush, Interval);
+                    Fiber.Schedule(Flush, Interval);
                     _flushPending = true;
                 }
                 _pending = msg;

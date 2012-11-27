@@ -1,7 +1,6 @@
 namespace Fibrous.Channels
 {
-    public interface IRequestChannel<TRequest, TReply> : IRequestPort<TRequest, TReply>,
-                                                         IRequestHandlerPort<TRequest, TReply>
+    public interface IRequestChannel<T, T1> : IRequestPort<T, T1>, IRequestHandlerPort<T, T1>
     {
     }
 }

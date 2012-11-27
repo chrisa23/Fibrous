@@ -13,6 +13,4 @@ Some of the library benefits:
  - Good batched subscription support
  - UI throttling and redraw can be controlled easily
 
-Async Request/Reply is a first class pattern in Fibrous, including remotely.
-
 A CrossroadsIO based library for ports over sockets is provided. 

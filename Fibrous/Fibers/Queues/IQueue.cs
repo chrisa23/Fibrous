@@ -1,12 +1,12 @@
 namespace Fibrous.Fibers.Queues
 {
     using System;
+    using System.Collections.Generic;
 
-    //TODO:  Remove and switch to simplified disruptor fiber
-    public interface IQueue
+    public interface IQueue : IDisposable
     {
         void Enqueue(Action action);
-        void Run();
-        void Stop();
+        bool HasItems();
+        IEnumerable<Action> DequeueAll();
     }
 }

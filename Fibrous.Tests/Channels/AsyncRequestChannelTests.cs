@@ -1,4 +1,4 @@
-namespace Fibrous.Tests
+namespace Fibrous.Tests.Channels
 {
     using System;
     using System.Threading;
@@ -18,7 +18,7 @@ namespace Fibrous.Tests
             replier.Start();
             var received = new AutoResetEvent(false);
             DateTime now = DateTime.Now;
-            var timeCheck = new AsyncRequestChannel<string, DateTime>();
+            var timeCheck = new RequestChannel<string, DateTime>();
             timeCheck.SetRequestHandler(replier, req => req.Reply(now));
             DateTime result = DateTime.MinValue;
             timeCheck.SendRequest("hello",
@@ -39,7 +39,7 @@ namespace Fibrous.Tests
             requester.Start();
             var replier = new PoolFiber();
             replier.Start();
-            var countChannel = new AsyncRequestChannel<string, int>();
+            var countChannel = new RequestChannel<string, int>();
             countChannel.SetRequestHandler(replier,
                 req =>
                 {

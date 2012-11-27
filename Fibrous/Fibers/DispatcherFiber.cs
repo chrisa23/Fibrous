@@ -5,33 +5,28 @@ namespace Fibrous.Fibers
 
     public sealed class DispatcherFiber : GuiFiberBase
     {
-        public DispatcherFiber(Dispatcher dispatcher, DispatcherPriority priority, IExecutor executor)
-            : base(new DispatcherAdapter(dispatcher, priority), executor)
-        {
-        }
-
-        public DispatcherFiber(Dispatcher dispatcher, IExecutor executor)
-            : this(dispatcher, DispatcherPriority.Normal, executor)
-        {
-        }
-
-        public DispatcherFiber(Dispatcher dispatcher, DispatcherPriority priority)
-            : this(dispatcher, priority, new DefaultExecutor())
+        public DispatcherFiber(FiberConfig config, Dispatcher dispatcher, DispatcherPriority priority)
+            : base(config, new DispatcherAdapter(dispatcher, priority))
         {
         }
 
         public DispatcherFiber(Dispatcher dispatcher)
-            : this(dispatcher, new DefaultExecutor())
+            : this(FiberConfig.Default, dispatcher, DispatcherPriority.Normal)
+        {
+        }
+
+        public DispatcherFiber(Dispatcher dispatcher, DispatcherPriority priority)
+            : this(FiberConfig.Default, dispatcher, priority)
         {
         }
 
         public DispatcherFiber(DispatcherPriority priority)
-            : this(Dispatcher.CurrentDispatcher, priority, new DefaultExecutor())
+            : this(FiberConfig.Default, Dispatcher.CurrentDispatcher, priority)
         {
         }
 
         public DispatcherFiber()
-            : this(Dispatcher.CurrentDispatcher, new DefaultExecutor())
+            : this(FiberConfig.Default, Dispatcher.CurrentDispatcher, DispatcherPriority.Normal)
         {
         }
 

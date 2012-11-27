@@ -1,4 +1,4 @@
-﻿namespace Fibrous.Remoting.Tests.Async
+﻿namespace Fibrous.Remoting.Tests
 {
     using System;
     using System.Diagnostics;
@@ -83,7 +83,7 @@
     public abstract class AsyncReqReplyServiceSpecs
     {
         protected static IRequestHandlerPort<string, string> Service;
-        protected static IAsyncRequestPort<string, string> Client;
+        protected static IRequestPort<string, string> Client;
         protected static IFiber ClientFiber;
         protected static IFiber ServerFiber;
         protected static string Reply;
@@ -98,26 +98,25 @@
             Console.WriteLine("Start client fiber");
             ClientFiber = PoolFiber.StartNew();
             ClientContext = Context.Create();
-
             ServerFiber = PoolFiber.StartNew();
             ServerContext = Context.Create();
             Func<byte[], string> unmarshaller = x => Encoding.Unicode.GetString(x);
             Func<string, byte[]> marshaller = x => Encoding.Unicode.GetBytes(x);
-            Service = new AsyncRequestHandlerRemotingPort<string, string>(ServerContext,
+            Service = new RequestHandlerSocket<string, string>(ServerContext,
                 "tcp://*",
                 9997,
                 unmarshaller,
                 marshaller);
             Service.SetRequestHandler(ServerFiber, request => request.Reply(request.Request.ToUpper()));
             Console.WriteLine("Start service");
-            ServerFiber.Add((AsyncRequestHandlerRemotingPort<string, string>)Service);
+            ServerFiber.Add((RequestHandlerSocket<string, string>)Service);
             ServerFiber.Add(ServerContext);
-            Client = new AsyncRequestRemotingPort<string, string>(ClientContext,
+            Client = new AsyncRequestSocket<string, string>(ClientContext,
                 "tcp://localhost",
                 9997,
                 marshaller,
                 unmarshaller);
-            ClientFiber.Add((AsyncRequestRemotingPort<string, string>)Client);
+            ClientFiber.Add((AsyncRequestSocket<string, string>)Client);
             ClientFiber.Add(ClientContext);
             Console.WriteLine("Start client");
         }

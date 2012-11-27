@@ -7,12 +7,12 @@ namespace Fibrous.Remoting
     using Fibrous.Channels;
     using Fibrous.Fibers;
 
-    public class AsyncRequestRemotingPort<TRequest, TReply> : IAsyncRequestPort<TRequest, TReply>, IDisposable
+    public class AsyncRequestSocket<TRequest, TReply> : IRequestPort<TRequest, TReply>, IDisposable
     {
         private readonly IFiber _fiber;
         private readonly byte[] _id = GetId();
-        private readonly IAsyncRequestChannel<TRequest, TReply> _internalChannel =
-            new AsyncRequestChannel<TRequest, TReply>();
+        private readonly IRequestChannel<TRequest, TReply> _internalChannel =
+            new RequestChannel<TRequest, TReply>();
         private readonly Context _replyContext;
         private readonly Socket _replySocket;
         private readonly Func<byte[], TReply> _replyUnmarshaller;
@@ -24,21 +24,21 @@ namespace Fibrous.Remoting
         private readonly Task _task;
         private readonly TimeSpan _fromMilliseconds = TimeSpan.FromMilliseconds(100);
 
-        public AsyncRequestRemotingPort(Context context,
-                                        string address,
-                                        int basePort,
-                                        Func<TRequest, byte[]> requestMarshaller,
-                                        Func<byte[], TReply> replyUnmarshaller)
+        public AsyncRequestSocket(Context context,
+                                  string address,
+                                  int basePort,
+                                  Func<TRequest, byte[]> requestMarshaller,
+                                  Func<byte[], TReply> replyUnmarshaller)
             : this(context, address, basePort, requestMarshaller, replyUnmarshaller, new PoolFiber())
         {
         }
 
-        public AsyncRequestRemotingPort(Context context,
-                                        string address,
-                                        int basePort,
-                                        Func<TRequest, byte[]> requestMarshaller,
-                                        Func<byte[], TReply> replyUnmarshaller,
-                                        IFiber fiber)
+        public AsyncRequestSocket(Context context,
+                                  string address,
+                                  int basePort,
+                                  Func<TRequest, byte[]> requestMarshaller,
+                                  Func<byte[], TReply> replyUnmarshaller,
+                                  IFiber fiber)
         {
             _requestMarshaller = requestMarshaller;
             _replyUnmarshaller = replyUnmarshaller;
@@ -57,6 +57,11 @@ namespace Fibrous.Remoting
         public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply)
         {
             return _internalChannel.SendRequest(request, fiber, onReply);
+        }
+
+        public IReply<TReply> SendRequest(TRequest request)
+        {
+            return _internalChannel.SendRequest(request);
         }
 
         public void Dispose()

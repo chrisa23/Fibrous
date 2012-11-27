@@ -2,8 +2,9 @@ namespace Fibrous
 {
     using System;
 
-    public interface IRequestPort<in TRequest, out TReply>
+    public interface IRequestPort<in TRequest, TReply>
     {
-        TReply SendRequest(TRequest request, TimeSpan timeout);
+        IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply); //can this be an extension method?
+        IReply<TReply> SendRequest(TRequest request);
     }
 }

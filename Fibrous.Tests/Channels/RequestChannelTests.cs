@@ -1,4 +1,4 @@
-namespace Fibrous.Tests
+namespace Fibrous.Tests.Channels
 {
     using System;
     using Fibrous.Channels;
@@ -16,7 +16,7 @@ namespace Fibrous.Tests
                 var channel = new RequestChannel<string, string>();
                 using (channel.SetRequestHandler(fiber, req => req.Reply("bye")))
                 {
-                    string reply = channel.SendRequest("hello", TimeSpan.FromSeconds(1));
+                    string reply = channel.SendRequest("hello").Receive(TimeSpan.FromSeconds(1)).Value;
                     Assert.AreEqual("bye", reply);
                 }
             }
@@ -31,7 +31,7 @@ namespace Fibrous.Tests
                 var timeCheck = new RequestChannel<string, DateTime>();
                 using (timeCheck.SetRequestHandler(responder, req => req.Reply(now)))
                 {
-                    DateTime result = timeCheck.SendRequest("hello", TimeSpan.FromMilliseconds(10000));
+                    DateTime result = timeCheck.SendRequest("hello").Receive(TimeSpan.FromMilliseconds(10000)).Value;
                     Assert.AreEqual(result, now);
                 }
             }

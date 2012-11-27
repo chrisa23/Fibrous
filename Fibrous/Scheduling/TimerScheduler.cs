@@ -3,7 +3,7 @@ namespace Fibrous.Scheduling
     using System;
     using Fibrous.Utility;
 
-    public sealed class TimerScheduler : IScheduler
+    public sealed class TimerScheduler : IFiberScheduler
     {
         public IDisposable Schedule(IFiber fiber, Action action, TimeSpan dueTime)
         {

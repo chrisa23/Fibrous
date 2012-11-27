@@ -2,8 +2,8 @@ namespace Fibrous
 {
     using System;
 
-    public interface ISnapshotPublishPort<in T, in TSnapshot> : IPublishPort<T>
+    public interface ISnapshotPublishPort<in T> : IPublishPort<T>
     {
-        IDisposable ReplyToPrimingRequest(IFiber fiber, Func<TSnapshot> reply);
+        IDisposable ReplyToPrimingRequest(IFiber fiber, Func<T[]> reply);
     }
 }

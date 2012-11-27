@@ -28,8 +28,8 @@
                 {
                     for (int i = 0; i < 10; i++)
                         counter.Publish(i);
+                    Assert.IsTrue(reset.WaitOne(10000, false));
                 }
-                Assert.IsTrue(reset.WaitOne(10000, false));
             }
         }
 
@@ -73,24 +73,24 @@
         [Test]
         public void PubSubWithDedicatedThreadWithFilter()
         {
+            using (var reset = new AutoResetEvent(false))
             using (IFiber fiber = ThreadFiber.StartNew())
             {
                 var channel = new Channel<int>();
-                using (var reset = new AutoResetEvent(false))
+                Action<int> onMsg = x =>
                 {
-                    Action<int> onMsg = x =>
-                    {
-                        Assert.IsTrue(x % 2 == 0);
-                        if (x == 4)
-                            reset.Set();
-                    };
-                    channel.Subscribe(fiber, onMsg, x => x % 2 == 0);
-                    channel.Publish(1);
-                    channel.Publish(2);
-                    channel.Publish(3);
-                    channel.Publish(4);
-                    Assert.IsTrue(reset.WaitOne(5000, false));
-                }
+                    Assert.IsTrue(x % 2 == 0);
+                    if (x == 4)
+                        reset.Set();
+                };
+                channel.Subscribe(fiber, onMsg, x => x % 2 == 0);
+                channel.Publish(1);
+                channel.Publish(2);
+                channel.Publish(3);
+                channel.Publish(4);
+                //channel.Publish(5);
+                //channel.Publish(6);
+                Assert.IsTrue(reset.WaitOne(5000, false));
             }
         }
 

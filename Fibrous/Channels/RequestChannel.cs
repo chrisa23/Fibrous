@@ -14,24 +14,14 @@ namespace Fibrous.Channels
             return _requestChannel.Subscribe(fiber, onRequest);
         }
 
-        public TReply SendRequest(TRequest request, TimeSpan timeout)
-        {
-            using (var channelRequest = new ChannelRequest(request))
-            {
-                _requestChannel.Publish(channelRequest);
-                TReply reply;
-                if (!channelRequest.Receive(timeout, out reply))
-                    throw new TimeoutException("Timeout waiting for reply");
-                return reply;
-            }
-        }
-
-        private sealed class ChannelRequest : IRequest<TRequest, TReply>, IDisposable
+        private sealed class ChannelRequest : IRequest<TRequest, TReply>, IReply<TReply>, IDisposable
         {
             private readonly object _lock = new object();
             private readonly TRequest _req;
+            //don't use a queue
             private readonly Queue<TReply> _resp = new Queue<TReply>();
             private bool _disposed;
+            private bool _replied;
 
             public ChannelRequest(TRequest req)
             {
@@ -42,6 +32,7 @@ namespace Fibrous.Channels
             {
                 lock (_lock)
                 {
+                    _replied = true;
                     _disposed = true;
                     Monitor.PulseAll(_lock);
                 }
@@ -49,41 +40,82 @@ namespace Fibrous.Channels
 
             public TRequest Request { get { return _req; } }
 
-            public bool Reply(TReply response)
+            public void Reply(TReply response)
             {
                 lock (_lock)
                 {
-                    if (_disposed)
-                        return false;
+                    if (_replied || _disposed) return;
                     _resp.Enqueue(response);
                     Monitor.PulseAll(_lock);
-                    return true;
                 }
             }
 
-            public bool Receive(TimeSpan timeout, out TReply result)
+            public Result<TReply> Receive(TimeSpan timeout)
             {
                 lock (_lock)
                 {
+                    if (_replied)
+                        return new Result<TReply>();
                     if (_resp.Count > 0)
                     {
-                        result = _resp.Dequeue();
-                        return true;
+                        _replied = true;
+                        return new Result<TReply>(_resp.Dequeue());
                     }
                     if (_disposed)
                     {
-                        result = default(TReply);
-                        return false;
+                        _replied = true;
+                        return new Result<TReply>();
                     }
                     Monitor.Wait(_lock, timeout);
                     if (_resp.Count > 0)
                     {
-                        result = _resp.Dequeue();
-                        return true;
+                        _replied = true;
+                        return new Result<TReply>(_resp.Dequeue());
                     }
                 }
-                result = default(TReply);
-                return false;
+                return new Result<TReply>();
+            }
+        }
+
+        public IReply<TReply> SendRequest(TRequest request)
+        {
+            var channelRequest = new ChannelRequest(request);
+            _requestChannel.Publish(channelRequest);
+            return channelRequest;
+        }
+
+        public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply)
+        {
+            var channelRequest = new AsyncChannelRequest(fiber, request, onReply);
+            bool sent = _requestChannel.Publish(channelRequest);
+            if (!sent)
+                throw new ArgumentException("No one is listening on AsyncRequestReplyChannel");
+            return channelRequest;
+        }
+
+        private class AsyncChannelRequest : IRequest<TRequest, TReply>, IDisposable
+        {
+            private readonly TRequest _request;
+            private readonly IChannel<TReply> _resp = new Channel<TReply>();
+            private readonly IDisposable _sub;
+
+            public AsyncChannelRequest(IFiber fiber, TRequest request, Action<TReply> replier)
+            {
+                _request = request;
+                _sub = _resp.Subscribe(fiber, replier);
+            }
+
+            public void Dispose()
+            {
+                if (_sub != null)
+                    _sub.Dispose();
+            }
+
+            public TRequest Request { get { return _request; } }
+
+            public void Reply(TReply response)
+            {
+                _resp.Publish(response);
             }
         }
     }

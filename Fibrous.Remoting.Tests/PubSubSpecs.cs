@@ -1,4 +1,4 @@
-﻿namespace Fibrous.Remoting.Tests.PubSub
+﻿namespace Fibrous.Remoting.Tests
 {
     using System;
     using System.Text;
@@ -41,34 +41,26 @@
         public PubSubSpecs()
         {
             ClientFiber = PoolFiber.StartNew();
-
             Context1 = Context.Create();
             Send = new SendSocket<string>(Context1,
                 "tcp://*:6001",
                 s => Encoding.Unicode.GetBytes(s));
-            
-            
             Context2 = Context.Create();
             RcvdSignal = new ManualResetEvent(false);
-            
             Subscriber = new SubscribeSocketPort<string>(Context2,
                 "tcp://localhost:6001",
                 x => Encoding.Unicode.GetString(x));
-            
             Subscriber.SubscribeAll();
-
             ClientFiber.Add(Subscriber);
             ClientFiber.Add(RcvdSignal);
             ClientFiber.Add(Context2);
-            ClientFiber.Add( Send);
+            ClientFiber.Add(Send);
             ClientFiber.Add(Context1);
         }
 
         protected void Cleanup()
         {
-           
             ClientFiber.Dispose();
-           
             Thread.Sleep(100);
         }
     }
