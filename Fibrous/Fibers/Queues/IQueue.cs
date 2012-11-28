@@ -6,7 +6,6 @@ namespace Fibrous.Fibers.Queues
     public interface IQueue : IDisposable
     {
         void Enqueue(Action action);
-        bool HasItems();
         IEnumerable<Action> DequeueAll();
     }
 }

@@ -9,6 +9,7 @@
     {
         private readonly int _msBeforeBlockingWait;
         private readonly int _spinsBeforeTimeCheck;
+        private readonly object SyncRoot = new object();
 
         public BusyWaitQueue(int spinsBeforeTimeCheck, int msBeforeBlockingWait)
         {

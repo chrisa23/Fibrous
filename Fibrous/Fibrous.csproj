@@ -55,13 +55,14 @@
     <Compile Include="Fibers\FiberConfig.cs" />
     <Compile Include="Fibers\Queues\ActionQueue.cs" />
     <Compile Include="Fibers\Queues\CachePadding.cs" />
+    <Compile Include="Fibers\Queues\PaddedBoolean.cs" />
     <Compile Include="Fibers\Queues\PaddedLong.cs" />
     <Compile Include="IReply.cs" />
     <Compile Include="IScheduler.cs" />
-    <Compile Include="ISnapshotPublishPort.cs" />
+    <Compile Include="Experimental\ISnapshotPublishPort.cs" />
     <Compile Include="Utility\EventWrapper.cs" />
-    <Compile Include="Channels\ISnapshotChannel.cs" />
-    <Compile Include="ISnapshotPort.cs" />
+    <Compile Include="Experimental\ISnapshotChannel.cs" />
+    <Compile Include="Experimental\ISnapshotPort.cs" />
     <Compile Include="IRequestHandlerPort.cs" />
     <Compile Include="Actors\Actor.cs" />
     <Compile Include="Fibers\ExceptionHandlingExecutor.cs" />
@@ -70,8 +71,7 @@
     <Compile Include="Utility\PendingAction.cs" />
     <Compile Include="Utility\DisposeAction.cs" />
     <Compile Include="Utility\Unsubscriber.cs" />
-    <Compile Include="Fibers\Queues\BoundedQueue.cs" />
-    <Compile Include="Channels\SnapshotChannel.cs" />
+    <Compile Include="Experimental\SnapshotChannel.cs" />
     <Compile Include="Fibers\DispatcherFiber.cs" />
     <Compile Include="Fibers\ExecutionState.cs" />
     <Compile Include="Fibers\FiberBase.cs" />

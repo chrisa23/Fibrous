@@ -1,6 +1,7 @@
-namespace Fibrous.Channels
+namespace Fibrous.Experimental
 {
     using System;
+    using Fibrous.Channels;
 
     public sealed class SnapshotChannel<T> : ISnapshotChannel<T>
     {
