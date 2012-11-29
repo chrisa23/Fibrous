@@ -5,13 +5,13 @@ namespace Fibrous.Fibers
 
     public sealed class FormFiber : GuiFiberBase
     {
-        public FormFiber(FiberConfig config, ISynchronizeInvoke invoker)
-            : base(config, new FormAdapter(invoker))
+        public FormFiber(IExecutor executor, ISynchronizeInvoke invoker)
+            : base(executor, new FormAdapter(invoker))
         {
         }
 
         public FormFiber(ISynchronizeInvoke invoker)
-            : base(FiberConfig.Default, new FormAdapter(invoker))
+            : base(new FormAdapter(invoker))
         {
         }
 
@@ -22,9 +22,9 @@ namespace Fibrous.Fibers
             return fiber;
         }
 
-        public static IFiber StartNew(FiberConfig config, ISynchronizeInvoke invoker)
+        public static IFiber StartNew(IExecutor executor, ISynchronizeInvoke invoker)
         {
-            var fiber = new FormFiber(config, invoker);
+            var fiber = new FormFiber(executor, invoker);
             fiber.Start();
             return fiber;
         }

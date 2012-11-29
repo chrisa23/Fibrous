@@ -6,13 +6,13 @@ namespace Fibrous
     public interface IFiber : IExecutionContext, IScheduler, IDisposableRegistry
     {
         /// <summary>   Starts the fiber. </summary>
-        void Start();
+        IFiber Start();
 
         //pause?
         //Dispose is shutdown
     }
 
-    //fluent setup?
+    //fluent setup? Fiber.Thread().Start()
     //IFIber Start()
     //SetScheduler(IFiberSchduler ).Start()
 }

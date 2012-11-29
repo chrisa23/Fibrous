@@ -6,6 +6,19 @@ namespace Fibrous.Fibers
     using System.Threading.Tasks;
     using Fibrous.Fibers.Queues;
 
+    public interface IPool : IExecutionContext
+    {
+    }
+
+    public class DefaultPool : IPool
+    {
+        private readonly TaskFactory _taskFactory;
+
+        public void Enqueue(Action action)
+        {
+        }
+    }
+
     /// <summary>
     /// Fiber that uses a thread pool for execution.
     /// </summary>
@@ -19,28 +32,23 @@ namespace Fibrous.Fibers
         private List<Action> _queue = new List<Action>();
         private List<Action> _toPass = new List<Action>();
         //switch back to IPool 
-        public PoolFiber(FiberConfig config, TaskFactory taskFactory) : base(config)
+        public PoolFiber(IExecutor config, TaskFactory taskFactory) : base(config)
         {
             _taskFactory = taskFactory;
         }
 
         public PoolFiber(IExecutor executor)
-            : this(new FiberConfig(executor), new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None))
-        {
-        }
-
-        public PoolFiber(IExecutor executor, TaskFactory taskFactory)
-            : this(new FiberConfig(executor), taskFactory)
+            : this(executor, new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None))
         {
         }
 
         public PoolFiber(TaskFactory taskFactory)
-            : this(FiberConfig.Default, taskFactory)
+            : this(new DefaultExecutor(), taskFactory)
         {
         }
 
         public PoolFiber()
-            : this(FiberConfig.Default, new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None))
+            : this(new DefaultExecutor(), new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None))
         {
         }
 
@@ -95,13 +103,14 @@ namespace Fibrous.Fibers
             }
         }
 
-        public override void Start()
+        public override IFiber Start()
         {
             if (_started == ExecutionState.Running)
                 throw new ThreadStateException("Already Started");
             _started = ExecutionState.Running;
             //flush any pending events in queue
             Enqueue(() => { });
+            return this;
         }
 
         protected override void Dispose(bool disposing)

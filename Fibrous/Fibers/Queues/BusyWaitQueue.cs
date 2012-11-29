@@ -41,7 +41,7 @@
                 Monitor.Exit(SyncRoot);
             }
             Thread.Yield();
-            return Empty;
+            return Queue.Empty;
         }
 
         private bool TryBlockingWait(Stopwatch stopwatch, ref int spins)

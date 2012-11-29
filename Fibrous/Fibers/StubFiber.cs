@@ -4,12 +4,11 @@
 
     public sealed class StubFiber : FiberBase
     {
-        public StubFiber(FiberConfig config) : base(config)
+        public StubFiber(IExecutor executor) : base(executor)
         {
         }
 
         public StubFiber()
-            : this(FiberConfig.Default)
         {
         }
 
@@ -18,8 +17,9 @@
             Executor.Execute(action);
         }
 
-        public override void Start()
+        public override IFiber Start()
         {
+            return this;
         }
     }
 }

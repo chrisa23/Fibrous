@@ -4,6 +4,7 @@ namespace Fibrous.Fibers
     using System.Collections.Generic;
     using System.Threading;
     using Fibrous.Fibers.Queues;
+    using Fibrous.Scheduling;
 
     /// <summary>
     ///   Fiber implementation backed by a dedicated thread., needs a thread safe queue
@@ -30,13 +31,22 @@ namespace Fibrous.Fibers
         /// </summary>
         /// ///
         /// <param name = "threadName"></param>
-        public ThreadFiber(string threadName)
-            : this(FiberConfig.Default, threadName)
+        public ThreadFiber(string threadName) : this(new DefaultExecutor(), new TimerScheduler(), threadName)
+        {
+        }
+
+        public ThreadFiber(IExecutor executor, string name)
+            : this(executor, new TimerScheduler(), name)
         {
         }
 
         public ThreadFiber(IExecutor executor)
-            : this(new FiberConfig(executor), "ThreadFiber-" + GetNextThreadId())
+            : this(executor, new TimerScheduler(), "ThreadFiber-" + GetNextThreadId())
+        {
+        }
+
+        public ThreadFiber()
+            : this("ThreadFiber-" + GetNextThreadId())
         {
         }
 
@@ -48,20 +58,16 @@ namespace Fibrous.Fibers
         /// <param name = "threadName"></param>
         /// <param name = "isBackground"></param>
         /// <param name = "priority"></param>
-        public ThreadFiber(FiberConfig config,
+        public ThreadFiber(IExecutor config,
+                           IFiberScheduler fiberScheduler,
                            string threadName,
                            bool isBackground = true,
-                           ThreadPriority priority = ThreadPriority.Normal) : base(config)
+                           ThreadPriority priority = ThreadPriority.Normal) : base(config, fiberScheduler)
         {
-            _queue = new DefaultQueue();
+            _queue = new SleepingQueue();
             _isBackground = isBackground;
             _priority = priority;
             _thread = new Thread(RunThread) { Name = threadName, IsBackground = _isBackground, Priority = _priority };
-        }
-
-        public ThreadFiber()
-            : this("ThreadFiber-" + GetNextThreadId())
-        {
         }
 
         public Thread Thread { get { return _thread; } }
@@ -88,11 +94,12 @@ namespace Fibrous.Fibers
             _queue.Enqueue(action);
         }
 
-        public override void Start()
+        public override IFiber Start()
         {
             _running.Exchange(true);
             _thread.Start();
             //Enqueue(() => {});
+            return this;
         }
 
         protected override void Dispose(bool disposing)
@@ -114,15 +121,13 @@ namespace Fibrous.Fibers
         public static IFiber StartNew(string name)
         {
             var fiber = new ThreadFiber(name);
-            fiber.Start();
-            return fiber;
+            return fiber.Start();
         }
 
-        public static IFiber StartNew(FiberConfig config, string name)
+        public static IFiber StartNew(IExecutor config, string name)
         {
             var fiber = new ThreadFiber(config, name);
-            fiber.Start();
-            return fiber;
+            return fiber.Start();
         }
 
         #endregion

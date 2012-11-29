@@ -1,5 +1,6 @@
 - Switch to Disruptor fiber for thread fiber and remove Queues.
 	- Create a simplified disruptor that is internal to Fibrous
+- add performance tests with contention
 - Nuget packages
 - Fix timeout on sockets issue.  
 - Adjust abstractions to match ZMQ socket type paradigm better (consider port combinations)

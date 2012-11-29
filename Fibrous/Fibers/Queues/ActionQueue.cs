@@ -7,23 +7,19 @@ namespace Fibrous.Fibers.Queues
 
     public class ActionQueue : IQueue
     {
-        private const int DefaultCapacity = 1024 * 16;
+        private const int DefaultCapacity = 1024 * 1024;//1MB
         private readonly int _capacity;
-        //   private readonly int _batchsize;
         private readonly Action[] _data;
-        private long _nextOfferSequence = -1;
-        private long _nextPollSequence = -1;
+        //private long _nextOfferSequence = -1;
+        //private long _nextPollSequence = -1;
         private long _maxSequence;
         private PaddedLong _offerSequence = new PaddedLong(-1);
         private PaddedLong _pollSequence = new PaddedLong(-1);
         private readonly int _indexMask;
-        //  private readonly Batch _batch;
-        public ActionQueue(int capacity) //, int batchsize = 1024)
+        public ActionQueue(int capacity = DefaultCapacity)
         {
             //NumberUtils.ensurePowerOfTwo(capacity);
             _capacity = capacity;
-            //  _batchsize = batchsize;
-            // _batch = new Batch(batchsize);
             _data = new Action[capacity];
             _maxSequence = FindMaxSeqBeforeWrapping();
             _indexMask = _capacity - 1;
@@ -34,55 +30,27 @@ namespace Fibrous.Fibers.Queues
             return _capacity + _pollSequence.Value;
         }
 
-        //public Action Poll()
-        //{
-        //    Action result = null;
-        //    long avail = Available();
-        //    if (avail > 0)
-        //    {
-        //        var index0 = (int)(++_nextPollSequence & _indexMask);
-        //        ActionHolder actionHolder = _data[index0];
-        //        result = actionHolder.Action;
-        //        actionHolder.Action = null;
-        //    }
-        //    return result;
-        //    //long take = avail > _batchsize ? _batchsize : avail;
-        //    //    for (int i = 0; i < take; i++)
-        //    //    {
-        //    //        var index0 = (int)(++_nextPollSequence & _indexMask);
-        //    //        ActionHolder actionHolder = _data[index0];
-        //    //        _batch.Actions[i] = actionHolder.Action;
-        //    //        actionHolder.Action = null;
-        //    //    }
-        //    //    _batch.Count = take;
-        //    //    _pollSequence.LazySet(_nextPollSequence);
-        //    //}
-        //    //return _batch;
-        //}
-        private void Done()
+  
+        public int Available()
         {
-            _pollSequence.LazySet(_nextPollSequence);
-        }
-
-        public long Available()
-        {
-            return _offerSequence.ReadFullFence() - _nextPollSequence;
+            return (int)(_offerSequence.ReadFullFence() - _pollSequence.ReadFullFence());
         }
 
         public void Enqueue(Action action)
         {
-            if (++_nextOfferSequence > _maxSequence)
+            long next = _offerSequence.Value;
+            if (++next > _maxSequence)
             {
                 // this would wrap the buffer... calculate the new one...
-                while ((_maxSequence = FindMaxSeqBeforeWrapping()) < _nextOfferSequence)
+                while ((_maxSequence = FindMaxSeqBeforeWrapping()) < next)
                     //if (_nextOfferSequence > _maxSequence)
                 {
                     //_nextOfferSequence--;
-                    Thread.Sleep(0);
+                    Thread.Sleep(1);//??
                 }
             }
-            _data[(int)(_nextOfferSequence & _indexMask)] = action;
-            _offerSequence.Value = _nextOfferSequence;
+            _data[(int)(next & _indexMask)] = action;
+            _offerSequence.Value = next;
         }
 
         public bool HasItems()
@@ -93,55 +61,54 @@ namespace Fibrous.Fibers.Queues
         //do this without allocation...
         public IEnumerable<Action> DequeueAll()
         {
-            long avail = Available();
-            var results = new Action[avail];
-            if (avail > 0)
-            {
-                for (long i = 0; i < avail; i++)
-                {
-                    var index0 = (int)(++_nextPollSequence & _indexMask);
-                    Action action = _data[index0];
-                    results[i] = action;
-                    _data[index0] = null;
-                }
-                Done();
-            }
-            return results;
-            //long take = avail > _batchsize ? _batchsize : avail;
-            //    for (int i = 0; i < take; i++)
-            //    {
-            //        var index0 = (int)(++_nextPollSequence & _indexMask);
-            //        ActionHolder actionHolder = _data[index0];
-            //        _batch.Actions[i] = actionHolder.Action;
-            //        actionHolder.Action = null;
-            //    }
-            //    _batch.Count = take;
-            //    _pollSequence.LazySet(_nextPollSequence);
-            //}
-            //return _batch;
+            int avail = Available();
+            if (avail == 0)
+                return Queue.Empty;
+            return new Enumerable(avail, _data, _indexMask, _pollSequence);
         }
 
-        public class Enumerable : IEnumerable<Action>
+        public struct Enumerable : IEnumerable<Action>
         {
-            public class Enumerator : IEnumerator<Action>
+            private readonly Enumerator _enumerator;
+
+            public Enumerable(int count, Action[] actions, int indexMask, PaddedLong pollSequence)
             {
-                private long _cursor;
-                private int _count;
-                private int _current = -1;
-                private int _indexMask;
-                private Action[] _actions;
+                _enumerator = new Enumerator(pollSequence.Value, count,actions,indexMask, pollSequence);
+            }
+
+            private struct Enumerator : IEnumerator<Action>
+            {
+                private PaddedLong _pollSequence;
+                private readonly long _cursor;
+                private readonly int _count;
+                private int _current;
+                private readonly int _indexMask;
+                private readonly Action[] _actions;
                 public Action Current { get { return _actions[(int)((_cursor + _current) & _indexMask)]; } }
+
+                public Enumerator(long cursor, int count, Action[] actions, int indexMask, PaddedLong pollSequence) : this()
+                {
+                    _cursor = cursor;
+                    _count = count;
+                    _actions = actions;
+                    _indexMask = indexMask;
+                    _pollSequence = pollSequence;
+                    _current = -1;
+                }
 
                 public void Dispose()
                 {
+                    _pollSequence.LazySet(_cursor + _count);
                 }
 
                 object IEnumerator.Current { get { return Current; } }
 
                 public bool MoveNext()
                 {
+                    if (_current > -1 && _current < _count)
+                        _actions[(int)((_cursor + _current) & _indexMask)] = null;
                     _current++;
-                    return _current <= _count;
+                    return _current < _count;
                 }
 
                 public void Reset()
@@ -151,7 +118,7 @@ namespace Fibrous.Fibers.Queues
 
             public IEnumerator<Action> GetEnumerator()
             {
-                return new Enumerator();
+                return _enumerator;
             }
 
             IEnumerator IEnumerable.GetEnumerator()

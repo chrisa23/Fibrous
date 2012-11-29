@@ -6,21 +6,27 @@ namespace Fibrous.Fibers
 
     public abstract class FiberBase : Disposables, IFiber
     {
-        private readonly IFiberScheduler _fiberScheduler;
         protected readonly IExecutor Executor;
+        private readonly IFiberScheduler _fiberScheduler;
 
-        protected FiberBase(FiberConfig config)
+        protected FiberBase(IExecutor executor, IFiberScheduler scheduler)
         {
-            _fiberScheduler = config.FiberScheduler;
-            Executor = config.Executor;
+            _fiberScheduler = scheduler;
+            Executor = executor;
+        }
+
+        protected FiberBase(IExecutor executor)
+        {
+            _fiberScheduler = new TimerScheduler();
+            Executor = executor;
         }
 
         protected FiberBase()
-            : this(FiberConfig.Default)
+            : this(new DefaultExecutor(), new TimerScheduler())
         {
         }
 
-        public abstract void Start();
+        public abstract IFiber Start();
         public abstract void Enqueue(Action action);
 
         public IDisposable Schedule(Action action, TimeSpan dueTime)

@@ -52,11 +52,15 @@
     <Compile Include="Actors\BatchingActor.cs" />
     <Compile Include="Actors\IActor.cs" />
     <Compile Include="Channels\IRequestChannel.cs" />
-    <Compile Include="Fibers\FiberConfig.cs" />
     <Compile Include="Fibers\Queues\ActionQueue.cs" />
     <Compile Include="Fibers\Queues\CachePadding.cs" />
+    <Compile Include="Fibers\Queues\HiPerfQueue.cs" />
+    <Compile Include="Fibers\Queues\IWaitStrategy.cs" />
     <Compile Include="Fibers\Queues\PaddedBoolean.cs" />
     <Compile Include="Fibers\Queues\PaddedLong.cs" />
+    <Compile Include="Fibers\Queues\Queue.cs" />
+    <Compile Include="Fibers\Queues\SleepingQueue.cs" />
+    <Compile Include="Fibers\Queues\YieldingQueue.cs" />
     <Compile Include="IReply.cs" />
     <Compile Include="IScheduler.cs" />
     <Compile Include="Experimental\ISnapshotPublishPort.cs" />

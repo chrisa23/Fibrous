@@ -5,7 +5,6 @@ namespace Fibrous.Fibers.Queues
 
     public abstract class QueueBase : IQueue
     {
-        protected static readonly Action[] Empty = new Action[0];
         protected List<Action> Actions = new List<Action>();
         protected List<Action> ToPass = new List<Action>();
 
