@@ -34,7 +34,12 @@ namespace Fibrous.Fibers.Queues
             _signalled.Exchange(true);
         }
 
-        public override IEnumerable<Action> DequeueAll()
+        public override void Drain(IExecutor executor)
+        {
+            executor.Execute(DequeueAll());
+        }
+
+        public IEnumerable<Action> DequeueAll()
         {
             Wait();
             lock (_syncRoot)

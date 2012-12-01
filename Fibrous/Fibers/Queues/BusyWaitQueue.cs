@@ -17,7 +17,7 @@
             _msBeforeBlockingWait = msBeforeBlockingWait;
         }
 
-        public override IEnumerable<Action> DequeueAll()
+        public IEnumerable<Action> DequeueAll()
         {
             int spins = 0;
             Stopwatch stopwatch = Stopwatch.StartNew();
@@ -67,6 +67,11 @@
                 return ToPass;
             }
             return null;
+        }
+
+        public override void Drain(IExecutor executor)
+        {
+        executor.Execute(DequeueAll());
         }
     }
 }

@@ -64,7 +64,7 @@ namespace Fibrous.Fibers
                            bool isBackground = true,
                            ThreadPriority priority = ThreadPriority.Normal) : base(config, fiberScheduler)
         {
-            _queue = new SleepingQueue();
+            _queue =  new YieldingQueue(); // new DisruptorQueue(1024*1024);
             _isBackground = isBackground;
             _priority = priority;
             _thread = new Thread(RunThread) { Name = threadName, IsBackground = _isBackground, Priority = _priority };
@@ -85,8 +85,9 @@ namespace Fibrous.Fibers
 
         private void ExecuteNextBatch()
         {
-            IEnumerable<Action> toExecute = _queue.DequeueAll();
-            Executor.Execute(toExecute);
+            //IEnumerable<Action> toExecute = _queue.DequeueAll();
+            //Executor.Execute(toExecute);
+            _queue.Drain(Executor);
         }
 
         public override void Enqueue(Action action)

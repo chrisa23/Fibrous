@@ -13,7 +13,9 @@ namespace Fibrous.Fibers.Queues
             Actions.Add(action);
         }
 
-        public abstract IEnumerable<Action> DequeueAll();
+        public abstract void Drain(IExecutor executor);
+
+        //public abstract IEnumerable<Action> DequeueAll();
 
         public virtual void Dispose()
         {

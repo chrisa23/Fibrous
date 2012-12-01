@@ -30,7 +30,7 @@ namespace Fibrous.Fibers.Queues
             return _capacity + _pollSequence.Value;
         }
 
-  
+
         public int Available()
         {
             return (int)(_offerSequence.ReadFullFence() - _pollSequence.ReadFullFence());
@@ -43,7 +43,7 @@ namespace Fibrous.Fibers.Queues
             {
                 // this would wrap the buffer... calculate the new one...
                 while ((_maxSequence = FindMaxSeqBeforeWrapping()) < next)
-                    //if (_nextOfferSequence > _maxSequence)
+                //if (_nextOfferSequence > _maxSequence)
                 {
                     //_nextOfferSequence--;
                     Thread.Sleep(1);//??
@@ -51,6 +51,11 @@ namespace Fibrous.Fibers.Queues
             }
             _data[(int)(next & _indexMask)] = action;
             _offerSequence.Value = next;
+        }
+
+        public void Drain(IExecutor executor)
+        {
+        executor.Execute(DequeueAll());
         }
 
         public bool HasItems()
@@ -73,7 +78,7 @@ namespace Fibrous.Fibers.Queues
 
             public Enumerable(int count, Action[] actions, int indexMask, PaddedLong pollSequence)
             {
-                _enumerator = new Enumerator(pollSequence.Value, count,actions,indexMask, pollSequence);
+                _enumerator = new Enumerator(pollSequence.Value, count, actions, indexMask, pollSequence);
             }
 
             private struct Enumerator : IEnumerator<Action>
@@ -86,7 +91,8 @@ namespace Fibrous.Fibers.Queues
                 private readonly Action[] _actions;
                 public Action Current { get { return _actions[(int)((_cursor + _current) & _indexMask)]; } }
 
-                public Enumerator(long cursor, int count, Action[] actions, int indexMask, PaddedLong pollSequence) : this()
+                public Enumerator(long cursor, int count, Action[] actions, int indexMask, PaddedLong pollSequence)
+                    : this()
                 {
                     _cursor = cursor;
                     _count = count;
