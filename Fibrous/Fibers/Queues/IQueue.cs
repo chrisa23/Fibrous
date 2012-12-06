@@ -91,7 +91,10 @@ namespace Fibrous.Fibers.Queues
             }
             
             _readSequence.LazySet(available);
+            
+            //if we have nothing left, wait
             _wait.Wait();
+            //otherwise, cycle drain?
            
         }
 

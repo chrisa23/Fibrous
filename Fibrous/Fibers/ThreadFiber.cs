@@ -64,7 +64,7 @@ namespace Fibrous.Fibers
                            bool isBackground = true,
                            ThreadPriority priority = ThreadPriority.Normal) : base(config, fiberScheduler)
         {
-            _queue =  new YieldingQueue(); // new DisruptorQueue(1024*1024);
+            _queue =  new DefaultQueue(); // new DisruptorQueue(1024*1024);
             _isBackground = isBackground;
             _priority = priority;
             _thread = new Thread(RunThread) { Name = threadName, IsBackground = _isBackground, Priority = _priority };

@@ -3,6 +3,7 @@ namespace Fibrous.Experimental
     using System;
     using Fibrous.Channels;
 
+    //collection snapshot...
     public sealed class SnapshotChannel<T> : ISnapshotChannel<T>
     {
         private readonly IRequestChannel<object, T[]> _requestChannel =

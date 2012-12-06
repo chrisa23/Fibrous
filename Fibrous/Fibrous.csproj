@@ -52,6 +52,8 @@
     <Compile Include="Actors\BatchingActor.cs" />
     <Compile Include="Actors\IActor.cs" />
     <Compile Include="Channels\IRequestChannel.cs" />
+    <Compile Include="Experimental\ListChannel.cs" />
+    <Compile Include="Experimental\StateChannel.cs" />
     <Compile Include="Fibers\Queues\ActionQueue.cs" />
     <Compile Include="Fibers\Queues\CachePadding.cs" />
     <Compile Include="Fibers\Queues\HiPerfQueue.cs" />
