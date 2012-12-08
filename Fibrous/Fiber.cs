@@ -7,8 +7,7 @@ namespace Fibrous
 
     public abstract class Fiber : Disposables, IExecutionContext, IScheduler
     {
-        //include this in Thread fiber...
-        internal enum ExecutionState
+        private enum ExecutionState
         {
             Created,
             Running,

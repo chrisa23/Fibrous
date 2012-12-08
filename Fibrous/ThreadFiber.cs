@@ -2,6 +2,7 @@ namespace Fibrous
 {
     using System;
     using System.Threading;
+    using System.Threading.Tasks;
     using Fibrous.Experimental;
     using Fibrous.Queues;
     using Fibrous.Scheduling;
@@ -17,13 +18,8 @@ namespace Fibrous
         private readonly ThreadPriority _priority;
         private readonly IQueue _queue;
         private readonly Thread _thread;
-        private PaddedBoolean _running = new PaddedBoolean(false);
+        private volatile bool _running;
 
-        /// <summary>
-        ///   Creates a thread fiber with a specified name.
-        /// </summary>
-        /// ///
-        /// <param name = "threadName"></param>
         public ThreadFiber(string threadName)
             : this(new Executor(), new TimerScheduler(), new DefaultQueue(), threadName)
         {
@@ -74,13 +70,10 @@ namespace Fibrous
 
         private void RunThread()
         {
-            while (_running.Value)
-                ExecuteNextBatch();
-        }
-
-        private void ExecuteNextBatch()
-        {
-            _queue.Drain(Executor);
+            while (_running)
+            {
+                _queue.Drain(Executor);
+            }
         }
 
         protected override void InternalEnqueue(Action action)
@@ -90,14 +83,14 @@ namespace Fibrous
 
         protected override void InternalStart()
         {
-            _running.Exchange(true);
+            _running = true;
             _thread.Start();
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-                _running.LazySet(false);
+                _running = false;
             base.Dispose(disposing);
         }
 

@@ -13,7 +13,6 @@ namespace Fibrous
         private readonly object _lock = new object();
         private readonly TaskFactory _taskFactory;
         private bool _flushPending;
-        private ExecutionState _started = ExecutionState.Created;
         private List<Action> _queue = new List<Action>();
         private List<Action> _toPass = new List<Action>();
 
@@ -83,14 +82,6 @@ namespace Fibrous
                 return _toPass;
             }
         }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-                _started = ExecutionState.Stopped;
-            base.Dispose(disposing);
-        }
-
         #region StartNew
 
         public static Fiber StartNew()
