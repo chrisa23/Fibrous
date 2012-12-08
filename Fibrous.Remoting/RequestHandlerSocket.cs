@@ -3,15 +3,13 @@
     using System;
     using System.Threading.Tasks;
     using CrossroadsIO;
-    using Fibrous.Channels;
-    using Fibrous.Fibers;
 
     public class RequestHandlerSocket<TRequest, TReply> : IRequestHandlerPort<TRequest, TReply>, IDisposable
     {
         private readonly IRequestChannel<TRequest, TReply> _internalChannel = new RequestChannel<TRequest, TReply>();
         //split InSocket
         private readonly Context _context;
-        private readonly IFiber _stub = new StubFiber();
+        private readonly Fiber _stub = new StubFiber();
         private readonly Func<TReply, byte[]> _replyMarshaller;
         //split OutSocket
         private readonly Socket _replySocket;
@@ -83,7 +81,7 @@
             _replySocket.Dispose();
         }
 
-        public IDisposable SetRequestHandler(IFiber fiber, Action<IRequest<TRequest, TReply>> onRequest)
+        public IDisposable SetRequestHandler(Fiber fiber, Action<IRequest<TRequest, TReply>> onRequest)
         {
             return _internalChannel.SetRequestHandler(fiber, onRequest);
         }

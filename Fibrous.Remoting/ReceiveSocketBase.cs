@@ -3,9 +3,8 @@ namespace Fibrous.Remoting
     using System;
     using System.Threading.Tasks;
     using CrossroadsIO;
-    using Fibrous.Channels;
 
-    public abstract class ReceiveSocketBase<T> : ISubscribePort<T>, IDisposable
+    public abstract class ReceiveSocketBase<T> : ISubscriberPort<T>, IDisposable
     {
         protected readonly Context Context;
         private readonly IChannel<T> _internalChannel = new Channel<T>();
@@ -26,7 +25,7 @@ namespace Fibrous.Remoting
             _running = false;
         }
 
-        public IDisposable Subscribe(IFiber fiber, Action<T> receive)
+        public IDisposable Subscribe(Fiber fiber, Action<T> receive)
         {
             return _internalChannel.Subscribe(fiber, receive);
         }

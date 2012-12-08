@@ -3,8 +3,6 @@ namespace Fibrous.Tests.Examples
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using Fibrous.Channels;
-    using Fibrous.Fibers;
     using NUnit.Framework;
 
     /*
@@ -145,8 +143,8 @@ namespace Fibrous.Tests.Examples
         {
             private readonly IChannel<SolvedQuadratic> _solvedChannel;
 
-            public QuadraticSolver(IFiber fiber,
-                                   ISubscribePort<Quadratic> channel,
+            public QuadraticSolver(Fiber fiber,
+                                   ISubscriberPort<Quadratic> channel,
                                    IChannel<SolvedQuadratic> solvedChannel)
             {
                 _solvedChannel = solvedChannel;
@@ -187,7 +185,7 @@ namespace Fibrous.Tests.Examples
         {
             private int _solutionsReceived;
 
-            public SolvedQuadraticSink(IFiber fiber, ISubscribePort<SolvedQuadratic> solvedChannel)
+            public SolvedQuadraticSink(Fiber fiber, ISubscriberPort<SolvedQuadratic> solvedChannel)
             {
                 solvedChannel.Subscribe(fiber, PrintSolution);
             }
@@ -214,7 +212,7 @@ namespace Fibrous.Tests.Examples
                 var solvedChannel = new Channel<SolvedQuadratic>();
                 for (int i = 0; i < quadraticChannels.Length; i++)
                 {
-                    IFiber fiber = ThreadFiber.StartNew("solver " + (i + 1));
+                    Fiber fiber = ThreadFiber.StartNew("solver " + (i + 1));
                     sinkFiber.Add(fiber);
                     quadraticChannels[i] = new Channel<Quadratic>();
                     solvers.Add(new QuadraticSolver(fiber, quadraticChannels[i], solvedChannel));

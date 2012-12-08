@@ -4,7 +4,6 @@
     using System.Text;
     using System.Threading;
     using CrossroadsIO;
-    using Fibrous.Fibers;
     using FluentAssertions;
     using NUnit.Framework;
 
@@ -34,7 +33,7 @@
         protected static Context Context2;
         protected static SendSocket<string> Send;
         protected static SubscribeSocketPort<string> Subscriber;
-        protected static IFiber ClientFiber;
+        protected static Fiber ClientFiber;
         protected static string Received;
         protected static ManualResetEvent RcvdSignal;
 

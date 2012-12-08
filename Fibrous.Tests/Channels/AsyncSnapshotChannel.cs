@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Threading;
     using Fibrous.Experimental;
-    using Fibrous.Fibers;
     using NUnit.Framework;
 
     [TestFixture]
@@ -13,8 +12,8 @@
         [Test]
         public void AsyncSnapshot()
         {
-            using (IFiber fiber = PoolFiber.StartNew())
-            using (IFiber fiber2 = PoolFiber.StartNew())
+            using (Fiber fiber = PoolFiber.StartNew())
+            using (Fiber fiber2 = PoolFiber.StartNew())
             {
                 var list = new List<string> { "Prime" };
                 var channel = new SnapshotChannel<string>();

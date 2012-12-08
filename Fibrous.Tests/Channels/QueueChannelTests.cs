@@ -3,8 +3,6 @@ namespace Fibrous.Tests.Channels
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using Fibrous.Channels;
-    using Fibrous.Fibers;
     using NUnit.Framework;
 
     [TestFixture]
@@ -13,7 +11,7 @@ namespace Fibrous.Tests.Channels
         [Test]
         public void Multiple()
         {
-            var queues = new List<IFiber>();
+            var queues = new List<Fiber>();
             int receiveCount = 0;
             var reset = new AutoResetEvent(false);
             var channel = new QueueChannel<int>();
@@ -39,7 +37,7 @@ namespace Fibrous.Tests.Channels
             for (int i = 0; i < messageCount; i++)
                 channel.Publish(i);
             Assert.IsTrue(reset.WaitOne(10000, false));
-            queues.ForEach(delegate(IFiber q) { q.Dispose(); });
+            queues.ForEach(delegate(Fiber q) { q.Dispose(); });
         }
 
         [Test]
@@ -90,17 +88,17 @@ namespace Fibrous.Tests.Channels
         }
     }
 
-    public class StubExecutor : IExecutor
+    public class StubExecutor : Executor
     {
         public List<Exception> failed = new List<Exception>();
 
-        public void Execute(IEnumerable<Action> toExecute)
+        public override void Execute(IEnumerable<Action> toExecute)
         {
             foreach (Action action in toExecute)
                 Execute(action);
         }
 
-        public void Execute(Action toExecute)
+        public override void Execute(Action toExecute)
         {
             try
             {

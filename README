@@ -1,16 +1,18 @@
 Fibrous
 =======
 
-High performace message passing concurrency library for the .Net platform.  
+High performace concurrency library for the .Net platform.  
 
-Fibrous is a fork of Retlang [http://code.google.com/p/retlang/], and has a very similar Api.  
+Fibrous is a fork of Retlang [http://code.google.com/p/retlang/]. 
 
 Fibrous uses the concept of Fibers and Ports as abstractions.  Fibers represent execution contexts (aka thread/actor) and Ports represent messaging end points.  Channels are in memory conduits, but ports can be implemented on top of network sockets.
 
 Some of the library benefits:
- - Small simple library 
- - UI thread/dispatcher marshalling
+ - Small simple library that makes multi-threading easy
+ - UI fibers for simple UI thread programming
  - Good batched subscription support
  - UI throttling and redraw can be controlled easily
 
 A CrossroadsIO based library for ports over sockets is provided. 
+
+[Note: I am in the midst of reworking things to release a V1.0 on NuGet.]

@@ -3,15 +3,15 @@ namespace Fibrous.Experimental
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using Fibrous.Channels;
 
+    //simplest snapshot mechanism.  Replay all old messages on subscribe...
     public sealed class ListChannel<T> : IChannel<T>
     {
         private readonly List<T> _list = new List<T>();
         private readonly object _lock = new object();
         private readonly IChannel<T> _updateChannel = new Channel<T>();
 
-        public IDisposable Subscribe(IFiber fiber, Action<T> handler)
+        public IDisposable Subscribe(Fiber fiber, Action<T> handler)
         {
             lock (_lock)
             {

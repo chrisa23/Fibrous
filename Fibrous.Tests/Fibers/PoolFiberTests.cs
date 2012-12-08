@@ -3,7 +3,6 @@ namespace Fibrous.Tests.Fibers
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using Fibrous.Fibers;
     using NUnit.Framework;
 
     [TestFixture]
@@ -25,7 +24,7 @@ namespace Fibrous.Tests.Fibers
         [Test]
         public void InOrderExecution()
         {
-            using (IFiber fiber = PoolFiber.StartNew())
+            using (Fiber fiber = PoolFiber.StartNew())
             {
                 int count = 0;
                 var reset = new AutoResetEvent(false);

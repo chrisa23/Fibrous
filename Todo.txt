@@ -1,5 +1,4 @@
-- Switch to Disruptor fiber for thread fiber and remove Queues.
-	- Create a simplified disruptor that is internal to Fibrous
+- Redo tests
 - add performance tests with contention
 - Nuget packages
 - Fix timeout on sockets issue.  

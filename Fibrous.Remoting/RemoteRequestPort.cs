@@ -36,7 +36,7 @@ namespace Fibrous.Remoting
     //            return new byte[0];
     //        return msg[0].Buffer;
     //    }
-    //    public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply)
+    //    public IDisposable SendRequest(TRequest request, Fiber fiber, Action<TReply> onReply)
     //    {
     //    }
     //    public IReply<TReply> SendRequest(TRequest request)

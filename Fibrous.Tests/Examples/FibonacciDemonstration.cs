@@ -2,8 +2,6 @@ namespace Fibrous.Tests.Examples
 {
     using System;
     using System.Threading;
-    using Fibrous.Channels;
-    using Fibrous.Fibers;
     using NUnit.Framework;
 
     [TestFixture]
@@ -38,9 +36,9 @@ namespace Fibrous.Tests.Examples
             private readonly int _limit;
             private readonly string _name;
             private readonly IChannel<IntPair> _outboundChannel;
-            private readonly IFiber _threadFiber;
+            private readonly Fiber _threadFiber;
 
-            public FibonacciCalculator(IFiber fiber,
+            public FibonacciCalculator(Fiber fiber,
                                        string name,
                                        IChannel<IntPair> inboundChannel,
                                        IChannel<IntPair> outboundChannel,
@@ -86,7 +84,7 @@ namespace Fibrous.Tests.Examples
             // Two channels for communication.  Naming convention is inbound.
             var oddChannel = new Channel<IntPair>();
             var evenChannel = new Channel<IntPair>();
-            using (IFiber oddFiber = ThreadFiber.StartNew(), evenFiber = ThreadFiber.StartNew())
+            using (Fiber oddFiber = ThreadFiber.StartNew(), evenFiber = ThreadFiber.StartNew())
             {
                 var oddCalculator = new FibonacciCalculator(oddFiber, "Odd", oddChannel, evenChannel, limit);
                 var evenCalculator = new FibonacciCalculator(evenFiber, "Even", evenChannel, oddChannel, limit);

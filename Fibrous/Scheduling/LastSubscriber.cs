@@ -8,8 +8,8 @@ namespace Fibrous.Scheduling
         private bool _flushPending;
         private T _pending;
 
-        public LastSubscriber(ISubscribePort<T> channel,
-                              IFiber fiber,
+        public LastSubscriber(ISubscriberPort<T> channel,
+                              Fiber fiber,
                               TimeSpan interval,
                               Action<T> target)
             : base(channel, fiber, interval)

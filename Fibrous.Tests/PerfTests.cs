@@ -3,13 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using Fibrous.Channels;
-    using Fibrous.Fibers;
     using NUnit.Framework;
 
-    public class PerfExecutor : IExecutor
+    public class PerfExecutor : Executor
     {
-        public void Execute(IEnumerable<Action> toExecute)
+        public override void Execute(IEnumerable<Action> toExecute)
         {
             //    Console.WriteLine("execute_more");
             int count = 0;
@@ -22,7 +20,7 @@
                 Thread.Sleep(1);
         }
 
-        public void Execute(Action toExecute)
+        public override void Execute(Action toExecute)
         {
             //   Console.WriteLine("execute");
             toExecute();
@@ -53,7 +51,7 @@
         //    PointToPointPerfTestWithObject(new BufferBlockQueue(new PerfExecutor()));
         //    //     RunQueue(new BufferBlockQueue(new PerfExecutor()));
         //}
-        private static void PointToPointPerfTestWithStruct(IFiber fiber)
+        private static void PointToPointPerfTestWithStruct(Fiber fiber)
         {
             using (fiber)
             {
@@ -113,7 +111,7 @@
         }
 
         //[Test, Explicit]
-        public void PointToPointPerfTestWithInt(IFiber fiber)
+        public void PointToPointPerfTestWithInt(Fiber fiber)
         {
             using (fiber)
             {
@@ -134,7 +132,7 @@
         }
 
         //    [Test, Explicit]
-        public void PointToPointPerfTestWithObject(IFiber fiber)
+        public void PointToPointPerfTestWithObject(Fiber fiber)
         {
             using (fiber)
             {

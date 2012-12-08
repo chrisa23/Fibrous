@@ -3,14 +3,14 @@ namespace Fibrous.Scheduling
     using System;
     using System.Threading;
 
-    public sealed class TimerAction : IDisposable
+    internal sealed class TimerAction : IDisposable
     {
         private readonly Action _action;
         private readonly TimeSpan _interval;
         private bool _cancelled;
         private Timer _timer;
 
-        public TimerAction(IFiber fiber, Action action, TimeSpan dueTime)
+        public TimerAction(Fiber fiber, Action action, TimeSpan dueTime)
         {
             _action = action;
             _interval = TimeSpan.FromMilliseconds(-1);
@@ -18,7 +18,7 @@ namespace Fibrous.Scheduling
             fiber.Add(this);
         }
 
-        public TimerAction(IFiber fiber, Action action, TimeSpan dueTime, TimeSpan interval)
+        public TimerAction(Fiber fiber, Action action, TimeSpan dueTime, TimeSpan interval)
         {
             _action = action;
             _interval = interval;
@@ -32,7 +32,7 @@ namespace Fibrous.Scheduling
             DisposeTimer();
         }
 
-        private void ExecuteOnTimerThread(IFiber fiber)
+        private void ExecuteOnTimerThread(Fiber fiber)
         {
             if (_interval.Ticks == TimeSpan.FromMilliseconds(-1).Ticks || _cancelled)
             {

@@ -61,7 +61,7 @@
     //    protected static Context Context2;
     //    protected static IRequestHandlerPort<string, string> Service;
     //    protected static IRequestPort<string, string> Port;
-    //    protected static IFiber Fiber = PoolFiber.StartNew();
+    //    protected static Fiber Fiber = PoolFiber.StartNew();
     //    protected static string Reply;
     //    protected static ManualResetEvent Replied = new ManualResetEvent(false);
     //    public ReqReplyServiceSpecs()

@@ -1,13 +1,12 @@
 ﻿namespace Fibrous.Actors
 {
     using System;
-    using Fibrous.Fibers;
 
     public sealed class Actor<TMsg> : ActorBase<TMsg>
     {
         private readonly Action<TMsg> _handler;
 
-        public Actor(IFiber fiber, Action<TMsg> handler) : base(fiber)
+        public Actor(Fiber fiber, Action<TMsg> handler) : base(fiber)
         {
             _handler = handler;
             HandleSubscribe(Channel);
@@ -25,7 +24,7 @@
             return actor;
         }
 
-        protected override void HandleSubscribe(ISubscribePort<TMsg> port)
+        protected override void HandleSubscribe(ISubscriberPort<TMsg> port)
         {
             port.Subscribe(Fiber, _handler);
         }

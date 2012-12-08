@@ -4,12 +4,10 @@ namespace Fibrous.Remoting
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using CrossroadsIO;
-    using Fibrous.Channels;
-    using Fibrous.Fibers;
 
     public class AsyncRequestSocket<TRequest, TReply> : IRequestPort<TRequest, TReply>, IDisposable
     {
-        private readonly IFiber _fiber;
+        private readonly Fiber _fiber;
         private readonly byte[] _id = GetId();
         private readonly IRequestChannel<TRequest, TReply> _internalChannel =
             new RequestChannel<TRequest, TReply>();
@@ -38,7 +36,7 @@ namespace Fibrous.Remoting
                                   int basePort,
                                   Func<TRequest, byte[]> requestMarshaller,
                                   Func<byte[], TReply> replyUnmarshaller,
-                                  IFiber fiber)
+                                  Fiber fiber)
         {
             _requestMarshaller = requestMarshaller;
             _replyUnmarshaller = replyUnmarshaller;
@@ -54,7 +52,7 @@ namespace Fibrous.Remoting
             _task = Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
 
-        public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply)
+        public IDisposable SendRequest(TRequest request, Fiber fiber, Action<TReply> onReply)
         {
             return _internalChannel.SendRequest(request, fiber, onReply);
         }

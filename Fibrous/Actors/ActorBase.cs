@@ -1,15 +1,13 @@
 namespace Fibrous.Actors
 {
     using System;
-    using Fibrous.Channels;
-    using Fibrous.Fibers;
 
     public abstract class ActorBase<TMsg> : IActor<TMsg>
     {
         protected readonly IChannel<TMsg> Channel = new Channel<TMsg>();
-        protected readonly IFiber Fiber;
+        protected readonly Fiber Fiber;
 
-        protected ActorBase(IFiber fiber)
+        protected ActorBase(Fiber fiber)
         {
             Fiber = fiber;
         }
@@ -45,6 +43,6 @@ namespace Fibrous.Actors
             Fiber.Remove(toRemove);
         }
 
-        protected abstract void HandleSubscribe(ISubscribePort<TMsg> port);
+        protected abstract void HandleSubscribe(ISubscriberPort<TMsg> port);
     }
 }

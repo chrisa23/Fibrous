@@ -3,7 +3,6 @@ namespace Fibrous.Remoting
     using System;
     using System.Threading.Tasks;
     using CrossroadsIO;
-    using Fibrous.Channels;
 
     public class RemoteRequestHandlerPort<TRequest, TReply> : IRequestHandlerPort<TRequest, TReply>, IDisposable
     {
@@ -66,7 +65,7 @@ namespace Fibrous.Remoting
             _socket.Dispose();
         }
 
-        public IDisposable SetRequestHandler(IFiber fiber, Action<IRequest<TRequest, TReply>> onRequest)
+        public IDisposable SetRequestHandler(Fiber fiber, Action<IRequest<TRequest, TReply>> onRequest)
         {
             return _internalChannel.SetRequestHandler(fiber, onRequest);
         }

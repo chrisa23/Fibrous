@@ -3,8 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using Fibrous.Channels;
-    using Fibrous.Fibers;
     using NUnit.Framework;
 
     [TestFixture]
@@ -13,7 +11,7 @@
         [Test]
         public void Batching()
         {
-            using (IFiber fiber = ThreadFiber.StartNew())
+            using (Fiber fiber = ThreadFiber.StartNew())
             {
                 var counter = new Channel<int>();
                 var reset = new ManualResetEvent(false);
@@ -36,7 +34,7 @@
         [Test]
         public void BatchingWithKey()
         {
-            using (IFiber fiber = ThreadFiber.StartNew())
+            using (Fiber fiber = ThreadFiber.StartNew())
             {
                 var counter = new Channel<int>();
                 var reset = new ManualResetEvent(false);
@@ -58,7 +56,7 @@
         [Test]
         public void PubSubWithDedicatedThread()
         {
-            using (IFiber fiber = ThreadFiber.StartNew())
+            using (Fiber fiber = ThreadFiber.StartNew())
             {
                 var channel = new Channel<string>();
                 using (var reset = new AutoResetEvent(false))
@@ -74,7 +72,7 @@
         public void PubSubWithDedicatedThreadWithFilter()
         {
             using (var reset = new AutoResetEvent(false))
-            using (IFiber fiber = ThreadFiber.StartNew())
+            using (Fiber fiber = ThreadFiber.StartNew())
             {
                 var channel = new Channel<int>();
                 Action<int> onMsg = x =>
@@ -97,7 +95,7 @@
         [Test]
         public void PubSubWithPool()
         {
-            using (IFiber fiber = PoolFiber.StartNew())
+            using (Fiber fiber = PoolFiber.StartNew())
             {
                 var channel = new Channel<string>();
                 using (var reset = new AutoResetEvent(false))

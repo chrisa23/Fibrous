@@ -2,7 +2,6 @@ namespace Fibrous.Tests.Scheduling
 {
     using System;
     using System.Threading;
-    using Fibrous.Fibers;
     using Fibrous.Scheduling;
     using NUnit.Framework;
 
@@ -14,7 +13,8 @@ namespace Fibrous.Tests.Scheduling
         {
             int executionCount = 0;
             Action action = () => executionCount++;
-            var timer = new TimerAction(new StubFiber(),
+            Fiber stubFiber = new StubFiber().Start();
+            var timer = new TimerAction(stubFiber,
                 action,
                 TimeSpan.FromMilliseconds(2),
                 TimeSpan.FromMilliseconds(150));
@@ -30,7 +30,7 @@ namespace Fibrous.Tests.Scheduling
         {
             int executionCount = 0;
             Action action = () => executionCount++;
-            var timer = new TimerAction(new StubFiber(), action, TimeSpan.FromMilliseconds(2));
+            var timer = new TimerAction(new StubFiber().Start(), action, TimeSpan.FromMilliseconds(2));
             Thread.Sleep(100);
             Assert.AreEqual(1, executionCount);
             timer.Dispose();

@@ -3,8 +3,6 @@
     using System;
     using System.Diagnostics;
     using System.Threading;
-    using Fibrous.Channels;
-    using Fibrous.Fibers;
     using NUnit.Framework;
 
     [TestFixture]

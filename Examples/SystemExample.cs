@@ -4,8 +4,6 @@
     using System.Collections.Generic;
     using Fibrous;
     using Fibrous.Actors;
-    using Fibrous.Channels;
-    using Fibrous.Fibers;
 
     /// <summary>
     /// Very simple, non-functioning, system example.
@@ -21,9 +19,9 @@
     {
         //work going on and outputing messages or information
         private readonly Channels _channels;
-        private readonly IFiber _fiber;
+        private readonly Fiber _fiber;
 
-        public BusinessLogic(IFiber fiber, Channels channels)
+        public BusinessLogic(Fiber fiber, Channels channels)
         {
             _fiber = fiber;
             _channels = channels;
@@ -40,7 +38,7 @@
         private readonly BatchingActor<string> _actor;
         private readonly string _path;
 
-        public FileLogging(ISubscribePort<string> input, string path)
+        public FileLogging(ISubscriberPort<string> input, string path)
         {
             _path = path;
             input.Subscribe(new StubFiber(), x => _actor.Publish(x));
@@ -60,10 +58,10 @@
 
     public class UIDisplay
     {
-        private readonly IFiber _fiber;
-        private readonly ISubscribePort<double> _input;
+        private readonly Fiber _fiber;
+        private readonly ISubscriberPort<double> _input;
 
-        public UIDisplay(ISubscribePort<double> input)
+        public UIDisplay(ISubscriberPort<double> input)
         {
             _fiber = ThreadFiber.StartNew(); //would be FormFiber or Dispatcher fiber
             _input = input;
@@ -77,7 +75,7 @@
 
     public class SystemExample
     {
-        private readonly IFiber _blFiber;
+        private readonly Fiber _blFiber;
         private readonly Channels _channels = new Channels();
         private BusinessLogic _bl;
         private UIDisplay _display;

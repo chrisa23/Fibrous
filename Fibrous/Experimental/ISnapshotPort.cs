@@ -4,6 +4,6 @@ namespace Fibrous.Experimental
 
     public interface ISnapshotPort<T>
     {
-        IDisposable PrimedSubscribe(IFiber fiber, Action<T> receive, Action<T[]> receiveSnapshot);
+        IDisposable PrimedSubscribe(Fiber fiber, Action<T> receive, Action<T[]> receiveSnapshot);
     }
 }

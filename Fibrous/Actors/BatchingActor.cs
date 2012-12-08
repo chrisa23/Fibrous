@@ -1,14 +1,13 @@
 namespace Fibrous.Actors
 {
     using System;
-    using Fibrous.Fibers;
 
     public sealed class BatchingActor<TMsg> : ActorBase<TMsg>
     {
         private readonly Action<TMsg[]> _handler;
         private readonly TimeSpan _time;
 
-        public BatchingActor(IFiber fiber, Action<TMsg[]> handler, TimeSpan time)
+        public BatchingActor(Fiber fiber, Action<TMsg[]> handler, TimeSpan time)
             : base(fiber)
         {
             _handler = handler;
@@ -28,7 +27,7 @@ namespace Fibrous.Actors
             return actor;
         }
 
-        protected override void HandleSubscribe(ISubscribePort<TMsg> port)
+        protected override void HandleSubscribe(ISubscriberPort<TMsg> port)
         {
             port.SubscribeToBatch(Fiber, _handler, _time);
         }

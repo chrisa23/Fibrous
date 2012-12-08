@@ -1,8 +1,6 @@
 namespace Fibrous.Tests.Channels
 {
     using System;
-    using Fibrous.Channels;
-    using Fibrous.Fibers;
     using NUnit.Framework;
 
     [TestFixture]
@@ -11,7 +9,7 @@ namespace Fibrous.Tests.Channels
         [Test]
         public void RequestChannelTest()
         {
-            using (IFiber fiber = PoolFiber.StartNew())
+            using (Fiber fiber = PoolFiber.StartNew())
             {
                 var channel = new RequestChannel<string, string>();
                 using (channel.SetRequestHandler(fiber, req => req.Reply("bye")))
@@ -25,7 +23,7 @@ namespace Fibrous.Tests.Channels
         [Test]
         public void SynchronousRequestReply()
         {
-            using (IFiber responder = PoolFiber.StartNew())
+            using (Fiber responder = PoolFiber.StartNew())
             {
                 DateTime now = DateTime.Now;
                 var timeCheck = new RequestChannel<string, DateTime>();

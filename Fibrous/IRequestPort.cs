@@ -4,7 +4,7 @@ namespace Fibrous
 
     public interface IRequestPort<in TRequest, TReply>
     {
-        IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply); //can this be an extension method?
+        IDisposable SendRequest(TRequest request, Fiber fiber, Action<TReply> onReply); //can this be an extension method?
         IReply<TReply> SendRequest(TRequest request);
     }
 }

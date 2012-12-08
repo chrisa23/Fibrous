@@ -8,8 +8,8 @@ namespace Fibrous.Scheduling
         private readonly Action<T[]> _receive;
         private List<T> _pending;
 
-        public BatchSubscriber(ISubscribePort<T> channel,
-                               IFiber fiber,
+        public BatchSubscriber(ISubscriberPort<T> channel,
+                               Fiber fiber,
                                TimeSpan interval,
                                Action<T[]> receive)
             : base(channel, fiber, interval)

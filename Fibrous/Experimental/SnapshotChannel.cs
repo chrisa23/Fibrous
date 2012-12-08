@@ -1,10 +1,9 @@
 namespace Fibrous.Experimental
 {
     using System;
-    using Fibrous.Channels;
 
     //collection snapshot...
-    public sealed class SnapshotChannel<T> : ISnapshotChannel<T>
+    public sealed class SnapshotChannel<T> : ISnapshotPublisherPort<T>, ISnapshotPort<T>
     {
         private readonly IRequestChannel<object, T[]> _requestChannel =
             new RequestChannel<object, T[]>();
@@ -16,14 +15,14 @@ namespace Fibrous.Experimental
         ///<param name="fiber">the target executor to receive the message</param>
         ///<param name="receive"></param>
         ///<param name="receiveSnapshot"> </param>
-        public IDisposable PrimedSubscribe(IFiber fiber, Action<T> receive, Action<T[]> receiveSnapshot)
+        public IDisposable PrimedSubscribe(Fiber fiber, Action<T> receive, Action<T[]> receiveSnapshot)
         {
             var primedSubscribe = new SnapshotRequest<T, T[]>(fiber, _updatesChannel, receive, receiveSnapshot);
             _requestChannel.SendRequest(null, fiber, x => primedSubscribe.Publish(x));
             return primedSubscribe;
         }
 
-        public IDisposable ReplyToPrimingRequest(IFiber fiber, Func<T[]> reply)
+        public IDisposable ReplyToPrimingRequest(Fiber fiber, Func<T[]> reply)
         {
             return _requestChannel.SetRequestHandler(fiber, x => x.Reply(reply()));
         }
@@ -33,17 +32,17 @@ namespace Fibrous.Experimental
             return _updatesChannel.Publish(msg);
         }
 
-        private sealed class SnapshotRequest<T, TSnapshot> : IPublishPort<TSnapshot>, IDisposable
+        private sealed class SnapshotRequest<T, TSnapshot> : IPublisherPort<TSnapshot>, IDisposable
         {
-            private readonly IFiber _fiber;
+            private readonly Fiber _fiber;
             private readonly Action<T> _receive;
             private readonly Action<TSnapshot> _receiveSnapshot;
-            private readonly ISubscribePort<T> _updatesPort;
+            private readonly ISubscriberPort<T> _updatesPort;
             private bool _disposed;
             private IDisposable _sub;
 
-            public SnapshotRequest(IFiber fiber,
-                                   ISubscribePort<T> updatesPort,
+            public SnapshotRequest(Fiber fiber,
+                                   ISubscriberPort<T> updatesPort,
                                    Action<T> receive,
                                    Action<TSnapshot> receiveSnapshot)
             {

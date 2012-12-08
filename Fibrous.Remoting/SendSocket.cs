@@ -3,7 +3,7 @@ namespace Fibrous.Remoting
     using System;
     using CrossroadsIO;
 
-    public sealed class SendSocket<T> : IPublishPort<T>, IDisposable
+    public sealed class SendSocket<T> : IPublisherPort<T>, IDisposable
     {
         private readonly Func<T, byte[]> _msgSender;
         private readonly Socket _socket;
