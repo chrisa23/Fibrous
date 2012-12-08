@@ -54,12 +54,12 @@ namespace Fibrous
         /// <param name = "priority"></param>
         public ThreadFiber(Executor config,
                            IFiberScheduler fiberScheduler,
-                           IQueue _queue,
+                           IQueue queue,
                            string threadName,
                            bool isBackground = true,
                            ThreadPriority priority = ThreadPriority.Normal) : base(config, fiberScheduler)
         {
-            _queue = _queue;
+            _queue = queue;
             _isBackground = isBackground;
             _priority = priority;
             _thread = new Thread(RunThread) { Name = threadName, IsBackground = _isBackground, Priority = _priority };
