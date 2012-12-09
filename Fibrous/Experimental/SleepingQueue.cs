@@ -40,7 +40,7 @@ namespace Fibrous.Experimental
             executor.Execute(DequeueAll());
         }
 
-        public IEnumerable<Action> DequeueAll()
+        private IEnumerable<Action> DequeueAll()
         {
             Wait();
             lock (_syncRoot)

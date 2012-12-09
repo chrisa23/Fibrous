@@ -9,7 +9,7 @@
     {
         private readonly int _msBeforeBlockingWait;
         private readonly int _spinsBeforeTimeCheck;
-        private readonly object SyncRoot = new object();
+        private readonly object _lock = new object();
 
         public BusyWaitQueue(int spinsBeforeTimeCheck, int msBeforeBlockingWait)
         {
@@ -23,7 +23,7 @@
             Stopwatch stopwatch = Stopwatch.StartNew();
             try
             {
-                while (!Monitor.TryEnter(SyncRoot))
+                while (!Monitor.TryEnter(_lock))
                 {
                 }
                 List<Action> toReturn = TryDequeue();
@@ -38,7 +38,7 @@
             }
             finally
             {
-                Monitor.Exit(SyncRoot);
+                Monitor.Exit(_lock);
             }
             Thread.Yield();
             return Queue.Empty;
@@ -51,7 +51,7 @@
             spins = 0;
             if (stopwatch.ElapsedMilliseconds > _msBeforeBlockingWait)
             {
-                Monitor.Wait(SyncRoot);
+                Monitor.Wait(_lock);
                 stopwatch.Restart();
                 return true;
             }

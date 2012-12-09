@@ -2,8 +2,6 @@ namespace Fibrous
 {
     using System;
     using System.Threading;
-    using System.Threading.Tasks;
-    using Fibrous.Experimental;
     using Fibrous.Queues;
     using Fibrous.Scheduling;
 
@@ -43,25 +41,23 @@ namespace Fibrous
         /// <summary>
         ///   Creates a thread fiber.
         /// </summary>
-        /// <param name="config"></param>
+        /// <param name="executor"></param>
         /// <param name = "queue"></param>
         /// <param name = "threadName"></param>
         /// <param name = "isBackground"></param>
         /// <param name = "priority"></param>
-        public ThreadFiber(Executor config,
+        public ThreadFiber(Executor executor,
                            IFiberScheduler fiberScheduler,
                            IQueue queue,
                            string threadName,
                            bool isBackground = true,
-                           ThreadPriority priority = ThreadPriority.Normal) : base(config, fiberScheduler)
+                           ThreadPriority priority = ThreadPriority.Normal) : base(executor, fiberScheduler)
         {
             _queue = queue;
             _isBackground = isBackground;
             _priority = priority;
             _thread = new Thread(RunThread) { Name = threadName, IsBackground = _isBackground, Priority = _priority };
         }
-
-        public Thread Thread { get { return _thread; } }
 
         private static int GetNextThreadId()
         {
@@ -71,9 +67,7 @@ namespace Fibrous
         private void RunThread()
         {
             while (_running)
-            {
                 _queue.Drain(Executor);
-            }
         }
 
         protected override void InternalEnqueue(Action action)
@@ -90,11 +84,12 @@ namespace Fibrous
         protected override void Dispose(bool disposing)
         {
             if (disposing)
+            {
                 _running = false;
+                _queue.Dispose();
+            }
             base.Dispose(disposing);
         }
-
-        #region StartNew
 
         public static Fiber StartNew()
         {
@@ -108,13 +103,5 @@ namespace Fibrous
             var fiber = new ThreadFiber(name);
             return fiber.Start();
         }
-
-        public static Fiber StartNew(Executor config, string name)
-        {
-            var fiber = new ThreadFiber(config, name);
-            return fiber.Start();
-        }
-
-        #endregion
     }
 }

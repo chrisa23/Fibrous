@@ -13,7 +13,7 @@ namespace Fibrous.Experimental
         public void Wait()
         {
             int counter = SpinTries;
-            while (!_signalled.ReadFullFence()) // volatile read
+            while (!_signalled.Value) // volatile read
                 counter = ApplyWaitMethod(counter);
             _signalled.Exchange(false);
         }
@@ -43,12 +43,12 @@ namespace Fibrous.Experimental
             executor.Execute(DequeueAll());
         }
 
-        public IEnumerable<Action> DequeueAll()
+        private IEnumerable<Action> DequeueAll()
         {
             Wait();
-            //if (Actions.Count == 0) return Empty;
             lock (_syncRoot)
             {
+                if (Actions.Count == 0) return Queue.Empty;
                 Lists.Swap(ref Actions, ref ToPass);
                 Actions.Clear();
                 return ToPass;

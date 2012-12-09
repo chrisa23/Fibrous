@@ -20,5 +20,10 @@
         {
             Executor.Execute(action);
         }
+
+        public static Fiber StartNew()
+        {
+            return new StubFiber().Start();
+        }
     }
 }

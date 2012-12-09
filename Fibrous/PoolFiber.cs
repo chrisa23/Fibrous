@@ -82,7 +82,6 @@ namespace Fibrous
                 return _toPass;
             }
         }
-        #region StartNew
 
         public static Fiber StartNew()
         {
@@ -91,27 +90,5 @@ namespace Fibrous
             return fiber;
         }
 
-        public static Fiber StartNew(Executor executor)
-        {
-            var fiber = new PoolFiber(executor);
-            fiber.Start();
-            return fiber;
-        }
-
-        public static Fiber StartNew(TaskFactory taskFactory)
-        {
-            var fiber = new PoolFiber(taskFactory);
-            fiber.Start();
-            return fiber;
-        }
-
-        public static Fiber StartNew(Executor executor, TaskFactory taskFactory)
-        {
-            var fiber = new PoolFiber(executor, taskFactory);
-            fiber.Start();
-            return fiber;
-        }
-
-        #endregion
     }
 }

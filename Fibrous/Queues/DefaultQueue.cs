@@ -25,7 +25,7 @@ namespace Fibrous.Queues
             executor.Execute(DequeueAll());
         }
 
-        public IEnumerable<Action> DequeueAll()
+        private IEnumerable<Action> DequeueAll()
         {
             lock (_syncRoot)
             {

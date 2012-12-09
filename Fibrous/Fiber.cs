@@ -94,5 +94,30 @@ namespace Fibrous
                 _started = ExecutionState.Stopped;
             base.Dispose(disposing);
         }
+
+
+        //Not sure about usefulness of this...
+        public static Fiber StartNew(FiberType type)
+        {
+            switch (type)
+            {
+                case FiberType.Thread:
+                    return ThreadFiber.StartNew();
+                case FiberType.Pool:
+                    return PoolFiber.StartNew();
+                case FiberType.Stub:
+                    return StubFiber.StartNew();
+                default:
+                    throw new ArgumentOutOfRangeException("type");
+            }
+        }
+
+        public enum FiberType
+        {
+            Thread,
+            Pool,
+            Stub
+        }
     }
+
 }

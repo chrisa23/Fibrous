@@ -1,7 +1,6 @@
 namespace Fibrous
 {
     using System;
-    using System.Threading;
 
     public sealed class StateChannel<T> : IChannel<T>
     {
@@ -51,9 +50,7 @@ namespace Fibrous
             {
                 _last = msg;
                 _hasValue = true;
-                bool publish = _updateChannel.Publish(msg);
-                Monitor.PulseAll(_lock);
-                return publish;
+                return _updateChannel.Publish(msg);
             }
         }
     }
