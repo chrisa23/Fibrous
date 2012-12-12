@@ -1,4 +1,4 @@
-namespace Fibrous.Actors
+namespace Fibrous.Experimental.Actors
 {
     using System;
 

@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using Fibrous;
-    using Fibrous.Actors;
+    using Fibrous.Experimental.Actors;
 
     /// <summary>
     /// Very simple, non-functioning, system example.

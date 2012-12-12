@@ -95,7 +95,6 @@ namespace Fibrous
             base.Dispose(disposing);
         }
 
-
         //Not sure about usefulness of this...
         public static Fiber StartNew(FiberType type)
         {
@@ -119,5 +118,4 @@ namespace Fibrous
             Stub
         }
     }
-
 }

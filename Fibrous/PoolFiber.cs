@@ -90,5 +90,11 @@ namespace Fibrous
             return fiber;
         }
 
+        public static Fiber StartNew(Executor exec)
+        {
+            var fiber = new PoolFiber(exec);
+            fiber.Start();
+            return fiber;
+        }
     }
 }

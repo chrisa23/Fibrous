@@ -1,4 +1,4 @@
-﻿namespace Fibrous.Tests.Channels
+﻿namespace Fibrous.Tests.Experimental
 {
     using System;
     using System.Collections.Generic;
@@ -7,10 +7,10 @@
     using NUnit.Framework;
 
     [TestFixture]
-    internal class AsyncSnapshotChannel
+    internal class SnapshotChannel
     {
         [Test]
-        public void AsyncSnapshot()
+        public void Snapshot()
         {
             using (Fiber fiber = PoolFiber.StartNew())
             using (Fiber fiber2 = PoolFiber.StartNew())

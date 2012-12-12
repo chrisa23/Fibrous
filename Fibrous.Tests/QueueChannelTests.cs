@@ -1,4 +1,4 @@
-namespace Fibrous.Tests.Channels
+namespace Fibrous.Tests
 {
     using System;
     using System.Collections.Generic;
@@ -13,44 +13,43 @@ namespace Fibrous.Tests.Channels
         {
             var queues = new List<Fiber>();
             int receiveCount = 0;
-            var reset = new AutoResetEvent(false);
-            var channel = new QueueChannel<int>();
-            int messageCount = 100;
-            var updateLock = new object();
-            for (int i = 0; i < 5; i++)
+            using (var reset = new AutoResetEvent(false))
             {
-                Action<int> onReceive = delegate
+                var channel = new QueueChannel<int>();
+                const int MessageCount = 100;
+                var updateLock = new object();
+                for (int i = 0; i < 5; i++)
                 {
-                    Thread.Sleep(15);
-                    lock (updateLock)
+                    Action<int> onReceive = delegate
                     {
-                        receiveCount++;
-                        if (receiveCount == messageCount)
-                            reset.Set();
-                    }
-                };
-                var fiber = new PoolFiber();
-                fiber.Start();
-                queues.Add(fiber);
-                channel.Subscribe(fiber, onReceive);
+                        Thread.Sleep(15);
+                        lock (updateLock)
+                        {
+                            receiveCount++;
+                            if (receiveCount == MessageCount)
+                                reset.Set();
+                        }
+                    };
+                    Fiber fiber = PoolFiber.StartNew();
+                    queues.Add(fiber);
+                    channel.Subscribe(fiber, onReceive);
+                }
+                for (int i = 0; i < MessageCount; i++)
+                    channel.Publish(i);
+                Assert.IsTrue(reset.WaitOne(10000, false));
+                queues.ForEach(q => q.Dispose());
             }
-            for (int i = 0; i < messageCount; i++)
-                channel.Publish(i);
-            Assert.IsTrue(reset.WaitOne(10000, false));
-            queues.ForEach(delegate(Fiber q) { q.Dispose(); });
         }
 
         [Test]
         public void SingleConsumer()
         {
-            var one = new PoolFiber();
-            one.Start();
             int oneConsumed = 0;
-            var reset = new AutoResetEvent(false);
-            using (one)
+            using (Fiber one = PoolFiber.StartNew())
+            using (var reset = new AutoResetEvent(false))
             {
                 var channel = new QueueChannel<int>();
-                Action<int> onMsg = delegate
+                Action<int> onMsg = obj =>
                 {
                     oneConsumed++;
                     if (oneConsumed == 20)
@@ -66,14 +65,13 @@ namespace Fibrous.Tests.Channels
         [Test]
         public void SingleConsumerWithException()
         {
-            var exec = new StubExecutor();
-            var one = new PoolFiber(exec);
-            one.Start();
-            var reset = new AutoResetEvent(false);
-            using (one)
+            var failed = new List<Exception>();
+            var exec = new ExceptionHandlingExecutor(failed.Add);
+            using (Fiber one = PoolFiber.StartNew(exec))
+            using (var reset = new AutoResetEvent(false))
             {
                 var channel = new QueueChannel<int>();
-                Action<int> onMsg = delegate(int num)
+                Action<int> onMsg = num =>
                 {
                     if (num == 0)
                         throw new Exception();
@@ -83,30 +81,7 @@ namespace Fibrous.Tests.Channels
                 channel.Publish(0);
                 channel.Publish(1);
                 Assert.IsTrue(reset.WaitOne(10000, false));
-                Assert.AreEqual(1, exec.failed.Count);
-            }
-        }
-    }
-
-    public class StubExecutor : Executor
-    {
-        public List<Exception> failed = new List<Exception>();
-
-        public override void Execute(IEnumerable<Action> toExecute)
-        {
-            foreach (Action action in toExecute)
-                Execute(action);
-        }
-
-        public override void Execute(Action toExecute)
-        {
-            try
-            {
-                toExecute();
-            }
-            catch (Exception e)
-            {
-                failed.Add(e);
+                Assert.AreEqual(1, failed.Count);
             }
         }
     }

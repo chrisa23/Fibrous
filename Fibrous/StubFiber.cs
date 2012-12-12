@@ -23,7 +23,14 @@
 
         public static Fiber StartNew()
         {
-            return new StubFiber().Start();
+            var fiber = new StubFiber();
+            return fiber.Start();
+        }
+
+        public static Fiber StartNew(Executor executor)
+        {
+            var fiber = new StubFiber(executor);
+            return fiber.Start();
         }
     }
 }

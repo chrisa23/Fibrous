@@ -48,9 +48,11 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Actors\ActorBase.cs" />
-    <Compile Include="Actors\BatchingActor.cs" />
-    <Compile Include="Actors\IActor.cs" />
+    <Compile Include="Experimental\Actors\ActorBase.cs" />
+    <Compile Include="Experimental\Actors\BatchingActor.cs" />
+    <Compile Include="Experimental\Actors\IActor.cs" />
+    <Compile Include="DispatcherFiber.cs" />
+    <Compile Include="FormFiber.cs" />
     <Compile Include="IRequestChannel.cs" />
     <Compile Include="Experimental\ListChannel.cs" />
     <Compile Include="Experimental\BlockingWait.cs" />
@@ -60,6 +62,7 @@
     <Compile Include="Experimental\LongArray.cs" />
     <Compile Include="Experimental\Sequence.cs" />
     <Compile Include="Experimental\YieldingWaitStrategy.cs" />
+    <Compile Include="Result.cs" />
     <Compile Include="StateChannel.cs" />
     <Compile Include="Experimental\ActionQueue.cs" />
     <Compile Include="Experimental\CachePadding.cs" />
@@ -77,15 +80,16 @@
     <Compile Include="Experimental\ISnapshotChannel.cs" />
     <Compile Include="Experimental\ISnapshotPort.cs" />
     <Compile Include="IRequestHandlerPort.cs" />
-    <Compile Include="Actors\Actor.cs" />
+    <Compile Include="Experimental\Actors\Actor.cs" />
     <Compile Include="ExceptionHandlingExecutor.cs" />
     <Compile Include="Scheduling\TimerAction.cs" />
     <Compile Include="Scheduling\PendingAction.cs" />
     <Compile Include="DisposeAction.cs" />
+    <Compile Include="SubscriberPortExtensions.cs" />
     <Compile Include="Unsubscriber.cs" />
     <Compile Include="Experimental\SnapshotChannel.cs" />
     <Compile Include="Fiber.cs" />
-    <Compile Include="GuiFibers.cs" />
+    <Compile Include="GuiFiber.cs" />
     <Compile Include="Queues\QueueBase.cs" />
     <Compile Include="IRequestPort.cs" />
     <Compile Include="Scheduling\BatchSubscriber.cs" />

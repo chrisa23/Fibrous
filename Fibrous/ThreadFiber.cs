@@ -98,6 +98,13 @@ namespace Fibrous
             return fiber;
         }
 
+        public static Fiber StartNew(Executor executor)
+        {
+            var fiber = new ThreadFiber(executor);
+            fiber.Start();
+            return fiber;
+        }
+
         public static Fiber StartNew(string name)
         {
             var fiber = new ThreadFiber(name);

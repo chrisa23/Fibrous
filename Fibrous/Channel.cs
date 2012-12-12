@@ -2,10 +2,6 @@ namespace Fibrous
 {
     using System;
 
-    /// <summary>
-    /// Channels are in memory conduits...
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
     public sealed class Channel<T> : IChannel<T>
     {
         private readonly Event<T> _internalChannel = new Event<T>();

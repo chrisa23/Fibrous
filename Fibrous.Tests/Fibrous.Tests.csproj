@@ -75,19 +75,14 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsyncRequestChannelTests.cs" />
-    <Compile Include="AsyncSnapshotChannel.cs" />
-    <Compile Include="AlgebraDemonstration.cs" />
-    <Compile Include="BasicTests.cs" />
-    <Compile Include="FibonacciDemonstration.cs" />
+    <Compile Include="Experimental\SnapshotChannel.cs" />
+    <Compile Include="FiberTester.cs" />
+    <Compile Include="FiberTests.cs" />
     <Compile Include="PerfBug.cs" />
-    <Compile Include="PerfSettings.cs" />
     <Compile Include="PerfTests.cs" />
     <Compile Include="PerfTimer.cs" />
     <Compile Include="BusyWaitQueueLatencyTests.cs" />
-    <Compile Include="PoolFiberTests.cs" />
     <Compile Include="QueueChannelTests.cs" />
-    <Compile Include="RequestChannelTests.cs" />
     <Compile Include="TimerActionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

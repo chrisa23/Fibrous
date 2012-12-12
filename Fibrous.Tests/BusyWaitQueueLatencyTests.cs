@@ -1,4 +1,4 @@
-﻿namespace Fibrous.Tests.Latency
+﻿namespace Fibrous.Tests
 {
     using System;
     using System.Diagnostics;
