@@ -23,5 +23,10 @@ namespace Fibrous
             }
             return false;
         }
+
+        public void ClearHandlers()
+        {
+            InternalEvent = null;
+        }
     }
 }

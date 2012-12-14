@@ -5,12 +5,13 @@ namespace Fibrous
 
     public sealed class QueueChannel<TMsg> : IChannel<TMsg>
     {
+        private readonly object _lock = new object();
         private readonly Queue<TMsg> _queue = new Queue<TMsg>();
         private int Count
         {
             get
             {
-                lock (_queue)
+                lock (_lock)
                 {
                     return _queue.Count;
                 }
@@ -24,7 +25,7 @@ namespace Fibrous
 
         public bool Publish(TMsg message)
         {
-            lock (_queue)
+            lock (_lock)
             {
                 _queue.Enqueue(message);
             }
@@ -38,7 +39,7 @@ namespace Fibrous
 
         private bool Pop(out TMsg msg)
         {
-            lock (_queue)
+            lock (_lock)
             {
                 if (_queue.Count > 0)
                 {
@@ -52,6 +53,7 @@ namespace Fibrous
 
         private sealed class QueueConsumer : IDisposable
         {
+            private readonly object _lock = new object();
             private readonly Action<TMsg> _callback;
             private readonly QueueChannel<TMsg> _eventChannel;
             private readonly IExecutionContext _target;
@@ -72,7 +74,7 @@ namespace Fibrous
 
             private void Signal()
             {
-                lock (this)
+                lock (_lock)
                 {
                     if (_flushPending)
                         return;
@@ -91,7 +93,7 @@ namespace Fibrous
                 }
                 finally
                 {
-                    lock (this)
+                    lock (_lock)
                     {
                         if (_eventChannel.Count == 0)
                             _flushPending = false;
@@ -100,6 +102,11 @@ namespace Fibrous
                     }
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            _queue.Clear();
         }
     }
 }
