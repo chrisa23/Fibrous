@@ -4,54 +4,51 @@ namespace Fibrous.Remoting
     using System.Threading.Tasks;
     using CrossroadsIO;
 
-    public abstract class ReceiveSocketBase<T> : ISubscriberPort<T>, IDisposable
+    public abstract class ReceiveSocketBase<T> : IDisposable
     {
         protected readonly Context Context;
-        private readonly IChannel<T> _internalChannel = new Channel<T>();
         private readonly Func<byte[], T> _msgReceiver;
+        private readonly IPublisherPort<T> _output;
         protected Socket Socket;
         private volatile bool _running = true;
-        private Task _task;
-        private readonly TimeSpan _timeout = TimeSpan.FromMilliseconds(100);
 
-        protected ReceiveSocketBase(Context context, Func<byte[], T> receiver)
+        protected ReceiveSocketBase(Context context, Func<byte[], T> receiver, IPublisherPort<T> output)
         {
             _msgReceiver = receiver;
+            _output = output;
             Context = context;
         }
 
         public virtual void Dispose()
         {
-            _running = false;
-        }
-
-        public IDisposable Subscribe(Fiber fiber, Action<T> receive)
-        {
-            return _internalChannel.Subscribe(fiber, receive);
+            Socket.Close();
         }
 
         protected void Initialize()
         {
-            _task = Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
+            Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
 
         private void Run()
         {
             while (_running)
             {
+                Message message;
                 try
                 {
-                    Message message = Socket.ReceiveMessage(); //_timeout
-                    if (message.IsEmpty)
-                        continue;
-                    T msg = _msgReceiver(message[0].Buffer);
-                    _internalChannel.Publish(msg);
+                    message = Socket.ReceiveMessage(); //_timeout
                 }
                 catch (Exception e)
                 {
+                    //This needs improvement...
                     Console.WriteLine(e);
                     _running = false;
+                    break;
                 }
+                if (message.IsEmpty)
+                    continue;
+                T msg = _msgReceiver(message[0].Buffer);
+                _output.Publish(msg);
             }
             InternalDispose();
         }
