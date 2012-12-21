@@ -14,5 +14,3 @@ Some of the library benefits:
  - UI throttling and redraw can be controlled easily
 
 A CrossroadsIO based library for ports over sockets is provided. 
-
-[Note: I am in the midst of reworking things to release a V1.0 on NuGet.]
