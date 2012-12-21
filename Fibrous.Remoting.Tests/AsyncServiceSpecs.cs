@@ -21,9 +21,9 @@
                     Reply = x;
                     Replied.Set();
                 });
-            Replied.WaitOne(TimeSpan.FromSeconds(1));
-            Reply.Should().BeEquivalentTo("TEST");
+            Replied.WaitOne(TimeSpan.FromSeconds(2));
             Cleanup();
+            Reply.Should().BeEquivalentTo("TEST");
         }
     }
 
@@ -45,8 +45,8 @@
                     });
             }
             Replied.WaitOne(TimeSpan.FromSeconds(10));
-            Reply.Should().BeEquivalentTo("TEST99");
             Cleanup();
+            Reply.Should().BeEquivalentTo("TEST99");
         }
     }
 
@@ -81,8 +81,8 @@
 
     public abstract class AsyncReqReplyServiceSpecs
     {
-        protected static IRequestHandlerPort<string, string> Service;
-        protected static IRequestPort<string, string> Client;
+        protected static AsyncRequestHandlerSocket<string, string> Service;
+        protected static AsyncRequestSocket<string, string> Client;
         protected static Fiber ClientFiber;
         protected static Fiber ServerFiber;
         protected static string Reply;
@@ -95,38 +95,44 @@
             Reply = string.Empty;
             Replied = new ManualResetEvent(false);
             Console.WriteLine("Start client fiber");
-            ClientFiber = PoolFiber.StartNew();
-            ClientContext = Context.Create();
-            ServerFiber = PoolFiber.StartNew();
-            ServerContext = Context.Create();
             Func<byte[], string> unmarshaller = x => Encoding.Unicode.GetString(x);
             Func<string, byte[]> marshaller = x => Encoding.Unicode.GetBytes(x);
-            Service = new RequestHandlerSocket<string, string>(ServerContext,
-                "tcp://*",
-                9997,
+            ServerFiber = PoolFiber.StartNew();
+            ServerContext = Context.Create();
+            Service = new AsyncRequestHandlerSocket<string, string>(ServerContext,
+                "tcp://*:9997",
                 unmarshaller,
                 marshaller);
             Service.SetRequestHandler(ServerFiber, request => request.Reply(request.Request.ToUpper()));
             Console.WriteLine("Start service");
-            ServerFiber.Add((RequestHandlerSocket<string, string>)Service);
-            ServerFiber.Add(ServerContext);
+            ClientFiber = StubFiber.StartNew();
+            ClientContext = Context.Create();
             Client = new AsyncRequestSocket<string, string>(ClientContext,
-                "tcp://localhost",
-                9997,
+                "tcp://localhost:9997",
                 marshaller,
                 unmarshaller);
-            ClientFiber.Add((AsyncRequestSocket<string, string>)Client);
-            ClientFiber.Add(ClientContext);
             Console.WriteLine("Start client");
         }
 
         protected void Cleanup()
         {
-            ClientFiber.Dispose();
-            Console.WriteLine("Dispose client fiber");
-            ServerFiber.Dispose();
-            Console.WriteLine("Dispose service");
+            ClientFiber.Enqueue(() =>
+            {
+                Client.Dispose();
+                ClientContext.Dispose();
+                Thread.Sleep(10);
+                //});
+                //Thread.Sleep(100);
+                //ServerFiber.Enqueue(() =>
+                //{
+                Service.Dispose();
+                ServerContext.Dispose();
+            });
             Thread.Sleep(100);
+            Console.WriteLine("Dispose client fiber");
+            ClientFiber.Dispose();
+            Console.WriteLine("Dispose service");
+            ServerFiber.Dispose();
         }
     }
 }

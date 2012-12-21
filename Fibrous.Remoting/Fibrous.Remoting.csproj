@@ -43,15 +43,15 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsyncRequestHandlerSocket.cs" />
     <Compile Include="AsyncRequestSocket.cs" />
-    <Compile Include="RequestHandlerSocket.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PullSocketPort.cs" />
+    <Compile Include="PullSocket.cs" />
     <Compile Include="ReceiveSocketBase.cs" />
-    <Compile Include="RemoteRequestHandlerPort.cs" />
-    <Compile Include="RemoteRequestPort.cs" />
+    <Compile Include="RequestHandlerSocket.cs" />
+    <Compile Include="RequestSocket.cs" />
     <Compile Include="SendSocket.cs" />
-    <Compile Include="SubscribeSocketPort.cs" />
+    <Compile Include="SubscribeSocket.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Fibrous\Fibrous.csproj">

@@ -24,6 +24,7 @@ namespace Fibrous.Remoting
 
         public void Dispose()
         {
+            //_socket.Close();
             _socket.Dispose();
         }
 

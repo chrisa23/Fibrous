@@ -83,6 +83,7 @@
     <Compile Include="PerfTimer.cs" />
     <Compile Include="BusyWaitQueueLatencyTests.cs" />
     <Compile Include="QueueChannelTests.cs" />
+    <Compile Include="ReqReplyTests.cs" />
     <Compile Include="TimerActionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

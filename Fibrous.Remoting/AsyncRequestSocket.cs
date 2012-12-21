@@ -19,21 +19,17 @@ namespace Fibrous.Remoting
         private readonly Dictionary<Guid, IRequest<TRequest, TReply>> _requests =
             new Dictionary<Guid, IRequest<TRequest, TReply>>();
         private volatile bool _running = true;
-        private readonly Task _task;
-        private readonly TimeSpan _fromMilliseconds = TimeSpan.FromMilliseconds(100);
 
         public AsyncRequestSocket(Context context,
                                   string address,
-                                  int basePort,
                                   Func<TRequest, byte[]> requestMarshaller,
                                   Func<byte[], TReply> replyUnmarshaller)
-            : this(context, address, basePort, requestMarshaller, replyUnmarshaller, new PoolFiber())
+            : this(context, address, requestMarshaller, replyUnmarshaller, new PoolFiber())
         {
         }
 
         public AsyncRequestSocket(Context context,
                                   string address,
-                                  int basePort,
                                   Func<TRequest, byte[]> requestMarshaller,
                                   Func<byte[], TReply> replyUnmarshaller,
                                   Fiber fiber)
@@ -43,13 +39,14 @@ namespace Fibrous.Remoting
             _fiber = fiber;
             _internalChannel.SetRequestHandler(_fiber, OnRequest);
             _replyContext = context;
+            int basePort = int.Parse(address.Split(':')[2]);
             _replySocket = _replyContext.CreateSocket(SocketType.SUB);
-            _replySocket.Connect(address + ":" + (basePort + 1));
+            _replySocket.Connect(address.Substring(0, address.LastIndexOf(":")) + ":" + (basePort + 1));
             _replySocket.Subscribe(_id);
             _requestSocket = _replyContext.CreateSocket(SocketType.PUSH);
-            _requestSocket.Connect(address + ":" + basePort);
+            _requestSocket.Connect(address);
             _fiber.Start();
-            _task = Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
+            Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
 
         public IDisposable SendRequest(TRequest request, Fiber fiber, Action<TReply> onReply)
@@ -64,7 +61,7 @@ namespace Fibrous.Remoting
 
         public void Dispose()
         {
-            _running = false;
+            _replySocket.Close();
         }
 
         private static byte[] GetId()

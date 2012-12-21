@@ -3,10 +3,10 @@ namespace Fibrous.Remoting
     using System;
     using CrossroadsIO;
 
-    public class SubscribeSocketPort<T> : ReceiveSocketBase<T>
+    public class SubscribeSocket<T> : ReceiveSocketBase<T>
     {
-        public SubscribeSocketPort(Context context, string address, Func<byte[], T> msgReceiver)
-            : base(context, msgReceiver)
+        public SubscribeSocket(Context context, string address, Func<byte[], T> msgReceiver, IPublisherPort<T> output)
+            : base(context, msgReceiver, output)
         {
             Socket = Context.CreateSocket(SocketType.SUB);
             Socket.Connect(address);

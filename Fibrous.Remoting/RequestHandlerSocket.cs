@@ -1,4 +1,4 @@
-﻿namespace Fibrous.Remoting
+namespace Fibrous.Remoting
 {
     using System;
     using System.Threading.Tasks;
@@ -7,78 +7,57 @@
     public class RequestHandlerSocket<TRequest, TReply> : IRequestHandlerPort<TRequest, TReply>, IDisposable
     {
         private readonly IRequestChannel<TRequest, TReply> _internalChannel = new RequestChannel<TRequest, TReply>();
-        //split InSocket
-        private readonly Context _context;
-        private readonly Fiber _stub = new StubFiber();
         private readonly Func<TReply, byte[]> _replyMarshaller;
-        //split OutSocket
-        private readonly Socket _replySocket;
-        private readonly Socket _requestSocket;
         private readonly Func<byte[], TRequest> _requestUnmarshaller;
-        private volatile bool _running = true;
-        private readonly Task _task;
-        private readonly TimeSpan _timeout = TimeSpan.FromMilliseconds(100);
+        private readonly Socket _socket;
+        private readonly TimeSpan _timeout;
+        private bool _running = true;
 
         public RequestHandlerSocket(Context context,
                                     string address,
-                                    int basePort,
                                     Func<byte[], TRequest> requestUnmarshaller,
                                     Func<TReply, byte[]> replyMarshaller)
         {
             _requestUnmarshaller = requestUnmarshaller;
             _replyMarshaller = replyMarshaller;
-            _context = context;
-            _requestSocket = _context.CreateSocket(SocketType.PULL);
-            _requestSocket.Bind(address + ":" + basePort);
-            _replySocket = _context.CreateSocket(SocketType.PUB);
-            _replySocket.Bind(address + ":" + (basePort + 1));
-            _task = Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
+            _timeout = TimeSpan.FromMilliseconds(100);
+            _socket = context.CreateSocket(SocketType.REP);
+            _socket.Bind(address);
+            Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
 
         public void Dispose()
         {
-            _requestSocket.Close();
+            _running = false;
+            _socket.Close();
+        }
+
+        private void ProcessRequest(byte[] buffer)
+        {
+            TRequest request = _requestUnmarshaller(buffer);
+            TReply reply = _internalChannel.SendRequest(request).Receive(TimeSpan.FromMinutes(5)).Value; //??
+            byte[] replyData = _replyMarshaller(reply);
+            _socket.Send(replyData, _timeout);
         }
 
         private void Run()
         {
             while (_running)
             {
+                //check for time/cutoffs to trigger events...
                 try
                 {
-                    Message message = _requestSocket.ReceiveMessage();
-                    if (message.IsEmpty)
+                    Message msg = _socket.ReceiveMessage();
+                    if (msg.IsEmpty)
                         continue;
-                    byte[] id = message[0].Buffer;
-                    byte[] rid = message[1].Buffer;
-                    ProcessRequest(id, rid, message[2].Buffer);
+                    ProcessRequest(msg[0].Buffer);
                 }
                 catch (Exception e)
                 {
                     _running = false;
                 }
             }
-            InternalDispose();
-        }
-
-        private void ProcessRequest(byte[] id, byte[] msgId, byte[] msgBuffer)
-        {
-            TRequest req = _requestUnmarshaller(msgBuffer);
-            _internalChannel.SendRequest(req, _stub, reply => SendReply(id, msgId, reply));
-        }
-
-        private void SendReply(byte[] id, byte[] msgId, TReply reply)
-        {
-            byte[] data = _replyMarshaller(reply);
-            _replySocket.SendMore(id);
-            _replySocket.SendMore(msgId);
-            _replySocket.Send(data);
-        }
-
-        private void InternalDispose()
-        {
-            _requestSocket.Dispose();
-            _replySocket.Dispose();
+            _socket.Dispose();
         }
 
         public IDisposable SetRequestHandler(Fiber fiber, Action<IRequest<TRequest, TReply>> onRequest)

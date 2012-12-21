@@ -14,14 +14,16 @@
         [Test]
         public void Test()
         {
-            Pull.Subscribe(ClientFiber,
+            Channel.Subscribe(ClientFiber,
                 s =>
                 {
                     Received = s;
                     RcvdSignal.Set();
                 });
             Push.Publish("test");
+            Thread.Sleep(100);
             RcvdSignal.WaitOne(TimeSpan.FromSeconds(1));
+            Cleanup();
             Received.Should().BeEquivalentTo("test");
         }
     }
@@ -32,7 +34,7 @@
         [Test]
         public void Test()
         {
-            Pull.Subscribe(ClientFiber,
+            Channel.Subscribe(ClientFiber,
                 s =>
                 {
                     Received = s;
@@ -42,11 +44,11 @@
             Stopwatch sw = Stopwatch.StartNew();
             for (int i = 0; i < 1000000; i++)
                 Push.Publish("test" + i);
-            RcvdSignal.WaitOne(TimeSpan.FromSeconds(10));
+            RcvdSignal.WaitOne(TimeSpan.FromSeconds(5));
             sw.Stop();
+            Cleanup();
             Console.WriteLine("Elapsed: " + sw.ElapsedMilliseconds);
             Received.Should().BeEquivalentTo("test999999");
-            Cleanup();
         }
     }
 
@@ -55,18 +57,19 @@
         protected static Context Context1;
         protected static Context Context2;
         protected static SendSocket<string> Push;
-        protected static PullSocketPort<string> Pull;
+        protected static PullSocket<string> Pull;
         protected static Fiber ClientFiber;
         protected static string Received;
         protected static ManualResetEvent RcvdSignal;
+        protected static IChannel<string> Channel = new Channel<string>();
 
         public PushPullSocketPortSpecs()
         {
             Context1 = Context.Create();
             Context2 = Context.Create();
             RcvdSignal = new ManualResetEvent(false);
-            ClientFiber = new StubFiber();
-            Pull = new PullSocketPort<string>(Context1, "tcp://*:6002", x => Encoding.Unicode.GetString(x));
+            ClientFiber = PoolFiber.StartNew();
+            Pull = new PullSocket<string>(Context1, "tcp://*:6002", x => Encoding.Unicode.GetString(x), Channel);
             Push = new SendSocket<string>(Context2,
                 "tcp://localhost:6002",
                 s => Encoding.Unicode.GetBytes(s),
@@ -76,15 +79,19 @@
 
         protected void Cleanup()
         {
-            RcvdSignal.Dispose();
+            ClientFiber.Enqueue(() =>
+            {
+                Console.WriteLine("Dispose push");
+                Push.Dispose();
+                Context2.Dispose();
+                Thread.Sleep(10);
+                Console.WriteLine("Dispose pull");
+                Pull.Dispose();
+                Context1.Dispose();
+                Thread.Sleep(10);
+            });
+            Thread.Sleep(200);
             ClientFiber.Dispose();
-            Push.Dispose();
-            Console.WriteLine("Dispose pull");
-            Pull.Dispose();
-            Console.WriteLine("Dispose push");
-            Context1.Dispose();
-            Context2.Dispose();
-            Thread.Sleep(100);
         }
     }
 }
