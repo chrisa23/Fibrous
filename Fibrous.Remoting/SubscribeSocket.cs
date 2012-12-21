@@ -3,7 +3,7 @@ namespace Fibrous.Remoting
     using System;
     using CrossroadsIO;
 
-    public class SubscribeSocket<T> : ReceiveSocketBase<T>
+    public sealed class SubscribeSocket<T> : ReceiveSocketBase<T>
     {
         public SubscribeSocket(Context context, string address, Func<byte[], T> msgReceiver, IPublisherPort<T> output)
             : base(context, msgReceiver, output)

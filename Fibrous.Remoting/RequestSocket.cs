@@ -3,7 +3,7 @@ namespace Fibrous.Remoting
     using System;
     using CrossroadsIO;
 
-    public class RequestSocket<TRequest, TReply> : IRequestPort<TRequest, TReply>, IDisposable
+    public sealed class RequestSocket<TRequest, TReply> : IRequestPort<TRequest, TReply>, IDisposable
     {
         private readonly IRequestChannel<TRequest, TReply> _internalChannel =
             new RequestChannel<TRequest, TReply>();

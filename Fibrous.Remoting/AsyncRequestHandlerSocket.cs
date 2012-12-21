@@ -5,7 +5,7 @@
     using CrossroadsIO;
 
     //takes 2 ports
-    public class AsyncRequestHandlerSocket<TRequest, TReply> : IRequestHandlerPort<TRequest, TReply>, IDisposable
+    public sealed class AsyncRequestHandlerSocket<TRequest, TReply> : IRequestHandlerPort<TRequest, TReply>, IDisposable
     {
         private readonly IRequestChannel<TRequest, TReply> _internalChannel = new RequestChannel<TRequest, TReply>();
         //split InSocket

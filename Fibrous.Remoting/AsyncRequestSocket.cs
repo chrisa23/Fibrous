@@ -5,7 +5,7 @@ namespace Fibrous.Remoting
     using System.Threading.Tasks;
     using CrossroadsIO;
 
-    public class AsyncRequestSocket<TRequest, TReply> : IRequestPort<TRequest, TReply>, IDisposable
+    public sealed class AsyncRequestSocket<TRequest, TReply> : IRequestPort<TRequest, TReply>, IDisposable
     {
         private readonly Fiber _fiber;
         private readonly byte[] _id = GetId();
