@@ -2,7 +2,11 @@ namespace Fibrous.Tests
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Threading;
+    using Fibrous.Experimental;
+    using Fibrous.Queues;
+    using Fibrous.Scheduling;
     using NUnit.Framework;
 
     [TestFixture]
@@ -83,6 +87,91 @@ namespace Fibrous.Tests
                 Assert.IsTrue(reset.WaitOne(10000, false));
                 Assert.AreEqual(1, failed.Count);
             }
+        }
+
+        [Test]
+        public void MultiConsumer()
+        {
+            var queues = new List<Fiber>();
+            IChannel<string> channel = new QueueChannel<string>();
+
+            //Init executing Fibers
+            for (int i = 0; i < 5; i++)
+            {
+                Action<string> onReceive = (message) =>
+                {
+                    var firstChar = message[0];
+                };
+
+                Fiber threadFiber = new ThreadFiber(new Executor(),new TimerScheduler(),new YieldingQueue() , i.ToString());//new DisruptorQueue(1024*1024)
+                queues.Add(threadFiber);
+                channel.Subscribe(threadFiber, onReceive);
+            }
+
+
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+            //Push messages
+            for (int i = 0; i < 1000000; i++)
+            {
+                string msg = "[" + i + "] Push";
+                channel.Publish(msg);
+            }
+            sw.Stop();
+
+            Console.WriteLine("End : " + sw.ElapsedMilliseconds);
+           // Console.ReadLine();
+
+            //#Results:
+            //1 ThreadFiber ~= 1sec
+            //2 ThreadFiber ~=> 3sec
+            //3 ThreadFiber ~=> 5sec
+            //4 ThreadFiber ~=> 8sec
+            //5 ThreadFiber ~=> 10sec
+        }
+
+
+        [Test]
+        public void MultiConsumerPool()
+        {
+            var queues = new List<Fiber>();
+            IChannel<string> channel = new QueueChannel<string>();
+
+            //Init executing Fibers
+            for (int i = 0; i < 5; i++)
+            {
+                Action<string> onReceive = (message) =>
+                {
+                    var firstChar = message[0];
+                    //Console.WriteLine("[{0}] {1}", Thread.CurrentThread.ManagedThreadId, message);
+                };
+
+                Fiber threadFiber = PoolFiber.StartNew();//new ThreadFiber(new Executor(),new TimerScheduler(),new YieldingQueue() , i.ToString());//new DisruptorQueue(1024*1024)
+                queues.Add(threadFiber);
+                channel.Subscribe(threadFiber, onReceive);
+            }
+
+
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+            //Push messages
+            for (int i = 0; i < 1000000; i++)
+            {
+                string msg = "[" + i + "] Push";
+                channel.Publish(msg);
+            }
+            sw.Stop();
+
+            Console.WriteLine("End : " + sw.ElapsedMilliseconds);
+
+            //#Results:
+            //1 ThreadFiber ~= 1sec
+            //2 ThreadFiber ~=> 3sec
+            //3 ThreadFiber ~=> 5sec
+            //4 ThreadFiber ~=> 8sec
+            //5 ThreadFiber ~=> 10sec
         }
     }
 }

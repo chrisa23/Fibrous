@@ -2,7 +2,7 @@ namespace Fibrous
 {
     using System;
 
-    public sealed class Event<TEvent> : IPublisherPort<TEvent>
+    public sealed class Event<TEvent> : IPublisherPort<TEvent>, IDisposable
     {
         private event Action<TEvent> InternalEvent;
 
@@ -24,7 +24,35 @@ namespace Fibrous
             return false;
         }
 
-        public void ClearHandlers()
+        public void Dispose()
+        {
+            InternalEvent = null;
+        }
+    }
+
+    public sealed class Event : IDisposable
+    {
+        private event Action InternalEvent;
+
+        public IDisposable Subscribe(Action receive)
+        {
+            InternalEvent += receive;
+            var disposeAction = new DisposeAction(() => InternalEvent -= receive);
+            return disposeAction;
+        }
+
+        public bool Trigger()
+        {
+            Action internalEvent = InternalEvent;
+            if (internalEvent != null)
+            {
+                internalEvent();
+                return true;
+            }
+            return false;
+        }
+
+        public void Dispose()
         {
             InternalEvent = null;
         }

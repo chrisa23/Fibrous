@@ -5,16 +5,34 @@
     using System.Diagnostics;
     using System.Threading;
 
-    public sealed class BusyWaitQueue : QueueBase
+    public sealed class DefaultQueue : IQueue
     {
+        protected List<Action> Actions = new List<Action>();
+        protected List<Action> ToPass = new List<Action>();
+
         private readonly int _msBeforeBlockingWait;
         private readonly int _spinsBeforeTimeCheck;
         private readonly object _lock = new object();
 
-        public BusyWaitQueue(int spinsBeforeTimeCheck, int msBeforeBlockingWait)
+        public DefaultQueue(int spinsBeforeTimeCheck, int msBeforeBlockingWait)
         {
             _spinsBeforeTimeCheck = spinsBeforeTimeCheck;
             _msBeforeBlockingWait = msBeforeBlockingWait;
+        }
+
+        public DefaultQueue()
+            : this(100, 10)
+        {
+            
+        }
+
+        public void Enqueue(Action action)
+        {
+            lock (_lock)
+            {
+                Actions.Add(action);
+                Monitor.PulseAll(_lock);
+            }
         }
 
         public IEnumerable<Action> DequeueAll()
@@ -40,7 +58,6 @@
             {
                 Monitor.Exit(_lock);
             }
-            Thread.Yield();
             return Queue.Empty;
         }
 
@@ -69,9 +86,15 @@
             return null;
         }
 
-        public override void Drain(Executor executor)
+        public void Drain(Executor executor)
         {
-            executor.Execute(DequeueAll());
+            IEnumerable<Action> dequeueAll = DequeueAll();
+            executor.Execute(dequeueAll);
+        }
+
+        public void Dispose()
+        {
+        
         }
     }
 }

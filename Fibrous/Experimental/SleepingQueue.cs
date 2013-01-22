@@ -6,8 +6,11 @@ namespace Fibrous.Experimental
     using System.Threading;
     using Fibrous.Queues;
 
-    public sealed class SleepingQueue : QueueBase
+    public sealed class SleepingQueue : IQueue
     {
+        protected List<Action> Actions = new List<Action>();
+        protected List<Action> ToPass = new List<Action>();
+
         private const int SpinTries = 100;
         private PaddedBoolean _signalled = new PaddedBoolean(false);
         private readonly object _syncRoot = new object();
@@ -26,16 +29,16 @@ namespace Fibrous.Experimental
             _signalled.Exchange(false);
         }
 
-        public override void Enqueue(Action action)
+        public void Enqueue(Action action)
         {
             lock (_syncRoot)
             {
                 Actions.Add(action);
             }
-            _signalled.Exchange(true);
+            _signalled.LazySet(true);
         }
 
-        public override void Drain(Executor executor)
+        public void Drain(Executor executor)
         {
             executor.Execute(DequeueAll());
         }
@@ -52,7 +55,7 @@ namespace Fibrous.Experimental
             }
         }
 
-        public override void Dispose()
+        public void Dispose()
         {
             lock (_syncRoot)
             {

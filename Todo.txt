@@ -1,8 +1,6 @@
+- Configuration helpers for systems and micro-services
 - Redo tests
-- add performance tests with contention
-- Nuget packages
-- Fix timeout on sockets issue.  
-- Adjust abstractions to match ZMQ socket type paradigm better (consider port combinations)
+- add performance tests with contention (someone already found some issues...)
 - update Xml docs
 - update error handling in remoting library
 - Add samples

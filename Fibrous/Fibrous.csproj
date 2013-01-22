@@ -90,7 +90,6 @@
     <Compile Include="Experimental\SnapshotChannel.cs" />
     <Compile Include="Fiber.cs" />
     <Compile Include="GuiFiber.cs" />
-    <Compile Include="Queues\QueueBase.cs" />
     <Compile Include="IRequestPort.cs" />
     <Compile Include="Scheduling\BatchSubscriber.cs" />
     <Compile Include="IRequest.cs" />
@@ -104,7 +103,6 @@
     <Compile Include="IChannel.cs" />
     <Compile Include="QueueChannel.cs" />
     <Compile Include="Queues\BusyWaitQueue.cs" />
-    <Compile Include="Queues\DefaultQueue.cs" />
     <Compile Include="IExecutionContext.cs" />
     <Compile Include="Executor.cs" />
     <Compile Include="IQueue.cs" />

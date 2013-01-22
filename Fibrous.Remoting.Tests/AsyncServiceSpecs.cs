@@ -106,6 +106,7 @@
             Service.SetRequestHandler(ServerFiber, request => request.Reply(request.Request.ToUpper()));
             Console.WriteLine("Start service");
             ClientFiber = StubFiber.StartNew();
+
             ClientContext = Context.Create();
             Client = new AsyncRequestSocket<string, string>(ClientContext,
                 "tcp://localhost:9997",
@@ -121,10 +122,10 @@
                 Client.Dispose();
                 ClientContext.Dispose();
                 Thread.Sleep(10);
-                //});
-                //Thread.Sleep(100);
-                //ServerFiber.Enqueue(() =>
-                //{
+            });
+            Thread.Sleep(100);
+            ServerFiber.Enqueue(() =>
+            {
                 Service.Dispose();
                 ServerContext.Dispose();
             });
