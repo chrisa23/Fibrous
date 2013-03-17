@@ -19,16 +19,14 @@
                 var channel = new SnapshotChannel<string>();
                 channel.ReplyToPrimingRequest(fiber2, list.ToArray);
                 var primeResult = new List<string>();
-                string lastUpdate = "";
-                Action<IEnumerable<string>> primed = primeResult.AddRange;
-                Action<string> update = x => lastUpdate = x;
-                channel.PrimedSubscribe(fiber, update, primed);
+                Action<string> update = primeResult.Add;
+                channel.Subscribe(fiber, update);
                 Thread.Sleep(100);
                 channel.Publish("hello");
                 channel.Publish("hello2");
                 Thread.Sleep(100);
                 Assert.AreEqual("Prime", primeResult[0]);
-                Assert.AreEqual("hello2", lastUpdate);
+                Assert.AreEqual("hello2", primeResult[primeResult.Count-1]);
             }
         }
     }

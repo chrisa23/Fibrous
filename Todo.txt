@@ -1,3 +1,4 @@
+- Improve the remoting library.  
 - Configuration helpers for systems and micro-services
 - Redo tests
 - add performance tests with contention (someone already found some issues...)

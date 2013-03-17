@@ -48,9 +48,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Experimental\Actors\ActorBase.cs" />
-    <Compile Include="Experimental\Actors\BatchingActor.cs" />
-    <Compile Include="Experimental\Actors\IActor.cs" />
     <Compile Include="DispatcherFiber.cs" />
     <Compile Include="FormFiber.cs" />
     <Compile Include="IRequestChannel.cs" />
@@ -78,9 +75,7 @@
     <Compile Include="Experimental\ISnapshotPublisherPort.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="Experimental\ISnapshotChannel.cs" />
-    <Compile Include="Experimental\ISnapshotPort.cs" />
     <Compile Include="IRequestHandlerPort.cs" />
-    <Compile Include="Experimental\Actors\Actor.cs" />
     <Compile Include="ExceptionHandlingExecutor.cs" />
     <Compile Include="Scheduling\TimerAction.cs" />
     <Compile Include="Scheduling\PendingAction.cs" />
