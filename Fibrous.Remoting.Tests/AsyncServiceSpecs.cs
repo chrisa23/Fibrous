@@ -4,9 +4,10 @@
     using System.Diagnostics;
     using System.Text;
     using System.Threading;
-    using CrossroadsIO;
+    
     using FluentAssertions;
     using NUnit.Framework;
+    using NetMQ;
 
     [TestFixture]
     public class WhenRequestIsSent : AsyncReqReplyServiceSpecs
@@ -87,8 +88,8 @@
         protected static Fiber ServerFiber;
         protected static string Reply;
         protected static ManualResetEvent Replied;
-        protected static Context ClientContext;
-        protected static Context ServerContext;
+        protected static NetMQContext ClientContext;
+        protected static NetMQContext ServerContext;
 
         public AsyncReqReplyServiceSpecs()
         {
@@ -98,7 +99,7 @@
             Func<byte[], string> unmarshaller = x => Encoding.Unicode.GetString(x);
             Func<string, byte[]> marshaller = x => Encoding.Unicode.GetBytes(x);
             ServerFiber = PoolFiber.StartNew();
-            ServerContext = Context.Create();
+            ServerContext = NetMQContext.Create();
             Service = new AsyncRequestHandlerSocket<string, string>(ServerContext,
                 "tcp://*:9997",
                 unmarshaller,
@@ -107,9 +108,9 @@
             Console.WriteLine("Start service");
             ClientFiber = StubFiber.StartNew();
 
-            ClientContext = Context.Create();
+            ClientContext = NetMQContext.Create();
             Client = new AsyncRequestSocket<string, string>(ClientContext,
-                "tcp://localhost:9997",
+                "tcp://127.0.0.1:9997",
                 marshaller,
                 unmarshaller);
             Console.WriteLine("Start client");

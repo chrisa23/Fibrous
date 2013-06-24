@@ -2,23 +2,24 @@
 {
     using System;
     using System.Threading.Tasks;
-    using CrossroadsIO;
+    using NetMQ;
+    using NetMQ.zmq;
 
     //takes 2 ports
     public sealed class AsyncRequestHandlerSocket<TRequest, TReply> : IRequestHandlerPort<TRequest, TReply>, IDisposable
     {
         private readonly IRequestChannel<TRequest, TReply> _internalChannel = new RequestChannel<TRequest, TReply>();
         //split InSocket
-        private readonly Context _context;
+        private readonly NetMQContext _context;
         private readonly Fiber _stub = StubFiber.StartNew();
         private readonly Func<TReply, byte[]> _replyMarshaller;
         //split OutSocket
-        private readonly Socket _replySocket;
-        private readonly Socket _requestSocket;
+        private readonly NetMQSocket _replySocket;
+        private readonly NetMQSocket _requestSocket;
         private readonly Func<byte[], TRequest> _requestUnmarshaller;
         private volatile bool _running = true;
 
-        public AsyncRequestHandlerSocket(Context context,
+        public AsyncRequestHandlerSocket(NetMQContext context,
                                          string address,
                                          Func<byte[], TRequest> requestUnmarshaller,
                                          Func<TReply, byte[]> replyMarshaller)
@@ -28,9 +29,9 @@
             _context = context;
             string s = address.Split(':')[2];
             int basePort = int.Parse(s);
-            _requestSocket = _context.CreateSocket(SocketType.PULL);
+            _requestSocket = _context.CreateSocket(ZmqSocketType.Pull);
             _requestSocket.Bind(address);
-            _replySocket = _context.CreateSocket(SocketType.PUB);
+            _replySocket = _context.CreateSocket(ZmqSocketType.Pub);
             _replySocket.Bind(address.Substring(0, address.LastIndexOf(":")) + ":" + (basePort + 1));
             Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
@@ -46,7 +47,7 @@
             {
                 try
                 {
-                    Message message = _requestSocket.ReceiveMessage();
+                    NetMQMessage message = _requestSocket.ReceiveMessage(false);
                     if (message.IsEmpty)
                         continue;
                     byte[] id = message[0].Buffer;

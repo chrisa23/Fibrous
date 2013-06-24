@@ -3,7 +3,8 @@ namespace Fibrous.Remoting
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using CrossroadsIO;
+    using NetMQ;
+    using NetMQ.zmq;
 
     public sealed class AsyncRequestSocket<TRequest, TReply> : IRequestPort<TRequest, TReply>, IDisposable
     {
@@ -11,16 +12,16 @@ namespace Fibrous.Remoting
         private readonly byte[] _id = GetId();
         private readonly IRequestChannel<TRequest, TReply> _internalChannel =
             new RequestChannel<TRequest, TReply>();
-        private readonly Context _replyContext;
-        private readonly Socket _replySocket;
+        private readonly NetMQContext _replyContext;
+        private readonly NetMQSocket _replySocket;
         private readonly Func<byte[], TReply> _replyUnmarshaller;
         private readonly Func<TRequest, byte[]> _requestMarshaller;
-        private readonly Socket _requestSocket;
+        private readonly NetMQSocket _requestSocket;
         private readonly Dictionary<Guid, IRequest<TRequest, TReply>> _requests =
             new Dictionary<Guid, IRequest<TRequest, TReply>>();
         private volatile bool _running = true;
 
-        public AsyncRequestSocket(Context context,
+        public AsyncRequestSocket(NetMQContext context,
                                   string address,
                                   Func<TRequest, byte[]> requestMarshaller,
                                   Func<byte[], TReply> replyUnmarshaller)
@@ -28,7 +29,7 @@ namespace Fibrous.Remoting
         {
         }
 
-        public AsyncRequestSocket(Context context,
+        public AsyncRequestSocket(NetMQContext context,
                                   string address,
                                   Func<TRequest, byte[]> requestMarshaller,
                                   Func<byte[], TReply> replyUnmarshaller,
@@ -40,10 +41,10 @@ namespace Fibrous.Remoting
             _internalChannel.SetRequestHandler(_fiber, OnRequest);
             _replyContext = context;
             int basePort = int.Parse(address.Split(':')[2]);
-            _replySocket = _replyContext.CreateSocket(SocketType.SUB);
+            _replySocket = _replyContext.CreateSocket(ZmqSocketType.Sub );
             _replySocket.Connect(address.Substring(0, address.LastIndexOf(":")) + ":" + (basePort + 1));
             _replySocket.Subscribe(_id);
-            _requestSocket = _replyContext.CreateSocket(SocketType.PUSH);
+            _requestSocket = _replyContext.CreateSocket(ZmqSocketType.Push);
             _requestSocket.Connect(address);
             _fiber.Start();
             Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
@@ -75,12 +76,12 @@ namespace Fibrous.Remoting
             {
                 try
                 {
-                    Message msg = _replySocket.ReceiveMessage();
+                    NetMQMessage msg = _replySocket.ReceiveMessage();
                     if (msg.IsEmpty)
                         continue;
                     if (msg.FrameCount != 3)
                         throw new Exception("Msg error");
-                    var guid = new Guid(msg[1]);
+                    var guid = new Guid(msg[1].Buffer);
                     if (!_requests.ContainsKey(guid))
                         throw new Exception("We don't have a msg SenderId for this reply");
                     TReply reply = _replyUnmarshaller(msg[2].Buffer);

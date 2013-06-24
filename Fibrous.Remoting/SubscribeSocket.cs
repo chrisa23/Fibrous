@@ -1,21 +1,22 @@
 namespace Fibrous.Remoting
 {
     using System;
-    using CrossroadsIO;
+    using NetMQ;
+    using NetMQ.zmq;
 
     public sealed class SubscribeSocket<T> : ReceiveSocketBase<T>
     {
-        public SubscribeSocket(Context context, string address, Func<byte[], T> msgReceiver, IPublisherPort<T> output)
+        public SubscribeSocket(NetMQContext context, string address, Func<byte[], T> msgReceiver, IPublisherPort<T> output)
             : base(context, msgReceiver, output)
         {
-            Socket = Context.CreateSocket(SocketType.SUB);
+            Socket = Context.CreateSocket(ZmqSocketType.Sub);
             Socket.Connect(address);
             Initialize();
         }
 
         public void SubscribeAll()
         {
-            Socket.SubscribeAll();
+            Socket.Subscribe(new byte[0]);
         }
 
         public void Subscribe(byte[] key)
@@ -25,7 +26,7 @@ namespace Fibrous.Remoting
 
         public void UnsubscribeAll()
         {
-            Socket.UnsubscribeAll();
+            Socket.Unsubscribe(new byte[0]);
         }
 
         public void Unsubscribe(byte[] key)

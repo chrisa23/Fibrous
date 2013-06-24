@@ -2,17 +2,17 @@ namespace Fibrous.Remoting
 {
     using System;
     using System.Threading.Tasks;
-    using CrossroadsIO;
+    using NetMQ;
 
     public abstract class ReceiveSocketBase<T> : IDisposable
     {
-        protected readonly Context Context;
+        protected readonly NetMQContext Context;
         private readonly Func<byte[], T> _msgReceiver;
         private readonly IPublisherPort<T> _output;
-        protected Socket Socket;
+        protected NetMQSocket Socket;
         private volatile bool _running = true;
 
-        protected ReceiveSocketBase(Context context, Func<byte[], T> receiver, IPublisherPort<T> output)
+        protected ReceiveSocketBase(NetMQContext context, Func<byte[], T> receiver, IPublisherPort<T> output)
         {
             _msgReceiver = receiver;
             _output = output;
@@ -33,7 +33,7 @@ namespace Fibrous.Remoting
         {
             while (_running)
             {
-                Message message;
+                NetMQMessage message;
                 try
                 {
                     message = Socket.ReceiveMessage(); //_timeout

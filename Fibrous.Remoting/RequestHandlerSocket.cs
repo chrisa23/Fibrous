@@ -2,18 +2,19 @@ namespace Fibrous.Remoting
 {
     using System;
     using System.Threading.Tasks;
-    using CrossroadsIO;
+    using NetMQ;
+    using NetMQ.zmq;
 
     public class RequestHandlerSocket<TRequest, TReply> : IRequestHandlerPort<TRequest, TReply>, IDisposable
     {
         private readonly IRequestChannel<TRequest, TReply> _internalChannel = new RequestChannel<TRequest, TReply>();
         private readonly Func<TReply, byte[]> _replyMarshaller;
         private readonly Func<byte[], TRequest> _requestUnmarshaller;
-        private readonly Socket _socket;
+        private readonly NetMQSocket _socket;
         private readonly TimeSpan _timeout;
         private bool _running = true;
 
-        public RequestHandlerSocket(Context context,
+        public RequestHandlerSocket(NetMQContext context,
                                     string address,
                                     Func<byte[], TRequest> requestUnmarshaller,
                                     Func<TReply, byte[]> replyMarshaller)
@@ -21,7 +22,7 @@ namespace Fibrous.Remoting
             _requestUnmarshaller = requestUnmarshaller;
             _replyMarshaller = replyMarshaller;
             _timeout = TimeSpan.FromMilliseconds(100);
-            _socket = context.CreateSocket(SocketType.REP);
+            _socket = context.CreateSocket(ZmqSocketType.Rep);
             _socket.Bind(address);
             Task.Factory.StartNew(Run, TaskCreationOptions.LongRunning);
         }
@@ -37,7 +38,7 @@ namespace Fibrous.Remoting
             TRequest request = _requestUnmarshaller(buffer);
             TReply reply = _internalChannel.SendRequest(request).Receive(TimeSpan.FromMinutes(5)).Value; //??
             byte[] replyData = _replyMarshaller(reply);
-            _socket.Send(replyData, _timeout);
+            _socket.Send(replyData);
         }
 
         private void Run()
@@ -47,7 +48,7 @@ namespace Fibrous.Remoting
                 //check for time/cutoffs to trigger events...
                 try
                 {
-                    Message msg = _socket.ReceiveMessage();
+                    NetMQMessage msg = _socket.ReceiveMessage();
                     if (msg.IsEmpty)
                         continue;
                     ProcessRequest(msg[0].Buffer);

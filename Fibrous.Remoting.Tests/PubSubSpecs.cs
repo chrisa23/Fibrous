@@ -3,9 +3,10 @@
     using System;
     using System.Text;
     using System.Threading;
-    using CrossroadsIO;
+    
     using FluentAssertions;
     using NUnit.Framework;
+    using NetMQ;
 
     [TestFixture]
     public class WhenMsgIsSentPubSub : PubSubSpecs
@@ -29,8 +30,8 @@
 
     public abstract class PubSubSpecs
     {
-        protected static Context Context1;
-        protected static Context Context2;
+        protected static NetMQContext Context1;
+        protected static NetMQContext Context2;
         protected static SendSocket<string> Send;
         protected static SubscribeSocket<string> Subscriber;
         protected static Fiber ClientFiber;
@@ -41,14 +42,14 @@
         public PubSubSpecs()
         {
             ClientFiber = PoolFiber.StartNew();
-            Context1 = Context.Create();
+            Context1 = NetMQContext.Create();
             Send = new SendSocket<string>(Context1,
                 "tcp://*:6001",
                 s => Encoding.Unicode.GetBytes(s));
-            Context2 = Context.Create();
+            Context2 = NetMQContext.Create();
             RcvdSignal = new ManualResetEvent(false);
             Subscriber = new SubscribeSocket<string>(Context2,
-                "tcp://localhost:6001",
+                "tcp://127.0.0.1:6001",
                 x => Encoding.Unicode.GetString(x),
                 Channel);
             Subscriber.SubscribeAll();

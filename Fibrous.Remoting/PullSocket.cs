@@ -1,14 +1,16 @@
 namespace Fibrous.Remoting
 {
     using System;
-    using CrossroadsIO;
+    
+    using NetMQ;
+    using NetMQ.zmq;
 
     public sealed class PullSocket<T> : ReceiveSocketBase<T>
     {
-        public PullSocket(Context context, string address, Func<byte[], T> msgReceiver, IPublisherPort<T> output, bool useBind = true)
+        public PullSocket(NetMQContext context, string address, Func<byte[], T> msgReceiver, IPublisherPort<T> output, bool useBind = true)
             : base(context, msgReceiver, output)
         {
-            Socket = context.CreateSocket(SocketType.PULL);
+            Socket = context.CreateSocket(ZmqSocketType.Pull);
             if (useBind)
                 Socket.Bind(address);
             else

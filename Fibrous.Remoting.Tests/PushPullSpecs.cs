@@ -4,9 +4,11 @@
     using System.Diagnostics;
     using System.Text;
     using System.Threading;
-    using CrossroadsIO;
+    
     using FluentAssertions;
     using NUnit.Framework;
+    using NetMQ;
+    using NetMQ.zmq;
 
     [TestFixture]
     public class WhenMsgIsSent : PushPullSocketPortSpecs
@@ -54,8 +56,8 @@
 
     public abstract class PushPullSocketPortSpecs
     {
-        protected static Context Context1;
-        protected static Context Context2;
+        protected static NetMQContext Context1;
+        protected static NetMQContext Context2;
         protected static SendSocket<string> Push;
         protected static PullSocket<string> Pull;
         protected static Fiber ClientFiber;
@@ -65,15 +67,15 @@
 
         public PushPullSocketPortSpecs()
         {
-            Context1 = Context.Create();
-            Context2 = Context.Create();
+            Context1 = NetMQContext.Create();
+            Context2 = NetMQContext.Create();
             RcvdSignal = new ManualResetEvent(false);
             ClientFiber = PoolFiber.StartNew();
             Pull = new PullSocket<string>(Context1, "tcp://*:6002", x => Encoding.Unicode.GetString(x), Channel);
             Push = new SendSocket<string>(Context2,
-                "tcp://localhost:6002",
+                "tcp://127.0.0.1:6002",
                 s => Encoding.Unicode.GetBytes(s),
-                SocketType.PUSH,
+                ZmqSocketType.Push,
                 false);
         }
 
