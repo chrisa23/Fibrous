@@ -9,7 +9,7 @@ namespace Fibrous
     /// <summary>
     /// Fiber that uses a thread pool for execution.
     /// </summary>
-    public sealed class PoolFiber : Fiber
+    public sealed class PoolFiber : FiberBase
     {
         private readonly object _lock = new object();
         private readonly TaskFactory _taskFactory;
@@ -52,8 +52,8 @@ namespace Fibrous
 
         private void Flush()
         {
-            IEnumerable<Action> toExecute = ClearActions();
-            if (toExecute != null)
+            List<Action> toExecute = ClearActions();
+            if (toExecute.Count > 0)
             {
                 Executor.Execute(toExecute);
                 lock (_lock)
@@ -69,14 +69,14 @@ namespace Fibrous
             }
         }
 
-        private IEnumerable<Action> ClearActions()
+        private List<Action> ClearActions()
         {
             lock (_lock)
             {
                 if (_queue.Count == 0)
                 {
                     _flushPending = false;
-                    return null;
+                    return Queue.Empty;
                 }
                 Lists.Swap(ref _queue, ref _toPass);
                 _queue.Clear();
@@ -84,14 +84,14 @@ namespace Fibrous
             }
         }
 
-        public static Fiber StartNew()
+        public static FiberBase StartNew()
         {
             var fiber = new PoolFiber();
             fiber.Start();
             return fiber;
         }
 
-        public static Fiber StartNew(Executor exec)
+        public static FiberBase StartNew(Executor exec)
         {
             var fiber = new PoolFiber(exec);
             fiber.Start();

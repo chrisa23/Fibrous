@@ -5,7 +5,7 @@ namespace Fibrous
     using System.Threading;
     using Fibrous.Scheduling;
 
-    public abstract class Fiber : Disposables, IExecutionContext, IScheduler
+    public abstract class FiberBase : Disposables, IFiber
     {
         private enum ExecutionState
         {
@@ -19,19 +19,19 @@ namespace Fibrous
         private ExecutionState _started = ExecutionState.Created;
         private readonly List<Action> _preQueue = new List<Action>();
 
-        protected Fiber(Executor executor, IFiberScheduler scheduler)
+        protected FiberBase(Executor executor, IFiberScheduler scheduler)
         {
             _fiberScheduler = scheduler;
             Executor = executor;
         }
 
-        protected Fiber(Executor executor)
+        protected FiberBase(Executor executor)
         {
             _fiberScheduler = new TimerScheduler();
             Executor = executor;
         }
 
-        protected Fiber()
+        protected FiberBase()
             : this(new Executor(), new TimerScheduler())
         {
         }
@@ -40,21 +40,30 @@ namespace Fibrous
         {
         }
 
-        public Fiber Start()
+        public IFiber Start()
         {
-            if (_started == ExecutionState.Running)
-                throw new ThreadStateException("Already Started");
-            _started = ExecutionState.Running;
+            if (_started == ExecutionState.Running) return this;//??just ignore.  why explode?
+            
             InternalStart();
             lock (_preQueue)
             {
                 if (_preQueue.Count > 0)
                 {
-                    Action[] actions = _preQueue.ToArray();
-                    InternalEnqueue(() => Executor.Execute(actions));
+                    InternalEnqueue(() => Executor.Execute(_preQueue));
                 }
+                _started = ExecutionState.Running;
             }
             return this;
+        }
+
+        public void Stop()
+        {
+            if (_started != ExecutionState.Running) return;//??just ignore.  why explode?
+
+            lock (_preQueue)
+            {
+                _started = ExecutionState.Created;
+            }
         }
 
         public void Enqueue(Action action)

@@ -10,7 +10,7 @@ namespace Fibrous.Scheduling
         private bool _cancelled;
         private Timer _timer;
 
-        public TimerAction(Fiber fiber, Action action, TimeSpan dueTime)
+        public TimerAction(IFiber fiber, Action action, TimeSpan dueTime)
         {
             _action = action;
             _interval = TimeSpan.FromMilliseconds(-1);
@@ -18,7 +18,7 @@ namespace Fibrous.Scheduling
             fiber.Add(this);
         }
 
-        public TimerAction(Fiber fiber, Action action, TimeSpan dueTime, TimeSpan interval)
+        public TimerAction(IFiber fiber, Action action, TimeSpan dueTime, TimeSpan interval)
         {
             _action = action;
             _interval = interval;
@@ -32,7 +32,7 @@ namespace Fibrous.Scheduling
             DisposeTimer();
         }
 
-        private void ExecuteOnTimerThread(Fiber fiber)
+        private void ExecuteOnTimerThread(IFiber fiber)
         {
             if (_interval.Ticks == TimeSpan.FromMilliseconds(-1).Ticks || _cancelled)
             {

@@ -49,9 +49,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DispatcherFiber.cs" />
+    <Compile Include="FiberExtensions.cs" />
     <Compile Include="FormFiber.cs" />
+    <Compile Include="IFiber.cs" />
     <Compile Include="IRequestChannel.cs" />
-    <Compile Include="Experimental\ListChannel.cs" />
+    <Compile Include="Channels\ListChannel.cs" />
     <Compile Include="Experimental\BlockingWait.cs" />
     <Compile Include="Experimental\BooleanArray.cs" />
     <Compile Include="Experimental\DisruptorQueue.cs" />
@@ -60,7 +62,7 @@
     <Compile Include="Experimental\Sequence.cs" />
     <Compile Include="Experimental\YieldingWaitStrategy.cs" />
     <Compile Include="Result.cs" />
-    <Compile Include="StateChannel.cs" />
+    <Compile Include="Channels\StateChannel.cs" />
     <Compile Include="Experimental\ActionQueue.cs" />
     <Compile Include="Experimental\CachePadding.cs" />
     <Compile Include="Experimental\HiPerfQueue.cs" />
@@ -69,25 +71,21 @@
     <Compile Include="Experimental\PaddedLong.cs" />
     <Compile Include="Queues\Queue.cs" />
     <Compile Include="Experimental\SleepingQueue.cs" />
-    <Compile Include="Experimental\YieldingQueue.cs" />
-    <Compile Include="IReply.cs" />
+    <Compile Include="Queues\YieldingQueue.cs" />
     <Compile Include="IScheduler.cs" />
-    <Compile Include="Experimental\ISnapshotPublisherPort.cs" />
+    <Compile Include="Channels\ISnapshotPublisherPort.cs" />
     <Compile Include="Event.cs" />
-    <Compile Include="Experimental\ISnapshotChannel.cs" />
-    <Compile Include="IRequestHandlerPort.cs" />
+    <Compile Include="Channels\ISnapshotChannel.cs" />
     <Compile Include="ExceptionHandlingExecutor.cs" />
     <Compile Include="Scheduling\TimerAction.cs" />
     <Compile Include="Scheduling\PendingAction.cs" />
     <Compile Include="DisposeAction.cs" />
     <Compile Include="SubscriberPortExtensions.cs" />
     <Compile Include="Unsubscriber.cs" />
-    <Compile Include="Experimental\SnapshotChannel.cs" />
-    <Compile Include="Fiber.cs" />
+    <Compile Include="Channels\SnapshotChannel.cs" />
+    <Compile Include="FiberBase.cs" />
     <Compile Include="GuiFiber.cs" />
-    <Compile Include="IRequestPort.cs" />
     <Compile Include="Scheduling\BatchSubscriber.cs" />
-    <Compile Include="IRequest.cs" />
     <Compile Include="Scheduling\KeyedBatchSubscriber.cs" />
     <Compile Include="Scheduling\LastSubscriber.cs" />
     <Compile Include="Channel.cs" />
@@ -97,11 +95,10 @@
     <Compile Include="Scheduling\BatchSubscriberBase.cs" />
     <Compile Include="IChannel.cs" />
     <Compile Include="QueueChannel.cs" />
-    <Compile Include="Queues\BusyWaitQueue.cs" />
     <Compile Include="IExecutionContext.cs" />
     <Compile Include="Executor.cs" />
     <Compile Include="IQueue.cs" />
-    <Compile Include="IFiberScheduler.cs" />
+    <Compile Include="Scheduling\IFiberScheduler.cs" />
     <Compile Include="IDisposableRegistry.cs" />
     <Compile Include="Queues\Lists.cs" />
     <Compile Include="Scheduling\TimerScheduler.cs" />
@@ -111,6 +108,7 @@
     <Compile Include="ThreadFiber.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -9,7 +9,7 @@ namespace Fibrous.Scheduling
         private List<T> _pending;
 
         public BatchSubscriber(ISubscriberPort<T> channel,
-                               Fiber fiber,
+                               IFiber fiber,
                                TimeSpan interval,
                                Action<T[]> receive)
             : base(channel, fiber, interval)

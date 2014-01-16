@@ -4,7 +4,7 @@ namespace Fibrous.Scheduling
 
     internal sealed class TimerScheduler : IFiberScheduler
     {
-        public IDisposable Schedule(Fiber fiber, Action action, TimeSpan dueTime)
+        public IDisposable Schedule(IFiber fiber, Action action, TimeSpan dueTime)
         {
             if (dueTime.TotalMilliseconds <= 0)
             {
@@ -15,7 +15,7 @@ namespace Fibrous.Scheduling
             return new TimerAction(fiber, action, dueTime);
         }
 
-        public IDisposable Schedule(Fiber fiber, Action action, TimeSpan dueTime, TimeSpan interval)
+        public IDisposable Schedule(IFiber fiber, Action action, TimeSpan dueTime, TimeSpan interval)
         {
             return new TimerAction(fiber, action, dueTime, interval);
         }

@@ -4,17 +4,19 @@
     using System.Collections.Generic;
     using System.Threading;
     using Fibrous.Experimental;
+    using Fibrous.Queues;
     using Fibrous.Scheduling;
     using NUnit.Framework;
 
     public class PerfExecutor : Executor
     {
-        public override void Execute(IEnumerable<Action> toExecute)
+        public override void Execute(List<Action> toExecute)
         {
             //    Console.WriteLine("execute_more");
             int count = 0;
-            foreach (Action action in toExecute)
+            for (int index   = 0; index < toExecute.Count; index++)
             {
+                Action action = toExecute[index];
                 action();
                 count++;
             }
@@ -53,7 +55,7 @@
         //    PointToPointPerfTestWithObject(new BufferBlockQueue(new PerfExecutor()));
         //    //     RunQueue(new BufferBlockQueue(new PerfExecutor()));
         //}
-        private static void PointToPointPerfTestWithStruct(Fiber fiber)
+        private static void PointToPointPerfTestWithStruct(FiberBase fiber)
         {
             using (fiber)
             {
@@ -113,7 +115,7 @@
         }
 
         //[Test, Explicit]
-        public void PointToPointPerfTestWithInt(Fiber fiber)
+        public void PointToPointPerfTestWithInt(FiberBase fiber)
         {
             using (fiber)
             {
@@ -134,7 +136,7 @@
         }
 
         //    [Test, Explicit]
-        public void PointToPointPerfTestWithObject(Fiber fiber)
+        public void PointToPointPerfTestWithObject(FiberBase fiber)
         {
             using (fiber)
             {
@@ -202,16 +204,24 @@
             PointToPointPerfTestWithInt(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new YieldingQueue(), ""));
             PointToPointPerfTestWithObject(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new YieldingQueue(), ""));
         }
+        //[Test]
+        //[Explicit]
+        //public void TestDefaultBusyWait()
+        //{
+        //    PointToPointPerfTestWithStruct(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new DefaultQueue(), ""));
+        //    PointToPointPerfTestWithInt(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new DefaultQueue(), ""));
+        //    PointToPointPerfTestWithObject(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new DefaultQueue(), ""));
+        //}
 
 
-        [Test]
-        [Explicit]
-        public void TestDefaultDisruptor()
-        {
-            PointToPointPerfTestWithStruct(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new DisruptorQueue(1024*1024), ""));
-            PointToPointPerfTestWithInt(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new DisruptorQueue(1024 * 1024), ""));
-            PointToPointPerfTestWithObject(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new DisruptorQueue(1024 * 1024), ""));
-        }
+        //[Test]
+        //[Explicit]
+        //public void TestDefaultDisruptor()
+        //{
+        //    PointToPointPerfTestWithStruct(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new DisruptorQueue(1024*1024), ""));
+        //    PointToPointPerfTestWithInt(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new DisruptorQueue(1024 * 1024), ""));
+        //    PointToPointPerfTestWithObject(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new DisruptorQueue(1024 * 1024), ""));
+        //}
 
 
         [Test]

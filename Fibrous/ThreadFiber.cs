@@ -2,34 +2,33 @@ namespace Fibrous
 {
     using System;
     using System.Threading;
+    using Fibrous.Experimental;
     using Fibrous.Queues;
     using Fibrous.Scheduling;
 
     /// <summary>
     ///   Fiber implementation backed by a dedicated thread., needs a thread safe queue
-    ///   <see cref = "Fiber" />
+    ///   <see cref = "FiberBase" />
     /// </summary>
-    public sealed class ThreadFiber : Fiber
+    public sealed class ThreadFiber : FiberBase
     {
         private static int threadCount;
-        private readonly bool _isBackground;
-        private readonly ThreadPriority _priority;
         private readonly IQueue _queue;
         private readonly Thread _thread;
         private volatile bool _running;
 
         public ThreadFiber(string threadName)
-            : this(new Executor(), new TimerScheduler(), new DefaultQueue(), threadName)
+            : this(new Executor(), new TimerScheduler(), new SleepingQueue(), threadName)
         {
         }
 
         public ThreadFiber(Executor executor, string name)
-            : this(executor, new TimerScheduler(), new DefaultQueue(), name)
+            : this(executor, new TimerScheduler(), new SleepingQueue(), name)
         {
         }
 
         public ThreadFiber(Executor executor)
-            : this(executor, new TimerScheduler(), new DefaultQueue(), "ThreadFiber-" + GetNextThreadId())
+            : this(executor, new TimerScheduler(), new SleepingQueue(), "ThreadFiber-" + GetNextThreadId())
         {
         }
 
@@ -54,9 +53,7 @@ namespace Fibrous
                            ThreadPriority priority = ThreadPriority.Normal) : base(executor, fiberScheduler)
         {
             _queue = queue;
-            _isBackground = isBackground;
-            _priority = priority;
-            _thread = new Thread(RunThread) { Name = threadName, IsBackground = _isBackground, Priority = _priority };
+            _thread = new Thread(RunThread) { Name = threadName, IsBackground = isBackground, Priority = priority };
         }
 
         private static int GetNextThreadId()
@@ -67,7 +64,7 @@ namespace Fibrous
         private void RunThread()
         {
             while (_running)
-                _queue.Drain(Executor);
+                Executor.Execute(_queue.Drain());
         }
 
         protected override void InternalEnqueue(Action action)
@@ -91,21 +88,21 @@ namespace Fibrous
             base.Dispose(disposing);
         }
 
-        public static Fiber StartNew()
+        public static FiberBase StartNew()
         {
             var fiber = new ThreadFiber();
             fiber.Start();
             return fiber;
         }
 
-        public static Fiber StartNew(Executor executor)
+        public static IFiber StartNew(Executor executor)
         {
             var fiber = new ThreadFiber(executor);
             fiber.Start();
             return fiber;
         }
 
-        public static Fiber StartNew(string name)
+        public static IFiber StartNew(string name)
         {
             var fiber = new ThreadFiber(name);
             return fiber.Start();

@@ -2,7 +2,7 @@ namespace Fibrous
 {
     using System;
 
-    public abstract class GuiFiber : Fiber
+    public abstract class GuiFiber : FiberBase
     {
         private readonly IExecutionContext _executionContext;
 

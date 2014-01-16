@@ -13,7 +13,7 @@ namespace Fibrous.Tests
         {
             int executionCount = 0;
             Action action = () => executionCount++;
-            using (Fiber stubFiber = StubFiber.StartNew())
+            using (IFiber stubFiber = StubFiber.StartNew())
             {
                 var timer = new TimerAction(stubFiber,
                     action,

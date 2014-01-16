@@ -11,7 +11,7 @@
         private readonly IRequestChannel<TRequest, TReply> _internalChannel = new RequestChannel<TRequest, TReply>();
         //split InSocket
         private readonly NetMQContext _context;
-        private readonly Fiber _stub = StubFiber.StartNew();
+        private readonly IFiber _stub = StubFiber.StartNew();
         private readonly Func<TReply, byte[]> _replyMarshaller;
         //split OutSocket
         private readonly NetMQSocket _replySocket;
@@ -82,7 +82,7 @@
             _replySocket.Dispose();
         }
 
-        public IDisposable SetRequestHandler(Fiber fiber, Action<IRequest<TRequest, TReply>> onRequest)
+        public IDisposable SetRequestHandler(IFiber fiber, Action<IRequest<TRequest, TReply>> onRequest)
         {
             return _internalChannel.SetRequestHandler(fiber, onRequest);
         }

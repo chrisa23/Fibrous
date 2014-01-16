@@ -1,10 +1,11 @@
 namespace Fibrous
 {
     using System;
+    using System.Collections.Generic;
 
     public interface IQueue : IDisposable
     {
         void Enqueue(Action action);
-        void Drain(Executor executor);
+        List<Action> Drain();
     }
 }

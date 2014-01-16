@@ -2,7 +2,7 @@ namespace Fibrous
 {
     using System;
 
-    public sealed class Unsubscriber : IDisposable
+    internal sealed class Unsubscriber : IDisposable
     {
         private readonly IDisposable _disposable;
         private readonly IDisposableRegistry _disposables;

@@ -13,3 +13,28 @@ Some of the library benefits:
  - Excellent batching support
  - UI throttling and redraw can be controlled easily
  - Build micro-services
+
+
+ Examples:
+	 //create a fiber that is already started and backed by a thread pool
+	 IFiber fiber = PoolFiber.StartNew();
+	 
+	 //You can enqueue methods
+	 fiber.Enqueue(SomeParameterlessMethod);
+ 
+	 //or lambdas
+	 fiber.Enqueue(() => DoSomeWork());
+
+	 //You can schedule when things happen
+	 fiber.Schedule(ScheduledMethod, when);
+	 //and also have them repeat
+	 fiber.Schedule(ScheduledMethod, when, repeat);
+
+
+	 IChannel<string> channel = new Channel<string>();
+
+	 channel.Subscribe(fiber, (s) => Console.WriteLine(s.ToUpper()));
+
+	 channel.Publish("the message");
+
+	

@@ -4,6 +4,6 @@ namespace Fibrous.Experimental
 
     public interface ISnapshotPublisherPort<in T> : IPublisherPort<T>
     {
-        IDisposable ReplyToPrimingRequest(Fiber fiber, Func<T[]> reply);
+        IDisposable ReplyToPrimingRequest(IFiber fiber, Func<T[]> reply);
     }
 }

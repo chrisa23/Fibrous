@@ -5,11 +5,11 @@ namespace Fibrous.Scheduling
     internal abstract class BatchSubscriberBase<T> : IDisposable
     {
         protected readonly object BatchLock = new object();
-        protected readonly Fiber Fiber;
+        protected readonly IFiber Fiber;
         protected readonly TimeSpan Interval;
         private readonly IDisposable _sub;
 
-        protected BatchSubscriberBase(ISubscriberPort<T> channel, Fiber fiber, TimeSpan interval)
+        protected BatchSubscriberBase(ISubscriberPort<T> channel, IFiber fiber, TimeSpan interval)
         {
             _sub = channel.Subscribe(fiber, OnMessage);
             Fiber = fiber;

@@ -12,8 +12,8 @@
         [Test]
         public void Snapshot()
         {
-            using (Fiber fiber = PoolFiber.StartNew())
-            using (Fiber fiber2 = PoolFiber.StartNew())
+            using (IFiber fiber = PoolFiber.StartNew())
+            using (IFiber fiber2 = PoolFiber.StartNew())
             {
                 var list = new List<string> { "Prime" };
                 var channel = new SnapshotChannel<string>();

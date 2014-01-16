@@ -84,8 +84,8 @@
     {
         protected static RequestHandlerSocket<string, string> Service;
         protected static RequestSocket<string, string> Client;
-        protected static Fiber ClientFiber;
-        protected static Fiber ServerFiber;
+        protected static IFiber ClientFiber;
+        protected static IFiber ServerFiber;
         protected static string Reply;
         protected static ManualResetEvent Replied;
         protected static NetMQContext ClientContext;
@@ -103,13 +103,13 @@
             Func<byte[], string> unmarshaller = x => Encoding.Unicode.GetString(x);
             Func<string, byte[]> marshaller = x => Encoding.Unicode.GetBytes(x);
             Service = new RequestHandlerSocket<string, string>(ServerContext,
-                "tcp://*:9997",
+                "tcp://Monster:9997",
                 unmarshaller,
                 marshaller);
             Service.SetRequestHandler(ServerFiber, request => request.Reply(request.Request.ToUpper()));
             Console.WriteLine("Start service");
             Client = new RequestSocket<string, string>(ClientContext,
-                "tcp://127.0.0.1:9997",
+                "tcp://Monster:9997",
                 marshaller,
                 unmarshaller);
             Console.WriteLine("Start client");

@@ -15,7 +15,7 @@ namespace Fibrous.Tests
         [Test]
         public void Multiple()
         {
-            var queues = new List<Fiber>();
+            var queues = new List<IFiber>();
             int receiveCount = 0;
             using (var reset = new AutoResetEvent(false))
             {
@@ -34,7 +34,7 @@ namespace Fibrous.Tests
                                 reset.Set();
                         }
                     };
-                    Fiber fiber = PoolFiber.StartNew();
+                    IFiber fiber = PoolFiber.StartNew();
                     queues.Add(fiber);
                     channel.Subscribe(fiber, onReceive);
                 }
@@ -49,7 +49,7 @@ namespace Fibrous.Tests
         public void SingleConsumer()
         {
             int oneConsumed = 0;
-            using (Fiber one = PoolFiber.StartNew())
+            using (IFiber one = PoolFiber.StartNew())
             using (var reset = new AutoResetEvent(false))
             {
                 var channel = new QueueChannel<int>();
@@ -71,7 +71,7 @@ namespace Fibrous.Tests
         {
             var failed = new List<Exception>();
             var exec = new ExceptionHandlingExecutor(failed.Add);
-            using (Fiber one = PoolFiber.StartNew(exec))
+            using (IFiber one = PoolFiber.StartNew(exec))
             using (var reset = new AutoResetEvent(false))
             {
                 var channel = new QueueChannel<int>();
@@ -92,7 +92,7 @@ namespace Fibrous.Tests
         [Test]
         public void MultiConsumer()
         {
-            var queues = new List<Fiber>();
+            var queues = new List<FiberBase>();
             IChannel<string> channel = new QueueChannel<string>();
 
             //Init executing Fibers
@@ -101,9 +101,10 @@ namespace Fibrous.Tests
                 Action<string> onReceive = (message) =>
                 {
                     var firstChar = message[0];
+                    
                 };
 
-                Fiber threadFiber = new ThreadFiber(new Executor(),new TimerScheduler(),new YieldingQueue() , i.ToString());//new DisruptorQueue(1024*1024)
+                FiberBase threadFiber = new ThreadFiber(new Executor(),new TimerScheduler(),new SleepingQueue() , i.ToString());//new DisruptorQueue(1024*1024)
                 queues.Add(threadFiber);
                 channel.Subscribe(threadFiber, onReceive);
             }
@@ -130,12 +131,53 @@ namespace Fibrous.Tests
             //4 ThreadFiber ~=> 8sec
             //5 ThreadFiber ~=> 10sec
         }
+        [Test]
+        public void MultiConsumerYielding()
+        {
+            var queues = new List<FiberBase>();
+            IChannel<string> channel = new QueueChannel<string>();
 
+            //Init executing Fibers
+            for (int i = 0; i < 5; i++)
+            {
+                Action<string> onReceive = (message) =>
+                {
+                    var firstChar = message[0];
+
+                };
+
+                FiberBase threadFiber = new ThreadFiber(new Executor(), new TimerScheduler(), new YieldingQueue(), i.ToString());//new DisruptorQueue(1024*1024)
+                queues.Add(threadFiber);
+                channel.Subscribe(threadFiber, onReceive);
+            }
+
+
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+            //Push messages
+            for (int i = 0; i < 1000000; i++)
+            {
+                string msg = "[" + i + "] Push";
+                channel.Publish(msg);
+            }
+            sw.Stop();
+
+            Console.WriteLine("End : " + sw.ElapsedMilliseconds);
+            // Console.ReadLine();
+
+            //#Results:
+            //1 ThreadFiber ~= 1sec
+            //2 ThreadFiber ~=> 3sec
+            //3 ThreadFiber ~=> 5sec
+            //4 ThreadFiber ~=> 8sec
+            //5 ThreadFiber ~=> 10sec
+        }
 
         [Test]
         public void MultiConsumerPool()
         {
-            var queues = new List<Fiber>();
+            var queues = new List<IFiber>();
             IChannel<string> channel = new QueueChannel<string>();
 
             //Init executing Fibers
@@ -147,7 +189,7 @@ namespace Fibrous.Tests
                     //Console.WriteLine("[{0}] {1}", Thread.CurrentThread.ManagedThreadId, message);
                 };
 
-                Fiber threadFiber = PoolFiber.StartNew();//new ThreadFiber(new Executor(),new TimerScheduler(),new YieldingQueue() , i.ToString());//new DisruptorQueue(1024*1024)
+                IFiber threadFiber = PoolFiber.StartNew();//new ThreadFiber(new Executor(),new TimerScheduler(),new YieldingQueue() , i.ToString());//new DisruptorQueue(1024*1024)
                 queues.Add(threadFiber);
                 channel.Subscribe(threadFiber, onReceive);
             }

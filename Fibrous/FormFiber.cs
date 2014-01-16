@@ -15,14 +15,14 @@ namespace Fibrous
         {
         }
 
-        public static Fiber StartNew(ISynchronizeInvoke invoker)
+        public static FiberBase StartNew(ISynchronizeInvoke invoker)
         {
             var fiber = new FormFiber(invoker);
             fiber.Start();
             return fiber;
         }
 
-        public static Fiber StartNew(Executor executor, ISynchronizeInvoke invoker)
+        public static FiberBase StartNew(Executor executor, ISynchronizeInvoke invoker)
         {
             var fiber = new FormFiber(executor, invoker);
             fiber.Start();

@@ -9,7 +9,7 @@
         public void TestName()
         {
             IRequestChannel<int, int> channel = new RequestChannel<int, int>();
-            Fiber fiber1 = PoolFiber.StartNew();
+            IFiber fiber1 = PoolFiber.StartNew();
         }
     }
 }

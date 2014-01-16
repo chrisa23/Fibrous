@@ -34,7 +34,7 @@
         protected static NetMQContext Context2;
         protected static SendSocket<string> Send;
         protected static SubscribeSocket<string> Subscriber;
-        protected static Fiber ClientFiber;
+        protected static IFiber ClientFiber;
         protected static string Received;
         protected static ManualResetEvent RcvdSignal;
         protected static IChannel<string> Channel = new Channel<string>();
@@ -44,12 +44,12 @@
             ClientFiber = PoolFiber.StartNew();
             Context1 = NetMQContext.Create();
             Send = new SendSocket<string>(Context1,
-                "tcp://*:6001",
+                "tcp://localhost:6001",
                 s => Encoding.Unicode.GetBytes(s));
             Context2 = NetMQContext.Create();
             RcvdSignal = new ManualResetEvent(false);
             Subscriber = new SubscribeSocket<string>(Context2,
-                "tcp://127.0.0.1:6001",
+                "tcp://localhost:6001",
                 x => Encoding.Unicode.GetString(x),
                 Channel);
             Subscriber.SubscribeAll();

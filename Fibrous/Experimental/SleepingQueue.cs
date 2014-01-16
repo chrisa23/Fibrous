@@ -8,8 +8,8 @@ namespace Fibrous.Experimental
 
     public sealed class SleepingQueue : IQueue
     {
-        protected List<Action> Actions = new List<Action>();
-        protected List<Action> ToPass = new List<Action>();
+        protected List<Action> Actions = new List<Action>(1024);
+        protected List<Action> ToPass = new List<Action>(1024);
 
         private const int SpinTries = 100;
         private PaddedBoolean _signalled = new PaddedBoolean(false);
@@ -38,12 +38,14 @@ namespace Fibrous.Experimental
             _signalled.LazySet(true);
         }
 
-        public void Drain(Executor executor)
+        public List<Action> Drain()
         {
-            executor.Execute(DequeueAll());
+            return DequeueAll();
         }
 
-        private IEnumerable<Action> DequeueAll()
+        public int Count { get { return Actions.Count; } }
+
+        private List<Action> DequeueAll()
         {
             Wait();
             lock (_syncRoot)

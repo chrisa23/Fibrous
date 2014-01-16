@@ -2,6 +2,10 @@ namespace Fibrous
 {
     using System;
 
+    /// <summary>
+    /// Channel that maintains its last value which is passed to new subscribers
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public sealed class StateChannel<T> : IChannel<T>
     {
         private readonly object _lock = new object();
@@ -9,7 +13,7 @@ namespace Fibrous
         private bool _hasValue;
         private readonly IChannel<T> _updateChannel = new Channel<T>();
 
-        public IDisposable Subscribe(Fiber fiber, Action<T> handler)
+        public IDisposable Subscribe(IFiber fiber, Action<T> handler)
         {
             lock (_lock)
             {

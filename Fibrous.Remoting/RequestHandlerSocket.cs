@@ -61,7 +61,7 @@ namespace Fibrous.Remoting
             _socket.Dispose();
         }
 
-        public IDisposable SetRequestHandler(Fiber fiber, Action<IRequest<TRequest, TReply>> onRequest)
+        public IDisposable SetRequestHandler(IFiber fiber, Action<IRequest<TRequest, TReply>> onRequest)
         {
             return _internalChannel.SetRequestHandler(fiber, onRequest);
         }

@@ -84,8 +84,8 @@
     {
         protected static AsyncRequestHandlerSocket<string, string> Service;
         protected static AsyncRequestSocket<string, string> Client;
-        protected static Fiber ClientFiber;
-        protected static Fiber ServerFiber;
+        protected static IFiber ClientFiber;
+        protected static IFiber ServerFiber;
         protected static string Reply;
         protected static ManualResetEvent Replied;
         protected static NetMQContext ClientContext;
@@ -101,7 +101,7 @@
             ServerFiber = PoolFiber.StartNew();
             ServerContext = NetMQContext.Create();
             Service = new AsyncRequestHandlerSocket<string, string>(ServerContext,
-                "tcp://*:9997",
+                "tcp://localhost:9997",
                 unmarshaller,
                 marshaller);
             Service.SetRequestHandler(ServerFiber, request => request.Reply(request.Request.ToUpper()));
@@ -110,7 +110,7 @@
 
             ClientContext = NetMQContext.Create();
             Client = new AsyncRequestSocket<string, string>(ClientContext,
-                "tcp://127.0.0.1:9997",
+                "tcp://localhost:9997",
                 marshaller,
                 unmarshaller);
             Console.WriteLine("Start client");

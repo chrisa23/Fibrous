@@ -11,7 +11,7 @@ namespace Fibrous.Experimental
         private readonly object _lock = new object();
         private readonly IChannel<T> _updateChannel = new Channel<T>();
 
-        public IDisposable Subscribe(Fiber fiber, Action<T> handler)
+        public IDisposable Subscribe(IFiber fiber, Action<T> handler)
         {
             lock (_lock)
             {
@@ -31,10 +31,15 @@ namespace Fibrous.Experimental
             lock (_lock)
             {
                 _list.Add(msg);
-                bool publish = _updateChannel.Publish(msg);
+                var listening = _updateChannel.Publish(msg);
                 Monitor.PulseAll(_lock);
-                return publish;
+                return listening;
             }
+        }
+
+        public void Clear()
+        {
+            _list.Clear();
         }
     }
 }

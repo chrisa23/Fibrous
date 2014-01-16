@@ -7,7 +7,7 @@
 
     public static class FiberTester
     {
-        public static void TestPubSubSimple(Fiber fiber)
+        public static void TestPubSubSimple(IFiber fiber)
         {
             using (fiber)
             using (var reset = new AutoResetEvent(false))
@@ -19,7 +19,7 @@
             }
         }
 
-        public static void TestPubSubWithFilter(Fiber fiber)
+        public static void TestPubSubWithFilter(IFiber fiber)
         {
             using (fiber)
             using (var reset = new AutoResetEvent(false))
@@ -40,7 +40,7 @@
             }
         }
 
-        public static void TestReqReply1(Fiber fiber)
+        public static void TestReqReply1(IFiber fiber)
         {
             var channel = new RequestChannel<string, string>();
             using (fiber)
@@ -51,33 +51,11 @@
             }
         }
 
-        public static void TestReqReply2(Fiber requester, Fiber replier)
-        {
-            using (requester)
-            using (replier)
-            using (var received = new AutoResetEvent(false))
-            {
-                DateTime now = DateTime.Now;
-                var timeCheck = new RequestChannel<string, DateTime>();
-                timeCheck.SetRequestHandler(replier, req => req.Reply(now));
-                DateTime result = DateTime.MinValue;
-                timeCheck.SendRequest("hello",
-                    requester,
-                    x =>
-                    {
-                        result = x;
-                        received.Set();
-                    });
-                received.WaitOne(1000, false);
-                Assert.AreEqual(result, now);
-            }
-        }
-
-        public static void TestScheduling1(Fiber fiber)
+        public static void TestScheduling1(IFiber fiber)
         {
         }
 
-        public static void TestBatching(Fiber fiber)
+        public static void TestBatching(IFiber fiber)
         {
             using (fiber)
             using (var reset = new ManualResetEvent(false))
@@ -97,7 +75,7 @@
             }
         }
 
-        public static void TestBatchingWithKey(Fiber fiber)
+        public static void TestBatchingWithKey(IFiber fiber)
         {
             using (fiber)
             using (var reset = new ManualResetEvent(false))
@@ -117,7 +95,7 @@
             }
         }
 
-        public static void ExecuteOnlyAfterStart(Fiber fiber)
+        public static void ExecuteOnlyAfterStart(IFiber fiber)
         {
             using (fiber)
             using (var reset = new AutoResetEvent(false))
@@ -129,7 +107,7 @@
             }
         }
 
-        public static void InOrderExecution(Fiber fiber)
+        public static void InOrderExecution(IFiber fiber)
         {
             using (fiber)
             using (var reset = new AutoResetEvent(false))

@@ -2,7 +2,10 @@
 {
     using System;
 
-    public sealed class StubFiber : Fiber
+    /// <summary>
+    /// Fiber that executes on caller's thread.  For testing and well understood situations.  Use with caution.
+    /// </summary>
+    public sealed class StubFiber : FiberBase
     {
         public StubFiber(Executor excecutor, IFiberScheduler scheduler) : base(excecutor, scheduler)
         {
@@ -21,13 +24,13 @@
             Executor.Execute(action);
         }
 
-        public static Fiber StartNew()
+        public static IFiber StartNew()
         {
             var fiber = new StubFiber();
             return fiber.Start();
         }
 
-        public static Fiber StartNew(Executor executor)
+        public static IFiber StartNew(Executor executor)
         {
             var fiber = new StubFiber(executor);
             return fiber.Start();

@@ -32,6 +32,7 @@ namespace Fibrous.Remoting
         public bool Publish(T msg)
         {
             _socket.Send(_msgSender(msg));
+
             return true;
         }
 

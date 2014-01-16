@@ -15,7 +15,7 @@ namespace Fibrous.Experimental
         ///<param name="fiber">the target executor to receive the message</param>
         ///<param name="receive"></param>
         ///<param name="receiveSnapshot"> </param>
-        public IDisposable Subscribe(Fiber fiber, Action<T> receive)//, Action<T[]> receiveSnapshot)
+        public IDisposable Subscribe(IFiber fiber, Action<T> receive)//, Action<T[]> receiveSnapshot)
         {
             Action<T[]> receiveSnapshot = obj => Array.ForEach(obj, receive);
             var primedSubscribe = new SnapshotRequest<T, T[]>(fiber, _updatesChannel, receive, receiveSnapshot);
@@ -23,7 +23,7 @@ namespace Fibrous.Experimental
             return primedSubscribe;
         }
 
-        public IDisposable ReplyToPrimingRequest(Fiber fiber, Func<T[]> reply)
+        public IDisposable ReplyToPrimingRequest(IFiber fiber, Func<T[]> reply)
         {
             return _requestChannel.SetRequestHandler(fiber, x => x.Reply(reply()));
         }
@@ -35,14 +35,14 @@ namespace Fibrous.Experimental
 
         private sealed class SnapshotRequest<T, TSnapshot> : IPublisherPort<TSnapshot>, IDisposable
         {
-            private readonly Fiber _fiber;
+            private readonly IFiber _fiber;
             private readonly Action<T> _receive;
             private readonly Action<TSnapshot> _receiveSnapshot;
             private readonly ISubscriberPort<T> _updatesPort;
             private bool _disposed;
             private IDisposable _sub;
 
-            public SnapshotRequest(Fiber fiber,
+            public SnapshotRequest(IFiber fiber,
                                    ISubscriberPort<T> updatesPort,
                                    Action<T> receive,
                                    Action<TSnapshot> receiveSnapshot)

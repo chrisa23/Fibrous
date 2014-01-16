@@ -60,7 +60,7 @@
         protected static NetMQContext Context2;
         protected static SendSocket<string> Push;
         protected static PullSocket<string> Pull;
-        protected static Fiber ClientFiber;
+        protected static IFiber ClientFiber;
         protected static string Received;
         protected static ManualResetEvent RcvdSignal;
         protected static IChannel<string> Channel = new Channel<string>();
@@ -71,9 +71,9 @@
             Context2 = NetMQContext.Create();
             RcvdSignal = new ManualResetEvent(false);
             ClientFiber = PoolFiber.StartNew();
-            Pull = new PullSocket<string>(Context1, "tcp://*:6002", x => Encoding.Unicode.GetString(x), Channel);
+            Pull = new PullSocket<string>(Context1, "tcp://localhost:6002", x => Encoding.Unicode.GetString(x), Channel);
             Push = new SendSocket<string>(Context2,
-                "tcp://127.0.0.1:6002",
+                "tcp://localhost:6002",
                 s => Encoding.Unicode.GetBytes(s),
                 ZmqSocketType.Push,
                 false);

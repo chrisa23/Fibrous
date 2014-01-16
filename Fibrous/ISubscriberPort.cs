@@ -10,6 +10,6 @@ namespace Fibrous
         /// <param name="fiber"></param>
         /// <param name="receive"></param>
         /// <returns></returns>
-        IDisposable Subscribe(Fiber fiber, Action<T> receive);
+        IDisposable Subscribe(IFiber fiber, Action<T> receive);
     }
 }

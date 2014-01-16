@@ -57,7 +57,7 @@ namespace Fibrous.Remoting
             }
         }
 
-        public IDisposable SendRequest(TRequest request, Fiber fiber, Action<TReply> onReply)
+        public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply)
         {
             return _internalChannel.SendRequest(request, fiber, onReply);
         }

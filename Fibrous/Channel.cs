@@ -11,13 +11,13 @@ namespace Fibrous
             return _internalChannel.Publish(msg);
         }
 
-        public IDisposable Subscribe(Fiber fiber, Action<T> receive)
+        public IDisposable Subscribe(IFiber fiber, Action<T> receive)
         {
             IDisposable disposable = _internalChannel.Subscribe(Receive(fiber, receive));
             return new Unsubscriber(disposable, fiber);
         }
 
-        private static Action<T> Receive(Fiber fiber, Action<T> receive)
+        private static Action<T> Receive(IExecutionContext fiber, Action<T> receive)
         {
             return msg => fiber.Enqueue(() => receive(msg));
         }

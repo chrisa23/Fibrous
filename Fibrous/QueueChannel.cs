@@ -18,7 +18,7 @@ namespace Fibrous
             }
         }
 
-        public IDisposable Subscribe(Fiber fiber, Action<TMsg> onMessage)
+        public IDisposable Subscribe(IFiber fiber, Action<TMsg> onMessage)
         {
             return new QueueConsumer(fiber, onMessage, this);
         }
@@ -31,8 +31,11 @@ namespace Fibrous
             }
             Action onSignal = SignalEvent;
             if (onSignal != null)
+            {
                 onSignal();
-            return true;
+                return true;
+            }
+            return false;
         }
 
         internal event Action SignalEvent;

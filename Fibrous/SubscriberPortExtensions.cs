@@ -14,7 +14,7 @@ namespace Fibrous
         /// <param name="interval"> The interval. </param>
         /// <returns>   . </returns>
         public static IDisposable SubscribeToBatch<T>(this ISubscriberPort<T> port,
-                                                      Fiber fiber,
+                                                      IFiber fiber,
                                                       Action<T[]> receive,
                                                       TimeSpan interval)
         {
@@ -22,7 +22,7 @@ namespace Fibrous
         }
 
         public static IDisposable SubscribeToKeyedBatch<TKey, T>(this ISubscriberPort<T> port,
-                                                                 Fiber fiber,
+                                                                 IFiber fiber,
                                                                  Converter<T, TKey> keyResolver,
                                                                  Action<IDictionary<TKey, T>> receive,
                                                                  TimeSpan interval)
@@ -31,7 +31,7 @@ namespace Fibrous
         }
 
         public static IDisposable SubscribeToLast<T>(this ISubscriberPort<T> port,
-                                                     Fiber fiber,
+                                                     IFiber fiber,
                                                      Action<T> receive,
                                                      TimeSpan interval)
         {
@@ -39,7 +39,7 @@ namespace Fibrous
         }
 
         public static IDisposable Subscribe<T>(this ISubscriberPort<T> port,
-                                               Fiber fiber,
+                                               IFiber fiber,
                                                Action<T> receive,
                                                Predicate<T> filter)
         {

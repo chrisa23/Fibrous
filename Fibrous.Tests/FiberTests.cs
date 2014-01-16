@@ -43,16 +43,6 @@
             FiberTester.TestReqReply1(ThreadFiber.StartNew());
             FiberTester.TestReqReply1(PoolFiber.StartNew());
             FiberTester.TestReqReply1(StubFiber.StartNew());
-            FiberTester.TestReqReply2(ThreadFiber.StartNew(), ThreadFiber.StartNew());
-            FiberTester.TestReqReply2(ThreadFiber.StartNew(), PoolFiber.StartNew());
-            FiberTester.TestReqReply2(ThreadFiber.StartNew(), StubFiber.StartNew());
-            FiberTester.TestReqReply2(PoolFiber.StartNew(), PoolFiber.StartNew());
-            FiberTester.TestReqReply2(PoolFiber.StartNew(), ThreadFiber.StartNew());
-            FiberTester.TestReqReply2(PoolFiber.StartNew(), StubFiber.StartNew());
-            //??
-            FiberTester.TestReqReply2(StubFiber.StartNew(), StubFiber.StartNew());
-            FiberTester.TestReqReply2(StubFiber.StartNew(), ThreadFiber.StartNew());
-            FiberTester.TestReqReply2(StubFiber.StartNew(), PoolFiber.StartNew());
         }
 
         [Test]

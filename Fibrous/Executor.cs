@@ -5,10 +5,13 @@ namespace Fibrous
 
     public class Executor
     {
-        public virtual void Execute(IEnumerable<Action> toExecute)
+        public virtual void Execute(List<Action> toExecute)
         {
-            foreach (Action action in toExecute)
+            for (int index = 0; index < toExecute.Count; index++)
+            {
+                Action action = toExecute[index];
                 Execute(action);
+            }
         }
 
         public virtual void Execute(Action toExecute)
