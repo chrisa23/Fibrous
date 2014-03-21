@@ -1,4 +1,4 @@
-namespace Fibrous
+namespace Fibrous.Channels
 {
     using System;
 
@@ -12,6 +12,11 @@ namespace Fibrous
         private T _last;
         private bool _hasValue;
         private readonly IChannel<T> _updateChannel = new Channel<T>();
+
+        public StateChannel(T initial)
+        {
+            _last = initial;
+        }
 
         public IDisposable Subscribe(IFiber fiber, Action<T> handler)
         {

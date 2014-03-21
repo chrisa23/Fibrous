@@ -1,4 +1,4 @@
-namespace Fibrous.Experimental
+namespace Fibrous.Channels
 {
     using System;
 
@@ -15,9 +15,9 @@ namespace Fibrous.Experimental
         ///<param name="fiber">the target executor to receive the message</param>
         ///<param name="receive"></param>
         ///<param name="receiveSnapshot"> </param>
-        public IDisposable Subscribe(IFiber fiber, Action<T> receive)//, Action<T[]> receiveSnapshot)
+        public IDisposable Subscribe(IFiber fiber, Action<T> receive, Action<T[]> receiveSnapshot)
         {
-            Action<T[]> receiveSnapshot = obj => Array.ForEach(obj, receive);
+            //Action<T[]> receiveSnapshot = obj => Array.ForEach(obj, receive);
             var primedSubscribe = new SnapshotRequest<T, T[]>(fiber, _updatesChannel, receive, receiveSnapshot);
             _requestChannel.SendRequest(null, fiber, x => primedSubscribe.Publish(x));
             return primedSubscribe;

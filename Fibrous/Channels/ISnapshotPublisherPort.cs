@@ -1,4 +1,4 @@
-namespace Fibrous.Experimental
+namespace Fibrous.Channels
 {
     using System;
 

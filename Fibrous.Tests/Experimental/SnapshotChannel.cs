@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Threading;
+    using Fibrous.Channels;
     using Fibrous.Experimental;
     using NUnit.Framework;
 
@@ -20,7 +21,8 @@
                 channel.ReplyToPrimingRequest(fiber2, list.ToArray);
                 var primeResult = new List<string>();
                 Action<string> update = primeResult.Add;
-                channel.Subscribe(fiber, update);
+                Action<string[]> snap = primeResult.AddRange;
+                channel.Subscribe(fiber, update, snap);
                 Thread.Sleep(100);
                 channel.Publish("hello");
                 channel.Publish("hello2");
