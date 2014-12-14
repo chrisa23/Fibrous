@@ -126,5 +126,21 @@
                 Assert.AreEqual(100, count);
             }
         }
+
+        public static void TestPubSubWExtraFiber(IFiber fiber, IFiber fiber2)
+        {
+            using (fiber)
+            using (fiber2)
+            using (var reset = new AutoResetEvent(false))
+            using (var reset2 = new AutoResetEvent(false))
+            {
+                var channel = new Channel<string>();
+                channel.Subscribe(fiber, obj => reset.Set());
+                channel.Subscribe(fiber2, obj => reset2.Set());
+                channel.Publish("hello");
+                Assert.IsTrue(reset.WaitOne(5000, false));
+                Assert.IsTrue(reset2.WaitOne(5000, false));
+            }
+        }
     }
 }

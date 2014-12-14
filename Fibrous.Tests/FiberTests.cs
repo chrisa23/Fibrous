@@ -55,5 +55,14 @@
             FiberTester.TestBatchingWithKey(PoolFiber.StartNew());
             FiberTester.TestBatchingWithKey(StubFiber.StartNew());
         }
+
+        [Test]
+        public void TestTwoFibers()
+        {
+            FiberTester.TestPubSubWExtraFiber(ThreadFiber.StartNew(), ThreadFiber.StartNew());
+            FiberTester.TestPubSubWExtraFiber(PoolFiber.StartNew(), ThreadFiber.StartNew());
+            FiberTester.TestPubSubWExtraFiber(PoolFiber.StartNew(), PoolFiber.StartNew());
+            FiberTester.TestPubSubWExtraFiber(PoolFiber.StartNew(), StubFiber.StartNew());
+        }
     }
 }
