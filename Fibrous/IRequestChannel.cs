@@ -4,7 +4,6 @@ namespace Fibrous
 
     public interface IRequestChannel<T, T1> : IRequestPort<T, T1>, IRequestHandlerPort<T, T1>
     {
-
     }
 
     public interface IReply<T>
@@ -17,12 +16,12 @@ namespace Fibrous
         TRequest Request { get; }
         void Reply(TReply reply);
     }
-    
+
     public interface IRequestHandlerPort<out TRequest, in TReply>
     {
         IDisposable SetRequestHandler(IFiber fiber, Action<IRequest<TRequest, TReply>> onRequest);
     }
-    
+
     public interface IRequestPort<in TRequest, TReply>
     {
         IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply); //can this be an extension method?

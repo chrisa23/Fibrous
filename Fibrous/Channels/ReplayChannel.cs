@@ -31,7 +31,7 @@ namespace Fibrous.Channels
             lock (_lock)
             {
                 _list.Add(msg);
-                var listening = _updateChannel.Publish(msg);
+                bool listening = _updateChannel.Publish(msg);
                 Monitor.PulseAll(_lock);
                 return listening;
             }
@@ -50,7 +50,7 @@ namespace Fibrous.Channels
         private readonly object _lock = new object();
         private readonly IChannel<T> _updateChannel = new Channel<T>();
 
-        public KeyedReplayChannel(Func<T,TKey> keyMaker)
+        public KeyedReplayChannel(Func<T, TKey> keyMaker)
         {
             _keyMaker = keyMaker;
         }
@@ -60,10 +60,8 @@ namespace Fibrous.Channels
             lock (_lock)
             {
                 IDisposable disposable = _updateChannel.Subscribe(fiber, handler);
-                foreach (var item in _list.Values)
-                {
+                foreach (T item in _list.Values)
                     handler(item);
-                }
                 return disposable;
             }
         }
@@ -72,8 +70,8 @@ namespace Fibrous.Channels
         {
             lock (_lock)
             {
-                _list[ _keyMaker(msg)]=msg;
-                var listening = _updateChannel.Publish(msg);
+                _list[_keyMaker(msg)] = msg;
+                bool listening = _updateChannel.Publish(msg);
                 Monitor.PulseAll(_lock);
                 return listening;
             }

@@ -74,44 +74,41 @@ namespace Fibrous.Channels
         }
     }
 
+    ////collection snapshot...
+    //public sealed class SnapshotChannel<T> : ISnapshotChannel<T>
+    //{
+    //    //private readonly IRequestChannel<object, T[]> _requestChannel =
+    //    //    new RequestChannel<object, T[]>();
+    //    private readonly IChannel<T> _updatesChannel = new Channel<T>();
+    //    private Fiber _subscribePrimer;
+    //    private Action<Action<T>> _snapshotter;
+    //    ///<summary>
+    //    /// Subscribes for an initial snapshot and then incremental update.
+    //    ///</summary>
+    //    ///<param name="fiber">the target executor to receive the message</param>
+    //    ///<param name="receive"></param>
+    //    ///<param name="receiveSnapshot"> </param>
+    //    public IDisposable Subscribe(Fiber fiber, Action<T> receive)//, Action<T[]> receiveSnapshot)
+    //    {
+    //        //  var primedSubscribe = new SnapshotRequest<T, T[]>(fiber, _updatesChannel, receive, receiveSnapshot);
+    //        _subscribePrimer.Enqueue(() =>
+    //        {
+    //            _snapshotter(receive);
+    //            _updatesChannel.Subscribe(fiber, receive);
+    //        });
+    //        //   _requestChannel.SendRequest(null, fiber, x => primedSubscribe.Publish(x));
+    //        return primedSubscribe;
+    //    }
 
-        ////collection snapshot...
-        //public sealed class SnapshotChannel<T> : ISnapshotChannel<T>
-        //{
-        //    //private readonly IRequestChannel<object, T[]> _requestChannel =
-        //    //    new RequestChannel<object, T[]>();
-        //    private readonly IChannel<T> _updatesChannel = new Channel<T>();
-        //    private Fiber _subscribePrimer;
-        //    private Action<Action<T>> _snapshotter;
-        //    ///<summary>
-        //    /// Subscribes for an initial snapshot and then incremental update.
-        //    ///</summary>
-        //    ///<param name="fiber">the target executor to receive the message</param>
-        //    ///<param name="receive"></param>
-        //    ///<param name="receiveSnapshot"> </param>
-        //    public IDisposable Subscribe(Fiber fiber, Action<T> receive)//, Action<T[]> receiveSnapshot)
-        //    {
-        //        //  var primedSubscribe = new SnapshotRequest<T, T[]>(fiber, _updatesChannel, receive, receiveSnapshot);
-        //        _subscribePrimer.Enqueue(() =>
-        //        {
-        //            _snapshotter(receive);
-        //            _updatesChannel.Subscribe(fiber, receive);
-        //        });
-        //        //   _requestChannel.SendRequest(null, fiber, x => primedSubscribe.Publish(x));
-        //        return primedSubscribe;
-        //    }
+    //    //public IDisposable ReplyToPrimingRequest(Fiber fiber, Func<T[]> reply)
+    //    //{
+    //    //    return _requestChannel.SetRequestHandler(fiber, x => x.Reply(reply()));
+    //    //}
 
-        //    //public IDisposable ReplyToPrimingRequest(Fiber fiber, Func<T[]> reply)
-        //    //{
-        //    //    return _requestChannel.SetRequestHandler(fiber, x => x.Reply(reply()));
-        //    //}
-
-        //    public IDisposable OnSubscribe(Fiber fiber, Action<Action<T>> snapshotter)
-        //{
-        //    _subscribePrimer = fiber;
-        //    _snapshotter = snapshotter;
-        //    return new DisposeAction(() => );
-        //}
-
-         
+    //    public IDisposable OnSubscribe(Fiber fiber, Action<Action<T>> snapshotter)
+    //{
+    //    _subscribePrimer = fiber;
+    //    _snapshotter = snapshotter;
+    //    return new DisposeAction(() => );
+    //}
 }

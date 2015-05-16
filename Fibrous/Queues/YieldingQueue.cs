@@ -8,11 +8,10 @@ namespace Fibrous.Experimental
     using System.Threading;
     using Fibrous.Queues;
 
-    public sealed class YieldingQueue : IQueue 
+    public sealed class YieldingQueue : IQueue
     {
         private List<Action> Actions = new List<Action>(1024);
         private List<Action> ToPass = new List<Action>(1024);
-
         private const int SpinTries = 100;
         private PaddedBoolean _signalled = new PaddedBoolean(false);
 
@@ -35,7 +34,7 @@ namespace Fibrous.Experimental
 
         private readonly object _syncRoot = new object();
 
-        public  void Enqueue(Action action)
+        public void Enqueue(Action action)
         {
             lock (_syncRoot)
             {
@@ -69,12 +68,10 @@ namespace Fibrous.Experimental
         }
     }
 
-
     public sealed class SleepingQueue : IQueue
     {
         protected List<Action> Actions = new List<Action>(1024);
         protected List<Action> ToPass = new List<Action>(1024);
-
         private const int SpinTries = 100;
         private PaddedBoolean _signalled = new PaddedBoolean(false);
         private readonly object _syncRoot = new object();
@@ -138,6 +135,7 @@ namespace Fibrous.Experimental
     {
         public const int CacheLineSize = 64;
     }
+
     /// <summary>
     /// A boolean value that may be updated atomically and is guaranteed to live on its own cache line (to prevent false sharing)
     /// </summary>

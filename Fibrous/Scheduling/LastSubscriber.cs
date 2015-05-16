@@ -9,9 +9,9 @@ namespace Fibrous.Scheduling
         private T _pending;
 
         public LastSubscriber(ISubscriberPort<T> channel,
-                              IFiber fiber,
-                              TimeSpan interval,
-                              Action<T> target)
+            IFiber fiber,
+            TimeSpan interval,
+            Action<T> target)
             : base(channel, fiber, interval)
         {
             _target = target;

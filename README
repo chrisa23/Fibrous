@@ -5,14 +5,13 @@ High performace concurrency library for the .Net platform.  Fibrous is a fork of
 
 Fibrous uses the concept of Fibers and Ports as abstractions.  Fibers represent execution contexts (aka thread/actor) and Ports represent messaging end points.  Channels are in memory conduits, but ports can be implemented on top of network sockets.
 
-A NetMQ/ZMQ based library for remoting is provided.  
+An experimental NetMQ/ZMQ based library for remoting is provided.  
 
 Some of the library benefits:
  - Tiny library that makes multi-threading simple
  - UI fibers for worry free UI marshalling
  - Excellent batching support
  - UI throttling and redraw can be controlled easily
- - Build micro-services
 
 
  Examples:

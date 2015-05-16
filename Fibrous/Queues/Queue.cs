@@ -7,6 +7,4 @@ namespace Fibrous.Queues
     {
         public static readonly List<Action> Empty = new List<Action>();
     }
-
-
 }

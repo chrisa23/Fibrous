@@ -14,34 +14,34 @@ namespace Fibrous
         /// <param name="interval"> The interval. </param>
         /// <returns>   . </returns>
         public static IDisposable SubscribeToBatch<T>(this ISubscriberPort<T> port,
-                                                      IFiber fiber,
-                                                      Action<T[]> receive,
-                                                      TimeSpan interval)
+            IFiber fiber,
+            Action<T[]> receive,
+            TimeSpan interval)
         {
             return new BatchSubscriber<T>(port, fiber, interval, receive);
         }
 
         public static IDisposable SubscribeToKeyedBatch<TKey, T>(this ISubscriberPort<T> port,
-                                                                 IFiber fiber,
-                                                                 Converter<T, TKey> keyResolver,
-                                                                 Action<IDictionary<TKey, T>> receive,
-                                                                 TimeSpan interval)
+            IFiber fiber,
+            Converter<T, TKey> keyResolver,
+            Action<IDictionary<TKey, T>> receive,
+            TimeSpan interval)
         {
             return new KeyedBatchSubscriber<TKey, T>(port, fiber, interval, keyResolver, receive);
         }
 
         public static IDisposable SubscribeToLast<T>(this ISubscriberPort<T> port,
-                                                     IFiber fiber,
-                                                     Action<T> receive,
-                                                     TimeSpan interval)
+            IFiber fiber,
+            Action<T> receive,
+            TimeSpan interval)
         {
             return new LastSubscriber<T>(port, fiber, interval, receive);
         }
 
         public static IDisposable Subscribe<T>(this ISubscriberPort<T> port,
-                                               IFiber fiber,
-                                               Action<T> receive,
-                                               Predicate<T> filter)
+            IFiber fiber,
+            Action<T> receive,
+            Predicate<T> filter)
         {
             Action<T> filteredReceiver = x =>
             {

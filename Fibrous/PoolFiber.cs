@@ -3,7 +3,6 @@ namespace Fibrous
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Fibrous.Experimental;
     using Fibrous.Queues;
 
     /// <summary>
@@ -16,7 +15,7 @@ namespace Fibrous
         private bool _flushPending;
         private List<Action> _queue = new List<Action>();
         private List<Action> _toPass = new List<Action>();
-        
+
         public PoolFiber(Executor config, TaskFactory taskFactory) : base(config)
         {
             _taskFactory = taskFactory;

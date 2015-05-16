@@ -3,7 +3,6 @@ namespace Fibrous
     using System;
     using System.Threading;
     using Fibrous.Experimental;
-    using Fibrous.Queues;
     using Fibrous.Scheduling;
 
     /// <summary>
@@ -46,11 +45,11 @@ namespace Fibrous
         /// <param name = "isBackground"></param>
         /// <param name = "priority"></param>
         public ThreadFiber(Executor executor,
-                           IFiberScheduler fiberScheduler,
-                           IQueue queue,
-                           string threadName,
-                           bool isBackground = true,
-                           ThreadPriority priority = ThreadPriority.Normal) : base(executor, fiberScheduler)
+            IFiberScheduler fiberScheduler,
+            IQueue queue,
+            string threadName,
+            bool isBackground = true,
+            ThreadPriority priority = ThreadPriority.Normal) : base(executor, fiberScheduler)
         {
             _queue = queue;
             _thread = new Thread(RunThread) { Name = threadName, IsBackground = isBackground, Priority = priority };

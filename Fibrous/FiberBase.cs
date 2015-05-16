@@ -2,7 +2,6 @@ namespace Fibrous
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading;
     using Fibrous.Scheduling;
 
     public abstract class FiberBase : Disposables, IFiber
@@ -42,15 +41,12 @@ namespace Fibrous
 
         public IFiber Start()
         {
-            if (_started == ExecutionState.Running) return this;//??just ignore.  why explode?
-            
+            if (_started == ExecutionState.Running) return this; //??just ignore.  why explode?
             InternalStart();
             lock (_preQueue)
             {
                 if (_preQueue.Count > 0)
-                {
                     InternalEnqueue(() => Executor.Execute(_preQueue));
-                }
                 _started = ExecutionState.Running;
             }
             return this;
@@ -58,8 +54,7 @@ namespace Fibrous
 
         public void Stop()
         {
-            if (_started != ExecutionState.Running) return;//??just ignore.  why explode?
-
+            if (_started != ExecutionState.Running) return; //??just ignore.  why explode?
             lock (_preQueue)
             {
                 _started = ExecutionState.Created;
