@@ -8,15 +8,20 @@ namespace Fibrous
         IReply<TReply> SendRequest(TRequest request);
     }
 
+    public interface IReply<T>
+    {
+        IResult<T> Receive(TimeSpan timeout);
+    }
+
     public interface IResult<T>
     {
          bool IsValid { get; }
          T Value { get; }
     }
-
-    public interface IReply<T>
+    
+    public interface IRequestHandlerPort<out TRequest, in TReply>
     {
-        IResult<T> Receive(TimeSpan timeout);
+        IDisposable SetRequestHandler(IFiber fiber, Action<IRequest<TRequest, TReply>> onRequest);
     }
 
     public interface IRequest<out TRequest, in TReply>
@@ -24,10 +29,4 @@ namespace Fibrous
         TRequest Request { get; }
         void Reply(TReply reply);
     }
-
-    public interface IRequestHandlerPort<out TRequest, in TReply>
-    {
-        IDisposable SetRequestHandler(IFiber fiber, Action<IRequest<TRequest, TReply>> onRequest);
-    }
-
 }
