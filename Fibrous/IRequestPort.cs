@@ -1,14 +1,22 @@
+﻿using System;
+
 namespace Fibrous
 {
-    using System;
-
-    public interface IRequestChannel<T, T1> : IRequestPort<T, T1>, IRequestHandlerPort<T, T1>
+    public interface IRequestPort<in TRequest, TReply>
     {
+        IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply); 
+        IReply<TReply> SendRequest(TRequest request);
+    }
+
+    public interface IResult<T>
+    {
+         bool IsValid { get; }
+         T Value { get; }
     }
 
     public interface IReply<T>
     {
-        Result<T> Receive(TimeSpan timeout);
+        IResult<T> Receive(TimeSpan timeout);
     }
 
     public interface IRequest<out TRequest, in TReply>
@@ -22,9 +30,4 @@ namespace Fibrous
         IDisposable SetRequestHandler(IFiber fiber, Action<IRequest<TRequest, TReply>> onRequest);
     }
 
-    public interface IRequestPort<in TRequest, TReply>
-    {
-        IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply); //can this be an extension method?
-        IReply<TReply> SendRequest(TRequest request);
-    }
 }

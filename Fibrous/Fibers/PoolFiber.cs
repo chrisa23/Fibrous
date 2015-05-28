@@ -3,7 +3,6 @@ namespace Fibrous
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Fibrous.Queues;
 
     /// <summary>
     /// Fiber that uses a thread pool for execution.
@@ -83,14 +82,14 @@ namespace Fibrous
             }
         }
 
-        public static FiberBase StartNew()
+        public static IFiber StartNew()
         {
             var fiber = new PoolFiber();
             fiber.Start();
             return fiber;
         }
 
-        public static FiberBase StartNew(Executor exec)
+        public static IFiber StartNew(Executor exec)
         {
             var fiber = new PoolFiber(exec);
             fiber.Start();

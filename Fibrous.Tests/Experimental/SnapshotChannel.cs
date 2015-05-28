@@ -3,8 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using Fibrous.Channels;
-    using Fibrous.Experimental;
     using NUnit.Framework;
 
     [TestFixture]
@@ -17,7 +15,7 @@
             using (IFiber fiber2 = PoolFiber.StartNew())
             {
                 var list = new List<string> { "Prime" };
-                var channel = new SnapshotChannel<string>();
+                var channel = new SnapshotChannel<string, string[]>();
                 channel.ReplyToPrimingRequest(fiber2, list.ToArray);
                 var primeResult = new List<string>();
                 Action<string> update = primeResult.Add;

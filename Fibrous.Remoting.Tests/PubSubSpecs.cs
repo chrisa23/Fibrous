@@ -3,7 +3,6 @@
     using System;
     using System.Text;
     using System.Threading;
-    
     using FluentAssertions;
     using NUnit.Framework;
     using NetMQ;
@@ -53,11 +52,6 @@
                 x => Encoding.Unicode.GetString(x),
                 Channel);
             Subscriber.SubscribeAll();
-            //ClientFiber.Add(Subscriber);
-            //ClientFiber.Add(RcvdSignal);
-            //ClientFiber.Add(Context2);
-            //ClientFiber.Add(Send);
-            //ClientFiber.Add(Context1);
         }
 
         protected void Cleanup()

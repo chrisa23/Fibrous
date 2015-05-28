@@ -4,7 +4,6 @@
     using System.Diagnostics;
     using System.Text;
     using System.Threading;
-    
     using FluentAssertions;
     using NUnit.Framework;
     using NetMQ;

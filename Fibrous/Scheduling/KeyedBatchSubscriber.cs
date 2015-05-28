@@ -1,4 +1,4 @@
-namespace Fibrous.Scheduling
+namespace Fibrous
 {
     using System;
     using System.Collections.Generic;

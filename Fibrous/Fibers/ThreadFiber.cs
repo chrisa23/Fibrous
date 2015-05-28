@@ -2,8 +2,6 @@ namespace Fibrous
 {
     using System;
     using System.Threading;
-    using Fibrous.Experimental;
-    using Fibrous.Scheduling;
 
     /// <summary>
     ///   Fiber implementation backed by a dedicated thread., needs a thread safe queue
@@ -87,7 +85,7 @@ namespace Fibrous
             base.Dispose(disposing);
         }
 
-        public static FiberBase StartNew()
+        public static IFiber StartNew()
         {
             var fiber = new ThreadFiber();
             fiber.Start();

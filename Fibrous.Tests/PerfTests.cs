@@ -3,9 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using Fibrous.Experimental;
-    using Fibrous.Queues;
-    using Fibrous.Scheduling;
     using NUnit.Framework;
 
     public class PerfExecutor : Executor

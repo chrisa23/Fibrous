@@ -4,7 +4,6 @@ namespace Fibrous
 
     public static class FiberExtensions
     {
-        //new fibers...
         public static IPublisherPort<T> NewPublishPort<T>(this IFiber fiber, Action<T> onEvent)
         {
             var channel = new Channel<T>();

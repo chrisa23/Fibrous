@@ -1,6 +1,10 @@
-namespace Fibrous
+﻿namespace Fibrous
 {
     using System;
+
+    public interface IChannel<T> : IPublisherPort<T>, ISubscriberPort<T>
+    {
+    }
 
     public sealed class Channel<T> : IChannel<T>
     {

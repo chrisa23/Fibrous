@@ -2,7 +2,6 @@ namespace Fibrous
 {
     using System;
     using System.Collections.Generic;
-    using Fibrous.Scheduling;
 
     public abstract class FiberBase : Disposables, IFiber
     {

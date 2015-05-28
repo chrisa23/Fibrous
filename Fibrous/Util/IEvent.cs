@@ -2,7 +2,12 @@ namespace Fibrous
 {
     using System;
 
-    public sealed class Event<TEvent> : IPublisherPort<TEvent>, IDisposable
+    public interface IEvent<TEvent> : IPublisherPort<TEvent>, IDisposable
+    {
+        IDisposable Subscribe(Action<TEvent> receive);
+    }
+
+    public sealed class Event<TEvent> : IEvent<TEvent>
     {
         private event Action<TEvent> InternalEvent;
 

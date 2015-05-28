@@ -2,7 +2,6 @@ namespace Fibrous
 {
     using System;
     using System.Collections.Generic;
-    using Fibrous.Scheduling;
 
     public static class SubscriberPortExtensions
     {
@@ -20,6 +19,7 @@ namespace Fibrous
         {
             return new BatchSubscriber<T>(port, fiber, interval, receive);
         }
+
 
         public static IDisposable SubscribeToKeyedBatch<TKey, T>(this ISubscriberPort<T> port,
             IFiber fiber,

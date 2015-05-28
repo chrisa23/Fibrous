@@ -4,6 +4,11 @@ namespace Fibrous
     using System.Collections.Generic;
     using System.Threading;
 
+    public interface IRequestChannel<T, T1> : IRequestPort<T, T1>, IRequestHandlerPort<T, T1>
+    {
+    }
+
+
     public sealed class RequestChannel<TRequest, TReply> : IRequestChannel<TRequest, TReply>
     {
         private readonly IChannel<IRequest<TRequest, TReply>> _requestChannel =
@@ -50,7 +55,7 @@ namespace Fibrous
                 }
             }
 
-            public Result<TReply> Receive(TimeSpan timeout)
+            public IResult<TReply> Receive(TimeSpan timeout)
             {
                 lock (_lock)
                 {

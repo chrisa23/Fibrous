@@ -4,9 +4,6 @@ namespace Fibrous.Tests
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading;
-    using Fibrous.Experimental;
-    using Fibrous.Queues;
-    using Fibrous.Scheduling;
     using NUnit.Framework;
 
     [TestFixture]
