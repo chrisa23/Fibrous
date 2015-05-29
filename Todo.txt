@@ -1,4 +1,3 @@
-- add performance tests with contention (someone already found some issues...)
 - update Xml docs
 - Add samples
 
