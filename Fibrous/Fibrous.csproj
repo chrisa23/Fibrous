@@ -49,9 +49,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Channels\Result.cs" />
+    <Compile Include="Fibers\DispatcherFiber.cs" />
+    <Compile Include="Fibers\FormFiber.cs" />
+    <Compile Include="Util\CachePadding.cs" />
+    <Compile Include="Util\IEvent.cs" />
+    <Compile Include="Util\PaddedBoolean.cs" />
     <Compile Include="Util\Disposables.cs" />
     <Compile Include="Fibers\Fiber.cs" />
-    <Compile Include="Fibers\FiberType.cs" />
     <Compile Include="Agents\IAgent.cs" />
     <Compile Include="Fibers\FiberExtensions.cs" />
     <Compile Include="IFiber.cs" />
@@ -62,7 +66,6 @@
     <Compile Include="Channels\StateChannel.cs" />
     <Compile Include="Queues\Queue.cs" />
     <Compile Include="Queues\YieldingQueue.cs" />
-    <Compile Include="Util\IEvent.cs" />
     <Compile Include="Channels\ISnapshotChannel.cs" />
     <Compile Include="Scheduling\TimerAction.cs" />
     <Compile Include="Scheduling\PendingAction.cs" />
@@ -70,7 +73,7 @@
     <Compile Include="Scheduling\SubscriberPortExtensions.cs" />
     <Compile Include="Util\Unsubscriber.cs" />
     <Compile Include="Fibers\FiberBase.cs" />
-    <Compile Include="Fibers\GuiFiber.cs" />
+    <Compile Include="Fibers\GuiFiberBase.cs" />
     <Compile Include="Scheduling\BatchSubscriber.cs" />
     <Compile Include="Scheduling\KeyedBatchSubscriber.cs" />
     <Compile Include="Scheduling\LastSubscriber.cs" />

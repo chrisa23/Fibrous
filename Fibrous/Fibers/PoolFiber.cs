@@ -5,7 +5,7 @@ namespace Fibrous
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Fiber that uses a thread pool for execution.
+    /// Fiber that uses a thread pool for execution. Pool is used instead of thread, but Fiber is still synchronous in its own processing and maintains message order 
     /// </summary>
     public sealed class PoolFiber : FiberBase
     {

@@ -2,6 +2,9 @@ namespace Fibrous
 {
     using System;
 
+    /// <summary>
+    /// Fibers are execution contexts that use Threads or ThreadPools for work handlers
+    /// </summary>
     public interface IFiber : IExecutionContext, IScheduler, IDisposableRegistry
     {
         IFiber Start();

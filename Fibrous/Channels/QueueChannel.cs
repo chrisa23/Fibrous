@@ -3,6 +3,11 @@ namespace Fibrous
     using System;
     using System.Collections.Generic;
 
+
+    /// <summary>
+    /// Queue channel where a message is consumed by only one consumer.
+    /// </summary>
+    /// <typeparam name="TMsg"></typeparam>
     public sealed class QueueChannel<TMsg> : IChannel<TMsg>
     {
         private readonly object _lock = new object();

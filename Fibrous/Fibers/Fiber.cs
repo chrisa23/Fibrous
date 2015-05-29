@@ -1,6 +1,13 @@
 namespace Fibrous
 {
     using System;
+    
+    public enum FiberType
+    {
+        Thread,
+        Pool,
+        Stub
+    }
 
     public static class Fiber
     {

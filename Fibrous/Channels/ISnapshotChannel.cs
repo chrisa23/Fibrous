@@ -12,7 +12,6 @@ namespace Fibrous
         IDisposable ReplyToPrimingRequest(IFiber fiber, Func<T> reply);
     }
 
-    //collection snapshot...
     public sealed class SnapshotChannel<T, TSnapshot> : ISnapshotChannel<T, TSnapshot>
     {
         private readonly IRequestChannel<object, TSnapshot> _requestChannel =
