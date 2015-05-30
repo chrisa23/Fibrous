@@ -1,6 +1,8 @@
+- Clean up ctor/factory methods.  Allow IQueue to be injected
 - update Xml docs
 - Add samples
 - check for anywhere Disposables should be using registry/unsubscribers
 - Add bounded queue with blocking
-- check sealed executor with interface
+- Update latency tests for queues
 - Req/reply tests
+

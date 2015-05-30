@@ -7,11 +7,13 @@
     /// </summary>
     public sealed class StubFiber : FiberBase
     {
-        public StubFiber(Executor excecutor, IFiberScheduler scheduler) : base(excecutor, scheduler)
+        public StubFiber(IExecutor excecutor, IFiberScheduler scheduler)
+            : base(excecutor, scheduler)
         {
         }
 
-        public StubFiber(Executor executor) : base(executor)
+        public StubFiber(IExecutor executor)
+            : base(executor)
         {
         }
 
@@ -26,16 +28,12 @@
 
         public static IFiber StartNew()
         {
-            var fiber = new StubFiber();
-            fiber.Start();
-            return fiber;
+            return Fiber.StartNew(FiberType.Stub);
         }
 
-        public static IFiber StartNew(Executor executor)
+        public static IFiber StartNew(IExecutor executor)
         {
-            var fiber = new StubFiber(executor);
-            fiber.Start();
-            return fiber;
+            return Fiber.StartNew(FiberType.Stub, executor);
         }
     }
 }

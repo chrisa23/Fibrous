@@ -19,12 +19,12 @@ namespace Fibrous
         {
         }
 
-        public ThreadFiber(Executor executor, string name)
+        public ThreadFiber(IExecutor executor, string name)
             : this(executor, new TimerScheduler(), new SleepingQueue(), name)
         {
         }
 
-        public ThreadFiber(Executor executor)
+        public ThreadFiber(IExecutor executor)
             : this(executor, new TimerScheduler(), new SleepingQueue(), "ThreadFiber-" + GetNextThreadId())
         {
         }
@@ -42,7 +42,7 @@ namespace Fibrous
         /// <param name = "threadName"></param>
         /// <param name = "isBackground"></param>
         /// <param name = "priority"></param>
-        public ThreadFiber(Executor executor,
+        public ThreadFiber(IExecutor executor,
             IFiberScheduler fiberScheduler,
             IQueue queue,
             string threadName,
@@ -87,16 +87,12 @@ namespace Fibrous
 
         public static IFiber StartNew()
         {
-            var fiber = new ThreadFiber();
-            fiber.Start();
-            return fiber;
+            return Fiber.StartNew(FiberType.Thread);
         }
 
-        public static IFiber StartNew(Executor executor)
+        public static IFiber StartNew(IExecutor executor)
         {
-            var fiber = new ThreadFiber(executor);
-            fiber.Start();
-            return fiber;
+            return Fiber.StartNew(FiberType.Thread, executor);
         }
 
         public static IFiber StartNew(string name)

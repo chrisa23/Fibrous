@@ -51,6 +51,8 @@
     <Compile Include="Channels\Result.cs" />
     <Compile Include="Fibers\DispatcherFiber.cs" />
     <Compile Include="Fibers\FormFiber.cs" />
+    <Compile Include="Queues\BoundedQueue.cs" />
+    <Compile Include="Queues\BusyWaitQueue.cs" />
     <Compile Include="Util\CachePadding.cs" />
     <Compile Include="Util\IEvent.cs" />
     <Compile Include="Util\PaddedBoolean.cs" />
@@ -81,7 +83,7 @@
     <Compile Include="Scheduling\BatchSubscriberBase.cs" />
     <Compile Include="Channels\IChannel.cs" />
     <Compile Include="Channels\QueueChannel.cs" />
-    <Compile Include="Fibers\Executor.cs" />
+    <Compile Include="Fibers\IExecutor.cs" />
     <Compile Include="Queues\IQueue.cs" />
     <Compile Include="Scheduling\IFiberScheduler.cs" />
     <Compile Include="Queues\Lists.cs" />

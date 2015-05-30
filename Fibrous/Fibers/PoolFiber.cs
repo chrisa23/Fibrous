@@ -5,7 +5,7 @@ namespace Fibrous
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Fiber that uses a thread pool for execution. Pool is used instead of thread, but Fiber is still synchronous in its own processing and maintains message order 
+    /// Fiber that uses a thread pool for execution. Pool is used instead of thread, but messages are handled sequentially. 
     /// </summary>
     public sealed class PoolFiber : FiberBase
     {
@@ -15,12 +15,13 @@ namespace Fibrous
         private List<Action> _queue = new List<Action>();
         private List<Action> _toPass = new List<Action>();
 
-        public PoolFiber(Executor config, TaskFactory taskFactory) : base(config)
+        public PoolFiber(IExecutor config, TaskFactory taskFactory)
+            : base(config)
         {
             _taskFactory = taskFactory;
         }
 
-        public PoolFiber(Executor executor)
+        public PoolFiber(IExecutor executor)
             : this(executor, new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None))
         {
         }
@@ -84,16 +85,12 @@ namespace Fibrous
 
         public static IFiber StartNew()
         {
-            var fiber = new PoolFiber();
-            fiber.Start();
-            return fiber;
+            return Fiber.StartNew(FiberType.Pool);
         }
 
-        public static IFiber StartNew(Executor exec)
+        public static IFiber StartNew(IExecutor exec)
         {
-            var fiber = new PoolFiber(exec);
-            fiber.Start();
-            return fiber;
+            return Fiber.StartNew(FiberType.Pool, exec);
         }
     }
 }

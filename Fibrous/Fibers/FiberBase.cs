@@ -12,18 +12,18 @@ namespace Fibrous
             Stopped
         }
 
-        protected readonly Executor Executor;
+        protected readonly IExecutor Executor;
         private readonly IFiberScheduler _fiberScheduler;
         private ExecutionState _started = ExecutionState.Created;
         private readonly List<Action> _preQueue = new List<Action>();
 
-        protected FiberBase(Executor executor, IFiberScheduler scheduler)
+        protected FiberBase(IExecutor executor, IFiberScheduler scheduler)
         {
             _fiberScheduler = scheduler;
             Executor = executor;
         }
 
-        protected FiberBase(Executor executor)
+        protected FiberBase(IExecutor executor)
         {
             _fiberScheduler = new TimerScheduler();
             Executor = executor;

@@ -10,7 +10,7 @@ Some of the library benefits:
  - UI fibers for worry free UI marshalling
  - Excellent batching support
  - UI throttling and redraw can be controlled easily
- 
+  
  Examples:
 	 //create a fiber that is already started and backed by a thread pool
 	 IFiber fiber = Fiber.StartNew(FiberType.Pool);

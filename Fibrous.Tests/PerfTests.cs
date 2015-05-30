@@ -3,11 +3,12 @@
     using System;
     using System.Collections.Generic;
     using System.Threading;
+    using Fibrous.Queues;
     using NUnit.Framework;
 
-    public class PerfExecutor : Executor
+    public class PerfExecutor : IExecutor
     {
-        public override void Execute(List<Action> toExecute)
+        public void Execute(List<Action> toExecute)
         {
             int count = 0;
             for (int index   = 0; index < toExecute.Count; index++)
@@ -20,7 +21,7 @@
                 Thread.Sleep(1);
         }
 
-        public override void Execute(Action toExecute)
+        public void Execute(Action toExecute)
         {
             toExecute();
         }
@@ -142,22 +143,22 @@
             }
         }
 
-        //[Test]
-        //[Explicit]
-        //public void TestBoundedQueue()
-        //{
-        //    PointToPointPerfTestWithStruct(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000, 1000)));
-        //    PointToPointPerfTestWithInt(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000, 1000)));
-        //    PointToPointPerfTestWithObject(new ThreadFiber(new BoundedQueue(new PerfExecutor(), 10000, 1000)));
-        //}
-        //[Test]
-        //[Explicit]
-        //public void TestBusyWait()
-        //{
-        //    PointToPointPerfTestWithStruct(new ThreadFiber(new BusyWaitQueue(new PerfExecutor(), 1000, 25)));
-        //    PointToPointPerfTestWithInt(new ThreadFiber(new BusyWaitQueue(new PerfExecutor(), 1000, 25)));
-        //    PointToPointPerfTestWithObject(new ThreadFiber(new BusyWaitQueue(new PerfExecutor(), 1000, 25)));
-        //}
+        [Test]
+        [Explicit]
+        public void TestBoundedQueue()
+        {
+            PointToPointPerfTestWithStruct(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new BoundedQueue(1000),""));
+            PointToPointPerfTestWithInt(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new BoundedQueue(1000), ""));
+            PointToPointPerfTestWithObject(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new BoundedQueue(1000), ""));
+        }
+        [Test]
+        [Explicit]
+        public void TestBusyWait()
+        {
+            PointToPointPerfTestWithStruct(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new BusyWaitQueue(1000,25), ""));
+            PointToPointPerfTestWithInt(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new BusyWaitQueue(1000, 25), ""));
+            PointToPointPerfTestWithObject(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new BusyWaitQueue(1000, 25), ""));
+        }
         [Test]
         [Explicit]
         public void TestDefault()

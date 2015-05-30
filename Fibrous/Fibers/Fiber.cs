@@ -11,16 +11,16 @@ namespace Fibrous
 
     public static class Fiber
     {
-        private static IFiber GetFromTyoe(FiberType type)
+        private static IFiber GetFromTyoe(FiberType type, IExecutor executor)
         {
             switch (type)
             {
                 case FiberType.Thread:
-                    return new ThreadFiber();
+                    return new ThreadFiber(executor);
                 case FiberType.Pool:
-                    return new PoolFiber();
+                    return new PoolFiber(executor);
                 case FiberType.Stub:
-                    return new StubFiber();
+                    return new StubFiber(executor);
                 default:
                     throw new ArgumentOutOfRangeException("type");
             }
@@ -30,10 +30,12 @@ namespace Fibrous
         /// Helper to create and start an IFiber by type
         /// </summary>
         /// <param name="type"></param>
+        /// <param name="executor"></param>
         /// <returns></returns>
-        public static IFiber StartNew(FiberType type)
+        public static IFiber StartNew(FiberType type, IExecutor executor = null)//TODO:  add Queue
         {
-            var fiber = GetFromTyoe(type);
+            if (executor == null) executor = new Executor();
+            var fiber = GetFromTyoe(type, executor);
             fiber.Start();
             return fiber;
         }
