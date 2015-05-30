@@ -5,8 +5,6 @@ High performace concurrency library for the .Net platform.  Fibrous is a fork of
 
 Fibrous uses the concept of Fibers and Ports as abstractions.  Fibers represent execution contexts (aka thread/actor) and Ports represent messaging end points.  Channels are in memory conduits, but ports can be implemented on top of network sockets.
 
-An experimental NetMQ/ZMQ based library for remoting is provided.  
-
 Some of the library benefits:
  - Tiny library that makes multi-threading simple
  - UI fibers for worry free UI marshalling
@@ -17,11 +15,18 @@ Some of the library benefits:
 	 //create a fiber that is already started and backed by a thread pool
 	 IFiber fiber = Fiber.StartNew(FiberType.Pool);
 	 
+	 //Create a channel and subscribe to messages
+	 IChannel<string> channel = new Channel<string>();
+
+	 channel.Subscribe(fiber, (s) => Console.WriteLine(s.ToUpper()));
+
+	 channel.Publish("the message");
+
 	 //You can enqueue methods
 	 fiber.Enqueue(SomeParameterlessMethod);
  
 	 //or lambdas
-	 fiber.Enqueue(() => DoSomeWork());
+	 fiber.Enqueue(() => DoSomeWork(someParam));
 
 	 //You can schedule when things happen
 	 fiber.Schedule(ScheduledMethod, when);
@@ -30,10 +35,6 @@ Some of the library benefits:
 	 fiber.Schedule(ScheduledMethod, when, repeat);
 
 
-	 IChannel<string> channel = new Channel<string>();
 
-	 channel.Subscribe(fiber, (s) => Console.WriteLine(s.ToUpper()));
-
-	 channel.Publish("the message");
 
 	

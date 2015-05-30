@@ -1,4 +1,6 @@
 - update Xml docs
 - Add samples
-
-- ? Remove remoting library?
+- check for anywhere Disposables should be using registry/unsubscribers
+- Add bounded queue with blocking
+- check sealed executor with interface
+- Req/reply tests

@@ -27,13 +27,15 @@
         public static IFiber StartNew()
         {
             var fiber = new StubFiber();
-            return fiber.Start();
+            fiber.Start();
+            return fiber;
         }
 
         public static IFiber StartNew(Executor executor)
         {
             var fiber = new StubFiber(executor);
-            return fiber.Start();
+            fiber.Start();
+            return fiber;
         }
     }
 }

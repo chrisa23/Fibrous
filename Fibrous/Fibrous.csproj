@@ -68,9 +68,8 @@
     <Compile Include="Queues\YieldingQueue.cs" />
     <Compile Include="Channels\ISnapshotChannel.cs" />
     <Compile Include="Scheduling\TimerAction.cs" />
-    <Compile Include="Scheduling\PendingAction.cs" />
+    <Compile Include="Util\PendingAction.cs" />
     <Compile Include="Util\DisposeAction.cs" />
-    <Compile Include="Scheduling\SubscriberPortExtensions.cs" />
     <Compile Include="Util\Unsubscriber.cs" />
     <Compile Include="Fibers\FiberBase.cs" />
     <Compile Include="Fibers\GuiFiberBase.cs" />

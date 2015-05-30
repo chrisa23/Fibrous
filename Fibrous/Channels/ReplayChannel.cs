@@ -4,7 +4,10 @@ namespace Fibrous
     using System.Collections.Generic;
     using System.Threading;
 
-    //simplest snapshot mechanism.  Replay all old messages on subscribe...
+    /// <summary>
+    /// Simple snapshot mechanism.  Replay all old messages on subscribe.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public sealed class ReplayChannel<T> : IChannel<T>
     {
         private readonly List<T> _list = new List<T>();
@@ -43,6 +46,11 @@ namespace Fibrous
         }
     }
 
+    /// <summary>
+    /// Replay channel that replays the last items stored by key
+    /// </summary>
+    /// <typeparam name="TKey"></typeparam>
+    /// <typeparam name="T"></typeparam>
     public sealed class KeyedReplayChannel<TKey, T> : IChannel<T>
     {
         private readonly Func<T, TKey> _keyMaker;

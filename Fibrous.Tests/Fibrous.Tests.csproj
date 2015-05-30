@@ -75,7 +75,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Experimental\SnapshotChannel.cs" />
+    <Compile Include="SnapshotChannel.cs" />
     <Compile Include="FiberTester.cs" />
     <Compile Include="FiberTests.cs" />
     <Compile Include="PerfBug.cs" />

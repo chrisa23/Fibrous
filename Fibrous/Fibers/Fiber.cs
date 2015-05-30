@@ -26,6 +26,11 @@ namespace Fibrous
             }
         }
 
+        /// <summary>
+        /// Helper to create and start an IFiber by type
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static IFiber StartNew(FiberType type)
         {
             var fiber = GetFromTyoe(type);

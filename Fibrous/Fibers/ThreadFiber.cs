@@ -102,7 +102,8 @@ namespace Fibrous
         public static IFiber StartNew(string name)
         {
             var fiber = new ThreadFiber(name);
-            return fiber.Start();
+            fiber.Start();
+            return fiber;
         }
     }
 }

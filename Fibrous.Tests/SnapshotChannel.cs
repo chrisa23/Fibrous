@@ -1,4 +1,4 @@
-﻿namespace Fibrous.Tests.Experimental
+﻿namespace Fibrous.Tests
 {
     using System;
     using System.Collections.Generic;

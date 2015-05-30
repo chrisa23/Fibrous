@@ -3,7 +3,7 @@ namespace Fibrous
     using System;
 
     /// <summary>
-    /// Channel that maintains its last value which is passed to new subscribers
+    /// Channel that maintains its last value which is passed to new subscribers.  Useful with Enums or values representing latest state.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public sealed class StateChannel<T> : IChannel<T>

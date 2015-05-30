@@ -7,24 +7,64 @@ namespace Fibrous
     /// </summary>
     public interface IFiber : IExecutionContext, IScheduler, IDisposableRegistry
     {
-        IFiber Start();
+        /// <summary>
+        /// Start the fiber's queue
+        /// </summary>
+        /// <returns></returns>
+        void Start();
+
+        /// <summary>
+        /// Stop the fiber
+        /// </summary>
         void Stop();
     }
 
+
     public interface IExecutionContext
     {
+        /// <summary>
+        /// Enqueue an Action to be executed
+        /// </summary>
+        /// <param name="action"></param>
         void Enqueue(Action action);
     }
 
     public interface IScheduler
     {
+        /// <summary>
+        /// Schedule an action to be executed once
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="dueTime"></param>
+        /// <returns></returns>
         IDisposable Schedule(Action action, TimeSpan dueTime);
+
+        /// <summary>
+        /// Schedule an action to be taken repeatedly
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="startTime"></param>
+        /// <param name="interval"></param>
+        /// <returns></returns>
         IDisposable Schedule(Action action, TimeSpan startTime, TimeSpan interval);
     }
 
+    /// <summary>
+    /// Collection of disposables, where they can be removed or Disposed together.  
+    /// Mostly for internal use, but very convenient for grouping and handling disposables
+    /// </summary>
     public interface IDisposableRegistry : IDisposable
     {
+        /// <summary>
+        /// Add an IDisposable to the registry.  It will be disposed when the registry is disposed.
+        /// </summary>
+        /// <param name="toAdd"></param>
         void Add(IDisposable toAdd);
+
+        /// <summary>
+        /// Remove a disposable from the registry.  It will not be disposed when the registry is disposed.
+        /// </summary>
+        /// <param name="toRemove"></param>
         void Remove(IDisposable toRemove);
     }
 }

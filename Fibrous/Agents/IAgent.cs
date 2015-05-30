@@ -15,14 +15,13 @@
     /// <typeparam name="T"></typeparam>
     public abstract class AgentBase<T> : IAgent<T>
     {
-        private readonly IChannel<T> _channel = new Channel<T>();
+        private readonly IPublisherPort<T> _channel;
         private readonly IFiber _fiber;
 
-        //can't bacth....  
         protected AgentBase(FiberType type = FiberType.Pool)
         {
             _fiber = Fiber.StartNew(type);
-            _channel.Subscribe(_fiber, Handler);
+            _channel = _fiber.NewPublishPort<T>(Handler);
         }
 
         public bool Publish(T msg)
@@ -30,7 +29,7 @@
             return _channel.Publish(msg);
         }
 
-        public abstract void Handler(T msg);
+        protected abstract void Handler(T msg);
 
         public void Dispose()
         {
@@ -61,7 +60,7 @@
             _handler = handler;
         }
 
-        public override void Handler(T msg)
+        protected override void Handler(T msg)
         {
             _handler(msg);
         }
