@@ -48,6 +48,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Agents\IRequestAgent.cs" />
+    <Compile Include="Channels\EventBus.cs" />
     <Compile Include="Channels\Result.cs" />
     <Compile Include="Fibers\DispatcherFiber.cs" />
     <Compile Include="Fibers\FormFiber.cs" />

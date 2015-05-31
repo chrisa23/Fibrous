@@ -26,6 +26,22 @@
         IReply<TReply> SendRequest(TRequest request);
     }
 
+    public static class RequestPortExtensions
+    {
+        /// <summary>
+        /// Send a request with infinite timeout
+        /// </summary>
+        /// <typeparam name="TRequest"></typeparam>
+        /// <typeparam name="TReply"></typeparam>
+        /// <param name="port"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public static TReply SendRequest<TRequest, TReply>(this IRequestPort<TRequest, TReply> port, TRequest request)
+        {
+            return port.SendRequest(request).Receive(TimeSpan.MaxValue).Value;
+        }
+    }
+
     /// <summary>
     /// Future type for receiving a response
     /// </summary>
@@ -71,6 +87,8 @@
         /// <returns></returns>
         IDisposable SetRequestHandler(IFiber fiber, Action<IRequest<TRequest, TReply>> onRequest);
     }
+
+    
 
     /// <summary>
     /// Interface for requests where a handler can send a reply

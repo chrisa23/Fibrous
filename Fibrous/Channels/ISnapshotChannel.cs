@@ -27,7 +27,7 @@ namespace Fibrous
         public IDisposable Subscribe(IFiber fiber, Action<T> receive, Action<TSnapshot> receiveSnapshot)
         {
             //Action<T[]> receiveSnapshot = obj => Array.ForEach(obj, receive);
-            var primedSubscribe = new SnapshotRequest<T, TSnapshot>(fiber, _updatesChannel, receive, receiveSnapshot);
+            var primedSubscribe = new SnapshotRequest(fiber, _updatesChannel, receive, receiveSnapshot);
             _requestChannel.SendRequest(null, fiber, x => primedSubscribe.Publish(x));
             return primedSubscribe;
         }
@@ -42,7 +42,7 @@ namespace Fibrous
             return _updatesChannel.Publish(msg);
         }
 
-        private sealed class SnapshotRequest<T, TSnapshot> : IPublisherPort<TSnapshot>, IDisposable
+        private sealed class SnapshotRequest : IPublisherPort<TSnapshot>, IDisposable
         {
             private readonly IFiber _fiber;
             private readonly Action<T> _receive;

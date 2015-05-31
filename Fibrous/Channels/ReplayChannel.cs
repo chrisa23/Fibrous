@@ -5,7 +5,8 @@ namespace Fibrous
     using System.Threading;
 
     /// <summary>
-    /// Simple snapshot mechanism.  Replay all old messages on subscribe.
+    /// Simple snapshot mechanism.  Replay all old messages on subscribe.  
+    /// Can cause memory leaks if not handled with care
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public sealed class ReplayChannel<T> : IChannel<T>
@@ -48,6 +49,7 @@ namespace Fibrous
 
     /// <summary>
     /// Replay channel that replays the last items stored by key
+    /// Can cause memory leaks if not handled with care
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="T"></typeparam>

@@ -1,7 +1,7 @@
 namespace Fibrous
 {
     using System;
-    
+
     public enum FiberType
     {
         Thread,
@@ -32,10 +32,10 @@ namespace Fibrous
         /// <param name="type"></param>
         /// <param name="executor"></param>
         /// <returns></returns>
-        public static IFiber StartNew(FiberType type, IExecutor executor = null)//TODO:  add Queue
+        public static IFiber StartNew(FiberType type, IExecutor executor = null) //TODO:  add Queue
         {
             if (executor == null) executor = new Executor();
-            var fiber = GetFromTyoe(type, executor);
+            IFiber fiber = GetFromTyoe(type, executor);
             fiber.Start();
             return fiber;
         }

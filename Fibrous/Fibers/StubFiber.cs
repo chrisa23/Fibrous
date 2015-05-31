@@ -12,8 +12,7 @@
         {
         }
 
-        public StubFiber(IExecutor executor)
-            : base(executor)
+        public StubFiber(IExecutor executor) : base(executor)
         {
         }
 
@@ -23,6 +22,8 @@
 
         protected override void InternalEnqueue(Action action)
         {
+            //There is no lock here to force sequentiality, since that will cause deadlocks in some
+            //situations.  Stub fibers are not thread safe.  
             Executor.Execute(action);
         }
 

@@ -8,12 +8,11 @@
     /// <summary>
     /// Busy waits on lock to execute.  Can improve performance in certain situations.
     /// </summary>
-    internal class BusyWaitQueue : IQueue
+    internal sealed class BusyWaitQueue : IQueue
     {
         private readonly object _lock = new object();
         private readonly int _spinsBeforeTimeCheck;
         private readonly int _msBeforeBlockingWait;
-
         private List<Action> _actions = new List<Action>();
         private List<Action> _toPass = new List<Action>();
 
@@ -28,7 +27,6 @@
             _msBeforeBlockingWait = msBeforeBlockingWait;
         }
 
-  
         /// <summary>
         /// Enqueue action.
         /// </summary>
@@ -44,18 +42,17 @@
 
         public List<Action> Drain()
         {
-            var spins = 0;
-            var stopwatch = Stopwatch.StartNew();
-
+            int spins = 0;
+            Stopwatch stopwatch = Stopwatch.StartNew();
             while (true)
             {
                 try
                 {
-                    while (!Monitor.TryEnter(_lock)) { }
-
-                    var toReturn = TryDequeue();
+                    while (!Monitor.TryEnter(_lock))
+                    {
+                    }
+                    List<Action> toReturn = TryDequeue();
                     if (toReturn != null) return toReturn;
-
                     if (TryBlockingWait(stopwatch, ref spins))
                     {
                         toReturn = TryDequeue();
@@ -67,18 +64,15 @@
                     Monitor.Exit(_lock);
                 }
                 Thread.Yield();
+                return Queue.Empty;
             }
-
-            return Queue.Empty;
+            
         }
 
         private bool TryBlockingWait(Stopwatch stopwatch, ref int spins)
         {
             if (spins++ < _spinsBeforeTimeCheck)
-            {
                 return false;
-            }
-
             spins = 0;
             if (stopwatch.ElapsedMilliseconds > _msBeforeBlockingWait)
             {
@@ -86,7 +80,6 @@
                 stopwatch.Restart();
                 return true;
             }
-
             return false;
         }
 
@@ -98,14 +91,11 @@
                 _actions.Clear();
                 return _toPass;
             }
-
             return null;
         }
 
-
         public void Dispose()
         {
-        
         }
     }
 }

@@ -8,7 +8,6 @@ namespace Fibrous
     {
     }
 
-
     public sealed class RequestChannel<TRequest, TReply> : IRequestChannel<TRequest, TReply>
     {
         private readonly IChannel<IRequest<TRequest, TReply>> _requestChannel =
@@ -93,7 +92,7 @@ namespace Fibrous
         {
             var channelRequest = new AsyncChannelRequest(fiber, request, onReply);
             _requestChannel.Publish(channelRequest);
-            return channelRequest;
+            return new Unsubscriber(channelRequest, fiber);
         }
 
         private class AsyncChannelRequest : IRequest<TRequest, TReply>, IDisposable

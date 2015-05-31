@@ -3,7 +3,6 @@ namespace Fibrous
     using System;
     using System.Collections.Generic;
 
-
     /// <summary>
     /// Queue channel where a message is consumed by only one consumer.
     /// </summary>

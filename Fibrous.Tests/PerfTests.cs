@@ -94,7 +94,6 @@
             }
         }
 
-        //[Test, Explicit]
         public void PointToPointPerfTestWithInt(FiberBase fiber)
         {
             using (fiber)
@@ -115,7 +114,6 @@
             }
         }
 
-        //    [Test, Explicit]
         public void PointToPointPerfTestWithObject(FiberBase fiber)
         {
             using (fiber)
@@ -184,25 +182,6 @@
             PointToPointPerfTestWithInt(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new YieldingQueue(), ""));
             PointToPointPerfTestWithObject(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new YieldingQueue(), ""));
         }
-        //[Test]
-        //[Explicit]
-        //public void TestDefaultBusyWait()
-        //{
-        //    PointToPointPerfTestWithStruct(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new DefaultQueue(), ""));
-        //    PointToPointPerfTestWithInt(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new DefaultQueue(), ""));
-        //    PointToPointPerfTestWithObject(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new DefaultQueue(), ""));
-        //}
-
-
-        //[Test]
-        //[Explicit]
-        //public void TestDefaultDisruptor()
-        //{
-        //    PointToPointPerfTestWithStruct(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new DisruptorQueue(1024*1024), ""));
-        //    PointToPointPerfTestWithInt(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new DisruptorQueue(1024 * 1024), ""));
-        //    PointToPointPerfTestWithObject(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new DisruptorQueue(1024 * 1024), ""));
-        //}
-
 
         [Test]
         [Explicit]

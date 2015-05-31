@@ -75,12 +75,16 @@
         [Explicit]
         public void CompareBusyWaitQueueVsDefaultQueueLatency()
         {
+            for (int i = 0; i < 3; i++)
+            {
             Func<ThreadFiber> blocking = () => new ThreadFiber();
             Func<ThreadFiber> polling = () => new ThreadFiber(new Executor(),new TimerScheduler(),new BusyWaitQueue(100000, 30000),"");
-            for (int i = 0; i < 20; i++)
-            {
+            Func<ThreadFiber> yielding = () => new ThreadFiber(new Executor(), new TimerScheduler(), new YieldingQueue(), "");
+        
                 Execute(blocking, "Blocking");
                 Execute(polling, "Polling");
+                Execute(yielding, "Yielding");
+                Thread.Sleep(100);
                 Console.WriteLine();
             }
         }

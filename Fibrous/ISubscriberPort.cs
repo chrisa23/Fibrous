@@ -92,7 +92,7 @@ namespace Fibrous
                     fiber.Enqueue(() => receive(x));
             };
 
-            //we use a stub fiber to force the filtering onto the calling thread.
+            //we use a stub fiber to force the filtering onto the publisher thread.
             return port.Subscribe(StubFiber.StartNew(), filteredReceiver);
         }
     }

@@ -133,14 +133,14 @@ namespace Fibrous.Tests
         {
             var queues = new List<FiberBase>();
             IChannel<string> channel = new QueueChannel<string>();
-
+            int o = 0;
             //Init executing Fibers
             for (int i = 0; i < 5; i++)
             {
                 Action<string> onReceive = (message) =>
                 {
                     var firstChar = message[0];
-
+                    if (firstChar == firstChar) o++;
                 };
 
                 FiberBase threadFiber = new ThreadFiber(new Executor(), new TimerScheduler(), new YieldingQueue(), i.ToString());//new DisruptorQueue(1024*1024)

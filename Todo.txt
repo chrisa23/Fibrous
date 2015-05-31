@@ -1,8 +1,7 @@
 - Clean up ctor/factory methods.  Allow IQueue to be injected
 - update Xml docs
 - Add samples
-- check for anywhere Disposables should be using registry/unsubscribers
 - Add bounded queue with blocking
-- Update latency tests for queues
+- Update latency tests for queues, use histogram to better see 
 - Req/reply tests
-
+- re-look at Pool fiber and design/contention
