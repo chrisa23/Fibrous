@@ -5,7 +5,7 @@
     /// Actor like abstraction.  Recieves a single type of message
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IAgent<T> : IPublisherPort<T>, IDisposableRegistry
+    public interface IAgent<T> : IPublisherPort<T>, IDisposable
     {
     }
     
@@ -34,16 +34,6 @@
         public void Dispose()
         {
             _fiber.Dispose();
-        }
-
-        public void Add(IDisposable toAdd)
-        {
-            _fiber.Add(toAdd);
-        }
-
-        public void Remove(IDisposable toRemove)
-        {
-            _fiber.Remove(toRemove);
         }
     }
 

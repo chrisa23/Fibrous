@@ -6,15 +6,16 @@
     /// Actor like abstraction for request reply. 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IRequestAgent<TRequest, TReply> : IRequestPort<TRequest, TReply>, IDisposableRegistry
+    public interface IRequestAgent<TRequest, TReply> : IRequestPort<TRequest, TReply>, IDisposable
     {
     }
-
 
     /// <summary>
     /// Base class for a simple Agent
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TRequest"></typeparam>
+    /// <typeparam name="TReply"></typeparam>
     public abstract class RequestAgentBase<TRequest, TReply> : IRequestAgent<TRequest, TReply>
     {
         private readonly IRequestPort<TRequest, TReply> _channel;
@@ -33,16 +34,6 @@
             _fiber.Dispose();
         }
 
-        public void Add(IDisposable toAdd)
-        {
-            _fiber.Add(toAdd);
-        }
-
-        public void Remove(IDisposable toRemove)
-        {
-            _fiber.Remove(toRemove);
-        }
-
         public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply)
         {
             return _channel.SendRequest(request, fiber, onReply);
@@ -58,6 +49,8 @@
     /// Agent using injected handler function.
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TRequest"></typeparam>
+    /// <typeparam name="TReply"></typeparam>
     public sealed class RequestAgent<TRequest, TReply> : RequestAgentBase<TRequest, TReply>
     {
         private readonly Action<IRequest<TRequest, TReply>> _handler;
