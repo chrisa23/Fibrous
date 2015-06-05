@@ -6,7 +6,8 @@ namespace Fibrous
     {
         private readonly IExecutionContext _executionContext;
 
-        protected GuiFiberBase(Executor executor, IExecutionContext executionContext) : base(executor)
+        protected GuiFiberBase(IExecutor executor, IExecutionContext executionContext)
+            : base(executor)
         {
             _executionContext = executionContext;
         }

@@ -16,12 +16,12 @@
     public abstract class AgentBase<T> : IAgent<T>
     {
         private readonly IPublisherPort<T> _channel;
-        private readonly IFiber _fiber;
+        protected readonly IFiber Fiber;
 
         protected AgentBase(FiberType type = FiberType.Pool)
         {
-            _fiber = Fiber.StartNew(type);
-            _channel = _fiber.NewPublishPort<T>(Handler);
+            Fiber = Fibrous.Fiber.StartNew(type);
+            _channel = Fiber.NewPublishPort<T>(Handler);
         }
 
         public bool Publish(T msg)
@@ -33,7 +33,7 @@
 
         public void Dispose()
         {
-            _fiber.Dispose();
+            Fiber.Dispose();
         }
     }
 

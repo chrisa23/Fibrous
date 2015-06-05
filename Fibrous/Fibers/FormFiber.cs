@@ -8,7 +8,7 @@ namespace Fibrous
     /// </summary>
     public sealed class FormFiber : GuiFiberBase
     {
-        public FormFiber(Executor executor, ISynchronizeInvoke invoker)
+        public FormFiber(IExecutor executor, ISynchronizeInvoke invoker)
             : base(executor, new FormAdapter(invoker))
         {
         }
@@ -25,7 +25,7 @@ namespace Fibrous
             return fiber;
         }
 
-        public static FiberBase StartNew(Executor executor, ISynchronizeInvoke invoker)
+        public static FiberBase StartNew(IExecutor executor, ISynchronizeInvoke invoker)
         {
             var fiber = new FormFiber(executor, invoker);
             fiber.Start();
