@@ -95,5 +95,20 @@ namespace Fibrous
             //we use a stub fiber to force the filtering onto the publisher thread.
             return port.Subscribe(StubFiber.StartNew(), filteredReceiver);
         }
+
+        /// <summary>
+        /// Quick way to connect a Subscriber port to a Publisher port.  Useful connecting channels and Agents
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="port"></param>
+        /// <param name="fiber"></param>
+        /// <param name="receive"></param>
+        /// <returns></returns>
+        public static IDisposable Connect<T>(this ISubscriberPort<T> port,
+            IFiber fiber,
+            IPublisherPort<T> receive)
+        {
+            return port.Subscribe(StubFiber.StartNew(), x => receive.Publish(x));
+        }
     }
 }
