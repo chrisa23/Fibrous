@@ -49,6 +49,34 @@ namespace Fibrous
         IDisposable Schedule(Action action, TimeSpan startTime, TimeSpan interval);
     }
 
+    public static class SchecdulerExtensions
+    {
+        /// <summary>
+        /// Schedule an action at a DateTime
+        /// </summary>
+        /// <param name="scheduler"></param>
+        /// <param name="action"></param>
+        /// <param name="when"></param>
+        /// <returns></returns>
+        public static IDisposable Schedule(this IScheduler scheduler, Action action, DateTime when)
+        {
+            return scheduler.Schedule(action, when - DateTime.Now);
+        }
+
+        /// <summary>
+        /// Schedule an action at a DateTime with an interval
+        /// </summary>
+        /// <param name="scheduler"></param>
+        /// <param name="action"></param>
+        /// <param name="when"></param>
+        /// <param name="interval"></param>
+        /// <returns></returns>
+        public static IDisposable Schedule(this IScheduler scheduler, Action action, DateTime when, TimeSpan interval)
+        {
+            return scheduler.Schedule(action, when - DateTime.Now, interval);
+        }
+    }
+
     /// <summary>
     /// Collection of disposables, where they can be removed or Disposed together.  
     /// Mostly for internal use, but very convenient for grouping and handling disposables
