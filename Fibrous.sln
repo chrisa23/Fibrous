@@ -20,6 +20,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{14A18C
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fibrous.Remoting", "Fibrous.Remoting\Fibrous.Remoting.csproj", "{1E310147-59E1-4186-A422-0E01AF48A70F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fibrous.Remoting.Tests", "Fibrous.Remoting.Tests\Fibrous.Remoting.Tests.csproj", "{EEA49BBF-B3AB-48C1-A25F-C2163CC42DB6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{A001F7D9-7419-4A90-BDA7-1657E70D8099}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,11 +56,33 @@ Global
 		{D8E24568-A056-45BD-80D9-AF3859E25B1C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{D8E24568-A056-45BD-80D9-AF3859E25B1C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{D8E24568-A056-45BD-80D9-AF3859E25B1C}.Release|x86.ActiveCfg = Release|Any CPU
+		{1E310147-59E1-4186-A422-0E01AF48A70F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E310147-59E1-4186-A422-0E01AF48A70F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E310147-59E1-4186-A422-0E01AF48A70F}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{1E310147-59E1-4186-A422-0E01AF48A70F}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{1E310147-59E1-4186-A422-0E01AF48A70F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1E310147-59E1-4186-A422-0E01AF48A70F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E310147-59E1-4186-A422-0E01AF48A70F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E310147-59E1-4186-A422-0E01AF48A70F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{1E310147-59E1-4186-A422-0E01AF48A70F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{1E310147-59E1-4186-A422-0E01AF48A70F}.Release|x86.ActiveCfg = Release|Any CPU
+		{EEA49BBF-B3AB-48C1-A25F-C2163CC42DB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEA49BBF-B3AB-48C1-A25F-C2163CC42DB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEA49BBF-B3AB-48C1-A25F-C2163CC42DB6}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{EEA49BBF-B3AB-48C1-A25F-C2163CC42DB6}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{EEA49BBF-B3AB-48C1-A25F-C2163CC42DB6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EEA49BBF-B3AB-48C1-A25F-C2163CC42DB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEA49BBF-B3AB-48C1-A25F-C2163CC42DB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EEA49BBF-B3AB-48C1-A25F-C2163CC42DB6}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{EEA49BBF-B3AB-48C1-A25F-C2163CC42DB6}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{EEA49BBF-B3AB-48C1-A25F-C2163CC42DB6}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{D8E24568-A056-45BD-80D9-AF3859E25B1C} = {A001F7D9-7419-4A90-BDA7-1657E70D8099}
 		{14A18CB1-7D08-4A55-8CF2-8D480CC8C95E} = {9DB6ECC4-534F-4A4C-90AB-FEEFFD136678}
+		{EEA49BBF-B3AB-48C1-A25F-C2163CC42DB6} = {A001F7D9-7419-4A90-BDA7-1657E70D8099}
 	EndGlobalSection
 EndGlobal
