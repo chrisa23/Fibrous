@@ -24,10 +24,10 @@
         protected RequestAgentBase(FiberType type = FiberType.Pool)
         {
             _fiber = Fiber.StartNew(type);
-            _channel = _fiber.NewRequestPort<TRequest, TReply>(Handler);
+            _channel = _fiber.NewRequestPort<TRequest, TReply>(Handle);
         }
 
-        protected abstract void Handler(IRequest<TRequest, TReply> request);
+        protected abstract void Handle(IRequest<TRequest, TReply> request);
         
         public void Dispose()
         {
@@ -72,7 +72,7 @@
             return new RequestAgent<TRequest, TReply>(handler, type);
         }
 
-        protected override void Handler(IRequest<TRequest, TReply> request)
+        protected override void Handle(IRequest<TRequest, TReply> request)
         {
             _handler(request);
         }

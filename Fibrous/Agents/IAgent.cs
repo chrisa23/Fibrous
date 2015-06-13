@@ -21,7 +21,7 @@
         protected AgentBase(FiberType type = FiberType.Pool)
         {
             Fiber = Fibrous.Fiber.StartNew(type);
-            _channel = Fiber.NewPublishPort<T>(Handler);
+            _channel = Fiber.NewPublishPort<T>(Handle);
         }
 
         public bool Publish(T msg)
@@ -29,7 +29,7 @@
             return _channel.Publish(msg);
         }
 
-        protected abstract void Handler(T msg);
+        protected abstract void Handle(T msg);
 
         public void Dispose()
         {
@@ -50,7 +50,7 @@
             _handler = handler;
         }
 
-        protected override void Handler(T msg)
+        protected override void Handle(T msg)
         {
             _handler(msg);
         }
