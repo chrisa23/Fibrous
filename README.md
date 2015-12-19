@@ -12,29 +12,31 @@ Some of the library benefits:
  - UI throttling and redraw can be controlled easily
  - Agent abstractions to simplify working with fibers.
   
- Examples:
-	 //create a fiber that is already started and backed by a thread pool
-	 IFiber fiber = Fiber.StartNew(FiberType.Pool);
+Examples:
+
+```
+//create a fiber that is already started and backed by a thread pool
+IFiber fiber = Fiber.StartNew(FiberType.Pool);
 	 
-	 //Create a channel and subscribe to messages
-	 IChannel<string> channel = new Channel<string>();
+//Create a channel and subscribe to messages
+IChannel<string> channel = new Channel<string>();
 
-	 channel.Subscribe(fiber, (s) => Console.WriteLine(s.ToUpper()));
+channel.Subscribe(fiber, (s) => Console.WriteLine(s.ToUpper()));
 
-	 channel.Publish("the message");
+channel.Publish("the message");
 
-	 //You can enqueue methods
-	 fiber.Enqueue(SomeParameterlessMethod);
+//You can enqueue methods
+fiber.Enqueue(SomeParameterlessMethod);
  
-	 //or lambdas
-	 fiber.Enqueue(() => DoSomeWork(someParam));
+//or lambdas
+fiber.Enqueue(() => DoSomeWork(someParam));
 
-	 //You can schedule when things happen
-	 fiber.Schedule(ScheduledMethod, when);
+//You can schedule when things happen
+fiber.Schedule(ScheduledMethod, when);
 
-	 //and also have them repeat
-	 fiber.Schedule(ScheduledMethod, when, repeat);
-
+//and also have them repeat
+fiber.Schedule(ScheduledMethod, when, repeat);
+```
 
 
 
