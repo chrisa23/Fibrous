@@ -88,8 +88,6 @@
         IDisposable SetRequestHandler(IFiber fiber, Action<IRequest<TRequest, TReply>> onRequest);
     }
 
-    
-
     /// <summary>
     /// Interface for requests where a handler can send a reply
     /// </summary>

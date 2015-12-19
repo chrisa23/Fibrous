@@ -7,8 +7,8 @@ namespace Fibrous
 
     public sealed class SleepingQueue : IQueue
     {
-        private List<Action> Actions = new List<Action>(1024);
-        private List<Action> ToPass = new List<Action>(1024);
+        private List<Action> _actions = new List<Action>(1024);
+        private List<Action> _toPass = new List<Action>(1024);
         private PaddedBoolean _signalled = new PaddedBoolean(false);
         private readonly object _syncRoot = new object();
         private readonly TimeSpan _timeout = TimeSpan.FromMilliseconds(100);
@@ -30,7 +30,7 @@ namespace Fibrous
         {
             lock (_syncRoot)
             {
-                Actions.Add(action);
+                _actions.Add(action);
             }
             _signalled.LazySet(true);
         }
@@ -40,17 +40,17 @@ namespace Fibrous
             return DequeueAll();
         }
 
-        public int Count { get { return Actions.Count; } }
+        public int Count { get { return _actions.Count; } }
 
         private List<Action> DequeueAll()
         {
             Wait();
             lock (_syncRoot)
             {
-                if (Actions.Count == 0) return Queue.Empty;
-                Lists.Swap(ref Actions, ref ToPass);
-                Actions.Clear();
-                return ToPass;
+                if (_actions.Count == 0) return Queue.Empty;
+                Lists.Swap(ref _actions, ref _toPass);
+                _actions.Clear();
+                return _toPass;
             }
         }
 

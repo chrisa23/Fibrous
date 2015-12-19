@@ -11,27 +11,20 @@
     }
 
     /// <summary>
-    /// Base class for a simple Agent
+    /// Agent using injected handler function.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="TRequest"></typeparam>
     /// <typeparam name="TReply"></typeparam>
-    public abstract class RequestAgentBase<TRequest, TReply> : IRequestAgent<TRequest, TReply>
+    public class RequestAgent<TRequest, TReply> : IRequestAgent<TRequest, TReply>
     {
         private readonly IRequestPort<TRequest, TReply> _channel;
-        private readonly IFiber _fiber;
+        protected readonly IFiber Fiber;
 
-        protected RequestAgentBase(FiberType type = FiberType.Pool)
+        public RequestAgent(Action<IRequest<TRequest, TReply>> handler, FiberType type = FiberType.Pool)
         {
-            _fiber = Fiber.StartNew(type);
-            _channel = _fiber.NewRequestPort<TRequest, TReply>(Handle);
-        }
-
-        protected abstract void Handle(IRequest<TRequest, TReply> request);
-        
-        public void Dispose()
-        {
-            _fiber.Dispose();
+            Fiber = Fibrous.Fiber.StartNew(type);
+            _channel = Fiber.NewRequestPort(handler);
         }
 
         public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply)
@@ -42,23 +35,6 @@
         public IReply<TReply> SendRequest(TRequest request)
         {
             return _channel.SendRequest(request);
-        }
-    }
-
-    /// <summary>
-    /// Agent using injected handler function.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <typeparam name="TRequest"></typeparam>
-    /// <typeparam name="TReply"></typeparam>
-    public sealed class RequestAgent<TRequest, TReply> : RequestAgentBase<TRequest, TReply>
-    {
-        private readonly Action<IRequest<TRequest, TReply>> _handler;
-
-        public RequestAgent(Action<IRequest<TRequest, TReply>> handler, FiberType type = FiberType.Pool)
-            : base(type)
-        {
-            _handler = handler;
         }
 
         /// <summary>
@@ -72,9 +48,9 @@
             return new RequestAgent<TRequest, TReply>(handler, type);
         }
 
-        protected override void Handle(IRequest<TRequest, TReply> request)
+        public void Dispose()
         {
-            _handler(request);
+            Fiber.Dispose();
         }
     }
 }

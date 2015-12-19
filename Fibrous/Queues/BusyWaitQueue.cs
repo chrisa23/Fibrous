@@ -66,7 +66,6 @@
                 Thread.Yield();
                 return Queue.Empty;
             }
-            
         }
 
         private bool TryBlockingWait(Stopwatch stopwatch, ref int spins)

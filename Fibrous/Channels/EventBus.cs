@@ -6,7 +6,7 @@
     /// Simple singleton point of event publishing by type.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public static class EventBus<T> 
+    public static class EventBus<T>
     {
         public static readonly IChannel<T> Channel = new Channel<T>();
 

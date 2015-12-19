@@ -35,6 +35,7 @@ namespace Fibrous
         public static IFiber StartNew(FiberType type, IExecutor executor = null) //TODO:  add Queue
         {
             if (executor == null) executor = new Executor();
+            //if(queue == null) queue = new YieldingQueue();
             IFiber fiber = GetFromTyoe(type, executor);
             fiber.Start();
             return fiber;

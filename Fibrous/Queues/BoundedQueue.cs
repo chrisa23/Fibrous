@@ -5,7 +5,6 @@
     using System.Threading;
 
     //Note:  Just for exploring/testing, will be significantly changed 
-
     /// <summary>
     /// Queue with bounded capacity.  Will throw exception if capacity does not recede prior to wait time.
     /// </summary>

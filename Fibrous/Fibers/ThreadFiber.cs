@@ -29,6 +29,11 @@ namespace Fibrous
         {
         }
 
+        public ThreadFiber(IExecutor executor, IQueue queue)
+            : this(executor, new TimerScheduler(), queue, "ThreadFiber-" + GetNextThreadId())
+        {
+        }
+
         public ThreadFiber()
             : this("ThreadFiber-" + GetNextThreadId())
         {

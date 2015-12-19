@@ -48,6 +48,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Agents\ChannelAgent.cs" />
+    <Compile Include="Agents\ChannelRequestAgent.cs" />
     <Compile Include="Agents\IRequestAgent.cs" />
     <Compile Include="Channels\EventBus.cs" />
     <Compile Include="Channels\Result.cs" />
@@ -103,6 +105,8 @@
   <Target Name="BeforeBuild">
   </Target>
   <Target Name="AfterBuild">
+    <Exec Command="nuget pack MyProject.csproj -Prop Configuration=Release"></Exec>
+
   </Target>
   -->
 </Project>
