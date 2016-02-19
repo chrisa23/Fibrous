@@ -170,17 +170,17 @@
         [Explicit]
         public void TestDefaultSleep()
         {
-            PointToPointPerfTestWithStruct(new ThreadFiber(new PerfExecutor(),new TimerScheduler(), new SleepingQueue(),""));
-            PointToPointPerfTestWithInt(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new SleepingQueue(), ""));
-            PointToPointPerfTestWithObject(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new SleepingQueue(), ""));
+            PointToPointPerfTestWithStruct(new ThreadFiber(new PerfExecutor(), new SleepingQueue()));
+            PointToPointPerfTestWithInt(new ThreadFiber(new PerfExecutor(), new SleepingQueue()));
+            PointToPointPerfTestWithObject(new ThreadFiber(new PerfExecutor(), new SleepingQueue()));
         }
         [Test]
         [Explicit]
         public void TestDefaultYield()
         {
-            PointToPointPerfTestWithStruct(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new YieldingQueue(), ""));
-            PointToPointPerfTestWithInt(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new YieldingQueue(), ""));
-            PointToPointPerfTestWithObject(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new YieldingQueue(), ""));
+            PointToPointPerfTestWithStruct(new ThreadFiber(new PerfExecutor(), new YieldingQueue()));
+            PointToPointPerfTestWithInt(new ThreadFiber(new PerfExecutor(), new YieldingQueue()));
+            PointToPointPerfTestWithObject(new ThreadFiber(new PerfExecutor(), new YieldingQueue()));
         }
 
         [Test]
@@ -190,6 +190,15 @@
             PointToPointPerfTestWithStruct(new PoolFiber(new PerfExecutor()));
             PointToPointPerfTestWithInt(new PoolFiber(new PerfExecutor()));
             PointToPointPerfTestWithObject(new PoolFiber(new PerfExecutor()));
+        }
+
+        [Test]
+        [Explicit]
+        public void TestBlocking()
+        {
+            PointToPointPerfTestWithStruct(new ThreadFiber(new PerfExecutor(), new BlockingQueue()));
+            PointToPointPerfTestWithInt(new ThreadFiber(new PerfExecutor(), new BlockingQueue()));
+            PointToPointPerfTestWithObject(new ThreadFiber(new PerfExecutor(), new BlockingQueue()));
         }
     }
 }

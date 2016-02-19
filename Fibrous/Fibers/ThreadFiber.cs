@@ -15,17 +15,17 @@ namespace Fibrous
         private volatile bool _running;
 
         public ThreadFiber(string threadName)
-            : this(new Executor(), new TimerScheduler(), new SleepingQueue(), threadName)
+            : this(new Executor(), new TimerScheduler(), new YieldingQueue(), threadName)
         {
         }
 
         public ThreadFiber(IExecutor executor, string name)
-            : this(executor, new TimerScheduler(), new SleepingQueue(), name)
+            : this(executor, new TimerScheduler(), new YieldingQueue(), name)
         {
         }
 
         public ThreadFiber(IExecutor executor)
-            : this(executor, new TimerScheduler(), new SleepingQueue(), "ThreadFiber-" + GetNextThreadId())
+            : this(executor, new TimerScheduler(), new YieldingQueue(), "ThreadFiber-" + GetNextThreadId())
         {
         }
 
@@ -54,6 +54,7 @@ namespace Fibrous
             bool isBackground = true,
             ThreadPriority priority = ThreadPriority.Normal) : base(executor, fiberScheduler)
         {
+            if (threadName == null) threadName = "ThreadFiber-" + GetNextThreadId();
             _queue = queue;
             _thread = new Thread(RunThread) { Name = threadName, IsBackground = isBackground, Priority = priority };
         }

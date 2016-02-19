@@ -6,6 +6,8 @@
     /// Actor like abstraction for request reply. 
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TRequest"></typeparam>
+    /// <typeparam name="TReply"></typeparam>
     public interface IRequestAgent<TRequest, TReply> : IRequestPort<TRequest, TReply>, IDisposable
     {
     }

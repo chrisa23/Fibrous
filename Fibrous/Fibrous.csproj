@@ -54,7 +54,9 @@
     <Compile Include="Channels\EventBus.cs" />
     <Compile Include="Channels\Result.cs" />
     <Compile Include="Fibers\DispatcherFiber.cs" />
+    <Compile Include="Fibers\FiberBuilder.cs" />
     <Compile Include="Fibers\FormFiber.cs" />
+    <Compile Include="Queues\BlockingQueue.cs" />
     <Compile Include="Queues\BoundedQueue.cs" />
     <Compile Include="Queues\BusyWaitQueue.cs" />
     <Compile Include="Util\CachePadding.cs" />
@@ -99,7 +101,7 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

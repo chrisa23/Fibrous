@@ -13,13 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Todo.txt = Todo.txt
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{14A18CB1-7D08-4A55-8CF2-8D480CC8C95E}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{27D8396A-8BA7-4945-90AB-3E44BB675C27}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example1", "Examples\Example1\Example1.csproj", "{8DC1C5B5-440F-42CB-A5C9-B5E926006994}"
@@ -69,7 +62,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{14A18CB1-7D08-4A55-8CF2-8D480CC8C95E} = {9DB6ECC4-534F-4A4C-90AB-FEEFFD136678}
 		{8DC1C5B5-440F-42CB-A5C9-B5E926006994} = {27D8396A-8BA7-4945-90AB-3E44BB675C27}
 	EndGlobalSection
 EndGlobal

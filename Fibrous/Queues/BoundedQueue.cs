@@ -4,29 +4,24 @@
     using System.Collections.Generic;
     using System.Threading;
 
-    //Note:  Just for exploring/testing, will be significantly changed 
     /// <summary>
     /// Queue with bounded capacity.  Will throw exception if capacity does not recede prior to wait time.
+    /// Good for putting back pressure on fast publishers
     /// </summary>
-    internal sealed class BoundedQueue : IQueue
+    public sealed class BoundedQueue : IQueue
     {
+        private readonly int _maxDepth;
+        private readonly int _maxWaitTime;
         private readonly object _lock = new object();
         private List<Action> _actions = new List<Action>(1024);
         private List<Action> _toPass = new List<Action>(1024);
 
-        public BoundedQueue(int depth)
-        {
-            MaxDepth = depth;
-        }
 
-        /// <summary>
-        /// Max number of actions to be queued.
-        /// </summary>
-        public int MaxDepth { get; set; }
-        /// <summary>
-        /// Max time to wait for space in the queue.
-        /// </summary>
-        public int MaxEnqueueWaitTimeInMs { get; set; }
+        public BoundedQueue(int depth, int maxWaitTime = Int32.MaxValue)
+        {
+            _maxWaitTime = maxWaitTime;
+            _maxDepth = depth;
+        }
 
         /// <summary>
         /// Enqueue action.
@@ -46,22 +41,18 @@
 
         private bool SpaceAvailable(int toAdd)
         {
-            while (MaxDepth > 0 && _actions.Count + toAdd > MaxDepth)
+            
+            while (_maxDepth > 0 && _actions.Count + toAdd > _maxDepth)
             {
-                //Monitor.Wait(_lock, 1);
-                //hread.Yield(); //??
-                //switch to some other mechanism 
-                //                if (MaxEnqueueWaitTimeInMs <= 0)
-                //                {
-                ////                    throw new QueueFullException(_actions.Count);
-                //                    return false;
-                //                }
-                //                Monitor.Wait(_lock, MaxEnqueueWaitTimeInMs);
-                //                if (MaxDepth > 0 && _actions.Count + toAdd > MaxDepth)
-                //                {
-                //                    //throw new QueueFullException(_actions.Count);
-                //                    return false;
-                //                }
+                if (_maxWaitTime <= 0)
+                {
+                    throw new QueueFullException(_actions.Count);
+                }
+                Monitor.Wait(_lock, _maxWaitTime);
+                if (_maxDepth > 0 && _actions.Count + toAdd > _maxDepth)
+                {
+                    throw new QueueFullException(_actions.Count);
+                }
             }
             return true;
         }
@@ -90,7 +81,18 @@
 
         public void Dispose()
         {
-            //Monitor.PulseAll(_lock);
+            lock(_lock)
+                Monitor.PulseAll(_lock);
+        }
+    }
+
+    public class QueueFullException : Exception
+    {
+        public int Count { get; set; }
+
+        public QueueFullException(int count)
+        {
+            Count = count;
         }
     }
 }

@@ -77,13 +77,15 @@
         {
             for (int i = 0; i < 3; i++)
             {
-            Func<ThreadFiber> blocking = () => new ThreadFiber();
+            Func<ThreadFiber> blocking = () => new ThreadFiber(new Executor(), new BoundedQueue(1000));
             Func<ThreadFiber> polling = () => new ThreadFiber(new Executor(),new TimerScheduler(),new BusyWaitQueue(100000, 30000),"");
             Func<ThreadFiber> yielding = () => new ThreadFiber(new Executor(), new TimerScheduler(), new YieldingQueue(), "");
+            Func<ThreadFiber> sleeping = () => new ThreadFiber(new Executor(), new TimerScheduler(), new SleepingQueue(), "");
         
                 Execute(blocking, "Blocking");
                 Execute(polling, "Polling");
                 Execute(yielding, "Yielding");
+                Execute(sleeping, "Sleeping");
                 Thread.Sleep(100);
                 Console.WriteLine();
             }
