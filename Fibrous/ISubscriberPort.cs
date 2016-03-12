@@ -105,7 +105,6 @@ namespace Fibrous
         /// <param name="receive"></param>
         /// <returns></returns>
         public static IDisposable Connect<T>(this ISubscriberPort<T> port,
-            IFiber fiber,
             IPublisherPort<T> receive)
         {
             return port.Subscribe(StubFiber.StartNew(), x => receive.Publish(x));
