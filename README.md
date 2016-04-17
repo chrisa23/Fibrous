@@ -15,27 +15,27 @@ Some of the library benefits:
  - Agent abstractions to simplify working with fibers.
 
 
- Fibers
- ------
+Fibers
+------
 
- Fibers are synchronous execution contexts with an action queue.  They can be backed by a thread or the thread pool.  There is also a StubFiber, which is used for testing and in special cases, and immediately executes actions on the calling thread.  Fibers can manage state without worries of cross threading issues.  While a Fiber is synchronous, your system can consist of multiple Fibers communicating through messaging to provide parallelism to your system.
+Fibers are synchronous execution contexts with an action queue.  They can be backed by a thread or the thread pool.  There is also a StubFiber, which is used for testing and in special cases, and immediately executes actions on the calling thread.  Fibers can manage state without worries of cross threading issues.  While a Fiber is synchronous, your system can consist of multiple Fibers communicating through messaging to provide parallelism to your system.
 
- Fibers subscribe to channels to receive messages which queues an action based on the assigned handler.  Fibers have a scheduling API that allows actions to be scheduled in the future as well as repeatedly.  You can also directly queue actions onto a Fiber for it to execute.
+Fibers subscribe to channels to receive messages which queues an action based on the assigned handler.  Fibers have a scheduling API that allows actions to be scheduled in the future as well as repeatedly.  You can also directly queue actions onto a Fiber for it to execute.
 
- Fibers are also a repository of IDisposable objects and will dispose of all children upon the Fibers disposal.  This is used to clean up subscriptions and scheduling for any fiber.  This is also useful for dealing with children used in the Fiber's context that implement IDisposable.
+Fibers are also a repository of IDisposable objects and will dispose of all children upon the Fibers disposal.  This is used to clean up subscriptions and scheduling for any fiber.  This is also useful for dealing with children used in the Fiber's context that implement IDisposable.
 
- There are specialised Fibers for Windows Forms and WPF, which automatically handle invoking actions on the UI/Dispatcher thread
+There are specialised Fibers for Windows Forms and WPF, which automatically handle invoking actions on the UI/Dispatcher thread
 
- Ports and Channels
- ------------------
+Ports and Channels
+------------------
 
- Ports are the end points for publishing and subscribing to messages.  
+Ports are the end points for publishing and subscribing to messages.  
 
- Channels are the conduit for message passing between Fibers, and allow decoupling of the parts of your system.  There are a variety of channel types built into Fibrous, including one way channels that notify all subscribers, request/reply, queue channels that give messages to one of multiple sibscribers, as well as some channels with functionality like a last value cache and replay channels.
+Channels are the conduit for message passing between Fibers, and allow decoupling of the parts of your system.  There are a variety of channel types built into Fibrous, including one way channels that notify all subscribers, request/reply, queue channels that give messages to one of multiple sibscribers, as well as some channels with functionality like a last value cache and replay channels.
 
- There is also a static EventBus which allows a simpler mechanism for passing messages when only one normal channel per type is needed.
+There is also a static EventBus which allows a simpler mechanism for passing messages when only one normal channel per type is needed.
 
- There are a variety of subscription methods, including filtered, batched, keyed batched and the last message after a time interval.
+There are a variety of subscription methods, including filtered, batched, keyed batched and the last message after a time interval.
  
   
 Examples:
