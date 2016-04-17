@@ -1,7 +1,7 @@
 namespace Fibrous
 {
     using System;
-    using System.ComponentModel;
+    using System.Collections.Generic;
 
     public static class FiberExtensions
     {
@@ -19,6 +19,81 @@ namespace Fibrous
             return channel.Subscribe(fiber, handler);
         }
 
+        /// <summary>Method that subscribe to a periodic batch. </summary>
+        /// <typeparam name="T">    Generic type parameter. </typeparam>
+        /// <param name="port">     The port to act on. </param>
+        /// <param name="fiber">    The fiber. </param>
+        /// <param name="receive">  The receive. </param>
+        /// <param name="interval"> The interval. </param>
+        /// <returns>   . </returns>
+        public static IDisposable SubscribeToBatch<T>(this IFiber fiber,
+            ISubscriberPort<T> port,
+            Action<T[]> receive,
+            TimeSpan interval)
+        {
+            return new BatchSubscriber<T>(port, fiber, interval, receive);
+        }
+
+        /// <summary>
+        /// Subscribe to a periodic batch, maintaining the last item by key
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="port"></param>
+        /// <param name="fiber"></param>
+        /// <param name="keyResolver"></param>
+        /// <param name="receive"></param>
+        /// <param name="interval"></param>
+        /// <returns></returns>
+        public static IDisposable SubscribeToKeyedBatch<TKey, T>(this IFiber fiber,
+            ISubscriberPort<T> port,
+            Converter<T, TKey> keyResolver,
+            Action<IDictionary<TKey, T>> receive,
+            TimeSpan interval)
+        {
+            return new KeyedBatchSubscriber<TKey, T>(port, fiber, interval, keyResolver, receive);
+        }
+
+        /// <summary>
+        /// Subscribe to a port but only consume the last msg per interval
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="port"></param>
+        /// <param name="fiber"></param>
+        /// <param name="receive"></param>
+        /// <param name="interval"></param>
+        /// <returns></returns>
+        public static IDisposable SubscribeToLast<T>(this IFiber fiber,
+            ISubscriberPort<T> port,
+            Action<T> receive,
+            TimeSpan interval)
+        {
+            return new LastSubscriber<T>(port, fiber, interval, receive);
+        }
+
+        /// <summary>
+        /// Subscribe with a message predicate to filter messages
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="port"></param>
+        /// <param name="fiber"></param>
+        /// <param name="receive"></param>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        public static IDisposable Subscribe<T>(this IFiber fiber,
+            ISubscriberPort<T> port,
+            Action<T> receive,
+            Predicate<T> filter)
+        {
+            Action<T> filteredReceiver = x =>
+            {
+                if (filter(x))
+                    fiber.Enqueue(() => receive(x));
+            };
+
+            //we use a stub fiber to force the filtering onto the publisher thread.
+            return port.Subscribe(StubFiber.StartNew(), filteredReceiver);
+        }
 
         public static IPublisherPort<T> NewPublishPort<T>(this IFiber fiber, Action<T> onEvent)
         {

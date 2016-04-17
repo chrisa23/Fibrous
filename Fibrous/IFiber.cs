@@ -18,8 +18,7 @@ namespace Fibrous
         /// </summary>
         void Stop();
     }
-
-
+    
     public interface IExecutionContext
     {
         /// <summary>
@@ -49,7 +48,7 @@ namespace Fibrous
         IDisposable Schedule(Action action, TimeSpan startTime, TimeSpan interval);
     }
 
-    public static class SchecdulerExtensions
+    public static class SchedulerExtensions
     {
         /// <summary>
         /// Schedule an action at a DateTime
