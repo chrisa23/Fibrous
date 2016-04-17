@@ -22,7 +22,7 @@ Fibers are synchronous execution contexts with an action queue.  They can be bac
 
 Fibers subscribe to channels to receive messages which queues an action based on the assigned handler.  Fibers have a scheduling API that allows actions to be scheduled in the future as well as repeatedly.  You can also directly queue actions onto a Fiber for it to execute.
 
-Fibers are also a repository of IDisposable objects and will dispose of all children upon the Fibers disposal.  This is used to clean up subscriptions and scheduling for any fiber.  This is also useful for dealing with children used in the Fiber's context that implement IDisposable.
+Fibers are a repository of IDisposable objects and will dispose of all children upon the Fibers disposal.  This is used to clean up subscriptions and scheduling for any fiber.  This is also useful for dealing with children used in the Fiber's context that implement IDisposable.
 
 There are specialised Fibers for Windows Forms and WPF, which automatically handle invoking actions on the UI/Dispatcher thread
 
@@ -65,8 +65,6 @@ fiber.Schedule(ScheduledMethod, when);
 
 //and also have them repeat
 fiber.Schedule(ScheduledMethod, when, repeat);
-
-
 ```
 
 
