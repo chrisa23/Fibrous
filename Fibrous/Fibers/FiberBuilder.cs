@@ -1,8 +1,9 @@
-﻿namespace Fibrous
+﻿namespace Fibrous.Fibers
 {
     using System;
     using System.Threading;
     using Fibrous.Queues;
+    using Fibrous.Scheduling;
 
     public interface IFiberBuilder
     {
@@ -24,7 +25,6 @@
         private string _name;
         private ThreadPriority _priority = ThreadPriority.Normal;
         private IQueue _queue;
-        private IFiberScheduler _scheduler;
         private IExecutor _executor;
 
         public FiberBuilderImpl(FiberType type)

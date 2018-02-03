@@ -1,4 +1,4 @@
-namespace Fibrous
+namespace Fibrous.Util
 {
     using System;
 
@@ -22,15 +22,10 @@ namespace Fibrous
             return disposeAction;
         }
 
-        public bool Publish(TEvent msg)
+        public void Publish(TEvent msg)
         {
             Action<TEvent> internalEvent = InternalEvent;
-            if (internalEvent != null)
-            {
-                internalEvent(msg);
-                return true;
-            }
-            return false;
+            internalEvent?.Invoke(msg);
         }
 
         public void Dispose()
@@ -50,15 +45,10 @@ namespace Fibrous
             return disposeAction;
         }
 
-        public bool Trigger()
+        public void Trigger()
         {
             Action internalEvent = InternalEvent;
-            if (internalEvent != null)
-            {
-                internalEvent();
-                return true;
-            }
-            return false;
+            internalEvent?.Invoke();
         }
 
         public void Dispose()

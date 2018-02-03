@@ -8,7 +8,7 @@
     /// <summary>
     /// Busy waits on lock to execute.  Can improve performance in certain situations.
     /// </summary>
-    internal sealed class BusyWaitQueue : IQueue
+    public sealed class BusyWaitQueue : IQueue
     {
         private readonly object _lock = new object();
         private readonly int _spinsBeforeTimeCheck;

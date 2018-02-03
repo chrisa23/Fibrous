@@ -3,7 +3,10 @@
     using System;
     using System.Diagnostics;
     using System.Threading;
+    using Fibrous.Channels;
+    using Fibrous.Fibers;
     using Fibrous.Queues;
+    using Fibrous.Scheduling;
     using NUnit.Framework;
 
     [TestFixture]
@@ -12,12 +15,12 @@
         private static void Execute(Func<ThreadFiber> creator, String name)
         {
             Console.WriteLine(name);
-            const int channelCount = 5;
+            const int ChannelCount = 5;
             double msPerTick = 1000.0 / Stopwatch.Frequency;
-            var channels = new IChannel<Msg>[channelCount];
+            var channels = new IChannel<Msg>[ChannelCount];
             for (int i = 0; i < channels.Length; i++)
                 channels[i] = new Channel<Msg>();
-            var fibers = new ThreadFiber[channelCount];
+            var fibers = new ThreadFiber[ChannelCount];
             for (int i = 0; i < fibers.Length; i++)
             {
                 fibers[i] = creator();
@@ -27,7 +30,7 @@
                 IChannel<Msg> target = !isLast ? channels[i] : null;
                 if (prior >= 0)
                 {
-                    Action<Msg> cb = delegate(Msg message)
+                    void Cb(Msg message)
                     {
                         if (target != null)
                             target.Publish(message);
@@ -39,8 +42,9 @@
                                 Console.WriteLine("qTime: " + diff * msPerTick);
                             message.Latch.Set();
                         }
-                    };
-                    channels[prior].Subscribe(fibers[i], cb);
+                    }
+
+                    channels[prior].Subscribe(fibers[i], Cb);
                 }
             }
             for (int i = 0; i < 10000; i++)
@@ -77,15 +81,14 @@
         {
             for (int i = 0; i < 3; i++)
             {
-            Func<ThreadFiber> blocking = () => new ThreadFiber(new Executor(), new BoundedQueue(1000));
-            Func<ThreadFiber> polling = () => new ThreadFiber(new Executor(),new TimerScheduler(),new BusyWaitQueue(100000, 30000),"");
-            Func<ThreadFiber> yielding = () => new ThreadFiber(new Executor(), new TimerScheduler(), new YieldingQueue(), "");
-            Func<ThreadFiber> sleeping = () => new ThreadFiber(new Executor(), new TimerScheduler(), new SleepingQueue(), "");
-        
-                Execute(blocking, "Blocking");
-                Execute(polling, "Polling");
-                Execute(yielding, "Yielding");
-                Execute(sleeping, "Sleeping");
+                ThreadFiber Blocking() => new ThreadFiber(new Executor(), new BoundedQueue(1000));
+                ThreadFiber Polling() => new ThreadFiber(new Executor(), new TimerScheduler(), new BusyWaitQueue(100000, 30000), "");
+                ThreadFiber Yielding() => new ThreadFiber(new Executor(), new TimerScheduler(), new YieldingQueue(), "");
+                ThreadFiber Sleeping() => new ThreadFiber(new Executor(), new TimerScheduler(), new SleepingQueue(), "");
+                Execute(Blocking, "Blocking");
+                Execute(Polling, "Polling");
+                Execute(Yielding, "Yielding");
+                Execute(Sleeping, "Sleeping");
                 Thread.Sleep(100);
                 Console.WriteLine();
             }

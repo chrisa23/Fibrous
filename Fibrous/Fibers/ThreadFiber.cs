@@ -1,7 +1,9 @@
-namespace Fibrous
+namespace Fibrous.Fibers
 {
     using System;
     using System.Threading;
+    using Fibrous.Queues;
+    using Fibrous.Scheduling;
 
     /// <summary>
     ///   Fiber implementation backed by a dedicated thread., needs a thread safe queue
@@ -43,6 +45,7 @@ namespace Fibrous
         ///   Creates a thread fiber.
         /// </summary>
         /// <param name="executor"></param>
+        /// <param name="fiberScheduler"></param>
         /// <param name = "queue"></param>
         /// <param name = "threadName"></param>
         /// <param name = "isBackground"></param>

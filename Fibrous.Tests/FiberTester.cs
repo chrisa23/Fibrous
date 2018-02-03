@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Threading;
+    using Fibrous.Channels;
     using NUnit.Framework;
 
     public static class FiberTester
@@ -25,13 +26,15 @@
             using (var reset = new AutoResetEvent(false))
             {
                 var channel = new Channel<int>();
-                Action<int> onMsg = x =>
+
+                void OnMsg(int x)
                 {
                     Assert.IsTrue(x % 2 == 0);
                     if (x == 4)
                         reset.Set();
-                };
-                channel.Subscribe(fiber, onMsg, x => x % 2 == 0);
+                }
+
+                channel.Subscribe(fiber, OnMsg, x => x % 2 == 0);
                 channel.Publish(1);
                 channel.Publish(2);
                 channel.Publish(3);
@@ -62,13 +65,15 @@
             {
                 var counter = new Channel<int>();
                 int total = 0;
-                Action<IList<int>> cb = batch =>
+
+                void Cb(IList<int> batch)
                 {
                     total += batch.Count;
                     if (total == 10)
                         reset.Set();
-                };
-                counter.SubscribeToBatch(fiber, cb, TimeSpan.FromMilliseconds(1));
+                }
+
+                counter.SubscribeToBatch(fiber, (Action<IList<int>>)Cb, TimeSpan.FromMilliseconds(1));
                 for (int i = 0; i < 10; i++)
                     counter.Publish(i);
                 Assert.IsTrue(reset.WaitOne(10000, false));
@@ -81,14 +86,16 @@
             using (var reset = new ManualResetEvent(false))
             {
                 var counter = new Channel<int>();
-                Action<IDictionary<String, int>> cb = batch =>
+
+                void Cb(IDictionary<string, int> batch)
                 {
                     if (batch.ContainsKey("9"))
                         reset.Set();
-                };
-                Converter<int, String> keyResolver = x => x.ToString();
+                }
+
+                string KeyResolver(int x) => x.ToString();
                 //disposed with fiber
-                counter.SubscribeToKeyedBatch(fiber, keyResolver, cb, TimeSpan.FromMilliseconds(1));
+                counter.SubscribeToKeyedBatch(fiber, KeyResolver, Cb, TimeSpan.FromMilliseconds(1));
                 for (int i = 0; i < 10; i++)
                     counter.Publish(i);
                 Assert.IsTrue(reset.WaitOne(10000, false));
@@ -114,14 +121,16 @@
             {
                 int count = 0;
                 var result = new List<int>();
-                Action command = () =>
+
+                void Command()
                 {
                     result.Add(count++);
                     if (count == 100)
                         reset.Set();
-                };
+                }
+
                 for (int i = 0; i < 100; i++)
-                    fiber.Enqueue(command);
+                    fiber.Enqueue(Command);
                 Assert.IsTrue(reset.WaitOne(10000, false));
                 Assert.AreEqual(100, count);
             }

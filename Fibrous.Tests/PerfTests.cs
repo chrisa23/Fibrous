@@ -3,15 +3,20 @@
     using System;
     using System.Collections.Generic;
     using System.Threading;
+    using Fibrous.Channels;
+    using Fibrous.Fibers;
     using Fibrous.Queues;
+    using Fibrous.Scheduling;
     using NUnit.Framework;
+
+    //using Fibrous.Disruptor;
 
     public class PerfExecutor : IExecutor
     {
         public void Execute(List<Action> toExecute)
         {
             int count = 0;
-            for (int index   = 0; index < toExecute.Count; index++)
+            for (int index = 0; index < toExecute.Count; index++)
             {
                 Action action = toExecute[index];
                 action();
@@ -29,27 +34,27 @@
 
     public struct MsgStruct
     {
-        public int count;
+        public int Count;
     }
 
     [TestFixture]
     public class PerfTests
     {
-        private static void PointToPointPerfTestWithStruct(FiberBase fiber)
+        private static void PointToPointPerfTestWithStruct(IFiber fiber)
         {
             using (fiber)
             {
                 fiber.Start();
                 IChannel<MsgStruct> channel = new Channel<MsgStruct>();
-                const int max = 5000000;
+                const int Max = 5000000;
                 var reset = new AutoResetEvent(false);
-                var counter = new Counter(reset, max);
+                var counter = new Counter(reset, Max);
                 channel.Subscribe(fiber, counter.OnMsg);
                 Thread.Sleep(100);
-                using (new PerfTimer(max))
+                using (new PerfTimer(Max))
                 {
-                    for (int i = 0; i <= max; i++)
-                        channel.Publish(new MsgStruct { count = i });
+                    for (int i = 0; i <= Max; i++)
+                        channel.Publish(new MsgStruct { Count = i });
                     Assert.IsTrue(reset.WaitOne(30000, false));
                 }
             }
@@ -58,39 +63,39 @@
         private class Counter
         {
             private readonly int _cutoff;
-            private readonly AutoResetEvent handle;
+            private readonly AutoResetEvent _handle;
 
             public Counter(AutoResetEvent handle, int cutoff)
             {
-                this.handle = handle;
+                this._handle = handle;
                 _cutoff = cutoff;
             }
 
-            public int Count { get; set; }
+            private int Count { get; set; }
 
             public void OnMsg(MsgStruct msg)
             {
                 Count++;
                 if (Count == _cutoff)
-                    handle.Set();
+                    _handle.Set();
             }
         }
 
         private class CounterInt
         {
             private readonly int _cutoff;
-            private readonly AutoResetEvent handle;
+            private readonly AutoResetEvent _handle;
 
             public CounterInt(AutoResetEvent handle, int cutoff)
             {
-                this.handle = handle;
+                this._handle = handle;
                 _cutoff = cutoff;
             }
 
             public void OnMsg(int msg)
             {
                 if (msg == _cutoff)
-                    handle.Set();
+                    _handle.Set();
             }
         }
 
@@ -100,40 +105,42 @@
             {
                 fiber.Start();
                 var channel = new Channel<int>();
-                const int max = 5000000;
+                const int Max = 5000000;
                 var reset = new AutoResetEvent(false);
-                var counter = new CounterInt(reset, max);
+                var counter = new CounterInt(reset, Max);
                 channel.Subscribe(fiber, counter.OnMsg);
                 Thread.Sleep(100);
-                using (new PerfTimer(max))
+                using (new PerfTimer(Max))
                 {
-                    for (int i = 0; i <= max; i++)
+                    for (int i = 0; i <= Max; i++)
                         channel.Publish(i);
                     Assert.IsTrue(reset.WaitOne(30000, false));
                 }
             }
         }
 
-        public void PointToPointPerfTestWithObject(FiberBase fiber)
+        public void PointToPointPerfTestWithObject(IFiber fiber)
         {
             using (fiber)
             {
                 fiber.Start();
                 var channel = new Channel<object>();
-                const int max = 5000000;
+                const int Max = 5000000;
                 var reset = new AutoResetEvent(false);
                 var end = new object();
-                Action<object> onMsg = delegate(object msg)
+
+                void OnMsg(object msg)
                 {
                     if (msg == end)
                         reset.Set();
-                };
-                channel.Subscribe(fiber, onMsg);
+                }
+
+                channel.Subscribe(fiber, OnMsg);
                 Thread.Sleep(100);
-                using (new PerfTimer(max))
+                using (new PerfTimer(Max))
                 {
                     var msg = new object();
-                    for (int i = 0; i <= max; i++)
+                    for (int i = 0; i <= Max; i++)
                         channel.Publish(msg);
                     channel.Publish(end);
                     Assert.IsTrue(reset.WaitOne(30000, false));
@@ -145,18 +152,20 @@
         [Explicit]
         public void TestBoundedQueue()
         {
-            PointToPointPerfTestWithStruct(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new BoundedQueue(1000),""));
+            PointToPointPerfTestWithStruct(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new BoundedQueue(1000), ""));
             PointToPointPerfTestWithInt(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new BoundedQueue(1000), ""));
             PointToPointPerfTestWithObject(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new BoundedQueue(1000), ""));
         }
+
         [Test]
         [Explicit]
         public void TestBusyWait()
         {
-            PointToPointPerfTestWithStruct(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new BusyWaitQueue(1000,25), ""));
+            PointToPointPerfTestWithStruct(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new BusyWaitQueue(1000, 25), ""));
             PointToPointPerfTestWithInt(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new BusyWaitQueue(1000, 25), ""));
             PointToPointPerfTestWithObject(new ThreadFiber(new PerfExecutor(), new TimerScheduler(), new BusyWaitQueue(1000, 25), ""));
         }
+
         [Test]
         [Explicit]
         public void TestDefault()
@@ -174,6 +183,7 @@
             PointToPointPerfTestWithInt(new ThreadFiber(new PerfExecutor(), new SleepingQueue()));
             PointToPointPerfTestWithObject(new ThreadFiber(new PerfExecutor(), new SleepingQueue()));
         }
+
         [Test]
         [Explicit]
         public void TestDefaultYield()
@@ -200,5 +210,15 @@
             PointToPointPerfTestWithInt(new ThreadFiber(new PerfExecutor(), new BlockingQueue()));
             PointToPointPerfTestWithObject(new ThreadFiber(new PerfExecutor(), new BlockingQueue()));
         }
+
+        //[Test]
+        //[Explicit]
+        //public void TestDisruptor()
+        //{
+        //    var disruptorFiber = new DisruptorFiber(new PerfExecutor());
+        //    PointToPointPerfTestWithObject(disruptorFiber);
+        //    PointToPointPerfTestWithObject(disruptorFiber);
+        //    PointToPointPerfTestWithObject(disruptorFiber);
+        //}
     }
 }

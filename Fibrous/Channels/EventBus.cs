@@ -1,4 +1,4 @@
-﻿namespace Fibrous
+﻿namespace Fibrous.Channels
 {
     using System;
 
@@ -15,9 +15,9 @@
             return Channel.Subscribe(fiber, receive);
         }
 
-        public static bool Publish(T msg)
+        public static void Publish(T msg)
         {
-            return Channel.Publish(msg);
+            Channel.Publish(msg);
         }
     }
 }

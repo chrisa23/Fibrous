@@ -1,17 +1,11 @@
 namespace Fibrous
 {
     using System;
-
-    public enum FiberType
-    {
-        Thread,
-        Pool,
-        Stub
-    }
+    using Fibrous.Fibers;
 
     public static class Fiber
     {
-        private static IFiber GetFromTyoe(FiberType type, IExecutor executor)
+        private static IFiber GetFromType(FiberType type, IExecutor executor)
         {
             switch (type)
             {
@@ -36,7 +30,7 @@ namespace Fibrous
         {
             if (executor == null) executor = new Executor();
             //if(queue == null) queue = new YieldingQueue();
-            IFiber fiber = GetFromTyoe(type, executor);
+            IFiber fiber = GetFromType(type, executor);
             fiber.Start();
             return fiber;
         }

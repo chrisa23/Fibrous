@@ -1,4 +1,4 @@
-namespace Fibrous
+namespace Fibrous.Channels
 {
     using System;
 
@@ -53,13 +53,13 @@ namespace Fibrous
             }
         }
 
-        public bool Publish(T msg)
+        public void Publish(T msg)
         {
             lock (_lock)
             {
                 _last = msg;
                 _hasValue = true;
-                return _updateChannel.Publish(msg);
+                _updateChannel.Publish(msg);
             }
         }
     }

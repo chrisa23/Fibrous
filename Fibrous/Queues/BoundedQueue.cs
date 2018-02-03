@@ -16,7 +16,6 @@
         private List<Action> _actions = new List<Action>(1024);
         private List<Action> _toPass = new List<Action>(1024);
 
-
         public BoundedQueue(int depth, int maxWaitTime = Int32.MaxValue)
         {
             _maxWaitTime = maxWaitTime;
@@ -41,7 +40,6 @@
 
         private bool SpaceAvailable(int toAdd)
         {
-            
             while (_maxDepth > 0 && _actions.Count + toAdd > _maxDepth)
             {
                 if (_maxWaitTime <= 0)
@@ -81,7 +79,7 @@
 
         public void Dispose()
         {
-            lock(_lock)
+            lock (_lock)
                 Monitor.PulseAll(_lock);
         }
     }

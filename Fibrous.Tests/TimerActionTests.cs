@@ -2,6 +2,8 @@ namespace Fibrous.Tests
 {
     using System;
     using System.Threading;
+    using Fibrous.Fibers;
+    using Fibrous.Scheduling;
     using NUnit.Framework;
 
     [TestFixture]
@@ -11,11 +13,11 @@ namespace Fibrous.Tests
         public void CallbackFromIntervalTimerWithCancel()
         {
             int executionCount = 0;
-            Action action = () => executionCount++;
+            void Action() => executionCount++;
             using (IFiber stubFiber = StubFiber.StartNew())
             {
                 var timer = new TimerAction(stubFiber,
-                    action,
+                    Action,
                     TimeSpan.FromMilliseconds(2),
                     TimeSpan.FromMilliseconds(150));
                 Thread.Sleep(100);
@@ -30,8 +32,8 @@ namespace Fibrous.Tests
         public void Cancel()
         {
             int executionCount = 0;
-            Action action = () => executionCount++;
-            var timer = new TimerAction(StubFiber.StartNew(), action, TimeSpan.FromMilliseconds(2));
+            void Action() => executionCount++;
+            var timer = new TimerAction(StubFiber.StartNew(), Action, TimeSpan.FromMilliseconds(2));
             Thread.Sleep(100);
             Assert.AreEqual(1, executionCount);
             timer.Dispose();

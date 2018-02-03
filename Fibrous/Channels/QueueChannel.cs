@@ -1,4 +1,4 @@
-namespace Fibrous
+namespace Fibrous.Channels
 {
     using System;
     using System.Collections.Generic;
@@ -27,19 +27,14 @@ namespace Fibrous
             return new QueueConsumer(fiber, onMessage, this);
         }
 
-        public bool Publish(TMsg message)
+        public void Publish(TMsg message)
         {
             lock (_lock)
             {
                 _queue.Enqueue(message);
             }
             Action onSignal = SignalEvent;
-            if (onSignal != null)
-            {
-                onSignal();
-                return true;
-            }
-            return false;
+            onSignal?.Invoke();
         }
 
         internal event Action SignalEvent;
@@ -94,8 +89,7 @@ namespace Fibrous
             {
                 try
                 {
-                    TMsg msg;
-                    if (_eventChannel.Pop(out msg))
+                    if (_eventChannel.Pop(out var msg))
                         _callback(msg);
                 }
                 finally
@@ -113,7 +107,10 @@ namespace Fibrous
 
         public void Dispose()
         {
-            _queue.Clear();
+            lock (_lock)
+            {
+                _queue.Clear();
+            }
         }
     }
 }

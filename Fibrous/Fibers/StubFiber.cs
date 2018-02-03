@@ -1,6 +1,7 @@
-﻿namespace Fibrous
+﻿namespace Fibrous.Fibers
 {
     using System;
+    using Fibrous.Scheduling;
 
     /// <summary>
     /// Fiber that executes on caller's thread.  For testing and well understood situations.  Use with caution.

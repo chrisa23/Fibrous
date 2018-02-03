@@ -11,6 +11,6 @@ namespace Fibrous
         /// </summary>
         /// <param name="msg"></param>
         /// <returns></returns>
-        bool Publish(T msg);
+        void Publish(T msg);
     }
 }

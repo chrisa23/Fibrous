@@ -1,111 +1,17 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{BE1E0573-3FDA-4988-A952-3AB8A338E99E}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Fibrous</RootNamespace>
-    <AssemblyName>Fibrous</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\Build\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>
-    </AssemblyOriginatorKeyFile>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Title>Fibrous</Title>
+    <Version>2.0.0.0</Version>
+    <Description>High performace concurrency library for the .Net platform.</Description>
+    <Authors>Chris Anderson</Authors>
+    <Company>CA Anderson LLC</Company>
+    <PackageProjectUrl>https://github.com/chrisa23/Fibrous</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/chrisa23/Fibrous</RepositoryUrl>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="WindowsBase" />
+    <Folder Include="Properties\" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Agents\ChannelAgent.cs" />
-    <Compile Include="Agents\ChannelRequestAgent.cs" />
-    <Compile Include="Agents\IRequestAgent.cs" />
-    <Compile Include="Channels\EventBus.cs" />
-    <Compile Include="Channels\Result.cs" />
-    <Compile Include="Fibers\DispatcherFiber.cs" />
-    <Compile Include="Fibers\FiberBuilder.cs" />
-    <Compile Include="Fibers\FormFiber.cs" />
-    <Compile Include="Queues\BlockingQueue.cs" />
-    <Compile Include="Queues\BoundedQueue.cs" />
-    <Compile Include="Queues\BusyWaitQueue.cs" />
-    <Compile Include="Util\CachePadding.cs" />
-    <Compile Include="Util\IEvent.cs" />
-    <Compile Include="Util\PaddedBoolean.cs" />
-    <Compile Include="Util\Disposables.cs" />
-    <Compile Include="Fibers\Fiber.cs" />
-    <Compile Include="Agents\IAgent.cs" />
-    <Compile Include="Fibers\FiberExtensions.cs" />
-    <Compile Include="IFiber.cs" />
-    <Compile Include="Channels\IRequestChannel.cs" />
-    <Compile Include="Channels\ReplayChannel.cs" />
-    <Compile Include="Queues\SleepingQueue.cs" />
-    <Compile Include="IRequestPort.cs" />
-    <Compile Include="Channels\StateChannel.cs" />
-    <Compile Include="Queues\Queue.cs" />
-    <Compile Include="Queues\YieldingQueue.cs" />
-    <Compile Include="Channels\ISnapshotChannel.cs" />
-    <Compile Include="Scheduling\TimerAction.cs" />
-    <Compile Include="Util\PendingAction.cs" />
-    <Compile Include="Util\DisposeAction.cs" />
-    <Compile Include="Util\Unsubscriber.cs" />
-    <Compile Include="Fibers\FiberBase.cs" />
-    <Compile Include="Fibers\GuiFiberBase.cs" />
-    <Compile Include="Scheduling\BatchSubscriber.cs" />
-    <Compile Include="Scheduling\KeyedBatchSubscriber.cs" />
-    <Compile Include="Scheduling\LastSubscriber.cs" />
-    <Compile Include="IPublisherPort.cs" />
-    <Compile Include="ISubscriberPort.cs" />
-    <Compile Include="Scheduling\BatchSubscriberBase.cs" />
-    <Compile Include="Channels\IChannel.cs" />
-    <Compile Include="Channels\QueueChannel.cs" />
-    <Compile Include="Fibers\IExecutor.cs" />
-    <Compile Include="Queues\IQueue.cs" />
-    <Compile Include="Scheduling\IFiberScheduler.cs" />
-    <Compile Include="Queues\Lists.cs" />
-    <Compile Include="Scheduling\TimerScheduler.cs" />
-    <Compile Include="Fibers\PoolFiber.cs" />
-    <Compile Include="Fibers\StubFiber.cs" />
-    <Compile Include="Fibers\ThreadFiber.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

@@ -1,8 +1,9 @@
-namespace Fibrous
+namespace Fibrous.Queues
 {
     using System;
     using System.Collections.Generic;
     using System.Threading;
+    using Fibrous.Util;
 
     public sealed class YieldingQueue : IQueue
     {
@@ -44,7 +45,7 @@ namespace Fibrous
             return DequeueAll();
         }
 
-        public int Count { get { return _actions.Count; } }
+        public int Count => _actions.Count;
 
         private List<Action> DequeueAll()
         {

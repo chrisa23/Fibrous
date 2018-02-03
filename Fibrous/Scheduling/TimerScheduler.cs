@@ -1,8 +1,9 @@
-namespace Fibrous
+namespace Fibrous.Scheduling
 {
     using System;
+    using Fibrous.Util;
 
-    internal sealed class TimerScheduler : IFiberScheduler
+    public sealed class TimerScheduler : IFiberScheduler
     {
         public IDisposable Schedule(IFiber fiber, Action action, TimeSpan dueTime)
         {

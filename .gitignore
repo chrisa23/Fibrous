@@ -29,3 +29,6 @@ _ReSharper.*
 *.ncrunchproject
 *.ncrunchsolution
 *.Cache
+.vs/Fibrous/v15/Server/sqlite3/storage.ide-wal
+.vs/Fibrous/v15/Server/sqlite3/db.lock
+.vs/Fibrous/v15/Server/sqlite3/storage.ide-shm

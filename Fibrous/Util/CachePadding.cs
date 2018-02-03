@@ -1,4 +1,4 @@
-namespace Fibrous
+namespace Fibrous.Util
 {
     ///<summary>
     /// Size of a cache line in bytes

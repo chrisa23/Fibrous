@@ -1,4 +1,4 @@
-namespace Fibrous
+namespace Fibrous.Util
 {
     using System;
     using System.Runtime.CompilerServices;
@@ -148,7 +148,7 @@ namespace Fibrous
             return value.ToString();
         }
 
-        public bool Value { get { return ReadFullFence(); } set { WriteFullFence(value); } }
+        public bool Value { get => ReadFullFence(); set => WriteFullFence(value); }
 
         private static bool ToBool(int value)
         {

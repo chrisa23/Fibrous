@@ -1,11 +1,11 @@
-﻿namespace Fibrous
+﻿namespace Fibrous.Agents
 {
     using System;
+    using Fibrous.Channels;
 
     /// <summary>
     /// Agent using injected handler function.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     /// <typeparam name="TRequest"></typeparam>
     /// <typeparam name="TReply"></typeparam>
     public class ChannelRequestAgent<TRequest, TReply> : IDisposable

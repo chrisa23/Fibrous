@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Fibrous.Tests
+﻿namespace Fibrous.Tests
 {
     using System.Threading;
-    using Fibrous;
+    using Fibrous.Fibers;
     using NUnit.Framework;
 
     [TestFixture]
@@ -23,7 +17,6 @@ namespace Fibrous.Tests
                     .WithErrorHandlingExecutor()
                     .WithPriority(ThreadPriority.Highest)
                     .Start();
-
             IFiber pool =
                 FiberBuilder
                     .Create(FiberType.Pool)

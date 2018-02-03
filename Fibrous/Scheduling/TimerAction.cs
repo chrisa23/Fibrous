@@ -1,9 +1,9 @@
-namespace Fibrous
+namespace Fibrous.Scheduling
 {
     using System;
     using System.Threading;
 
-    internal sealed class TimerAction : IDisposable
+    public sealed class TimerAction : IDisposable
     {
         private readonly Action _action;
         private readonly TimeSpan _interval;

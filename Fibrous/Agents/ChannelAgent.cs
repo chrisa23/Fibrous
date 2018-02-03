@@ -1,6 +1,7 @@
-namespace Fibrous
+namespace Fibrous.Agents
 {
     using System;
+    using Fibrous.Channels;
 
     /// <summary>
     /// Actor like abstraction.  Recieves a single type of message through a channel

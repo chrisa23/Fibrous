@@ -1,4 +1,4 @@
-﻿namespace Fibrous
+﻿namespace Fibrous.Util
 {
     using System;
 

@@ -2,23 +2,11 @@ namespace Fibrous
 {
     using System;
     using System.Collections.Generic;
+    using Fibrous.Fibers;
+    using Fibrous.Scheduling;
 
-    public static class FiberExtensions
+    public static class SubscriberPortExtensions
     {
-
-        /// <summary>
-        /// Subscribe to a channel from the fiber.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="fiber"></param>
-        /// <param name="channel"></param>
-        /// <param name="handler"></param>
-        /// <returns></returns>
-        public static IDisposable Subscriber<T>(this IFiber fiber, ISubscriberPort<T> channel, Action<T> handler)
-        {
-            return channel.Subscribe(fiber, handler);
-        }
-
         /// <summary>Method that subscribe to a periodic batch. </summary>
         /// <typeparam name="T">    Generic type parameter. </typeparam>
         /// <param name="port">     The port to act on. </param>
@@ -26,8 +14,8 @@ namespace Fibrous
         /// <param name="receive">  The receive. </param>
         /// <param name="interval"> The interval. </param>
         /// <returns>   . </returns>
-        public static IDisposable SubscribeToBatch<T>(this IFiber fiber,
-            ISubscriberPort<T> port,
+        public static IDisposable SubscribeToBatch<T>(this ISubscriberPort<T> port,
+            IFiber fiber,
             Action<T[]> receive,
             TimeSpan interval)
         {
@@ -45,8 +33,8 @@ namespace Fibrous
         /// <param name="receive"></param>
         /// <param name="interval"></param>
         /// <returns></returns>
-        public static IDisposable SubscribeToKeyedBatch<TKey, T>(this IFiber fiber,
-            ISubscriberPort<T> port,
+        public static IDisposable SubscribeToKeyedBatch<TKey, T>(this ISubscriberPort<T> port,
+            IFiber fiber,
             Converter<T, TKey> keyResolver,
             Action<IDictionary<TKey, T>> receive,
             TimeSpan interval)
@@ -63,8 +51,8 @@ namespace Fibrous
         /// <param name="receive"></param>
         /// <param name="interval"></param>
         /// <returns></returns>
-        public static IDisposable SubscribeToLast<T>(this IFiber fiber,
-            ISubscriberPort<T> port,
+        public static IDisposable SubscribeToLast<T>(this ISubscriberPort<T> port,
+            IFiber fiber,
             Action<T> receive,
             TimeSpan interval)
         {
@@ -80,33 +68,32 @@ namespace Fibrous
         /// <param name="receive"></param>
         /// <param name="filter"></param>
         /// <returns></returns>
-        public static IDisposable Subscribe<T>(this IFiber fiber,
-            ISubscriberPort<T> port,
+        public static IDisposable Subscribe<T>(this ISubscriberPort<T> port,
+            IFiber fiber,
             Action<T> receive,
             Predicate<T> filter)
         {
-            Action<T> filteredReceiver = x =>
+            void FilteredReceiver(T x)
             {
                 if (filter(x))
                     fiber.Enqueue(() => receive(x));
-            };
+            }
 
             //we use a stub fiber to force the filtering onto the publisher thread.
-            return port.Subscribe(StubFiber.StartNew(), filteredReceiver);
+            return port.Subscribe(StubFiber.StartNew(), FilteredReceiver);
         }
 
-        public static IPublisherPort<T> NewPublishPort<T>(this IFiber fiber, Action<T> onEvent)
+        /// <summary>
+        /// Quick way to connect a Subscriber port to a Publisher port.  Useful connecting channels and Agents
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="port"></param>
+        /// <param name="receive"></param>
+        /// <returns></returns>
+        public static IDisposable Connect<T>(this ISubscriberPort<T> port,
+            IPublisherPort<T> receive)
         {
-            var channel = new Channel<T>();
-            channel.Subscribe(fiber, onEvent);
-            return channel;
-        }
-
-        public static IRequestPort<Rq, Rp> NewRequestPort<Rq, Rp>(this IFiber fiber, Action<IRequest<Rq, Rp>> onEvent)
-        {
-            var channel = new RequestChannel<Rq, Rp>();
-            channel.SetRequestHandler(fiber, onEvent);
-            return channel;
+            return port.Subscribe(StubFiber.StartNew(), receive.Publish);
         }
     }
 }

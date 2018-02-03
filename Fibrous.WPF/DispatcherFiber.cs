@@ -1,14 +1,15 @@
-namespace Fibrous
+﻿namespace Fibrous.WPF
 {
     using System;
     using System.Windows.Threading;
+    using Fibrous.Fibers;
 
     /// <summary>
-    /// Fiber for use with WPF forms and controls.  Provides seamless marshalling to dispatcher thread.
+    /// Fiber for use with WPF forms and controls.Provides seamless marshalling to dispatcher thread.
     /// </summary>
     public sealed class DispatcherFiber : GuiFiberBase
     {
-        public DispatcherFiber(Executor executor, Dispatcher dispatcher, DispatcherPriority priority = DispatcherPriority.Normal)
+        public DispatcherFiber(IExecutor executor, Dispatcher dispatcher, DispatcherPriority priority = DispatcherPriority.Normal)
             : base(executor, new DispatcherAdapter(dispatcher, priority))
         {
         }

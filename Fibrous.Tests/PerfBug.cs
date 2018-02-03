@@ -6,21 +6,21 @@
 
     public class ActionFactory<T>
     {
-        private readonly Action<T> on;
+        private readonly Action<T> _on;
 
         public ActionFactory(Action<T> onMsg)
         {
-            @on = onMsg;
+            _on = onMsg;
         }
 
         public Action Create(T msg)
         {
-            return () => on(msg);
+            return () => _on(msg);
         }
 
         public Action CreateObject(object obj)
         {
-            return () => on((T)obj);
+            return () => _on((T)obj);
         }
 
         public static Action Create(T msg, Action<T> target)
@@ -45,8 +45,11 @@
         [Test]
         public void PerfTestWithInt()
         {
-            Action<int> onMsg = x => { };
-            var fact = new ActionFactory<int>(onMsg);
+            void OnMsg(int x)
+            {
+            }
+
+            var fact = new ActionFactory<int>(OnMsg);
             Stopwatch watch = Stopwatch.StartNew();
             for (int i = 0; i < 5000000; i++)
                 fact.Create(1);
@@ -57,12 +60,13 @@
         [Test]
         public void PerfTestWithObjectString()
         {
-            Action<string> onMsg = x =>
+            void OnMsg(string x)
             {
                 if (x == "end")
                     Console.WriteLine(x);
-            };
-            var fact = new ActionFactory<string>(onMsg);
+            }
+
+            var fact = new ActionFactory<string>(OnMsg);
             Stopwatch watch = Stopwatch.StartNew();
             for (int i = 0; i < 5000000; i++)
             {
@@ -77,12 +81,13 @@
         [Test]
         public void PerfTestWithString()
         {
-            Action<string> onMsg = x =>
+            void OnMsg(string x)
             {
                 if (x == "end")
                     Console.WriteLine(x);
-            };
-            var fact = new ActionFactory<string>(onMsg);
+            }
+
+            var fact = new ActionFactory<string>(OnMsg);
             Stopwatch watch = Stopwatch.StartNew();
             for (int i = 0; i < 5000000; i++)
             {
@@ -97,11 +102,14 @@
         [Test]
         public void PerfTestWithStringGenericStaticInline()
         {
-            Action<string> onMsg = x => { };
+            void OnMsg(string x)
+            {
+            }
+
             Stopwatch watch = Stopwatch.StartNew();
             for (int i = 0; i < 5000000; i++)
             {
-                Action act = CreateGeneric("", onMsg);
+                Action act = CreateGeneric("", OnMsg);
                 act();
             }
             watch.Stop();
@@ -111,19 +119,20 @@
         [Test]
         public void PerfTestWithStringInline()
         {
-            Action<string> onMsg = x =>
+            void OnMsg(string x)
             {
                 if (x == "end")
                     Console.WriteLine(x);
-            };
+            }
+
             Stopwatch watch = Stopwatch.StartNew();
             for (int i = 0; i < 5000000; i++)
             {
-                Action act = () => onMsg(i.ToString());
-                act();
+                void Act() => OnMsg(i.ToString());
+                Act();
             }
-            Action end = () => onMsg("end");
-            end();
+            void End() => OnMsg("end");
+            End();
             watch.Stop();
             Console.WriteLine("Elapsed: " + watch.ElapsedMilliseconds);
         }
@@ -131,11 +140,14 @@
         [Test]
         public void PerfTestWithStringStaticInline()
         {
-            Action<string> onMsg = x => { };
+            void OnMsg(string x)
+            {
+            }
+
             Stopwatch watch = Stopwatch.StartNew();
             for (int i = 0; i < 5000000; i++)
             {
-                Action act = CreateString("", onMsg);
+                Action act = CreateString("", OnMsg);
                 act();
             }
             watch.Stop();

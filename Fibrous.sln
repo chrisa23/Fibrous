@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2003
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fibrous", "Fibrous\Fibrous.csproj", "{BE1E0573-3FDA-4988-A952-3AB8A338E99E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fibrous", "Fibrous\Fibrous.csproj", "{BE1E0573-3FDA-4988-A952-3AB8A338E99E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fibrous.Tests", "Fibrous.Tests\Fibrous.Tests.csproj", "{D8E24568-A056-45BD-80D9-AF3859E25B1C}"
 EndProject
@@ -16,6 +16,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{27D8396A-8BA7-4945-90AB-3E44BB675C27}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example1", "Examples\Example1\Example1.csproj", "{8DC1C5B5-440F-42CB-A5C9-B5E926006994}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fibrous.WPF", "Fibrous.WPF\Fibrous.WPF.csproj", "{4033938B-174F-4FD4-8F35-86C3012357E6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,11 +59,26 @@ Global
 		{8DC1C5B5-440F-42CB-A5C9-B5E926006994}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{8DC1C5B5-440F-42CB-A5C9-B5E926006994}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{8DC1C5B5-440F-42CB-A5C9-B5E926006994}.Release|x86.ActiveCfg = Release|Any CPU
+		{4033938B-174F-4FD4-8F35-86C3012357E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4033938B-174F-4FD4-8F35-86C3012357E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4033938B-174F-4FD4-8F35-86C3012357E6}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{4033938B-174F-4FD4-8F35-86C3012357E6}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{4033938B-174F-4FD4-8F35-86C3012357E6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4033938B-174F-4FD4-8F35-86C3012357E6}.Debug|x86.Build.0 = Debug|Any CPU
+		{4033938B-174F-4FD4-8F35-86C3012357E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4033938B-174F-4FD4-8F35-86C3012357E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4033938B-174F-4FD4-8F35-86C3012357E6}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{4033938B-174F-4FD4-8F35-86C3012357E6}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{4033938B-174F-4FD4-8F35-86C3012357E6}.Release|x86.ActiveCfg = Release|Any CPU
+		{4033938B-174F-4FD4-8F35-86C3012357E6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{8DC1C5B5-440F-42CB-A5C9-B5E926006994} = {27D8396A-8BA7-4945-90AB-3E44BB675C27}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EF667D96-761F-433A-A8F5-D0407F85FBD8}
 	EndGlobalSection
 EndGlobal

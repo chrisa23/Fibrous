@@ -2,10 +2,13 @@
 {
     using System;
     using Fibrous;
+    using Fibrous.Agents;
+    using Fibrous.Channels;
+    using Fibrous.Fibers;
 
     internal class Program
     {
-        private static void Main(string[] args)
+        private static void Main()
         {
             IChannel<string> toProcess = new Channel<string>();
             IChannel<string> completed = new Channel<string>();

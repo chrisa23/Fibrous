@@ -1,8 +1,9 @@
-namespace Fibrous
+namespace Fibrous.Fibers
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Fibrous.Queues;
 
     /// <summary>
     /// Fiber that uses a thread pool for execution. Pool is used instead of thread, but messages are handled sequentially. 
