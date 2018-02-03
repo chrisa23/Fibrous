@@ -10,6 +10,7 @@ namespace Fibrous.Channels
     public sealed class QueueChannel<TMsg> : IChannel<TMsg>
     {
         private readonly object _lock = new object();
+        //TODO: switch to a concurrent queue since their 
         private readonly Queue<TMsg> _queue = new Queue<TMsg>();
         private int Count
         {

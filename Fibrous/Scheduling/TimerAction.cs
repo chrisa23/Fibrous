@@ -51,11 +51,9 @@ namespace Fibrous.Scheduling
 
         private void DisposeTimer()
         {
-            if (_timer != null)
-            {
-                _timer.Dispose();
-                _timer = null;
-            }
+            if (_timer == null) return;
+            _timer.Dispose();
+            _timer = null;
         }
     }
 }

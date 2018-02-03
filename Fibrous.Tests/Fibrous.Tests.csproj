@@ -220,8 +220,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CollectionTests.cs" />
     <Compile Include="EventTests.cs" />
     <Compile Include="FiberBuilderTests.cs" />
+    <Compile Include="PipelineTests.cs" />
     <Compile Include="SnapshotChannel.cs" />
     <Compile Include="FiberTester.cs" />
     <Compile Include="FiberTests.cs" />

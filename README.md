@@ -11,8 +11,6 @@ Some of the library benefits:
  - Single or multiple subscribers
  - UI fibers for worry free UI marshalling
  - Excellent batching support
- - UI throttling and redraw can be controlled easily
- - Agent abstractions to simplify working with fibers.
 
 
 Fibers

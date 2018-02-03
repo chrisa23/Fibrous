@@ -80,7 +80,7 @@ namespace Fibrous
             }
 
             //we use a stub fiber to force the filtering onto the publisher thread.
-            return port.Subscribe(StubFiber.StartNew(), FilteredReceiver);
+            return port.Subscribe(StubFiber.StartNew(), FilteredReceiver); //TODO: adjust disposal to include stub fiber
         }
 
         /// <summary>

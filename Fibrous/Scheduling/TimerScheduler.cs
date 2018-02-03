@@ -1,7 +1,6 @@
 namespace Fibrous.Scheduling
 {
     using System;
-    using Fibrous.Util;
 
     public sealed class TimerScheduler : IFiberScheduler
     {

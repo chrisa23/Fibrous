@@ -1,7 +1,6 @@
 ﻿namespace Fibrous.Channels
 {
     using System;
-    using Fibrous.Util;
 
     public sealed class Channel<T> : IChannel<T>
     {

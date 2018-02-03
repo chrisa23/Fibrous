@@ -106,7 +106,7 @@ namespace Fibrous.Tests
             {
                 char OnReceive(string message)
                 {
-                   return message[0];
+                    return message[0];
                 }
 
                 FiberBase threadFiber =

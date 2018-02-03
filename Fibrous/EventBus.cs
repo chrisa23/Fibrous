@@ -1,6 +1,7 @@
-﻿namespace Fibrous.Channels
+﻿namespace Fibrous
 {
     using System;
+    using Fibrous.Channels;
 
     /// <summary>
     /// Simple singleton point of event publishing by type.

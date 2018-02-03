@@ -67,7 +67,7 @@
 
             public Counter(AutoResetEvent handle, int cutoff)
             {
-                this._handle = handle;
+                _handle = handle;
                 _cutoff = cutoff;
             }
 
@@ -88,7 +88,7 @@
 
             public CounterInt(AutoResetEvent handle, int cutoff)
             {
-                this._handle = handle;
+                _handle = handle;
                 _cutoff = cutoff;
             }
 

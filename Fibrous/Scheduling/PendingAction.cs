@@ -1,4 +1,4 @@
-﻿namespace Fibrous.Util
+﻿namespace Fibrous.Scheduling
 {
     using System;
 

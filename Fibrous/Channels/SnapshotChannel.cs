@@ -16,7 +16,6 @@ namespace Fibrous.Channels
         ///<param name="receiveSnapshot"> </param>
         public IDisposable Subscribe(IFiber fiber, Action<T> receive, Action<TSnapshot> receiveSnapshot)
         {
-            //Action<T[]> receiveSnapshot = obj => Array.ForEach(obj, receive);
             var primedSubscribe = new SnapshotRequest(fiber, _updatesChannel, receive, receiveSnapshot);
             _requestChannel.SendRequest(null, fiber, x => primedSubscribe.Publish(x));
             return primedSubscribe;

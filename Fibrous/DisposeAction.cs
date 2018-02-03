@@ -1,10 +1,11 @@
-namespace Fibrous.Util
+namespace Fibrous
 {
     using System;
 
     internal sealed class DisposeAction : IDisposable
     {
         private readonly Action _action;
+        private bool _disposed;
 
         public DisposeAction(Action action)
         {
@@ -13,6 +14,8 @@ namespace Fibrous.Util
 
         public void Dispose()
         {
+            if (_disposed) return;
+            _disposed = true;
             _action();
         }
     }

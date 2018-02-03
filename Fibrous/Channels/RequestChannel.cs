@@ -3,7 +3,6 @@ namespace Fibrous.Channels
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using Fibrous.Util;
 
     public sealed class RequestChannel<TRequest, TReply> : IRequestChannel<TRequest, TReply>
     {
@@ -66,7 +65,7 @@ namespace Fibrous.Channels
                         _replied = true;
                         return new Result<TReply>();
                     }
-                    Monitor.Wait(_lock, timeout);
+                    Monitor.Wait(_lock, timeout.Milliseconds);
                     if (_resp.Count > 0)
                     {
                         _replied = true;

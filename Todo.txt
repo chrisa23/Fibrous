@@ -1,5 +1,4 @@
-- Clean up ctor/factory methods.  Allow IQueue to be injected
-- update Xml docs
+- Add pipeline tests/examples
 - Add samples
 - Update latency tests for queues, use histogram to better see results
 - better Req/reply tests
