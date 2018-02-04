@@ -21,9 +21,9 @@
         void Process(TIn input);
 
         /// <summary>
-        /// Allows for any needed timer based scheduling to be initialized
+        /// Allows for any needed initialization, including timer based scheduling to be initialized
         /// </summary>
         /// <param name="scheduler"></param>
-        void InitializeScheduling(IScheduler scheduler);
+        void Initialize(IScheduler scheduler);
     }
 }

@@ -18,7 +18,7 @@
         {
             processor.Exception += error.Publish;
             processor.Output += output.Publish;
-            processor.InitializeScheduling(this);
+            processor.Initialize(this);
             input.Subscribe(Fiber, processor.Process);
         }
     }

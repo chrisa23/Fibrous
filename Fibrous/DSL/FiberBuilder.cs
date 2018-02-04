@@ -1,7 +1,8 @@
-﻿namespace Fibrous.Fibers
+﻿namespace Fibrous.DSL
 {
     using System;
     using System.Threading;
+    using Fibrous.Fibers;
     using Fibrous.Queues;
     using Fibrous.Scheduling;
 
