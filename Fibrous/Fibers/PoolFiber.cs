@@ -13,8 +13,9 @@ namespace Fibrous.Fibers
         private readonly object _lock = new object();
         private readonly TaskFactory _taskFactory;
         private bool _flushPending;
-        private List<Action> _queue = new List<Action>();
-        private List<Action> _toPass = new List<Action>();
+        //TODO: make initial list size adjustable...
+        private List<Action> _queue = new List<Action>(1024*64);
+        private List<Action> _toPass = new List<Action>(1024*64);
 
         public PoolFiber(IExecutor config, TaskFactory taskFactory)
             : base(config)

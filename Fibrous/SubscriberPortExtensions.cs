@@ -80,7 +80,10 @@ namespace Fibrous
             }
 
             //we use a stub fiber to force the filtering onto the publisher thread.
-            return port.Subscribe(StubFiber.StartNew(), FilteredReceiver); //TODO: adjust disposal to include stub fiber
+            var stub = StubFiber.StartNew();
+            port.Subscribe(stub, FilteredReceiver); 
+            //We return the fiber which is disosable and contains the subscription
+            return stub;
         }
 
         /// <summary>
@@ -93,7 +96,9 @@ namespace Fibrous
         public static IDisposable Connect<T>(this ISubscriberPort<T> port,
             IPublisherPort<T> receive)
         {
-            return port.Subscribe(StubFiber.StartNew(), receive.Publish);
+            var stub = StubFiber.StartNew();
+            port.Subscribe(stub, receive.Publish);
+            return stub;
         }
     }
 }

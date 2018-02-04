@@ -7,8 +7,8 @@ namespace Fibrous.Queues
 
     public sealed class YieldingQueue : IQueue
     {
-        private List<Action> _actions = new List<Action>(1024);
-        private List<Action> _toPass = new List<Action>(1024);
+        private List<Action> _actions = new List<Action>(1024*32);
+        private List<Action> _toPass = new List<Action>(1024*32);
         private const int SpinTries = 100;
         private PaddedBoolean _signalled = new PaddedBoolean(false);
 
@@ -16,11 +16,19 @@ namespace Fibrous.Queues
         {
             int counter = SpinTries;
             while (!_signalled.Value) // volatile read
-                counter = ApplyWaitMethod(counter);
+                ApplyWaitMethod(ref counter);
             _signalled.Exchange(false);
         }
 
-        private static int ApplyWaitMethod(int counter)
+        internal static void ApplyWaitMethod(ref int counter)
+        {
+            if (counter == 0)
+                Thread.Sleep(0);
+            else
+                --counter;
+        }
+
+        internal static int ApplyWaitMethod2(int counter)
         {
             if (counter == 0)
                 Thread.Sleep(0);

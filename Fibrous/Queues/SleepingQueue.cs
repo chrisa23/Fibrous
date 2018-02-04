@@ -8,19 +8,19 @@ namespace Fibrous.Queues
 
     public sealed class SleepingQueue : IQueue
     {
-        private List<Action> _actions = new List<Action>(1024);
-        private List<Action> _toPass = new List<Action>(1024);
+        private List<Action> _actions = new List<Action>(1024*32);
+        private List<Action> _toPass = new List<Action>(1024*32);
         private PaddedBoolean _signalled = new PaddedBoolean(false);
         private readonly object _syncRoot = new object();
         private readonly TimeSpan _timeout = TimeSpan.FromMilliseconds(100);
-
+        private readonly Stopwatch sw = Stopwatch.StartNew();
+        private SpinWait _spinWait = default(SpinWait);
         public void Wait()
         {
-            SpinWait spinWait = default(SpinWait);
-            Stopwatch sw = Stopwatch.StartNew();
+            sw.Restart();
             while (!_signalled.Value) // volatile read
             {
-                spinWait.SpinOnce();
+                _spinWait.SpinOnce();
                 if (sw.Elapsed > _timeout)
                     break;
             }

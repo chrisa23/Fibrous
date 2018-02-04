@@ -13,8 +13,8 @@
         private readonly object _lock = new object();
         private readonly int _spinsBeforeTimeCheck;
         private readonly int _msBeforeBlockingWait;
-        private List<Action> _actions = new List<Action>();
-        private List<Action> _toPass = new List<Action>();
+        private List<Action> _actions = new List<Action>(1024*32);
+        private List<Action> _toPass = new List<Action>(1024*32);
 
         ///<summary>
         /// BusyWaitQueue with custom executor.

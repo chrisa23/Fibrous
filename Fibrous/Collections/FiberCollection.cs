@@ -74,7 +74,7 @@
             return _request.SendRequest(request);
         }
 
-        public T[] GetItems(Func<T, bool> request)
+        public T[] GetItems(Func<T, bool> request)//, TimeSpan timout = TimeSpan.MaxValue)
         {
             return _request.SendRequest(request).Receive(TimeSpan.MaxValue).Value;
         }

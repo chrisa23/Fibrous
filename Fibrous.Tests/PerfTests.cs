@@ -51,6 +51,9 @@
                 var counter = new Counter(reset, Max);
                 channel.Subscribe(fiber, counter.OnMsg);
                 Thread.Sleep(100);
+                //Warmup
+                for (int i = 0; i <= Max; i++)
+                    channel.Publish(new MsgStruct { Count = i });
                 using (new PerfTimer(Max))
                 {
                     for (int i = 0; i <= Max; i++)
@@ -110,6 +113,8 @@
                 var counter = new CounterInt(reset, Max);
                 channel.Subscribe(fiber, counter.OnMsg);
                 Thread.Sleep(100);
+                for (int i = 0; i <= Max; i++)
+                    channel.Publish(i);
                 using (new PerfTimer(Max))
                 {
                     for (int i = 0; i <= Max; i++)
@@ -129,17 +134,19 @@
                 var reset = new AutoResetEvent(false);
                 var end = new object();
 
-                void OnMsg(object msg)
+                void OnMsg(object msg1)
                 {
-                    if (msg == end)
+                    if (msg1 == end)
                         reset.Set();
                 }
 
                 channel.Subscribe(fiber, OnMsg);
                 Thread.Sleep(100);
+                var msg = new object();
+                for (int i = 0; i <= Max; i++)
+                    channel.Publish(msg);
                 using (new PerfTimer(Max))
                 {
-                    var msg = new object();
                     for (int i = 0; i <= Max; i++)
                         channel.Publish(msg);
                     channel.Publish(end);

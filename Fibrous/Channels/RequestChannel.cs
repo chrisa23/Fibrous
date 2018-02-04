@@ -65,7 +65,12 @@ namespace Fibrous.Channels
                         _replied = true;
                         return new Result<TReply>();
                     }
-                    Monitor.Wait(_lock, timeout.Milliseconds);
+                    //Max timespan throws an error here...
+                    if (timeout == TimeSpan.MaxValue)
+                        Monitor.Wait(_lock, -1);
+                    else
+                        Monitor.Wait(_lock, timeout);
+
                     if (_resp.Count > 0)
                     {
                         _replied = true;

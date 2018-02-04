@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example1", "Examples\Exampl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fibrous.WPF", "Fibrous.WPF\Fibrous.WPF.csproj", "{4033938B-174F-4FD4-8F35-86C3012357E6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fibrous.Benchmark", "Fibrous.Benchmark\Fibrous.Benchmark.csproj", "{541ED6F7-D38C-4F8A-98D8-1A54AC68F32F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,18 @@ Global
 		{4033938B-174F-4FD4-8F35-86C3012357E6}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{4033938B-174F-4FD4-8F35-86C3012357E6}.Release|x86.ActiveCfg = Release|Any CPU
 		{4033938B-174F-4FD4-8F35-86C3012357E6}.Release|x86.Build.0 = Release|Any CPU
+		{541ED6F7-D38C-4F8A-98D8-1A54AC68F32F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{541ED6F7-D38C-4F8A-98D8-1A54AC68F32F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{541ED6F7-D38C-4F8A-98D8-1A54AC68F32F}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{541ED6F7-D38C-4F8A-98D8-1A54AC68F32F}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{541ED6F7-D38C-4F8A-98D8-1A54AC68F32F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{541ED6F7-D38C-4F8A-98D8-1A54AC68F32F}.Debug|x86.Build.0 = Debug|Any CPU
+		{541ED6F7-D38C-4F8A-98D8-1A54AC68F32F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{541ED6F7-D38C-4F8A-98D8-1A54AC68F32F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{541ED6F7-D38C-4F8A-98D8-1A54AC68F32F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{541ED6F7-D38C-4F8A-98D8-1A54AC68F32F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{541ED6F7-D38C-4F8A-98D8-1A54AC68F32F}.Release|x86.ActiveCfg = Release|Any CPU
+		{541ED6F7-D38C-4F8A-98D8-1A54AC68F32F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
