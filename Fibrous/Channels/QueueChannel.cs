@@ -1,7 +1,7 @@
 namespace Fibrous.Channels
 {
     using System;
-    using System.Collections.Generic;
+    using System.Collections.Concurrent;
 
     /// <summary>
     /// Queue channel where a message is consumed by only one consumer.
@@ -9,19 +9,7 @@ namespace Fibrous.Channels
     /// <typeparam name="TMsg"></typeparam>
     public sealed class QueueChannel<TMsg> : IChannel<TMsg>
     {
-        private readonly object _lock = new object();
-        //TODO: switch to a concurrent queue since their 
-        private readonly Queue<TMsg> _queue = new Queue<TMsg>();
-        private int Count
-        {
-            get
-            {
-                lock (_lock)
-                {
-                    return _queue.Count;
-                }
-            }
-        }
+        private readonly ConcurrentQueue<TMsg> _queue = new ConcurrentQueue<TMsg>();
 
         public IDisposable Subscribe(IFiber fiber, Action<TMsg> onMessage)
         {
@@ -30,37 +18,23 @@ namespace Fibrous.Channels
 
         public void Publish(TMsg message)
         {
-            lock (_lock)
-            {
-                _queue.Enqueue(message);
-            }
+            _queue.Enqueue(message);
             Action onSignal = SignalEvent;
             onSignal?.Invoke();
         }
 
         internal event Action SignalEvent;
 
-        private bool Pop(out TMsg msg)
+        internal bool Pop(out TMsg msg)
         {
-            lock (_lock)
-            {
-                if (_queue.Count > 0)
-                {
-                    msg = _queue.Dequeue();
-                    return true;
-                }
-            }
-            msg = default(TMsg);
-            return false;
+            return _queue.TryDequeue(out msg);
         }
 
         private sealed class QueueConsumer : IDisposable
         {
-            private readonly object _lock = new object();
             private readonly Action<TMsg> _callback;
             private readonly QueueChannel<TMsg> _eventChannel;
             private readonly IExecutionContext _target;
-            private bool _flushPending;
 
             public QueueConsumer(IExecutionContext target, Action<TMsg> callback, QueueChannel<TMsg> eventChannel)
             {
@@ -70,47 +44,15 @@ namespace Fibrous.Channels
                 _eventChannel.SignalEvent += Signal;
             }
 
+            private void Signal()
+            {
+                if (_eventChannel.Pop(out var msg))
+                    _target.Enqueue(() => _callback(msg));
+            }
+
             public void Dispose()
             {
                 _eventChannel.SignalEvent -= Signal;
-            }
-
-            private void Signal()
-            {
-                lock (_lock)
-                {
-                    if (_flushPending)
-                        return;
-                    _target.Enqueue(ConsumeNext);
-                    _flushPending = true;
-                }
-            }
-
-            private void ConsumeNext()
-            {
-                try
-                {
-                    if (_eventChannel.Pop(out var msg))
-                        _callback(msg);
-                }
-                finally
-                {
-                    lock (_lock)
-                    {
-                        if (_eventChannel.Count == 0)
-                            _flushPending = false;
-                        else
-                            _target.Enqueue(ConsumeNext);
-                    }
-                }
-            }
-        }
-
-        public void Dispose()
-        {
-            lock (_lock)
-            {
-                _queue.Clear();
             }
         }
     }

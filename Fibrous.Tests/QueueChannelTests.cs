@@ -1,8 +1,10 @@
 namespace Fibrous.Tests
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
     using System.Threading;
     using Fibrous.Channels;
     using Fibrous.Fibers;
@@ -184,18 +186,16 @@ namespace Fibrous.Tests
             IChannel<string> channel = new QueueChannel<string>();
 
             //Init executing Fibers
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 10; i++)
             {
                 void OnReceive(string message)
                 {
                     var firstChar = message[0];
                 }
 
-                IFiber
-                    threadFiber = PoolFiber
-                        .StartNew(); 
-                queues.Add(threadFiber);
-                channel.Subscribe(threadFiber, OnReceive);
+                IFiber fiber = PoolFiber.StartNew(); 
+                queues.Add(fiber);
+                channel.Subscribe(fiber, OnReceive);
             }
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -215,6 +215,42 @@ namespace Fibrous.Tests
             //3 ThreadFiber ~=> 5sec
             //4 ThreadFiber ~=> 8sec
             //5 ThreadFiber ~=> 10sec
+        }
+
+        [Test]
+        public void OnlyOneConsumer()
+        {
+            using (var queues = new Disposables())
+            {
+                IChannel<int> channel = new QueueChannel<int>();
+                ConcurrentBag<int> results = new ConcurrentBag<int>();
+
+                void OnReceive(int message)
+                {
+                    results.Add(message);
+                }
+
+                //Init executing Fibers
+                for (int i = 0; i < 10; i++)
+                {
+                    IFiber threadFiber = ThreadFiber.StartNew();
+                    queues.Add(threadFiber);
+                    channel.Subscribe(threadFiber, OnReceive);
+                }
+                //Push messages
+                for (int i = 0; i < 1000000; i++)
+                {
+                    channel.Publish(i);
+                }
+
+                Thread.Sleep(100);
+                Assert.AreEqual(1000000, results.Count);
+                var r1 = results.OrderBy(x => x).ToArray();
+                for (int i = 0; i < 1000000; i++)
+                {
+                    Assert.AreEqual(i, r1[i]);
+                }
+            }
         }
     }
 }
