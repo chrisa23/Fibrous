@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Fibrous.Tests
+﻿namespace Fibrous.Tests
 {
     using Fibrous.Queues;
     using NUnit.Framework;
@@ -20,7 +14,7 @@ namespace Fibrous.Tests
             {
                 YieldingQueue.ApplyWaitMethod(ref count);
             }
-            Assert.AreEqual(0,count);
+            Assert.AreEqual(0, count);
         }
     }
 }

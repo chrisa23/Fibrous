@@ -2,7 +2,6 @@
 {
     using System.Threading;
     using Fibrous.DSL;
-    using Fibrous.Fibers;
     using NUnit.Framework;
 
     [TestFixture]

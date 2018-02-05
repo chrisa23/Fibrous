@@ -5,7 +5,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class EventTests
+    public class SubscribeToDotNetActionEventTests
     {
         private class EventTester
         {

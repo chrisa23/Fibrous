@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Fibrous.Tests
+﻿namespace Fibrous.Tests
 {
+    using System.Collections.Generic;
     using System.Threading;
     using Fibrous.Collections;
     using NUnit.Framework;
@@ -29,7 +24,8 @@ namespace Fibrous.Tests
                         list.Add(action.Item);
                     else
                         list.Remove(action.Item);
-                }, ints => snapshot = ints);
+                },
+                ints => snapshot = ints);
             Thread.Sleep(10);
             Assert.AreEqual(2, snapshot.Length);
             Assert.AreEqual(1, snapshot[0]);
@@ -43,7 +39,6 @@ namespace Fibrous.Tests
             Assert.AreEqual(0, list.Count);
             var items = collection.GetItems(x => true);
             Assert.AreEqual(2, items.Length);
-
         }
 
         [Test]
@@ -62,7 +57,8 @@ namespace Fibrous.Tests
                         list.Add(action.Item);
                     else
                         list.Remove(action.Item);
-                }, ints => snapshot = ints);
+                },
+                ints => snapshot = ints);
             Thread.Sleep(10);
             Assert.AreEqual(2, snapshot.Length);
             Assert.AreEqual(1, snapshot[0]);

@@ -1,0 +1,19 @@
+﻿<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Fibrous</id>
+    <version>2.0.0-beta</version>
+    <authors>Chris Anderson</authors>
+    <owners>chrisa23</owners>
+    <projectUrl>http://github.com/chrisa23/fibrous</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>High performance concurrency framework</description>
+    <copyright>Copyright ©2018 CA Anderson LLC</copyright>
+    <tags>concurrency actors multi-threading messaging</tags>
+
+  </metadata>
+  <files>
+    <file src=".\bin\Release\netstandard2.0\Fibrous.dll" target="lib/{framework name}[{version}]" />
+    <file src=".\bin\Release\netstandard2.0\Fibrous.pdb" target="lib/{framework name}[{version}]" />
+  </files>
+</package>

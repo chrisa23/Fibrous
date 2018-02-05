@@ -3,7 +3,7 @@ namespace Fibrous.Tests
     using System;
     using System.Diagnostics;
 
-    public class PerfTimer : IDisposable
+    public sealed class PerfTimer : IDisposable
     {
         private readonly int _count;
         private readonly Stopwatch _stopWatch;

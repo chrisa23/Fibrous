@@ -23,11 +23,16 @@ namespace Fibrous
         {
             InternalEvent = null;
         }
+
+        internal bool HasSubscriptions()
+        {
+            return InternalEvent != null;
+        }
     }
 
     public sealed class Event : IDisposable
     {
-        private event Action InternalEvent;
+        internal event Action InternalEvent;
 
         public IDisposable Subscribe(Action receive)
         {

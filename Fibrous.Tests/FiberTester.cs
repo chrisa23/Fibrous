@@ -73,7 +73,7 @@
                         reset.Set();
                 }
 
-                counter.SubscribeToBatch(fiber, (Action<IList<int>>)Cb, TimeSpan.FromMilliseconds(1));
+                counter.SubscribeToBatch(fiber, Cb, TimeSpan.FromMilliseconds(1));
                 for (int i = 0; i < 10; i++)
                     counter.Publish(i);
                 Assert.IsTrue(reset.WaitOne(10000, false));

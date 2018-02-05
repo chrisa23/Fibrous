@@ -2,14 +2,16 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Title>Fibrous</Title>
-    <Version>2.0.0.0</Version>
+    <Version>2.0.0-beta</Version>
     <Description>High performace concurrency library for the .Net platform.</Description>
     <Authors>Chris Anderson</Authors>
     <Company>CA Anderson LLC</Company>
     <PackageProjectUrl>https://github.com/chrisa23/Fibrous</PackageProjectUrl>
     <RepositoryUrl>https://github.com/chrisa23/Fibrous</RepositoryUrl>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
-    <FileVersion>2.0.0.0</FileVersion>
+    <AssemblyVersion>2.0.0</AssemblyVersion>
+    <FileVersion>2.0.0</FileVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageTags>concurrency actors multi-threading messaging</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

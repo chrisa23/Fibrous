@@ -51,6 +51,7 @@
                 {
                     throw new QueueFullException(_actions.Count);
                 }
+                Thread.Sleep(0);
             }
             return true;
         }

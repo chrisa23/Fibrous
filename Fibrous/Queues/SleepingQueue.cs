@@ -13,15 +13,15 @@ namespace Fibrous.Queues
         private PaddedBoolean _signalled = new PaddedBoolean(false);
         private readonly object _syncRoot = new object();
         private readonly TimeSpan _timeout = TimeSpan.FromMilliseconds(100);
-        private readonly Stopwatch sw = Stopwatch.StartNew();
-        private SpinWait _spinWait = default(SpinWait);
+        private readonly Stopwatch _sw = Stopwatch.StartNew();
         public void Wait()
         {
-            sw.Restart();
+            SpinWait spin = new SpinWait();
+            _sw.Restart();
             while (!_signalled.Value) // volatile read
             {
-                _spinWait.SpinOnce();
-                if (sw.Elapsed > _timeout)
+                spin.SpinOnce();
+                if (_sw.Elapsed > _timeout)
                     break;
             }
             _signalled.Exchange(false);

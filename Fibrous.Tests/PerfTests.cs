@@ -8,10 +8,8 @@
     using Fibrous.Queues;
     using Fibrous.Scheduling;
     using NUnit.Framework;
-
-    //using Fibrous.Disruptor;
-
-    public class PerfExecutor : IExecutor
+    
+    public sealed class PerfExecutor : IExecutor
     {
         public void Execute(List<Action> toExecute)
         {
@@ -63,7 +61,7 @@
             }
         }
 
-        private class Counter
+        private sealed class Counter
         {
             private readonly int _cutoff;
             private readonly AutoResetEvent _handle;
@@ -84,7 +82,7 @@
             }
         }
 
-        private class CounterInt
+        private sealed class CounterInt
         {
             private readonly int _cutoff;
             private readonly AutoResetEvent _handle;
@@ -193,12 +191,39 @@
 
         [Test]
         [Explicit]
+        public void TestDefaultSleep2()
+        {
+            PointToPointPerfTestWithStruct(new ThreadFiber(new Executor(), new SleepingQueue()));
+            PointToPointPerfTestWithInt(new ThreadFiber(new Executor(), new SleepingQueue()));
+            PointToPointPerfTestWithObject(new ThreadFiber(new Executor(), new SleepingQueue()));
+        }
+
+        [Test]
+        [Explicit]
         public void TestDefaultYield()
         {
             PointToPointPerfTestWithStruct(new ThreadFiber(new PerfExecutor(), new YieldingQueue()));
             PointToPointPerfTestWithInt(new ThreadFiber(new PerfExecutor(), new YieldingQueue()));
             PointToPointPerfTestWithObject(new ThreadFiber(new PerfExecutor(), new YieldingQueue()));
         }
+
+        [Test]
+        [Explicit]
+        public void TestSpinLock()
+        {
+            PointToPointPerfTestWithStruct(new ThreadFiber(new PerfExecutor(), new SpinLockQueue()));
+            PointToPointPerfTestWithInt(new ThreadFiber(new PerfExecutor(), new SpinLockQueue()));
+            PointToPointPerfTestWithObject(new ThreadFiber(new PerfExecutor(), new SpinLockQueue()));
+        }
+
+        //[Test]
+        //[Explicit]
+        //public void TestSpinWait()
+        //{
+        //    PointToPointPerfTestWithStruct(new ThreadFiber(new PerfExecutor(), new SpinWaitQueue()));
+        //    PointToPointPerfTestWithInt(new ThreadFiber(new PerfExecutor(), new SpinWaitQueue()));
+        //    PointToPointPerfTestWithObject(new ThreadFiber(new PerfExecutor(), new SpinWaitQueue()));
+        //}
 
         [Test]
         [Explicit]
@@ -217,15 +242,5 @@
             PointToPointPerfTestWithInt(new ThreadFiber(new PerfExecutor(), new BlockingQueue()));
             PointToPointPerfTestWithObject(new ThreadFiber(new PerfExecutor(), new BlockingQueue()));
         }
-
-        //[Test]
-        //[Explicit]
-        //public void TestDisruptor()
-        //{
-        //    var disruptorFiber = new DisruptorFiber(new PerfExecutor());
-        //    PointToPointPerfTestWithObject(disruptorFiber);
-        //    PointToPointPerfTestWithObject(disruptorFiber);
-        //    PointToPointPerfTestWithObject(disruptorFiber);
-        //}
     }
 }

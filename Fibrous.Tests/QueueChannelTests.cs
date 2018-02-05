@@ -15,6 +15,66 @@ namespace Fibrous.Tests
     [TestFixture]
     public class QueueChannelTests
     {
+
+        private void QueueChannelTest(int fibers, Func<IFiber> factory, int messageCount)
+        {
+            using (var queues = new Disposables())
+            {
+                int receiveCount = 0;
+                using (var reset = new AutoResetEvent(false))
+                {
+                    var channel = new QueueChannel<int>();
+                    void OnReceive(int obj)
+                    {
+                        int x = Interlocked.Increment(ref receiveCount);
+                        if (x == messageCount)
+                            reset.Set();
+                    }
+
+                    for (int i = 0; i < fibers; i++)
+                    {
+                        IFiber fiber = factory();
+                        queues.Add(fiber);
+                        channel.Subscribe(fiber, OnReceive);
+                    }
+                    Stopwatch sw = new Stopwatch();
+                    sw.Start();
+
+                    //Push messages
+                    for (int i = 0; i < messageCount; i++)
+                    {
+                        channel.Publish(i);
+                    }
+                    sw.Stop();
+                    Console.WriteLine($"Fibers: {fibers}  MessageCount: {messageCount}");
+                    Console.WriteLine("End : " + sw.ElapsedMilliseconds);
+                    Assert.IsTrue(reset.WaitOne(10000, false));
+                }
+            }
+        }
+
+        [Test]
+        public void PoolQueue()
+        {
+            int msgCount = 1000000;
+            Func<IFiber> factory = PoolFiber.StartNew;
+            for (int i = 1; i < 10; i++)
+            {
+                QueueChannelTest(i, factory, msgCount);
+            }
+        }
+
+        [Test]
+        public void ThreadQueue()
+        {
+            int msgCount = 1000000;
+            Func<IFiber> factory = ThreadFiber.StartNew;
+            for (int i = 1; i < 10; i++)
+            {
+                QueueChannelTest(i, factory, msgCount);
+            }
+        }
+
         [Test]
         public void Multiple()
         {
@@ -100,41 +160,35 @@ namespace Fibrous.Tests
         [Test]
         public void MultiConsumer()
         {
-            var queues = new List<IFiber>();
-            IChannel<string> channel = new QueueChannel<string>();
-
-            //Init executing Fibers
-            for (int i = 0; i < 5; i++)
+            using (var queues = new Disposables())
             {
-                char OnReceive(string message)
+                IChannel<string> channel = new QueueChannel<string>();
+
+                //Init executing Fibers
+                for (int i = 0; i < 5; i++)
                 {
-                    return message[0];
+                    char OnReceive(string message)
+                    {
+                        return message[0];
+                    }
+
+                    IFiber threadFiber = new ThreadFiber(new Executor(), new TimerScheduler(), new SleepingQueue(), i.ToString());
+                    threadFiber.Start();
+                    queues.Add(threadFiber);
+                    channel.Subscribe(threadFiber, x => OnReceive(x));
                 }
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
 
-                IFiber threadFiber = new ThreadFiber(new Executor(), new TimerScheduler(), new SleepingQueue(), i.ToString());
-                threadFiber.Start();
-                queues.Add(threadFiber);
-                channel.Subscribe(threadFiber, x => OnReceive(x));
+                //Push messages
+                for (int i = 0; i < 1000000; i++)
+                {
+                    string msg = "[" + i + "] Push";
+                    channel.Publish(msg);
+                }
+                sw.Stop();
+                Console.WriteLine("End : " + sw.ElapsedMilliseconds);
             }
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-
-            //Push messages
-            for (int i = 0; i < 1000000; i++)
-            {
-                string msg = "[" + i + "] Push";
-                channel.Publish(msg);
-            }
-            sw.Stop();
-            Console.WriteLine("End : " + sw.ElapsedMilliseconds);
-            // Console.ReadLine();
-
-            //#Results:
-            //1 ThreadFiber ~= 1sec
-            //2 ThreadFiber ~=> 3sec
-            //3 ThreadFiber ~=> 5sec
-            //4 ThreadFiber ~=> 8sec
-            //5 ThreadFiber ~=> 10sec
         }
 
         [Test]
@@ -153,7 +207,7 @@ namespace Fibrous.Tests
                 }
 
                 IFiber threadFiber =
-                    new ThreadFiber(new Executor(), new TimerScheduler(), new YieldingQueue(), i.ToString()); 
+                    new ThreadFiber(new Executor(), new TimerScheduler(), new YieldingQueue(), i.ToString());
                 threadFiber.Start();
                 queues.Add(threadFiber);
                 channel.Subscribe(threadFiber, OnReceive);
@@ -193,7 +247,7 @@ namespace Fibrous.Tests
                     var firstChar = message[0];
                 }
 
-                IFiber fiber = PoolFiber.StartNew(); 
+                IFiber fiber = PoolFiber.StartNew();
                 queues.Add(fiber);
                 channel.Subscribe(fiber, OnReceive);
             }
@@ -242,7 +296,6 @@ namespace Fibrous.Tests
                 {
                     channel.Publish(i);
                 }
-
                 Thread.Sleep(100);
                 Assert.AreEqual(1000000, results.Count);
                 var r1 = results.OrderBy(x => x).ToArray();
