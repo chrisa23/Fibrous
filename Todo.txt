@@ -1,6 +1,7 @@
 - Add more examples
-- Work on queue channel performance / testing
 - Work on thread fiber queue benchmarking, performance
 - Update latency tests for queues, use histogram to better see results
 - better Req/reply tests
 - re-look at Pool fiber and design/contention
+- create pool for thread pool fibers to improve instantiation time for some situations
+- add multi producer tests
