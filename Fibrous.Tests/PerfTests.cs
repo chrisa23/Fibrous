@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Threading;
     using Fibrous.Channels;
+    using Fibrous.Experimental;
     using Fibrous.Fibers;
     using Fibrous.Queues;
     using Fibrous.Scheduling;
@@ -153,6 +154,8 @@
             }
         }
 
+       
+
         [Test]
         [Explicit]
         public void TestBoundedQueue()
@@ -232,6 +235,24 @@
             PointToPointPerfTestWithStruct(new PoolFiber(new PerfExecutor()));
             PointToPointPerfTestWithInt(new PoolFiber(new PerfExecutor()));
             PointToPointPerfTestWithObject(new PoolFiber(new PerfExecutor()));
+        }
+
+        [Test]
+        [Explicit]
+        public void TestSpinLockPool()
+        {
+            PointToPointPerfTestWithStruct(new SpinLockPoolFiber(new PerfExecutor()));
+            PointToPointPerfTestWithInt(new SpinLockPoolFiber(new PerfExecutor()));
+            PointToPointPerfTestWithObject(new SpinLockPoolFiber(new PerfExecutor()));
+        }
+
+        [Test]
+        [Explicit]
+        public void TestPool2()
+        {
+            PointToPointPerfTestWithStruct(new PoolFiber2(new PerfExecutor()));
+            PointToPointPerfTestWithInt(new PoolFiber2(new PerfExecutor()));
+            PointToPointPerfTestWithObject(new PoolFiber2(new PerfExecutor()));
         }
 
         [Test]

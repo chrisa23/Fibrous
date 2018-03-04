@@ -94,7 +94,9 @@ namespace Fibrous
             }
 
             //we use a stub fiber to force the filtering onto the publisher thread.
-            return port.Subscribe(StubFiber.StartNew(), FilteredReceiver);
+            var stub = StubFiber.StartNew();
+            port.Subscribe(stub, FilteredReceiver);
+            return stub;
         }
 
         public static IPublisherPort<T> NewPublishPort<T>(this IFiber fiber, Action<T> onEvent)

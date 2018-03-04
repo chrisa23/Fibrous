@@ -40,5 +40,19 @@
                 _dispatcher.BeginInvoke(action, _priority);
             }
         }
+
+        public static IFiber StartNew()
+        {
+            var dispatchFiber = new DispatcherFiber();
+            dispatchFiber.Start();
+            return dispatchFiber;
+        }
+
+        public static IFiber StartNew(IExecutor executor)
+        {
+            var dispatchFiber = new DispatcherFiber(executor, Dispatcher.CurrentDispatcher);
+            dispatchFiber.Start();
+            return dispatchFiber;
+        }
     }
 }
