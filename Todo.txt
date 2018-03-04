@@ -4,3 +4,5 @@
 - better Req/reply tests
 - re-look at Pool fiber and design/contention
 - consider re-design of Req/Reply interface
+- create pool for thread pool fibers to improve instantiation time for some situations
+- add multi producer tests
