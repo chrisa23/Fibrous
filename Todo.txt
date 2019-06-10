@@ -8,6 +8,8 @@
 - add multi producer tests
 - minimize allocations
 - move things outside core functionality to Extras library
+  -- return to single namespace of Fibrous...  multi namespace is annoying...
 - consider async/await for request reply
 - event aggregator to simplify per type pub/sub and subscribing...
 - look at using other implementations of thread pool that people have created
+- improve benchmark coverage 
