@@ -6,3 +6,8 @@
 - consider re-design of Req/Reply interface
 - create pool for thread pool fibers to improve instantiation time for some situations
 - add multi producer tests
+- minimize allocations
+- move things outside core functionality to Extras library
+- consider async/await for request reply
+- event aggregator to simplify per type pub/sub and subscribing...
+- look at using other implementations of thread pool that people have created
