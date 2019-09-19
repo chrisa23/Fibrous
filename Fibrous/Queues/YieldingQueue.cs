@@ -7,8 +7,8 @@ namespace Fibrous.Queues
 
     public sealed class YieldingQueue : IQueue
     {
-        private List<Action> _actions = new List<Action>(1024*32);
-        private List<Action> _toPass = new List<Action>(1024*32);
+        private List<Action> _actions = new List<Action>(1024);
+        private List<Action> _toPass = new List<Action>(1024);
         private const int SpinTries = 100;
         private PaddedBoolean _signalled = new PaddedBoolean(false);
 

@@ -83,7 +83,7 @@ namespace Fibrous
             var stub = StubFiber.StartNew();
             port.Subscribe(stub, FilteredReceiver); 
             //We return the fiber which is disosable and contains the subscription
-            return stub;
+            return new Unsubscriber(stub, fiber);
         }
 
         /// <summary>

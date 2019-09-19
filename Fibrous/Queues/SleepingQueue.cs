@@ -8,8 +8,8 @@ namespace Fibrous.Queues
 
     public sealed class SleepingQueue : IQueue
     {
-        private List<Action> _actions = new List<Action>(1024*32);
-        private List<Action> _toPass = new List<Action>(1024*32);
+        private List<Action> _actions = new List<Action>(1024);
+        private List<Action> _toPass = new List<Action>(1024);
         private PaddedBoolean _signalled = new PaddedBoolean(false);
         private readonly object _syncRoot = new object();
         private readonly TimeSpan _timeout = TimeSpan.FromMilliseconds(100);

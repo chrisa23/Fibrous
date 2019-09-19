@@ -6,8 +6,8 @@
 
     public class SpinLockQueue : IQueue
     {
-        private List<Action> _actions = new List<Action>(1024 * 32);
-        private List<Action> _toPass = new List<Action>(1024 * 32);
+        private List<Action> _actions = new List<Action>(1024 );
+        private List<Action> _toPass = new List<Action>(1024 );
         private SpinLock _lock = new SpinLock(false);
         
 
