@@ -14,7 +14,7 @@ Some of the library benefits:
  - Scheduling support
  - Synchronous and asynchronous request reply
  
- Fibrous is great for multi-threading when you don't need extreme low latency or distributed actors but want an easy to reason about messaging based model.  Fibrous is also fast and capable of more than 20 million messages per second. 
+ Fibrous is great for multi-threading when you don't need extreme low latency or distributed actors but want an easy to reason about messaging based model.  Fibrous is also fast. 
 
  If you need distributed concurrency, look into Akka.net or Proto.Actor.  If you need extreme performance and super low latency, look into Disruptor.net.
 
