@@ -2,8 +2,6 @@ namespace Fibrous.Tests
 {
     using System;
     using System.Threading;
-    using Fibrous.Fibers;
-    using Fibrous.Scheduling;
     using NUnit.Framework;
 
     [TestFixture]

@@ -1,9 +1,11 @@
-﻿namespace Fibrous.Tests
+﻿using System.Threading.Tasks;
+using Fibrous.Channels;
+
+namespace Fibrous.Tests
 {
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using Fibrous.Channels;
     using NUnit.Framework;
 
     public static class FiberTester
@@ -49,7 +51,7 @@
             using (fiber)
             using (channel.SetRequestHandler(fiber, req => req.Reply("bye")))
             {
-                string reply = channel.SendRequest("hello").Receive(TimeSpan.FromSeconds(1)).Value;
+                string reply = channel.SendRequest("hello").Result;
                 Assert.AreEqual("bye", reply);
             }
         }
@@ -135,6 +137,28 @@
                 Assert.AreEqual(100, count);
             }
         }
+        public static void InOrderExecution(IAsyncFiber fiber)
+        {
+            using (fiber)
+            using (var reset = new AutoResetEvent(false))
+            {
+                int count = 0;
+                var result = new List<int>();
+
+                Task Command()
+                {
+                    result.Add(count++);
+                    if (count == 100)
+                        reset.Set();
+                    return Task.CompletedTask;
+                }
+
+                for (int i = 0; i < 100; i++)
+                    fiber.Enqueue(Command);
+                Assert.IsTrue(reset.WaitOne(10000, false));
+                Assert.AreEqual(100, count);
+            }
+        }
 
         public static void TestPubSubWExtraFiber(IFiber fiber, IFiber fiber2)
         {
@@ -149,6 +173,18 @@
                 channel.Publish("hello");
                 Assert.IsTrue(reset.WaitOne(5000, false));
                 Assert.IsTrue(reset2.WaitOne(5000, false));
+            }
+        }
+
+        public static void ExecuteOnlyAfterStart(AsyncFiber fiber)
+        {
+            using (fiber)
+            using (var reset = new AutoResetEvent(false))
+            {
+                fiber.Enqueue( async () => reset.Set());
+                Assert.IsFalse(reset.WaitOne(1, false));
+                fiber.Start();
+                Assert.IsTrue(reset.WaitOne(1000, false));
             }
         }
     }

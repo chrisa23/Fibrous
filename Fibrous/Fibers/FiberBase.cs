@@ -1,22 +1,15 @@
-namespace Fibrous.Fibers
-{
-    using System;
-    using System.Collections.Generic;
-    using Fibrous.Scheduling;
+using System;
+using System.Collections.Generic;
 
+namespace Fibrous
+{
     public abstract class FiberBase : Disposables, IFiber
     {
-        private enum ExecutionState
-        {
-            Created,
-            Running,
-            Stopped
-        }
+        private readonly IFiberScheduler _fiberScheduler;
+        private readonly List<Action> _preQueue = new List<Action>();
 
         protected readonly IExecutor Executor;
-        private readonly IFiberScheduler _fiberScheduler;
         private ExecutionState _started = ExecutionState.Created;
-        private readonly List<Action> _preQueue = new List<Action>();
 
         protected FiberBase(IExecutor executor, IFiberScheduler scheduler)
         {
@@ -35,19 +28,18 @@ namespace Fibrous.Fibers
         {
         }
 
-        protected virtual void InternalStart()
-        {
-        }
-
         public void Start()
         {
             if (_started == ExecutionState.Running) return; //??just ignore.  why explode?
             InternalStart();
             lock (_preQueue)
             {
-                if (_preQueue.Count > 0)
-                    InternalEnqueue(() => Executor.Execute(_preQueue));
                 _started = ExecutionState.Running;
+                if (_preQueue.Count > 0)
+                    for (var i = 0; i < _preQueue.Count; i++)
+                        InternalEnqueue(_preQueue[i]);
+
+                InternalEnqueue(() => Executor.Execute(_preQueue));
             }
         }
 
@@ -65,7 +57,6 @@ namespace Fibrous.Fibers
             if (_started == ExecutionState.Stopped)
                 return;
             if (_started == ExecutionState.Created)
-            {
                 lock (_preQueue)
                 {
                     if (_started == ExecutionState.Created)
@@ -74,11 +65,9 @@ namespace Fibrous.Fibers
                         return;
                     }
                 }
-            }
+
             InternalEnqueue(action);
         }
-
-        protected abstract void InternalEnqueue(Action action);
 
         public IDisposable Schedule(Action action, TimeSpan dueTime)
         {
@@ -90,11 +79,24 @@ namespace Fibrous.Fibers
             return _fiberScheduler.Schedule(this, action, startTime, interval);
         }
 
+        protected virtual void InternalStart()
+        {
+        }
+
+        protected abstract void InternalEnqueue(Action action);
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
                 _started = ExecutionState.Stopped;
             base.Dispose(disposing);
+        }
+
+        private enum ExecutionState
+        {
+            Created,
+            Running,
+            Stopped
         }
     }
 }

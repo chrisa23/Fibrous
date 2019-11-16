@@ -1,7 +1,6 @@
 namespace Fibrous.Agents
 {
     using System;
-    using Fibrous.Channels;
 
     /// <summary>
     /// Actor like abstraction.  Recieves a single type of message through a channel
@@ -11,9 +10,9 @@ namespace Fibrous.Agents
     {
         protected readonly IFiber Fiber;
 
-        public ChannelAgent(IChannel<T> channel, Action<T> handler, FiberType type = FiberType.Pool)
+        public ChannelAgent(IChannel<T> channel, Action<T> handler, IExecutor executor = null)
         {
-            Fiber = Fibrous.Fiber.StartNew(type);
+            Fiber = PoolFiber.StartNew(executor);
             channel.Subscribe(Fiber, handler);
         }
 

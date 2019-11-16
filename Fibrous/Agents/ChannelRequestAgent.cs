@@ -1,7 +1,6 @@
 ﻿namespace Fibrous.Agents
 {
     using System;
-    using Fibrous.Channels;
 
     /// <summary>
     /// Agent using injected handler function.
@@ -13,10 +12,9 @@
         protected readonly IFiber Fiber;
 
         public ChannelRequestAgent(IRequestChannel<TRequest, TReply> channel,
-            Action<IRequest<TRequest, TReply>> handler,
-            FiberType type = FiberType.Pool)
+            Action<IRequest<TRequest, TReply>> handler, IExecutor executor = null)
         {
-            Fiber = Fibrous.Fiber.StartNew(type);
+            Fiber = PoolFiber.StartNew(executor);
             channel.SetRequestHandler(Fiber, handler);
         }
 

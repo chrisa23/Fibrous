@@ -1,12 +1,13 @@
-namespace Fibrous.Channels
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
+namespace Fibrous
+{
     /// <summary>
-    /// Replay channel that replays the last items stored by key
-    /// Can cause memory leaks if not handled with care
+    ///     Replay channel that replays the last items stored by key
+    ///     Can cause memory leaks if not handled with care
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="T"></typeparam>
@@ -26,9 +27,21 @@ namespace Fibrous.Channels
         {
             lock (_lock)
             {
-                IDisposable disposable = _updateChannel.Subscribe(fiber, handler);
-                foreach (T item in _list.Values)
+                var disposable = _updateChannel.Subscribe(fiber, handler);
+                foreach (var item in _list.Values)
                     handler(item);
+                return disposable;
+            }
+        }
+
+        public IDisposable Subscribe(IAsyncFiber fiber, Func<T, Task> receive)
+        {
+            lock (_lock)
+            {
+                var disposable = _updateChannel.Subscribe(fiber, receive);
+
+                foreach (var item in _list.Values)
+                    fiber.Enqueue(() => receive(item));
                 return disposable;
             }
         }

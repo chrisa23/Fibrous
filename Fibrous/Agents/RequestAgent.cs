@@ -1,4 +1,6 @@
-﻿namespace Fibrous.Agents
+﻿using System.Threading.Tasks;
+
+namespace Fibrous.Agents
 {
     using System;
 
@@ -12,9 +14,9 @@
         private readonly IRequestPort<TRequest, TReply> _channel;
         protected readonly IFiber Fiber;
 
-        public RequestAgent(Action<IRequest<TRequest, TReply>> handler, FiberType type = FiberType.Pool)
+        public RequestAgent(Action<IRequest<TRequest, TReply>> handler, IExecutor executor = null)
         {
-            Fiber = Fibrous.Fiber.StartNew(type);
+            Fiber = PoolFiber.StartNew(executor);
             _channel = Fiber.NewRequestPort(handler);
         }
 
@@ -23,7 +25,7 @@
             return _channel.SendRequest(request, fiber, onReply);
         }
 
-        public IReply<TReply> SendRequest(TRequest request)
+        public Task<TReply> SendRequest(TRequest request)
         {
             return _channel.SendRequest(request);
         }
@@ -34,9 +36,9 @@
         /// <param name="handler"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static IRequestAgent<TRequest, TReply> Start(Action<IRequest<TRequest, TReply>> handler, FiberType type = FiberType.Pool)
+        public static IRequestAgent<TRequest, TReply> Start(Action<IRequest<TRequest, TReply>> handler)
         {
-            return new RequestAgent<TRequest, TReply>(handler, type);
+            return new RequestAgent<TRequest, TReply>(handler);
         }
 
         public void Dispose()

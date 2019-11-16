@@ -1,8 +1,6 @@
 ﻿namespace Fibrous.Tests
 {
     using System.Numerics;
-    using Fibrous.Channels;
-    using Fibrous.Fibers;
     using NUnit.Framework;
 
     [TestFixture]
@@ -18,7 +16,7 @@
             {
                 for (int i = 0; i < 1000000; i++)
                 {
-                    channel.SendRequest(0);
+                    channel.SendRequest(0).Wait();
                 }
             }
         }

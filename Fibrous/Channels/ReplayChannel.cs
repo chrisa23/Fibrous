@@ -1,14 +1,17 @@
-namespace Fibrous.Channels
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Fibrous
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
 
     /// <summary>
-    /// Simple snapshot mechanism.  Replay all old messages on subscribe.  
-    /// Can cause memory leaks if not handled with care
+    ///     Simple snapshot mechanism.  Replay all old messages on subscribe.
+    ///     Can cause memory leaks if not handled with care
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    [Obsolete]
     public sealed class ReplayChannel<T> : IChannel<T>
     {
         private readonly List<T> _list = new List<T>();
@@ -19,13 +22,30 @@ namespace Fibrous.Channels
         {
             lock (_lock)
             {
-                IDisposable disposable = _updateChannel.Subscribe(fiber, handler);
-                int length = _list.Count;
-                for (int index = 0; index < length; index++)
+                var disposable = _updateChannel.Subscribe(fiber, handler);
+                var length = _list.Count;
+                for (var index = 0; index < length; index++)
                 {
-                    T item = _list[index];
+                    var item = _list[index];
                     fiber.Enqueue(() => handler(item));
                 }
+
+                return disposable;
+            }
+        }
+
+        public IDisposable Subscribe(IAsyncFiber fiber, Func<T, Task> receive)
+        {
+            lock (_lock)
+            {
+                var disposable = _updateChannel.Subscribe(fiber, receive);
+                var length = _list.Count;
+                for (var index = 0; index < length; index++)
+                {
+                    var item = _list[index];
+                    fiber.Enqueue(() => receive(item));
+                }
+
                 return disposable;
             }
         }

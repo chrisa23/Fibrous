@@ -1,7 +1,6 @@
 ﻿namespace Fibrous.Tests
 {
     using System;
-    using Fibrous.Fibers;
     using NUnit.Framework;
 
     [TestFixture]

@@ -4,7 +4,6 @@
     using Fibrous;
     using Fibrous.Agents;
     using Fibrous.Channels;
-    using Fibrous.Fibers;
 
     internal class Program
     {

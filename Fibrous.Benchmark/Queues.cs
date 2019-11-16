@@ -2,8 +2,6 @@
 {
     using System;
     using BenchmarkDotNet.Attributes;
-    using Fibrous.Fibers;
-    using Fibrous.Queues;
 
     [MemoryDiagnoser]
     public class Queues

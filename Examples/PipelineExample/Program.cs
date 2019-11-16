@@ -2,7 +2,6 @@
 {
     using System;
     using Fibrous;
-    using Fibrous.Fibers;
     using Fibrous.Pipeline;
 
     class Program

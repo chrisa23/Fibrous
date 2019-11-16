@@ -1,7 +1,6 @@
 ﻿namespace Fibrous.Benchmark
 {
     using BenchmarkDotNet.Attributes;
-    using Fibrous.Fibers;
 
     [MemoryDiagnoser]
     public class GC_EnqueueLambdaVsMethod
@@ -29,7 +28,7 @@
         [GlobalSetup]
         public void Setup()
         {
-            _fiber = PoolFiber.StartNew();
+            _fiber = PoolFiber_OLD.StartNew();
         }
 
         [GlobalCleanup]

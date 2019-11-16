@@ -1,4 +1,6 @@
-﻿namespace PipelineExample
+﻿using Fibrous;
+
+namespace PipelineExample
 {
     using System;
     using Fibrous.Channels;

@@ -1,98 +1,106 @@
-namespace Fibrous.Fibers
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Fibrous
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using Fibrous.Queues;
-
-    /// <summary>
-    /// Fiber that uses a thread pool for execution. Pool is used instead of thread, but messages are handled sequentially. 
-    /// </summary>
-    public sealed class PoolFiber : FiberBase
+    public class PoolFiber : FiberBase
     {
-        private readonly object _lock = new object();
-        private readonly TaskFactory _taskFactory;
-        private bool _flushPending;
-        //TODO: make initial list size adjustable...
-        private List<Action> _queue = new List<Action>(1024);
-        private List<Action> _toPass = new List<Action>(1024);
+        private readonly ArrayQueue<Action> _queue;
 
-        public PoolFiber(IExecutor config, TaskFactory taskFactory)
+        private readonly TaskFactory _taskFactory =
+            new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None);
+
+        private bool _flushPending;
+        private SpinLock _spinLock = new SpinLock(false);
+
+        public PoolFiber(IExecutor config, int size = 1024 * 16)
             : base(config)
         {
-            _taskFactory = taskFactory;
+            _queue = new ArrayQueue<Action>(size);
         }
 
-        public PoolFiber(IExecutor executor)
-            : this(executor, new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None))
-        {
-        }
-
-        public PoolFiber(TaskFactory taskFactory)
-            : this(new Executor(), taskFactory)
-        {
-        }
-
-        public PoolFiber()
-            : this(new Executor(), new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None))
+        public PoolFiber():this(new Executor(), 1024*16)
         {
         }
 
         protected override void InternalEnqueue(Action action)
         {
-            lock (_lock)
+            while (_queue.IsFull) Thread.Yield();
+
+            var lockTaken = false;
+            try
             {
-                _queue.Add(action);
+                _spinLock.Enter(ref lockTaken);
+
+                _queue.Enqueue(action);
                 if (!_flushPending)
                 {
                     _taskFactory.StartNew(Flush);
                     _flushPending = true;
                 }
             }
+            finally
+            {
+                if (lockTaken) _spinLock.Exit(false);
+            }
         }
 
         private void Flush()
         {
-            List<Action> toExecute = ClearActions();
-            if (toExecute.Count > 0)
+            var (count, actions) = Drain();
+            if (count > 0)
             {
-                Executor.Execute(toExecute);
-                lock (_lock)
+                Executor.Execute(count, actions);
+                var lockTaken = false;
+                try
                 {
+                    _spinLock.Enter(ref lockTaken);
+
                     if (_queue.Count > 0)
-                    {
-                        // don't monopolize thread.
+                        //don't monopolize thread.
                         _taskFactory.StartNew(Flush);
-                    }
                     else
                         _flushPending = false;
                 }
+                finally
+                {
+                    if (lockTaken) _spinLock.Exit(false);
+                }
             }
         }
 
-        private List<Action> ClearActions()
+        private (int, Action[]) Drain()
         {
-            lock (_lock)
+            var lockTaken = false;
+            try
             {
+                _spinLock.Enter(ref lockTaken);
+
                 if (_queue.Count == 0)
                 {
                     _flushPending = false;
-                    return Queue.Empty;
+                    return ArrayQueue<Action>.Empty;
                 }
-                Lists.Swap(ref _queue, ref _toPass);
-                _queue.Clear();
-                return _toPass;
+
+                return _queue.Drain();
+            }
+            finally
+            {
+                if (lockTaken) _spinLock.Exit(false);
             }
         }
-
         public static IFiber StartNew()
         {
-            return Fiber.StartNew(FiberType.Pool);
+            var fiber = new PoolFiber();
+            fiber.Start();
+            return fiber;
         }
-
-        public static IFiber StartNew(IExecutor exec)
+        public static IFiber StartNew(IExecutor exec = null, int size = 1024 * 16)
         {
-            return Fiber.StartNew(FiberType.Pool, exec);
+            var fiber = new PoolFiber(exec ?? new Executor(), size);
+            fiber.Start();
+            return fiber;
         }
     }
 }

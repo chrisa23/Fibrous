@@ -1,7 +1,6 @@
 ﻿namespace Fibrous.Benchmark
 {
     using BenchmarkDotNet.Attributes;
-    using Fibrous.Queues;
 
     public class Decrement
     {

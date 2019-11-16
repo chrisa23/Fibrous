@@ -1,7 +1,7 @@
 ﻿namespace Fibrous
 {
     /// <summary>
-    /// Simple fiber based timer that guarantees thread safety for timer actions.
+    ///     Simple fiber based timer that guarantees thread safety for timer actions.
     /// </summary>
     public sealed class ThreadSafeTimer : ConcurrentComponentBase
     {

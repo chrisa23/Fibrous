@@ -1,18 +1,18 @@
+using System;
+using System.Collections.Generic;
+
 namespace Fibrous
 {
-    using System;
-    using System.Collections.Generic;
-
     /// <summary>
-    /// Default executor that simply 
+    ///     Default executor that simply
     /// </summary>
     public sealed class Executor : IExecutor
     {
         public void Execute(List<Action> toExecute)
         {
-            for (int index = 0; index < toExecute.Count; index++)
+            for (var index = 0; index < toExecute.Count; index++)
             {
-                Action action = toExecute[index];
+                var action = toExecute[index];
                 Execute(action);
             }
         }
@@ -20,6 +20,15 @@ namespace Fibrous
         public void Execute(Action toExecute)
         {
             toExecute();
+        }
+
+        public void Execute(int count, Action[] actions)
+        {
+            for (var i = 0; i < count; i++)
+            {
+                var action = actions[i];
+                Execute(action);
+            }
         }
     }
 }

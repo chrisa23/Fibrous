@@ -1,9 +1,10 @@
-﻿namespace Fibrous.Collections
+﻿using System.Threading.Tasks;
+
+namespace Fibrous.Collections
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Fibrous.Channels;
 
     public class FiberKeyedCollection<TKey, T> : ISnapshotSubscriberPort<ItemAction<T>, T[]>, IRequestPort<Func<T, bool>, T[]>, IDisposable
     {
@@ -15,10 +16,10 @@
         readonly ISnapshotChannel<ItemAction<T>, T[]> _channel = new SnapshotChannel<ItemAction<T>, T[]>();
         readonly IRequestChannel<Func<T, bool>, T[]> _request = new RequestChannel<Func<T, bool>, T[]>();
 
-        public FiberKeyedCollection(Func<T, TKey> keyGen)
+        public FiberKeyedCollection(Func<T, TKey> keyGen, IExecutor executor = null)
         {
             _keyGen = keyGen;
-            _fiber = Fiber.StartNew(FiberType.Pool);
+            _fiber = PoolFiber.StartNew(executor);
             _channel.ReplyToPrimingRequest(_fiber, Reply);
             _add.Subscribe(_fiber, AddItem);
             _remove.Subscribe(_fiber, RemoveItem);
@@ -80,14 +81,14 @@
             return _request.SendRequest(request, fiber, onReply);
         }
 
-        public IReply<T[]> SendRequest(Func<T, bool> request)
+        public Task<T[]> SendRequest(Func<T, bool> request)
         {
             return _request.SendRequest(request);
         }
 
         public T[] GetItems(Func<T, bool> request)
         {
-            return _request.SendRequest(request).Receive(TimeSpan.MaxValue).Value;
+            return _request.SendRequest(request).Result;
         }
 
         public void Dispose()

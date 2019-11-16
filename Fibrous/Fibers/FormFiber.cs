@@ -1,10 +1,10 @@
-namespace Fibrous.Fibers
-{
-    using System;
-    using System.ComponentModel;
+using System;
+using System.ComponentModel;
 
+namespace Fibrous
+{
     /// <summary>
-    /// Fiber for use with WinForms.  Handles Invoking actions on the UI thread
+    ///     Fiber for use with WinForms.  Handles Invoking actions on the UI thread
     /// </summary>
     public sealed class FormFiber : GuiFiberBase
     {

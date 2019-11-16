@@ -1,35 +1,23 @@
-namespace Fibrous.Channels
-{
-    using System;
+using System;
+using System.Threading.Tasks;
 
+namespace Fibrous
+{
     /// <summary>
-    /// Channel that maintains its last value which is passed to new subscribers.  Useful with Enums or values representing latest state.
+    ///     Channel that maintains its last value which is passed to new subscribers.  Useful with Enums or values representing
+    ///     latest state.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public sealed class StateChannel<T> : IChannel<T>
     {
         private readonly object _lock = new object();
-        private T _last;
-        private bool _hasValue;
         private readonly IChannel<T> _updateChannel = new Channel<T>();
+        private bool _hasValue;
+        private T _last;
 
         public StateChannel(T initial)
         {
             _last = initial;
-        }
-
-        public IDisposable Subscribe(IFiber fiber, Action<T> handler)
-        {
-            lock (_lock)
-            {
-                IDisposable disposable = _updateChannel.Subscribe(fiber, handler);
-                if (_hasValue)
-                {
-                    T item = _last;
-                    fiber.Enqueue(() => handler(item));
-                }
-                return disposable;
-            }
         }
 
         public bool HasValue
@@ -42,6 +30,7 @@ namespace Fibrous.Channels
                 }
             }
         }
+
         public T Current
         {
             get
@@ -50,6 +39,36 @@ namespace Fibrous.Channels
                 {
                     return _last;
                 }
+            }
+        }
+
+        public IDisposable Subscribe(IFiber fiber, Action<T> handler)
+        {
+            lock (_lock)
+            {
+                var disposable = _updateChannel.Subscribe(fiber, handler);
+                if (_hasValue)
+                {
+                    var item = _last;
+                    fiber.Enqueue(() => handler(item));
+                }
+
+                return disposable;
+            }
+        }
+
+        public IDisposable Subscribe(IAsyncFiber fiber, Func<T, Task> receive)
+        {
+            lock (_lock)
+            {
+                var disposable = _updateChannel.Subscribe(fiber, receive);
+                if (_hasValue)
+                {
+                    var item = _last;
+                    fiber.Enqueue(() => receive(item));
+                }
+
+                return disposable;
             }
         }
 

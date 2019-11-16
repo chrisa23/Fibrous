@@ -2,7 +2,7 @@
 {
     using System;
     using System.Windows.Threading;
-    using Fibrous.Fibers;
+    
 
     /// <summary>
     /// Fiber for use with WPF forms and controls.Provides seamless marshalling to dispatcher thread.

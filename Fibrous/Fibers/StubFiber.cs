@@ -1,10 +1,9 @@
-﻿namespace Fibrous.Fibers
-{
-    using System;
-    using Fibrous.Scheduling;
+﻿using System;
 
+namespace Fibrous
+{
     /// <summary>
-    /// Fiber that executes on caller's thread.  For testing and well understood situations.  Use with caution.
+    ///     Fiber that executes on caller's thread.  For testing and well understood situations.  Use with caution.
     /// </summary>
     public sealed class StubFiber : FiberBase
     {
@@ -30,12 +29,10 @@
 
         public static IFiber StartNew()
         {
-            return Fiber.StartNew(FiberType.Stub);
+            var stub = new StubFiber();
+            stub.Start();
+            return stub;
         }
 
-        public static IFiber StartNew(IExecutor executor)
-        {
-            return Fiber.StartNew(FiberType.Stub, executor);
-        }
     }
 }

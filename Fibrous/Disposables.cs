@@ -1,8 +1,8 @@
-﻿namespace Fibrous
-{
-    using System;
-    using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
+namespace Fibrous
+{
     public class Disposables : IDisposableRegistry
     {
         private readonly List<IDisposable> _items = new List<IDisposable>();
@@ -49,7 +49,8 @@
                 disposables = _items.ToArray();
                 _items.Clear();
             }
-            foreach (IDisposable victim in disposables)
+
+            foreach (var victim in disposables)
                 victim.Dispose();
         }
     }

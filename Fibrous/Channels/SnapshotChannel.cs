@@ -1,19 +1,20 @@
-namespace Fibrous.Channels
-{
-    using System;
+using System;
 
+namespace Fibrous
+{
     public sealed class SnapshotChannel<T, TSnapshot> : ISnapshotChannel<T, TSnapshot>
     {
         private readonly IRequestChannel<object, TSnapshot> _requestChannel =
             new RequestChannel<object, TSnapshot>();
+
         private readonly IChannel<T> _updatesChannel = new Channel<T>();
 
-        ///<summary>
-        /// Subscribes for an initial snapshot and then incremental update.
-        ///</summary>
-        ///<param name="fiber">the target executor to receive the message</param>
-        ///<param name="receive"></param>
-        ///<param name="receiveSnapshot"> </param>
+        /// <summary>
+        ///     Subscribes for an initial snapshot and then incremental update.
+        /// </summary>
+        /// <param name="fiber">the target executor to receive the message</param>
+        /// <param name="receive"></param>
+        /// <param name="receiveSnapshot"> </param>
         public IDisposable Subscribe(IFiber fiber, Action<T> receive, Action<TSnapshot> receiveSnapshot)
         {
             var primedSubscribe = new SnapshotRequest(fiber, _updatesChannel, receive, receiveSnapshot);

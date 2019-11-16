@@ -1,10 +1,10 @@
-namespace Fibrous.Fibers
-{
-    using System;
-    using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 
+namespace Fibrous
+{
     /// <summary>
-    /// IExecutor that handles any exceptions thrown with an optional exception callback 
+    ///     IExecutor that handles any exceptions thrown with an optional exception callback
     /// </summary>
     public sealed class ExceptionHandlingExecutor : IExecutor
     {
@@ -17,9 +17,9 @@ namespace Fibrous.Fibers
 
         public void Execute(List<Action> toExecute)
         {
-            for (int index = 0; index < toExecute.Count; index++)
+            for (var index = 0; index < toExecute.Count; index++)
             {
-                Action action = toExecute[index];
+                var action = toExecute[index];
                 Execute(action);
             }
         }
@@ -33,6 +33,15 @@ namespace Fibrous.Fibers
             catch (Exception e)
             {
                 _callback?.Invoke(e);
+            }
+        }
+
+        public void Execute(int count, Action[] actions)
+        {
+            for (var index = 0; index < count; index++)
+            {
+                var action = actions[index];
+                Execute(action);
             }
         }
     }

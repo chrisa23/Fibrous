@@ -1,8 +1,6 @@
 ﻿namespace Fibrous.Benchmark
 {
     using BenchmarkDotNet.Attributes;
-    using Fibrous.Channels;
-    using Fibrous.Fibers;
 
     [MemoryDiagnoser]
     public class GC_Action
@@ -20,7 +18,7 @@
         [GlobalSetup]
         public void Setup()
         {
-            _fiber = PoolFiber.StartNew();
+            _fiber = PoolFiber_OLD.StartNew();
             _channel.Subscribe(_fiber, o => { });
         }
 

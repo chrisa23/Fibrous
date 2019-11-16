@@ -11,9 +11,9 @@
         private readonly IPublisherPort<T> _channel;
         protected readonly IFiber Fiber;
 
-        public Agent(Action<T> handler, FiberType type = FiberType.Pool)
+        public Agent(Action<T> handler, IExecutor executor = null)
         {
-            Fiber = Fibrous.Fiber.StartNew(type);
+            Fiber = PoolFiber.StartNew(executor);
             _channel = Fiber.NewPublishPort(handler);
         }
 

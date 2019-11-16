@@ -7,7 +7,7 @@
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>
     /// <typeparam name="TReply"></typeparam>
-    public interface IRequestAgent<in TRequest, out TReply> : IRequestPort<TRequest, TReply>, IDisposable
+    public interface IRequestAgent<in TRequest, TReply> : IRequestPort<TRequest, TReply>, IDisposable
     {
     }
 }

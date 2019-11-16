@@ -1,10 +1,10 @@
-namespace Fibrous.Channels
-{
-    using System;
+using System;
 
-    public interface ISnapshotChannel<T, TSnapshot> : IPublisherPort<T>, ISnapshotPublisherPort<TSnapshot>, ISnapshotSubscriberPort<T, TSnapshot>
+namespace Fibrous
+{
+    public interface ISnapshotChannel<T, TSnapshot> : IPublisherPort<T>, ISnapshotPublisherPort<TSnapshot>,
+        ISnapshotSubscriberPort<T, TSnapshot>
     {
-        
     }
 
     public interface ISnapshotSubscriberPort<out T, out TSnapshot>

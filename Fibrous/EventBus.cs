@@ -1,10 +1,9 @@
-﻿namespace Fibrous
-{
-    using System;
-    using Fibrous.Channels;
+﻿using System;
 
+namespace Fibrous
+{
     /// <summary>
-    /// Simple singleton point of event publishing by type.
+    ///     Simple singleton point of event publishing by type.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public static class EventBus<T>

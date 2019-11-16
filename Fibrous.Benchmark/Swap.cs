@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using BenchmarkDotNet.Attributes;
-    using Fibrous.Queues;
 
     public class Swap
     {

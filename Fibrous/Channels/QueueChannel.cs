@@ -1,10 +1,11 @@
-namespace Fibrous.Channels
-{
-    using System;
-    using System.Collections.Concurrent;
+using System;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
 
+namespace Fibrous
+{
     /// <summary>
-    /// Queue channel where a message is consumed by only one consumer.
+    ///     Queue channel where a message is consumed by only one consumer.
     /// </summary>
     /// <typeparam name="TMsg"></typeparam>
     public sealed class QueueChannel<TMsg> : IChannel<TMsg>
@@ -16,10 +17,15 @@ namespace Fibrous.Channels
             return new QueueConsumer(fiber, onMessage, this);
         }
 
+        public IDisposable Subscribe(IAsyncFiber fiber, Func<TMsg, Task> receive)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Publish(TMsg message)
         {
             _queue.Enqueue(message);
-            Action onSignal = SignalEvent;
+            var onSignal = SignalEvent;
             onSignal?.Invoke();
         }
 
@@ -44,15 +50,15 @@ namespace Fibrous.Channels
                 _eventChannel.SignalEvent += Signal;
             }
 
+            public void Dispose()
+            {
+                _eventChannel.SignalEvent -= Signal;
+            }
+
             private void Signal()
             {
                 if (_eventChannel.Pop(out var msg))
                     _target.Enqueue(() => _callback(msg));
-            }
-
-            public void Dispose()
-            {
-                _eventChannel.SignalEvent -= Signal;
             }
         }
     }
