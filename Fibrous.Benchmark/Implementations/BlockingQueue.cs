@@ -1,11 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+
 namespace Fibrous
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-
     /// <summary>
-    /// Blocking implementation.
+    ///     Blocking implementation.
     /// </summary>
     public class BlockingQueue : IQueue
     {
@@ -14,7 +14,7 @@ namespace Fibrous
         private List<Action> _toPass = new List<Action>(1024);
 
         /// <summary>
-        /// Enqueue action.
+        ///     Enqueue action.
         /// </summary>
         /// <param name="action"></param>
         public void Enqueue(Action action)
@@ -36,17 +36,9 @@ namespace Fibrous
                     _actions.Clear();
                     return _toPass;
                 }
+
                 return null;
             }
-        }
-
-        private bool ReadyToDequeue()
-        {
-            while (_actions.Count == 0)
-            {
-                Monitor.Wait(_lock);
-            }
-            return true;
         }
 
         public void Dispose()
@@ -55,6 +47,12 @@ namespace Fibrous
             {
                 Monitor.PulseAll(_lock);
             }
+        }
+
+        private bool ReadyToDequeue()
+        {
+            while (_actions.Count == 0) Monitor.Wait(_lock);
+            return true;
         }
     }
 }

@@ -47,6 +47,7 @@ namespace Fibrous
         /// <param name="toRemove"></param>
         void Remove(IDisposable toRemove);
     }
+
     public interface IScheduler
     {
         /// <summary>
@@ -203,7 +204,5 @@ namespace Fibrous
             channel.SetRequestHandler(fiber, onEvent);
             return channel;
         }
-
-
     }
 }

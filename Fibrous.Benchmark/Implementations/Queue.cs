@@ -1,10 +1,8 @@
-using System.Threading;
+using System;
+using System.Collections.Generic;
 
 namespace Fibrous
 {
-    using System;
-    using System.Collections.Generic;
-
     public static class Queue
     {
         public static readonly List<Action> Empty = new List<Action>();
@@ -13,14 +11,11 @@ namespace Fibrous
 
     public class ArrayQueue
     {
+        public static readonly (int, Action[]) Empty = (0, new Action[0]);
         private readonly int _maxIndex;
         private Action[] _actions;
+        private int _processCount;
         private Action[] _toPass;
-        private int _actionCount = 0;
-        private int _processCount = 0;
-
-        public int Count => _actionCount;
-        public bool IsFull => _actionCount >= _maxIndex;
 
         public ArrayQueue(int size)
         {
@@ -29,27 +24,29 @@ namespace Fibrous
             _toPass = new Action[size];
         }
 
+        public int Count { get; private set; }
+
+        public bool IsFull => Count >= _maxIndex;
+
         public void Enqueue(Action a)
         {
-            _actions[_actionCount++] = a;
+            _actions[Count++] = a;
         }
-
-        public static readonly (int, Action[]) Empty = (0, new Action[0]);
 
         public (int, Action[]) Drain()
         {
-            if (_actionCount == 0) return Empty;
+            if (Count == 0) return Empty;
             Swap(ref _actions, ref _toPass);
-            int old = _processCount;
-            _processCount = _actionCount;
+            var old = _processCount;
+            _processCount = Count;
             Array.Clear(_actions, 0, old);
-            _actionCount = 0;
+            Count = 0;
             return (_processCount, _toPass);
         }
 
         public static void Swap(ref Action[] a, ref Action[] b)
         {
-            Action[] tmp = a;
+            var tmp = a;
             a = b;
             b = tmp;
         }
@@ -57,14 +54,11 @@ namespace Fibrous
 
     public class ArrayQueue<T>
     {
+        public static readonly (int, T[]) Empty = (0, new T[0]);
         private readonly int _maxIndex;
         private T[] _actions;
+        private int _processCount;
         private T[] _toPass;
-        private int _actionCount = 0;
-        private int _processCount = 0;
-
-        public int Count => _actionCount;
-        public bool IsFull => _actionCount >= _maxIndex;
 
         public ArrayQueue(int size)
         {
@@ -73,27 +67,29 @@ namespace Fibrous
             _toPass = new T[size];
         }
 
+        public int Count { get; private set; }
+
+        public bool IsFull => Count >= _maxIndex;
+
         public void Enqueue(T a)
         {
-            _actions[_actionCount++] = a;
+            _actions[Count++] = a;
         }
-
-        public static readonly (int, T[]) Empty = (0, new T[0]);
 
         public (int, T[]) Drain()
         {
-            if (_actionCount == 0) return Empty;
+            if (Count == 0) return Empty;
             Swap(ref _actions, ref _toPass);
-            int old = _processCount;
-            _processCount = _actionCount;
+            var old = _processCount;
+            _processCount = Count;
             Array.Clear(_actions, 0, old);
-            _actionCount = 0;
+            Count = 0;
             return (_processCount, _toPass);
         }
 
         public static void Swap(ref T[] a, ref T[] b)
         {
-            T[] tmp = a;
+            var tmp = a;
             a = b;
             b = tmp;
         }

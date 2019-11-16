@@ -1,17 +1,17 @@
-﻿namespace Fibrous.Benchmark
-{
-    using System;
-    using BenchmarkDotNet.Attributes;
+﻿using System;
+using BenchmarkDotNet.Attributes;
 
+namespace Fibrous.Benchmark
+{
     [MemoryDiagnoser]
     public class Queues
     {
-        private IFiber _yield;
+        private readonly Action _lambda = () => { };
+        private IFiber _busyWait;
         private IFiber _sleep;
         private IFiber _spin;
-        private IFiber _busyWait;
-        private readonly Action _lambda = () => { };
-        
+        private IFiber _yield;
+
         [Benchmark]
         public void Yield()
         {
@@ -78,7 +78,7 @@
         [IterationSetup(Target = "BusyWait")]
         public void BusyWaitSetup()
         {
-            _busyWait = new ThreadFiber(new Executor(), new BusyWaitQueue(1000,100));
+            _busyWait = new ThreadFiber(new Executor(), new BusyWaitQueue(1000, 100));
             _busyWait.Start();
         }
 

@@ -1,12 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 namespace Fibrous
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using Fibrous;
-
     /// <summary>
-    /// Fiber that uses a thread pool for execution. Pool is used instead of thread, but messages are handled sequentially. 
+    ///     Fiber that uses a thread pool for execution. Pool is used instead of thread, but messages are handled sequentially.
     /// </summary>
     public sealed class PoolFiber_OLD : FiberBase
     {
@@ -16,8 +15,8 @@ namespace Fibrous
 
 
         //TODO: make initial list size adjustable...
-        private List<Action> _queue = new List<Action>(1024*4);
-        private List<Action> _toPass = new List<Action>(1024*4);
+        private List<Action> _queue = new List<Action>(1024 * 4);
+        private List<Action> _toPass = new List<Action>(1024 * 4);
 
         public PoolFiber_OLD(IExecutor config, TaskFactory taskFactory)
             : base(config)
@@ -44,7 +43,6 @@ namespace Fibrous
         {
             lock (_lock)
             {
-                
                 _queue.Add(action);
                 if (!_flushPending)
                 {
@@ -56,17 +54,15 @@ namespace Fibrous
 
         private void Flush()
         {
-            List<Action> toExecute = ClearActions();
+            var toExecute = ClearActions();
             if (toExecute.Count > 0)
             {
                 Executor.Execute(toExecute);
                 lock (_lock)
                 {
                     if (_queue.Count > 0)
-                    {
                         // don't monopolize thread.
                         _taskFactory.StartNew(Flush);
-                    }
                     else
                         _flushPending = false;
                 }
@@ -82,6 +78,7 @@ namespace Fibrous
                     _flushPending = false;
                     return Queue.Empty;
                 }
+
                 Lists.Swap(ref _queue, ref _toPass);
                 _queue.Clear();
                 return _toPass;

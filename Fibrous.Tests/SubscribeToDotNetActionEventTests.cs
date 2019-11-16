@@ -1,27 +1,26 @@
-﻿namespace Fibrous.Tests
-{
-    using System;
-    using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 
+namespace Fibrous.Tests
+{
     [TestFixture]
     public class SubscribeToDotNetActionEventTests
     {
         private class EventTester
         {
+            public bool IsAttached => Event != null;
             public event Action<object> Event;
 
             public void Invoke()
             {
                 Event?.Invoke(null);
             }
-
-            public bool IsAttached => Event != null;
         }
 
         [Test]
         public void CanSubscribeToEvent()
         {
-            bool triggered = false;
+            var triggered = false;
             var stub = StubFiber.StartNew();
             var evt = new EventTester();
             var dispose = stub.SubscribeToEvent<object>(evt, "Event", x => triggered = true);

@@ -1,22 +1,20 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Fibrous.Pipeline
 {
-    using System;
-
     public abstract class StageBase<TIn, TOut> : IStage<TIn, TOut>
     {
         protected readonly IChannel<TIn> In = new Channel<TIn>();
         protected readonly IChannel<TOut> Out = new Channel<TOut>();
-        public IFiber Fiber { get; }
 
-        protected StageBase( IExecutor executor = null)
+        protected StageBase(IExecutor executor = null)
         {
             Fiber = PoolFiber.StartNew(executor);
             Fiber.Subscribe(In, Receive);
         }
 
-        protected abstract void Receive(TIn @in);
+        public IFiber Fiber { get; }
 
         public void Publish(TIn msg)
         {
@@ -37,5 +35,7 @@ namespace Fibrous.Pipeline
         {
             Fiber?.Dispose();
         }
+
+        protected abstract void Receive(TIn @in);
     }
 }

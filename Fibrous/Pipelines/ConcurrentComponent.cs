@@ -1,9 +1,8 @@
-﻿namespace Fibrous.Pipeline
-{
-    using System;
+﻿using System;
 
+namespace Fibrous.Pipeline
+{
     /// <summary>
-    /// 
     /// </summary>
     /// <typeparam name="TIn"></typeparam>
     /// <typeparam name="TOut"></typeparam>

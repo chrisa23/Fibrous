@@ -20,7 +20,7 @@ namespace Fibrous
             _queue = new ArrayQueue<Action>(size);
         }
 
-        public PoolFiber():this(new Executor(), 1024*16)
+        public PoolFiber() : this(new Executor())
         {
         }
 
@@ -90,12 +90,14 @@ namespace Fibrous
                 if (lockTaken) _spinLock.Exit(false);
             }
         }
+
         public static IFiber StartNew()
         {
             var fiber = new PoolFiber();
             fiber.Start();
             return fiber;
         }
+
         public static IFiber StartNew(IExecutor exec = null, int size = 1024 * 16)
         {
             var fiber = new PoolFiber(exec ?? new Executor(), size);

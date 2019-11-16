@@ -1,32 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using Fibrous.Channels;
+using BenchmarkDotNet.Attributes;
+using Fibrous.Experimental;
 
 namespace Fibrous.Benchmark
 {
-    using System.Threading;
-    using BenchmarkDotNet.Attributes;
-    using Fibrous.Experimental;
     [MemoryDiagnoser]
     public class PoolFibers2
     {
+        private IAsyncFiber _async;
+        private readonly IChannel<object> _channel = new Channel<object>();
         private IFiber _pool1;
         private IFiber _pool2;
         private IFiber _pool3;
         private IFiber _spinPool;
-        IAsyncFiber _async;
-        private IChannel<object> _channel = new Channel<object>();
-        private AutoResetEvent _wait = new AutoResetEvent(false);
-        private int i = 0;
+        private readonly AutoResetEvent _wait = new AutoResetEvent(false);
+        private int i;
+
         private void Handler(object obj)
         {
             i++;
-            if(i == 1000000)
+            if (i == 1000000)
                 _wait.Set();
         }
+
         private Task AsyncHandler(object obj)
         {
             i++;
@@ -34,15 +31,13 @@ namespace Fibrous.Benchmark
                 _wait.Set();
             return Task.CompletedTask;
         }
+
         public void Run(IFiber fiber)
         {
             using (var sub = _channel.Subscribe(fiber, Handler))
             {
                 i = 0;
-                for (int j = 0; j < 1000000; j++)
-                {
-                    _channel.Publish(null);
-                }
+                for (var j = 0; j < 1000000; j++) _channel.Publish(null);
 
                 WaitHandle.WaitAny(new WaitHandle[] {_wait});
             }
@@ -53,16 +48,13 @@ namespace Fibrous.Benchmark
             using (var sub = _channel.Subscribe(fiber, AsyncHandler))
             {
                 i = 0;
-                for (int j = 0; j < 1000000; j++)
-                {
-                    _channel.Publish(null);
-                }
+                for (var j = 0; j < 1000000; j++) _channel.Publish(null);
 
                 WaitHandle.WaitAny(new WaitHandle[] {_wait});
             }
         }
 
-        [Benchmark(OperationsPerInvoke = 1000000, Baseline =true)]
+        [Benchmark(OperationsPerInvoke = 1000000, Baseline = true)]
         public void Pool1Old()
         {
             Run(_pool1);
@@ -99,7 +91,7 @@ namespace Fibrous.Benchmark
             _pool1 = PoolFiber_OLD.StartNew();
             _pool2 = new PoolFiber2();
             _pool2.Start();
-            _spinPool  =new SpinLockPoolFiber();
+            _spinPool = new SpinLockPoolFiber();
             _spinPool.Start();
             _async = AsyncFiber.StartNew();
             _pool3 = PoolFiber.StartNew();
@@ -115,6 +107,4 @@ namespace Fibrous.Benchmark
             _async.Stop();
         }
     }
-
-   
 }

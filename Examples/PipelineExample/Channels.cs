@@ -1,10 +1,8 @@
-﻿using Fibrous;
+﻿using System;
+using Fibrous;
 
 namespace PipelineExample
 {
-    using System;
-    using Fibrous.Channels;
-
     public class Channels
     {
         //Channels between stages allow you to tap into the messages flowing 

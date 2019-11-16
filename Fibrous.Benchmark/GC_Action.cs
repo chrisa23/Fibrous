@@ -1,13 +1,13 @@
-﻿namespace Fibrous.Benchmark
-{
-    using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
 
+namespace Fibrous.Benchmark
+{
     [MemoryDiagnoser]
     public class GC_Action
     {
+        private readonly IChannel<object> _channel = new Channel<object>();
+        private readonly object _msg = new object();
         private IFiber _fiber;
-        readonly IChannel<object> _channel = new Channel<object>();
-        readonly object _msg = new object();
 
         [Benchmark]
         public void Publish()

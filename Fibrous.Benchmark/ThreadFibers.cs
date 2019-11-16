@@ -6,10 +6,11 @@ namespace Fibrous.Benchmark
     public class ThreadFibers
     {
         private IFiber _sleep;
-        private IFiber _yield;
         private IFiber _spin;
-        private AutoResetEvent _wait = new AutoResetEvent(false);
-        private int i = 0;
+        private readonly AutoResetEvent _wait = new AutoResetEvent(false);
+        private IFiber _yield;
+        private int i;
+
         private void Handler()
         {
             i++;
@@ -20,11 +21,8 @@ namespace Fibrous.Benchmark
         public void Run(IFiber fiber)
         {
             i = 0;
-            for (int j = 0; j < 1000000; j++)
-            {
-                fiber.Enqueue(Handler);
-            }
-            WaitHandle.WaitAny(new WaitHandle[] { _wait });
+            for (var j = 0; j < 1000000; j++) fiber.Enqueue(Handler);
+            WaitHandle.WaitAny(new WaitHandle[] {_wait});
         }
 
         [Benchmark(OperationsPerInvoke = 1000000)]

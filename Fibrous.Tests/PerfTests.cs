@@ -1,45 +1,9 @@
-﻿
+﻿using System.Threading;
 using System.Threading.Tasks;
-using Fibrous.Channels;
+using NUnit.Framework;
 
 namespace Fibrous.Tests
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-    using Fibrous.Experimental;
-    using NUnit.Framework;
-    
-    public sealed class PerfExecutor : IExecutor
-    {
-        public void Execute(List<Action> toExecute)
-        {
-           // int count = 0;
-            for (int index = 0; index < toExecute.Count; index++)
-            {
-                Action action = toExecute[index];
-                action();
-            //    count++;
-            }
-            //if (count < 10000)
-            //    Thread.Sleep(1);
-        }
-
-        public void Execute(Action toExecute)
-        {
-            toExecute();
-        }
-
-        public void Execute(int count, Action[] actions)
-        {
-            for (int index = 0; index < count; index++)
-            {
-                Action action = actions[index];
-                action();
-            }
-        }
-    }
-
     public struct MsgStruct
     {
         public int Count;
@@ -59,14 +23,14 @@ namespace Fibrous.Tests
                 var counter = new Counter(reset, Max);
                 channel.Subscribe(fiber, counter.OnMsg);
                 //Warmup
-                for (int i = 0; i <= Max; i++)
-                    channel.Publish(new MsgStruct { Count = i });
+                for (var i = 0; i <= Max; i++)
+                    channel.Publish(new MsgStruct {Count = i});
                 reset.WaitOne(30000);
 
                 using (new PerfTimer(Max))
                 {
-                    for (int i = 0; i <= Max; i++)
-                        channel.Publish(new MsgStruct { Count = i });
+                    for (var i = 0; i <= Max; i++)
+                        channel.Publish(new MsgStruct {Count = i});
                     Assert.IsTrue(reset.WaitOne(30000, false));
                 }
             }
@@ -83,17 +47,18 @@ namespace Fibrous.Tests
                 var counter = new AsyncCounter(reset, Max);
                 channel.Subscribe(fiber, counter.OnMsg);
                 //Warmup
-                for (int i = 0; i <= Max; i++)
-                    channel.Publish(new MsgStruct { Count = i });
+                for (var i = 0; i <= Max; i++)
+                    channel.Publish(new MsgStruct {Count = i});
                 reset.WaitOne(30000);
                 using (new PerfTimer(Max))
                 {
-                    for (int i = 0; i <= Max; i++)
-                        channel.Publish(new MsgStruct { Count = i });
+                    for (var i = 0; i <= Max; i++)
+                        channel.Publish(new MsgStruct {Count = i});
                     Assert.IsTrue(reset.WaitOne(30000, false));
                 }
             }
         }
+
         private struct AsyncCounter
         {
             private readonly int _cutoff;
@@ -116,6 +81,7 @@ namespace Fibrous.Tests
                     _handle.Set();
                     Count = 0;
                 }
+
                 return Task.CompletedTask;
             }
         }
@@ -132,7 +98,7 @@ namespace Fibrous.Tests
                 Count = 0;
             }
 
-            private int Count { get; set; } 
+            private int Count { get; set; }
 
             public void OnMsg(MsgStruct msg)
             {
@@ -173,12 +139,12 @@ namespace Fibrous.Tests
                 var reset = new AutoResetEvent(false);
                 var counter = new CounterInt(reset, Max);
                 channel.Subscribe(fiber, counter.OnMsg);
-                for (int i = 0; i <= Max; i++)
+                for (var i = 0; i <= Max; i++)
                     channel.Publish(i);
                 reset.WaitOne(30000);
                 using (new PerfTimer(Max))
                 {
-                    for (int i = 0; i <= Max; i++)
+                    for (var i = 0; i <= Max; i++)
                         channel.Publish(i);
                     Assert.IsTrue(reset.WaitOne(30000, false));
                 }
@@ -203,13 +169,13 @@ namespace Fibrous.Tests
 
                 channel.Subscribe(fiber, OnMsg);
                 var msg = new object();
-                for (int i = 0; i <= Max; i++)
+                for (var i = 0; i <= Max; i++)
                     channel.Publish(msg);
                 channel.Publish(end);
                 reset.WaitOne(30000);
                 using (new PerfTimer(Max))
                 {
-                    for (int i = 0; i <= Max; i++)
+                    for (var i = 0; i <= Max; i++)
                         channel.Publish(msg);
                     channel.Publish(end);
                     Assert.IsTrue(reset.WaitOne(30000, false));
@@ -236,18 +202,26 @@ namespace Fibrous.Tests
 
                 channel.Subscribe(fiber, OnMsg);
                 var msg = new object();
-                for (int i = 0; i <= Max; i++)
+                for (var i = 0; i <= Max; i++)
                     channel.Publish(msg);
                 channel.Publish(end);
                 reset.WaitOne(30000);
                 using (new PerfTimer(Max))
                 {
-                    for (int i = 0; i <= Max; i++)
+                    for (var i = 0; i <= Max; i++)
                         channel.Publish(msg);
                     channel.Publish(end);
                     Assert.IsTrue(reset.WaitOne(30000, false));
                 }
             }
+        }
+
+        [Test]
+        [Explicit]
+        public void TestAsync()
+        {
+            PointToPointPerfTestWithObject(new AsyncFiber());
+            PointToPointPerfTestWithStruct(new AsyncFiber());
         }
 
         [Test]
@@ -258,13 +232,5 @@ namespace Fibrous.Tests
             PointToPointPerfTestWithInt(new PoolFiber());
             PointToPointPerfTestWithObject(new PoolFiber());
         }
-        [Test]
-        [Explicit]
-        public void TestAsync()
-        {
-            PointToPointPerfTestWithObject(new AsyncFiber());
-            PointToPointPerfTestWithStruct(new AsyncFiber());
-          
-        }
-   }
+    }
 }

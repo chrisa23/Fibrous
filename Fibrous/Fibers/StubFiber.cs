@@ -33,6 +33,5 @@ namespace Fibrous
             stub.Start();
             return stub;
         }
-
     }
 }

@@ -1,7 +1,7 @@
-﻿namespace PipelineExample
-{
-    using System;
+﻿using System;
 
+namespace PipelineExample
+{
     public interface ISomeDataAccess
     {
         void SaveData(Payload payload);

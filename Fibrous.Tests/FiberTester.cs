@@ -1,13 +1,11 @@
-﻿using System.Threading.Tasks;
-using Fibrous.Channels;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using NUnit.Framework;
 
 namespace Fibrous.Tests
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-    using NUnit.Framework;
-
     public static class FiberTester
     {
         public static void TestPubSubSimple(IFiber fiber)
@@ -51,7 +49,7 @@ namespace Fibrous.Tests
             using (fiber)
             using (channel.SetRequestHandler(fiber, req => req.Reply("bye")))
             {
-                string reply = channel.SendRequest("hello").Result;
+                var reply = channel.SendRequest("hello").Result;
                 Assert.AreEqual("bye", reply);
             }
         }
@@ -66,7 +64,7 @@ namespace Fibrous.Tests
             using (var reset = new ManualResetEvent(false))
             {
                 var counter = new Channel<int>();
-                int total = 0;
+                var total = 0;
 
                 void Cb(IList<int> batch)
                 {
@@ -76,7 +74,7 @@ namespace Fibrous.Tests
                 }
 
                 counter.SubscribeToBatch(fiber, Cb, TimeSpan.FromMilliseconds(1));
-                for (int i = 0; i < 10; i++)
+                for (var i = 0; i < 10; i++)
                     counter.Publish(i);
                 Assert.IsTrue(reset.WaitOne(10000, false));
             }
@@ -95,10 +93,14 @@ namespace Fibrous.Tests
                         reset.Set();
                 }
 
-                string KeyResolver(int x) => x.ToString();
+                string KeyResolver(int x)
+                {
+                    return x.ToString();
+                }
+
                 //disposed with fiber
                 counter.SubscribeToKeyedBatch(fiber, KeyResolver, Cb, TimeSpan.FromMilliseconds(1));
-                for (int i = 0; i < 10; i++)
+                for (var i = 0; i < 10; i++)
                     counter.Publish(i);
                 Assert.IsTrue(reset.WaitOne(10000, false));
             }
@@ -121,7 +123,7 @@ namespace Fibrous.Tests
             using (fiber)
             using (var reset = new AutoResetEvent(false))
             {
-                int count = 0;
+                var count = 0;
                 var result = new List<int>();
 
                 void Command()
@@ -131,18 +133,19 @@ namespace Fibrous.Tests
                         reset.Set();
                 }
 
-                for (int i = 0; i < 100; i++)
+                for (var i = 0; i < 100; i++)
                     fiber.Enqueue(Command);
                 Assert.IsTrue(reset.WaitOne(10000, false));
                 Assert.AreEqual(100, count);
             }
         }
+
         public static void InOrderExecution(IAsyncFiber fiber)
         {
             using (fiber)
             using (var reset = new AutoResetEvent(false))
             {
-                int count = 0;
+                var count = 0;
                 var result = new List<int>();
 
                 Task Command()
@@ -153,7 +156,7 @@ namespace Fibrous.Tests
                     return Task.CompletedTask;
                 }
 
-                for (int i = 0; i < 100; i++)
+                for (var i = 0; i < 100; i++)
                     fiber.Enqueue(Command);
                 Assert.IsTrue(reset.WaitOne(10000, false));
                 Assert.AreEqual(100, count);
@@ -181,7 +184,7 @@ namespace Fibrous.Tests
             using (fiber)
             using (var reset = new AutoResetEvent(false))
             {
-                fiber.Enqueue( async () => reset.Set());
+                fiber.Enqueue(async () => reset.Set());
                 Assert.IsFalse(reset.WaitOne(1, false));
                 fiber.Start();
                 Assert.IsTrue(reset.WaitOne(1000, false));

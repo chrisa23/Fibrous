@@ -1,8 +1,8 @@
+using System;
+using System.Diagnostics;
+
 namespace Fibrous.Tests
 {
-    using System;
-    using System.Diagnostics;
-
     public sealed class PerfTimer : IDisposable
     {
         private readonly int _count;
@@ -17,9 +17,9 @@ namespace Fibrous.Tests
         public void Dispose()
         {
             _stopWatch.Stop();
-            long elapsed = _stopWatch.ElapsedMilliseconds;
+            var elapsed = _stopWatch.ElapsedMilliseconds;
             Console.WriteLine("Elapsed: " + elapsed + " Actions: " + _count);
-            Console.WriteLine("actions/ms: " + (_count / elapsed));
+            Console.WriteLine("actions/ms: " + _count / elapsed);
         }
     }
 }

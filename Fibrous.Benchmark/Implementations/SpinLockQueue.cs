@@ -1,19 +1,21 @@
-﻿namespace Fibrous
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 
+namespace Fibrous
+{
     public class SpinLockQueue : IQueue
     {
         private List<Action> _actions = new List<Action>(1024 * 32);
-        private List<Action> _toPass = new List<Action>(1024 * 32);
         private SpinLock _lock = new SpinLock(false);
-        
+        private List<Action> _toPass = new List<Action>(1024 * 32);
+
+        public int Count => _actions.Count;
+
 
         public void Enqueue(Action action)
         {
-            bool lockTaken = false;
+            var lockTaken = false;
             try
             {
                 _lock.Enter(ref lockTaken);
@@ -30,11 +32,13 @@
             return DequeueAll();
         }
 
-        public int Count => _actions.Count;
+        public void Dispose()
+        {
+        }
 
         private List<Action> DequeueAll()
         {
-            bool lockTaken = false;
+            var lockTaken = false;
             try
             {
                 _lock.Enter(ref lockTaken);
@@ -47,10 +51,6 @@
             {
                 if (lockTaken) _lock.Exit();
             }
-        }
-
-        public void Dispose()
-        {
         }
     }
 }

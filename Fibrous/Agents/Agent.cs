@@ -1,9 +1,9 @@
-﻿namespace Fibrous.Agents
-{
-    using System;
+﻿using System;
 
+namespace Fibrous.Agents
+{
     /// <summary>
-    /// Agent using injected handler function.
+    ///     Agent using injected handler function.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class Agent<T> : IAgent<T>

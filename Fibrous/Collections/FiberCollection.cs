@@ -1,23 +1,24 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Fibrous.Collections
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-
     /// <summary>
-    /// Collection class that can be monitored and provides a snapshot on subscription.  Can also be queried with a predicate
+    ///     Collection class that can be monitored and provides a snapshot on subscription.  Can also be queried with a
+    ///     predicate
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class FiberCollection<T> : ISnapshotSubscriberPort<ItemAction<T>, T[]>, IRequestPort<Func<T,bool>, T[]>, IDisposable
+    public class FiberCollection<T> : ISnapshotSubscriberPort<ItemAction<T>, T[]>, IRequestPort<Func<T, bool>, T[]>,
+        IDisposable
     {
-        readonly IFiber _fiber;
-        readonly List<T> _items = new List<T>();
-        readonly IChannel<T> _add = new Channel<T>();
-        readonly IChannel<T> _remove = new Channel<T>();
-        readonly ISnapshotChannel<ItemAction<T>, T[]> _channel = new SnapshotChannel<ItemAction<T>, T[]>();
-        readonly IRequestChannel<Func<T,bool>, T[]> _request = new RequestChannel<Func<T,bool>, T[]>();
+        private readonly IChannel<T> _add = new Channel<T>();
+        private readonly ISnapshotChannel<ItemAction<T>, T[]> _channel = new SnapshotChannel<ItemAction<T>, T[]>();
+        private readonly IFiber _fiber;
+        private readonly List<T> _items = new List<T>();
+        private readonly IChannel<T> _remove = new Channel<T>();
+        private readonly IRequestChannel<Func<T, bool>, T[]> _request = new RequestChannel<Func<T, bool>, T[]>();
 
         public FiberCollection(IExecutor executor = null)
         {
@@ -28,7 +29,27 @@ namespace Fibrous.Collections
             _request.SetRequestHandler(_fiber, OnRequest);
         }
 
-        private void OnRequest(IRequest<Func<T,bool>, T[]> request)
+        public void Dispose()
+        {
+            _fiber.Dispose();
+        }
+
+        public IDisposable SendRequest(Func<T, bool> request, IFiber fiber, Action<T[]> onReply)
+        {
+            return _request.SendRequest(request, fiber, onReply);
+        }
+
+        public Task<T[]> SendRequest(Func<T, bool> request)
+        {
+            return _request.SendRequest(request);
+        }
+
+        public IDisposable Subscribe(IFiber fiber, Action<ItemAction<T>> receive, Action<T[]> receiveSnapshot)
+        {
+            return _channel.Subscribe(fiber, receive, receiveSnapshot);
+        }
+
+        private void OnRequest(IRequest<Func<T, bool>, T[]> request)
         {
             request.Reply(_items.Where(request.Request).ToArray());
         }
@@ -60,29 +81,9 @@ namespace Fibrous.Collections
             return _items.ToArray();
         }
 
-        public IDisposable Subscribe(IFiber fiber, Action<ItemAction<T>> receive, Action<T[]> receiveSnapshot)
-        {
-            return _channel.Subscribe(fiber, receive, receiveSnapshot);
-        }
-
-        public IDisposable SendRequest(Func<T,bool> request, IFiber fiber, Action<T[]> onReply)
-        {
-            return _request.SendRequest(request, fiber, onReply);
-        }
-
-        public Task<T[]> SendRequest(Func<T,bool> request)
-        {
-            return _request.SendRequest(request);
-        }
-
-        public T[] GetItems(Func<T, bool> request)//, TimeSpan timout = TimeSpan.MaxValue)
+        public T[] GetItems(Func<T, bool> request) //, TimeSpan timout = TimeSpan.MaxValue)
         {
             return _request.SendRequest(request).Result;
-        }
-
-        public void Dispose()
-        {
-            _fiber.Dispose();
         }
     }
 }

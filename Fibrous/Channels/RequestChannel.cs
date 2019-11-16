@@ -88,7 +88,5 @@ namespace Fibrous
                 _resp.Publish(response);
             }
         }
-
-
     }
 }

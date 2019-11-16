@@ -1,11 +1,11 @@
-﻿namespace Fibrous.Benchmark
-{
-    using System.Reflection;
-    using BenchmarkDotNet.Running;
+﻿using System.Reflection;
+using BenchmarkDotNet.Running;
 
-    class Program
+namespace Fibrous.Benchmark
+{
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             BenchmarkSwitcher.FromAssembly(typeof(Program).GetTypeInfo().Assembly).Run(args);
         }

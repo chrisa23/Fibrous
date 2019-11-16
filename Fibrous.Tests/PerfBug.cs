@@ -1,9 +1,9 @@
-﻿namespace Fibrous.Tests
-{
-    using System;
-    using System.Diagnostics;
-    using NUnit.Framework;
+﻿using System;
+using System.Diagnostics;
+using NUnit.Framework;
 
+namespace Fibrous.Tests
+{
     public class ActionFactory<T>
     {
         private readonly Action<T> _on;
@@ -20,7 +20,7 @@
 
         public Action CreateObject(object obj)
         {
-            return () => _on((T)obj);
+            return () => _on((T) obj);
         }
 
         public static Action Create(T msg, Action<T> target)
@@ -50,8 +50,8 @@
             }
 
             var fact = new ActionFactory<int>(OnMsg);
-            Stopwatch watch = Stopwatch.StartNew();
-            for (int i = 0; i < 5000000; i++)
+            var watch = Stopwatch.StartNew();
+            for (var i = 0; i < 5000000; i++)
                 fact.Create(1);
             watch.Stop();
             Console.WriteLine("Elapsed: " + watch.ElapsedMilliseconds);
@@ -67,12 +67,13 @@
             }
 
             var fact = new ActionFactory<string>(OnMsg);
-            Stopwatch watch = Stopwatch.StartNew();
-            for (int i = 0; i < 5000000; i++)
+            var watch = Stopwatch.StartNew();
+            for (var i = 0; i < 5000000; i++)
             {
-                Action act = fact.CreateObject("s");
+                var act = fact.CreateObject("s");
                 act();
             }
+
             fact.Create("end")();
             watch.Stop();
             Console.WriteLine("Elapsed: " + watch.ElapsedMilliseconds);
@@ -88,12 +89,13 @@
             }
 
             var fact = new ActionFactory<string>(OnMsg);
-            Stopwatch watch = Stopwatch.StartNew();
-            for (int i = 0; i < 5000000; i++)
+            var watch = Stopwatch.StartNew();
+            for (var i = 0; i < 5000000; i++)
             {
-                Action act = fact.Create("s");
+                var act = fact.Create("s");
                 act();
             }
+
             fact.Create("end")();
             watch.Stop();
             Console.WriteLine("Elapsed: " + watch.ElapsedMilliseconds);
@@ -106,12 +108,13 @@
             {
             }
 
-            Stopwatch watch = Stopwatch.StartNew();
-            for (int i = 0; i < 5000000; i++)
+            var watch = Stopwatch.StartNew();
+            for (var i = 0; i < 5000000; i++)
             {
-                Action act = CreateGeneric("", OnMsg);
+                var act = CreateGeneric("", OnMsg);
                 act();
             }
+
             watch.Stop();
             Console.WriteLine("Elapsed: " + watch.ElapsedMilliseconds);
         }
@@ -125,13 +128,22 @@
                     Console.WriteLine(x);
             }
 
-            Stopwatch watch = Stopwatch.StartNew();
-            for (int i = 0; i < 5000000; i++)
+            var watch = Stopwatch.StartNew();
+            for (var i = 0; i < 5000000; i++)
             {
-                void Act() => OnMsg(i.ToString());
+                void Act()
+                {
+                    OnMsg(i.ToString());
+                }
+
                 Act();
             }
-            void End() => OnMsg("end");
+
+            void End()
+            {
+                OnMsg("end");
+            }
+
             End();
             watch.Stop();
             Console.WriteLine("Elapsed: " + watch.ElapsedMilliseconds);
@@ -144,12 +156,13 @@
             {
             }
 
-            Stopwatch watch = Stopwatch.StartNew();
-            for (int i = 0; i < 5000000; i++)
+            var watch = Stopwatch.StartNew();
+            for (var i = 0; i < 5000000; i++)
             {
-                Action act = CreateString("", OnMsg);
+                var act = CreateString("", OnMsg);
                 act();
             }
+
             watch.Stop();
             Console.WriteLine("Elapsed: " + watch.ElapsedMilliseconds);
         }

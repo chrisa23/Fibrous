@@ -1,9 +1,9 @@
-﻿namespace Fibrous.Agents
-{
-    using System;
+﻿using System;
 
+namespace Fibrous.Agents
+{
     /// <summary>
-    /// Actor like abstraction for request reply. 
+    ///     Actor like abstraction for request reply.
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>
     /// <typeparam name="TReply"></typeparam>

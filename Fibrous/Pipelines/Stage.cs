@@ -1,7 +1,7 @@
-﻿namespace Fibrous.Pipeline
-{
-    using System;
+﻿using System;
 
+namespace Fibrous.Pipeline
+{
     public class Stage<TIn, TOut> : StageBase<TIn, TOut>
     {
         private readonly Func<TIn, TOut> _f;

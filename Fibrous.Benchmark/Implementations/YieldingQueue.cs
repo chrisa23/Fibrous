@@ -1,20 +1,44 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using Fibrous.Util;
+
 namespace Fibrous
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-    using Fibrous.Util;
-
     public sealed class YieldingQueue : IQueue
     {
-        private List<Action> _actions = new List<Action>(1024*32);
-        private List<Action> _toPass = new List<Action>(1024*32);
         private const int SpinTries = 100;
+
+        private readonly object _syncRoot = new object();
+        private List<Action> _actions = new List<Action>(1024 * 32);
         private PaddedBoolean _signalled = new PaddedBoolean(false);
+        private List<Action> _toPass = new List<Action>(1024 * 32);
+
+        public int Count => _actions.Count;
+
+        public void Enqueue(Action action)
+        {
+            lock (_syncRoot)
+            {
+                _actions.Add(action);
+            }
+
+            _signalled.LazySet(true);
+        }
+
+        public List<Action> Drain()
+        {
+            return DequeueAll();
+        }
+
+        public void Dispose()
+        {
+            _signalled.Exchange(true);
+        }
 
         private void Wait()
         {
-            int counter = SpinTries;
+            var counter = SpinTries;
             while (!_signalled.Value) // volatile read
                 ApplyWaitMethod(ref counter);
             _signalled.Exchange(false);
@@ -37,24 +61,6 @@ namespace Fibrous
             return counter;
         }
 
-        private readonly object _syncRoot = new object();
-
-        public void Enqueue(Action action)
-        {
-            lock (_syncRoot)
-            {
-                _actions.Add(action);
-            }
-            _signalled.LazySet(true);
-        }
-
-        public List<Action> Drain()
-        {
-            return DequeueAll();
-        }
-
-        public int Count => _actions.Count;
-
         private List<Action> DequeueAll()
         {
             Wait();
@@ -65,11 +71,6 @@ namespace Fibrous
                 _actions.Clear();
                 return _toPass;
             }
-        }
-
-        public void Dispose()
-        {
-            _signalled.Exchange(true);
         }
     }
 }

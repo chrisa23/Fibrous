@@ -2,8 +2,19 @@ namespace Fibrous
 {
     public static class Fiber
     {
-        public static IFiber StartNew() => PoolFiber.StartNew();
-        public static IFiber StartNew(IExecutor executor) => PoolFiber.StartNew(executor);
-        public static IFiber StartNew(IExecutor executor, int size) => PoolFiber.StartNew(executor, size);
+        public static IFiber StartNew()
+        {
+            return PoolFiber.StartNew();
+        }
+
+        public static IFiber StartNew(IExecutor executor)
+        {
+            return PoolFiber.StartNew(executor);
+        }
+
+        public static IFiber StartNew(IExecutor executor, int size)
+        {
+            return PoolFiber.StartNew(executor, size);
+        }
     }
 }

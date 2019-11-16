@@ -1,18 +1,23 @@
+using System;
+using System.Threading;
+using NUnit.Framework;
+
 namespace Fibrous.Tests
 {
-    using System;
-    using System.Threading;
-    using NUnit.Framework;
-
     [TestFixture]
     public class TimerActionTests
     {
         [Test]
         public void CallbackFromIntervalTimerWithCancel()
         {
-            int executionCount = 0;
-            void Action() => executionCount++;
-            using (IFiber stubFiber = StubFiber.StartNew())
+            var executionCount = 0;
+
+            void Action()
+            {
+                executionCount++;
+            }
+
+            using (var stubFiber = StubFiber.StartNew())
             {
                 var timer = new TimerAction(stubFiber,
                     Action,
@@ -29,8 +34,13 @@ namespace Fibrous.Tests
         [Test]
         public void Cancel()
         {
-            int executionCount = 0;
-            void Action() => executionCount++;
+            var executionCount = 0;
+
+            void Action()
+            {
+                executionCount++;
+            }
+
             var timer = new TimerAction(StubFiber.StartNew(), Action, TimeSpan.FromMilliseconds(2));
             Thread.Sleep(100);
             Assert.AreEqual(1, executionCount);

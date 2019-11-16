@@ -1,12 +1,12 @@
-﻿namespace Fibrous.Pipeline
-{
-    using System;
+﻿using System;
 
+namespace Fibrous.Pipeline
+{
     public class Tee<T> : StageBase<T, T>
     {
         private readonly Action<T> _f;
 
-        public Tee(Action<T> f, IExecutor executor = null) : base( executor)
+        public Tee(Action<T> f, IExecutor executor = null) : base(executor)
         {
             _f = f;
         }

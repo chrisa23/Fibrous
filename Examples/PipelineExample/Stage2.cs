@@ -1,19 +1,20 @@
-﻿namespace PipelineExample
-{
-    using System;
-    using Fibrous;
-    using Fibrous.Pipeline;
+﻿using System;
+using Fibrous;
+using Fibrous.Pipeline;
 
+namespace PipelineExample
+{
     public class Stage2 : IProcessor<Payload, Payload>
     {
         private readonly ISomeDataAccess _dal;
-        public event Action<Payload> Output;
-        public event Action<Exception> Exception;
 
         public Stage2(ISomeDataAccess service)
         {
             _dal = service;
         }
+
+        public event Action<Payload> Output;
+        public event Action<Exception> Exception;
 
         public void Process(Payload input)
         {

@@ -1,15 +1,15 @@
-﻿namespace Fibrous.WPF
-{
-    using System;
-    using System.Windows.Threading;
-    
+﻿using System;
+using System.Windows.Threading;
 
+namespace Fibrous.WPF
+{
     /// <summary>
-    /// Fiber for use with WPF forms and controls.Provides seamless marshalling to dispatcher thread.
+    ///     Fiber for use with WPF forms and controls.Provides seamless marshalling to dispatcher thread.
     /// </summary>
     public sealed class DispatcherFiber : GuiFiberBase
     {
-        public DispatcherFiber(IExecutor executor, Dispatcher dispatcher, DispatcherPriority priority = DispatcherPriority.Normal)
+        public DispatcherFiber(IExecutor executor, Dispatcher dispatcher,
+            DispatcherPriority priority = DispatcherPriority.Normal)
             : base(executor, new DispatcherAdapter(dispatcher, priority))
         {
         }
@@ -22,6 +22,20 @@
         public DispatcherFiber()
             : this(Dispatcher.CurrentDispatcher)
         {
+        }
+
+        public static IFiber StartNew()
+        {
+            var dispatchFiber = new DispatcherFiber();
+            dispatchFiber.Start();
+            return dispatchFiber;
+        }
+
+        public static IFiber StartNew(IExecutor executor)
+        {
+            var dispatchFiber = new DispatcherFiber(executor, Dispatcher.CurrentDispatcher);
+            dispatchFiber.Start();
+            return dispatchFiber;
         }
 
         private class DispatcherAdapter : IExecutionContext
@@ -39,20 +53,6 @@
             {
                 _dispatcher.BeginInvoke(action, _priority);
             }
-        }
-
-        public static IFiber StartNew()
-        {
-            var dispatchFiber = new DispatcherFiber();
-            dispatchFiber.Start();
-            return dispatchFiber;
-        }
-
-        public static IFiber StartNew(IExecutor executor)
-        {
-            var dispatchFiber = new DispatcherFiber(executor, Dispatcher.CurrentDispatcher);
-            dispatchFiber.Start();
-            return dispatchFiber;
         }
     }
 }

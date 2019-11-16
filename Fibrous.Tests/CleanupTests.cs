@@ -1,7 +1,7 @@
-﻿namespace Fibrous.Tests
-{
-    using NUnit.Framework;
+﻿using NUnit.Framework;
 
+namespace Fibrous.Tests
+{
     [TestFixture]
     public class CleanupTests
     {

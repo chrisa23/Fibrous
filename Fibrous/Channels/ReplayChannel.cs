@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 namespace Fibrous
 {
-
     /// <summary>
     ///     Simple snapshot mechanism.  Replay all old messages on subscribe.
     ///     Can cause memory leaks if not handled with care

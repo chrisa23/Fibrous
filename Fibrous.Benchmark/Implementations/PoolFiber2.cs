@@ -1,22 +1,23 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace Fibrous.Experimental
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Fibrous;
-
     /// <summary>
-    /// Fiber that uses a thread pool for execution. Pool is used instead of thread, but messages are handled sequentially. 
+    ///     Fiber that uses a thread pool for execution. Pool is used instead of thread, but messages are handled sequentially.
     /// </summary>
     public sealed class PoolFiber2 : FiberBase
     {
         private readonly object _lock = new object();
         private readonly TaskFactory _taskFactory;
+
         private bool _flushPending;
+
         //TODO: make initial list size adjustable...
-        private List<Action> _queue = new List<Action>(1024*32);
-        private List<Action> _toPass = new List<Action>(1024*32);
+        private List<Action> _queue = new List<Action>(1024 * 32);
+        private List<Action> _toPass = new List<Action>(1024 * 32);
 
         public PoolFiber2(IExecutor config, TaskFactory taskFactory)
             : base(config)
@@ -41,11 +42,11 @@ namespace Fibrous.Experimental
 
         protected override void InternalEnqueue(Action action)
         {
-            bool lockTaken = false;
+            var lockTaken = false;
             try
             {
                 Monitor.Enter(_lock, ref lockTaken);
-                
+
                 _queue.Add(action);
                 if (!_flushPending)
                 {
@@ -55,27 +56,25 @@ namespace Fibrous.Experimental
             }
             finally
             {
-                if(lockTaken)Monitor.Exit(_lock);
+                if (lockTaken) Monitor.Exit(_lock);
             }
         }
 
         private void Flush()
         {
-            List<Action> toExecute = ClearActions();
+            var toExecute = ClearActions();
             if (toExecute.Count > 0)
             {
                 Executor.Execute(toExecute);
 
-                bool lockTaken = false;
+                var lockTaken = false;
                 try
                 {
                     Monitor.Enter(_lock, ref lockTaken);
 
                     if (_queue.Count > 0)
-                    {
                         // don't monopolize thread.
                         _taskFactory.StartNew(Flush);
-                    }
                     else
                         _flushPending = false;
                 }
@@ -88,7 +87,7 @@ namespace Fibrous.Experimental
 
         private List<Action> ClearActions()
         {
-            bool lockTaken = false;
+            var lockTaken = false;
             try
             {
                 Monitor.Enter(_lock, ref lockTaken);
@@ -97,6 +96,7 @@ namespace Fibrous.Experimental
                     _flushPending = false;
                     return Queue.Empty;
                 }
+
                 Lists.Swap(ref _queue, ref _toPass);
                 _queue.Clear();
                 return _toPass;

@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Fibrous.Channels
+namespace Fibrous
 {
     public class AsyncFiber : AsyncFiberBase
     {

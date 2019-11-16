@@ -1,11 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Fibrous.Agents
 {
-    using System;
-
     /// <summary>
-    /// Agent using injected handler function.
+    ///     Agent using injected handler function.
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>
     /// <typeparam name="TReply"></typeparam>
@@ -30,8 +29,13 @@ namespace Fibrous.Agents
             return _channel.SendRequest(request);
         }
 
+        public void Dispose()
+        {
+            Fiber.Dispose();
+        }
+
         /// <summary>
-        /// Create and start an agent
+        ///     Create and start an agent
         /// </summary>
         /// <param name="handler"></param>
         /// <param name="type"></param>
@@ -39,11 +43,6 @@ namespace Fibrous.Agents
         public static IRequestAgent<TRequest, TReply> Start(Action<IRequest<TRequest, TReply>> handler)
         {
             return new RequestAgent<TRequest, TReply>(handler);
-        }
-
-        public void Dispose()
-        {
-            Fiber.Dispose();
         }
     }
 }

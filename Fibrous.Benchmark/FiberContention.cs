@@ -1,33 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using Fibrous.Channels;
+using BenchmarkDotNet.Attributes;
+using Fibrous.Experimental;
 
 namespace Fibrous.Benchmark
 {
-    
-    using System.Threading;
-    using BenchmarkDotNet.Attributes;
-    using Fibrous.Experimental;
     [MemoryDiagnoser]
     public class FiberContention
     {
         private const int OperationsPerInvoke = 1000000;
+        private IAsyncFiber _async;
+        private readonly IChannel<object> _channel = new Channel<object>();
         private IFiber _pool1;
         private IFiber _pool2;
         private IFiber _pool3;
         private IFiber _spinPool;
-        IAsyncFiber _async;
-        private IChannel<object> _channel = new Channel<object>();
-        private AutoResetEvent _wait = new AutoResetEvent(false);
-        private int i = 0;
+        private readonly AutoResetEvent _wait = new AutoResetEvent(false);
+        private int i;
+
         private void Handler(object obj)
         {
             i++;
             if (i == OperationsPerInvoke)
                 _wait.Set();
         }
+
         private Task AsyncHandler(object obj)
         {
             i++;
@@ -35,6 +32,7 @@ namespace Fibrous.Benchmark
                 _wait.Set();
             return Task.CompletedTask;
         }
+
         public void Run(IFiber fiber)
         {
             using (var sub = _channel.Subscribe(fiber, Handler))
@@ -43,17 +41,14 @@ namespace Fibrous.Benchmark
                 Task.Run(Iterate);
                 Task.Run(Iterate);
 
-                WaitHandle.WaitAny(new WaitHandle[] { _wait });
+                WaitHandle.WaitAny(new WaitHandle[] {_wait});
             }
         }
 
         private void Iterate()
         {
-            var count = OperationsPerInvoke/2;
-            for (int j = 0; j < count; j++)
-            {
-                _channel.Publish(null);
-            }
+            var count = OperationsPerInvoke / 2;
+            for (var j = 0; j < count; j++) _channel.Publish(null);
         }
 
         public void Run(IAsyncFiber fiber)
@@ -64,7 +59,7 @@ namespace Fibrous.Benchmark
                 Task.Run(Iterate);
                 Task.Run(Iterate);
 
-                WaitHandle.WaitAny(new WaitHandle[] { _wait });
+                WaitHandle.WaitAny(new WaitHandle[] {_wait});
             }
         }
 

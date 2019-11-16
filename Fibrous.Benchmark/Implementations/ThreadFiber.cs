@@ -1,13 +1,11 @@
-using Fibrous.Experimental;
+using System;
+using System.Threading;
 
 namespace Fibrous
 {
-    using System;
-    using System.Threading;
-
     /// <summary>
-    ///   Fiber implementation backed by a dedicated thread., needs a thread safe queue
-    ///   <see cref = "FiberBase" />
+    ///     Fiber implementation backed by a dedicated thread., needs a thread safe queue
+    ///     <see cref="FiberBase" />
     /// </summary>
     public sealed class ThreadFiber : FiberBase
     {
@@ -42,14 +40,14 @@ namespace Fibrous
         }
 
         /// <summary>
-        ///   Creates a thread fiber.
+        ///     Creates a thread fiber.
         /// </summary>
         /// <param name="executor"></param>
         /// <param name="fiberScheduler"></param>
-        /// <param name = "queue"></param>
-        /// <param name = "threadName"></param>
-        /// <param name = "isBackground"></param>
-        /// <param name = "priority"></param>
+        /// <param name="queue"></param>
+        /// <param name="threadName"></param>
+        /// <param name="isBackground"></param>
+        /// <param name="priority"></param>
         public ThreadFiber(IExecutor executor,
             IFiberScheduler fiberScheduler,
             IQueue queue,
@@ -59,7 +57,7 @@ namespace Fibrous
         {
             if (threadName == null) threadName = "ThreadFiber-" + GetNextThreadId();
             _queue = queue;
-            _thread = new Thread(RunThread) { Name = threadName, IsBackground = isBackground, Priority = priority };
+            _thread = new Thread(RunThread) {Name = threadName, IsBackground = isBackground, Priority = priority};
         }
 
         private static int GetNextThreadId()
@@ -91,6 +89,7 @@ namespace Fibrous
                 _running = false;
                 _queue.Dispose();
             }
+
             base.Dispose(disposing);
         }
 

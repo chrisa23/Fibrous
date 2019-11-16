@@ -1,16 +1,16 @@
-﻿namespace Fibrous.Benchmark
-{
-    using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
 
+namespace Fibrous.Benchmark
+{
     [MemoryDiagnoser]
     public class GC_EnqueueLambdaVsMethod
     {
         private IFiber _fiber;
-        
+
         [Benchmark]
         public void Lambda()
         {
-            _fiber.Enqueue(() =>{});
+            _fiber.Enqueue(() => { });
         }
 
         [Benchmark]
@@ -22,7 +22,6 @@
 
         public void Void()
         {
-
         }
 
         [GlobalSetup]

@@ -22,7 +22,6 @@ namespace Fibrous
         }
 
 
-
         public static IAsyncFiber StartNew()
         {
             var stub = new AsyncStubFiber();

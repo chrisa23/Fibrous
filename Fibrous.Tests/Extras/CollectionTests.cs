@@ -1,10 +1,10 @@
-﻿namespace Fibrous.Tests
-{
-    using System.Collections.Generic;
-    using System.Threading;
-    using Fibrous.Collections;
-    using NUnit.Framework;
+﻿using System.Collections.Generic;
+using System.Threading;
+using Fibrous.Collections;
+using NUnit.Framework;
 
+namespace Fibrous.Tests
+{
     [TestFixture]
     public class CollectionTests
     {

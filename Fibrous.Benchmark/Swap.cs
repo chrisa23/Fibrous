@@ -1,13 +1,13 @@
-﻿namespace Fibrous.Benchmark
-{
-    using System;
-    using System.Collections.Generic;
-    using BenchmarkDotNet.Attributes;
+﻿using System;
+using System.Collections.Generic;
+using BenchmarkDotNet.Attributes;
 
+namespace Fibrous.Benchmark
+{
     public class Swap
     {
-        List<Action> list1 = new List<Action>();
-        List<Action> list2 = new List<Action>();
+        private List<Action> list1 = new List<Action>();
+        private List<Action> list2 = new List<Action>();
 
         [Benchmark]
         public List<Action> Swap1()
