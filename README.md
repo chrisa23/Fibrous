@@ -21,13 +21,13 @@ Some of the library benefits:
 Fibers
 ------
 
-Fibers are synchronous execution contexts that maintain order of actions.  There is a StubFiber, which is used for testing and in special cases, and immediately executes actions on the calling thread.  Fibers can manage state without worries of cross threading issues.  While a Fiber is synchronous, your system can consist of multiple Fibers communicating through messaging to provide parallelism to your system.
+Fibers are synchronous execution contexts that maintain order of actions.  Fibers can manage state without worries of cross threading issues.  While a Fiber is synchronous, your system can consist of multiple Fibers communicating through messaging to provide parallelism to your system.
 
 Fibers subscribe to channels to receive messages which queues an action based on the assigned handler.  Fibers have a scheduling API that allows actions to be scheduled in the future as well as repeatedly.  You can also directly queue actions onto a Fiber for it to execute.
 
 Fibers are a repository of IDisposable objects and will dispose of all children upon the Fibers disposal.  This is used to clean up subscriptions and scheduling for any fiber.  This is also useful for dealing with children used in the Fiber's context that implement IDisposable.
 
-There are specialised Fibers for Windows Forms and WPF, which automatically handle invoking actions on the UI/Dispatcher thread
+There are specialised Fibers for Windows Forms and WPF, which automatically handle invoking actions on the UI/Dispatcher thread.  There is a StubFiber, which is used for testing and in special cases, and immediately executes actions on the calling thread.
 
 Ports and Channels
 ------------------
