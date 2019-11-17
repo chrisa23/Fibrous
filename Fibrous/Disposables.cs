@@ -7,7 +7,8 @@ namespace Fibrous
     {
         private readonly List<IDisposable> _items = new List<IDisposable>();
         private readonly object _lock = new object();
-        private bool _disposed;
+        private readonly SingleShotGuard _guard = new SingleShotGuard();
+
 
         public void Add(IDisposable toAdd)
         {
@@ -25,22 +26,15 @@ namespace Fibrous
             }
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposed)
+            if (_guard.Check)
             {
-                if (disposing)
-                    DisposeOfMembers();
-                _disposed = true;
+                DisposeOfMembers();
+                GC.SuppressFinalize(this);
             }
         }
-
+        
         private void DisposeOfMembers()
         {
             IDisposable[] disposables;

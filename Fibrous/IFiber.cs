@@ -66,6 +66,8 @@ namespace Fibrous
         /// <param name="interval"></param>
         /// <returns></returns>
         IDisposable Schedule(Action action, TimeSpan startTime, TimeSpan interval);
+
+        //IDisposable ScheduleCron(Action action, string cron);
     }
 
 

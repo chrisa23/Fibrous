@@ -6,7 +6,7 @@ namespace Fibrous
     {
         private readonly IDisposable _disposable;
         private readonly IDisposableRegistry _disposables;
-
+        private readonly SingleShotGuard _guard = new SingleShotGuard();
         public Unsubscriber(IDisposable disposable, IDisposableRegistry disposables)
         {
             _disposable = disposable;
@@ -16,8 +16,11 @@ namespace Fibrous
 
         public void Dispose()
         {
-            _disposables.Remove(_disposable);
-            _disposable.Dispose();
+            if (_guard.Check)
+            {
+                _disposables.Remove(_disposable);
+                _disposable.Dispose();
+            }
         }
     }
 }

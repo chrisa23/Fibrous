@@ -9,7 +9,6 @@ namespace Fibrous
     /// </summary>
     public interface IExecutor
     {
-        void Execute(List<Action> toExecute);
         void Execute(Action toExecute);
         void Execute(int count, Action[] actions);
     }

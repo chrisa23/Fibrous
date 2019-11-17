@@ -26,7 +26,7 @@ namespace Fibrous
 
         public int Count { get; private set; }
 
-        public bool IsFull => Count >= _maxIndex;
+        public bool IsFull => Count > _maxIndex;
 
         public void Enqueue(T a)
         {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Fibrous.Internal;
 
 namespace Fibrous
 {
@@ -16,7 +17,7 @@ namespace Fibrous
         private bool _flushPending;
         private SpinLock _spinLock = new SpinLock(false);
 
-        public AsyncFiber(IAsyncExecutor executor, int size = 1024)
+        public AsyncFiber(IAsyncExecutor executor, int size = 1024 * 8)
             : base(executor)
         {
             _queue = new ArrayQueue<Func<Task>>(size);
@@ -28,7 +29,8 @@ namespace Fibrous
 
         protected override void InternalEnqueue(Func<Task> action)
         {
-            while (_queue.IsFull) Thread.Yield();
+            var spinWait = default(AggressiveSpinWait);
+            while (_queue.IsFull) spinWait.SpinOnce();
 
             var lockTaken = false;
             try

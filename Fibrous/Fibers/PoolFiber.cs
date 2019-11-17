@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Fibrous.Internal;
 
 namespace Fibrous
 {
@@ -26,7 +27,8 @@ namespace Fibrous
 
         protected override void InternalEnqueue(Action action)
         {
-            while (_queue.IsFull) Thread.Yield();
+            var spinWait = default(AggressiveSpinWait);
+            while (_queue.IsFull) spinWait.SpinOnce();
 
             var lockTaken = false;
             try

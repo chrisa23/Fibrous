@@ -5,7 +5,7 @@ namespace Fibrous
     internal sealed class DisposeAction : IDisposable
     {
         private readonly Action _action;
-        private bool _disposed;
+        private readonly SingleShotGuard _guard = new SingleShotGuard();
 
         public DisposeAction(Action action)
         {
@@ -14,9 +14,8 @@ namespace Fibrous
 
         public void Dispose()
         {
-            if (_disposed) return;
-            _disposed = true;
-            _action();
+            if (_guard.Check) 
+                _action();
         }
     }
 }

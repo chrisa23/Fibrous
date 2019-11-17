@@ -1,26 +1,27 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Fibrous
 {
-    internal sealed class KeyedBatchSubscriber<TKey, T> : BatchSubscriberBase<T>
+    internal sealed class AsyncKeyedBatchSubscriber<TKey, T> : AsyncBatchSubscriberBase<T>
     {
         private readonly Converter<T, TKey> _keyResolver;
-        private readonly Action<IDictionary<TKey, T>> _target;
+        private readonly Func<IDictionary<TKey, T>, Task> _target;
         private Dictionary<TKey, T> _pending;
 
-        public KeyedBatchSubscriber(ISubscriberPort<T> channel,
-            IFiber fiber,
+        public AsyncKeyedBatchSubscriber(ISubscriberPort<T> channel,
+            IAsyncFiber fiber,
             TimeSpan interval,
             Converter<T, TKey> keyResolver,
-            Action<IDictionary<TKey, T>> target)
+            Func<IDictionary<TKey, T>,Task> target)
             : base(channel, fiber, interval)
         {
             _keyResolver = keyResolver;
             _target = target;
         }
 
-        protected override void OnMessage(T msg)
+        protected override Task OnMessage(T msg)
         {
             lock (BatchLock)
             {
@@ -33,15 +34,16 @@ namespace Fibrous
 
                 _pending[key] = msg;
             }
+
+            return Task.CompletedTask;
         }
 
-        private void Flush()
+        private Task Flush()
         {
             var toReturn = ClearPending();
             if (toReturn != null)
-            {
                 Fiber.Enqueue(() => _target(toReturn));
-            }
+            return Task.CompletedTask;
         }
 
         private IDictionary<TKey, T> ClearPending()

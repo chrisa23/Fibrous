@@ -14,6 +14,18 @@ namespace Fibrous
             return _requestChannel.Subscribe(fiber, onRequest);
         }
 
+        public IDisposable SetRequestHandler(IAsyncFiber fiber, Func<IRequest<TRequest, TReply>, Task> onRequest)
+        {
+            return _requestChannel.Subscribe(fiber, onRequest);
+        }
+
+        public IDisposable SendRequest(TRequest request, IAsyncFiber fiber, Func<TReply, Task> onReply)
+        {
+            var channelRequest = new AsyncChannelRequest(fiber, request, onReply);
+            _requestChannel.Publish(channelRequest);
+            return new Unsubscriber(channelRequest, fiber);
+        }
+
         public Task<TReply> SendRequest(TRequest request)
         {
             var channelRequest = new ChannelRequest(request);
@@ -76,6 +88,12 @@ namespace Fibrous
                 _sub = _resp.Subscribe(fiber, replier);
             }
 
+            public AsyncChannelRequest(IAsyncFiber fiber, TRequest request, Func<TReply, Task> replier)
+            {
+                Request = request;
+                _sub = _resp.Subscribe(fiber, replier);
+            }
+            
             public void Dispose()
             {
                 _sub?.Dispose();

@@ -1,3 +1,6 @@
 - Add more examples
 - better Req/reply tests
 - add multi producer tests
+- add queue full tests
+- add cron scheduling
+- clean up ctors to allow injection of schedulers

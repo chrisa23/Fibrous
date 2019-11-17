@@ -23,7 +23,10 @@ namespace Fibrous.Agents
         {
             return _channel.SendRequest(request, fiber, onReply);
         }
-
+        public IDisposable SendRequest(TRequest request, IAsyncFiber fiber, Func<TReply, Task> onReply)
+        {
+            return _channel.SendRequest(request, fiber, onReply);
+        }
         public Task<TReply> SendRequest(TRequest request)
         {
             return _channel.SendRequest(request);

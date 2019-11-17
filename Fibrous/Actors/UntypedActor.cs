@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Fibrous.Experimental
+namespace Fibrous.Actors
 {
     public abstract class UntypedActor
     {
@@ -32,7 +32,7 @@ namespace Fibrous.Experimental
 
         public async Task<object> Ask(object message)
         {
-            return await Task.Run(() => _askChannel.SendRequest(message).Result);
+            return await _askChannel.SendRequest(message);
         }
     }
 }

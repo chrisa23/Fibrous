@@ -1,23 +1,24 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Fibrous
 {
-    internal sealed class BatchSubscriber<T> : BatchSubscriberBase<T>
+    internal sealed class AsyncBatchSubscriber<T> : AsyncBatchSubscriberBase<T>
     {
-        private readonly Action<T[]> _receive;
+        private readonly Func<T[], Task> _receive;
         private List<T> _pending;
 
-        public BatchSubscriber(ISubscriberPort<T> channel,
-            IFiber fiber,
+        public AsyncBatchSubscriber(ISubscriberPort<T> channel,
+            IAsyncFiber fiber,
             TimeSpan interval,
-            Action<T[]> receive)
+            Func<T[], Task> receive)
             : base(channel, fiber, interval)
         {
             _receive = receive;
         }
 
-        protected override void OnMessage(T msg)
+        protected override Task OnMessage(T msg)
         {
             lock (BatchLock)
             {
@@ -29,9 +30,11 @@ namespace Fibrous
 
                 _pending.Add(msg);
             }
+
+            return Task.CompletedTask;
         }
 
-        private void Flush()
+        private Task Flush()
         {
             T[] toFlush = null;
             lock (BatchLock)
@@ -44,9 +47,11 @@ namespace Fibrous
             }
 
             if (toFlush != null)
-            {
+            { 
                 Fiber.Enqueue(() => _receive(toFlush));
             }
+
+            return Task.CompletedTask;
         }
     }
 }

@@ -54,5 +54,6 @@ namespace Fibrous.WPF
                 _dispatcher.BeginInvoke(action, _priority);
             }
         }
+
     }
 }

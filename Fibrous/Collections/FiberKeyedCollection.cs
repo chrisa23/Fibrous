@@ -46,6 +46,11 @@ namespace Fibrous.Collections
             return _request.SendRequest(request, fiber, onReply);
         }
 
+        public IDisposable SendRequest(Func<T, bool> request, IAsyncFiber fiber, Func<T[], Task> onReply)
+        {
+            return _request.SendRequest(request, fiber, onReply);
+        }
+
         public Task<T[]> SendRequest(Func<T, bool> request)
         {
             return _request.SendRequest(request);

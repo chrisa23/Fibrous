@@ -52,8 +52,7 @@ namespace Fibrous
 
         private void DisposeTimer()
         {
-            if (_timer == null) return;
-            _timer.Dispose();
+            _timer?.Dispose();
             _timer = null;
         }
     }
