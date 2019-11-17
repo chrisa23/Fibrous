@@ -49,7 +49,39 @@ namespace Fibrous
     {
         Task Execute(Func<Task> toExecute);
     }
+    public static class AsyncSchedulerExtensions
+    {
+        /// <summary>
+        ///     Schedule an action at a DateTime
+        /// </summary>
+        /// <param name="scheduler"></param>
+        /// <param name="action"></param>
+        /// <param name="when"></param>
+        /// <returns></returns>
+        public static IDisposable Schedule(this IAsyncScheduler scheduler, Func<Task> action, DateTime when)
+        {
+            return scheduler.Schedule(action, when - DateTime.Now);
+        }
 
+        /// <summary>
+        ///     Schedule an action at a DateTime with an interval
+        /// </summary>
+        /// <param name="scheduler"></param>
+        /// <param name="action"></param>
+        /// <param name="when"></param>
+        /// <param name="interval"></param>
+        /// <returns></returns>
+        public static IDisposable Schedule(this IAsyncScheduler scheduler, Func<Task> action, DateTime when, TimeSpan interval)
+        {
+            return scheduler.Schedule(action, when - DateTime.Now, interval);
+        }
+        
+
+        public static IDisposable CronSchedule(this IAsyncScheduler scheduler, Func<Task> action, string cron)
+        {
+            return new AsyncCronScheduler(scheduler, action, cron);
+        }
+    }
     public static class AsyncFiberExtensions
     {
         /// <summary>
