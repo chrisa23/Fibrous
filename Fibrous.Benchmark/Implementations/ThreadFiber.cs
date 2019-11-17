@@ -68,7 +68,10 @@ namespace Fibrous
         private void RunThread()
         {
             while (_running)
-                Executor.Execute(_queue.Drain());
+            {
+                var list = _queue.Drain();
+                for (var i = 0; i < list.Count; i++) Executor.Execute(list[i]);
+            }
         }
 
         protected override void InternalEnqueue(Action action)
@@ -82,15 +85,12 @@ namespace Fibrous
             _thread.Start();
         }
 
-        protected override void Dispose(bool disposing)
+        public override void Dispose()
         {
-            if (disposing)
-            {
-                _running = false;
-                _queue.Dispose();
-            }
+            _running = false;
+            _queue.Dispose();
 
-            base.Dispose(disposing);
+            base.Dispose();
         }
 
         public static IFiber StartNew()

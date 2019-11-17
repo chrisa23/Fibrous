@@ -57,7 +57,8 @@ namespace Fibrous
             var toExecute = ClearActions();
             if (toExecute.Count > 0)
             {
-                Executor.Execute(toExecute);
+                for (var i = 0; i < toExecute.Count; i++) Executor.Execute(toExecute[i]);
+
                 lock (_lock)
                 {
                     if (_queue.Count > 0)

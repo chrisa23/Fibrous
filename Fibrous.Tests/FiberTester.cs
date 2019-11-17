@@ -19,6 +19,7 @@ namespace Fibrous.Tests
                 Assert.IsTrue(reset.WaitOne(5000, false));
             }
         }
+
         public static void TestPubSubSimple(IAsyncFiber fiber)
         {
             using (fiber)
@@ -118,6 +119,7 @@ namespace Fibrous.Tests
                 Assert.IsTrue(reset.WaitOne(10000, false));
             }
         }
+
         public static void TestBatching(IAsyncFiber fiber)
         {
             using (fiber)
@@ -140,6 +142,7 @@ namespace Fibrous.Tests
                 Assert.IsTrue(reset.WaitOne(10000, false));
             }
         }
+
         public static void TestBatchingWithKey(IFiber fiber)
         {
             using (fiber)

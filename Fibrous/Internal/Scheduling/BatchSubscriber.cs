@@ -43,10 +43,7 @@ namespace Fibrous
                 }
             }
 
-            if (toFlush != null)
-            {
-                Fiber.Enqueue(() => _receive(toFlush));
-            }
+            if (toFlush != null) Fiber.Enqueue(() => _receive(toFlush));
         }
     }
 }

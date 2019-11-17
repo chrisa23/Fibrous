@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 namespace Fibrous
 {
@@ -10,6 +9,5 @@ namespace Fibrous
     public interface IExecutor
     {
         void Execute(Action toExecute);
-        void Execute(int count, Action[] actions);
     }
 }

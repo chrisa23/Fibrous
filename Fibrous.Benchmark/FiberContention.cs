@@ -9,13 +9,13 @@ namespace Fibrous.Benchmark
     public class FiberContention
     {
         private const int OperationsPerInvoke = 1000000;
-        private IAsyncFiber _async;
         private readonly IChannel<object> _channel = new Channel<object>();
+        private readonly AutoResetEvent _wait = new AutoResetEvent(false);
+        private IAsyncFiber _async;
         private IFiber _pool1;
         private IFiber _pool2;
         private IFiber _pool3;
         private IFiber _spinPool;
-        private readonly AutoResetEvent _wait = new AutoResetEvent(false);
         private int i;
 
         private void Handler(object obj)

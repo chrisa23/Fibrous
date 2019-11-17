@@ -36,12 +36,8 @@ namespace Fibrous
             {
                 _started = ExecutionState.Running;
                 if (_preQueue.Count > 0)
-                {
                     for (var i = 0; i < _preQueue.Count; i++)
-                    {
                         InternalEnqueue(_preQueue[i]);
-                    }
-                }
             }
         }
 
@@ -59,7 +55,6 @@ namespace Fibrous
             if (_started == ExecutionState.Stopped)
                 return;
             if (_started == ExecutionState.Created)
-            {
                 lock (_preQueue)
                 {
                     if (_started == ExecutionState.Created)
@@ -68,7 +63,6 @@ namespace Fibrous
                         return;
                     }
                 }
-            }
 
             InternalEnqueue(action);
         }
@@ -83,17 +77,17 @@ namespace Fibrous
             return _fiberScheduler.Schedule(this, action, startTime, interval);
         }
 
-        protected virtual void InternalStart()
-        {
-        }
-
-        protected abstract void InternalEnqueue(Action action);
-
         public override void Dispose()
         {
             _started = ExecutionState.Stopped;
             base.Dispose();
         }
+
+        protected virtual void InternalStart()
+        {
+        }
+
+        protected abstract void InternalEnqueue(Action action);
 
         private enum ExecutionState
         {

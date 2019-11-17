@@ -48,7 +48,6 @@ namespace Fibrous
     public interface IAsyncExecutor
     {
         Task Execute(Func<Task> toExecute);
-        Task Execute(int count, Func<Task>[] actions);
     }
 
     public static class AsyncFiberExtensions
@@ -61,7 +60,8 @@ namespace Fibrous
         /// <param name="channel"></param>
         /// <param name="handler"></param>
         /// <returns></returns>
-        public static IDisposable Subscribe<T>(this IAsyncFiber fiber, ISubscriberPort<T> channel, Func<T, Task> handler)
+        public static IDisposable Subscribe<T>(this IAsyncFiber fiber, ISubscriberPort<T> channel,
+            Func<T, Task> handler)
         {
             return channel.Subscribe(fiber, handler);
         }

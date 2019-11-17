@@ -78,17 +78,17 @@ namespace Fibrous
             return _fiberScheduler.Schedule(this, action, startTime, interval);
         }
 
-        protected virtual void InternalStart()
-        {
-        }
-
-        protected abstract void InternalEnqueue(Func<Task> action);
-
         public override void Dispose()
         {
             _state = ExecutionState.Stopped;
             base.Dispose();
         }
+
+        protected virtual void InternalStart()
+        {
+        }
+
+        protected abstract void InternalEnqueue(Func<Task> action);
 
         private enum ExecutionState
         {

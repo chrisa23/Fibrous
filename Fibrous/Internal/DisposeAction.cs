@@ -14,7 +14,7 @@ namespace Fibrous
 
         public void Dispose()
         {
-            if (_guard.Check) 
+            if (_guard.Check)
                 _action();
         }
     }

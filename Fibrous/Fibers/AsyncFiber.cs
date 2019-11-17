@@ -55,7 +55,12 @@ namespace Fibrous
             var (count, actions) = Drain();
             if (count > 0)
             {
-                await Executor.Execute(count, actions);
+                for (var i = 0; i < count; i++)
+                {
+                    var action = actions[i];
+                    await Executor.Execute(action);
+                }
+
                 var lockTaken = false;
                 try
                 {

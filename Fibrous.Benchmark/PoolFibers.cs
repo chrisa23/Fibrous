@@ -8,13 +8,12 @@ namespace Fibrous.Benchmark
     [MemoryDiagnoser]
     public class PoolFibers
     {
+        private readonly AutoResetEvent _wait = new AutoResetEvent(false);
         private IAsyncFiber _async;
         private IFiber _pool1;
         private IFiber _pool2;
         private IFiber _pool3;
         private IFiber _spinPool;
-
-        private readonly AutoResetEvent _wait = new AutoResetEvent(false);
         private int i;
 
         private void Handler()

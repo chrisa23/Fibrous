@@ -5,9 +5,9 @@ namespace Fibrous
 {
     public class Disposables : IDisposableRegistry
     {
+        private readonly SingleShotGuard _guard = new SingleShotGuard();
         private readonly List<IDisposable> _items = new List<IDisposable>();
         private readonly object _lock = new object();
-        private readonly SingleShotGuard _guard = new SingleShotGuard();
 
 
         public void Add(IDisposable toAdd)
@@ -34,7 +34,7 @@ namespace Fibrous
                 GC.SuppressFinalize(this);
             }
         }
-        
+
         private void DisposeOfMembers()
         {
             IDisposable[] disposables;

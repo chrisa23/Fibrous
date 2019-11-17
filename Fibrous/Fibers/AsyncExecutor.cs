@@ -12,14 +12,5 @@ namespace Fibrous
         {
             await toExecute();
         }
-
-        public async Task Execute(int count, Func<Task>[] actions)
-        {
-            for (var i = 0; i < count; i++)
-            {
-                var action = actions[i];
-                await Execute(action);
-            }
-        }
     }
 }

@@ -27,14 +27,5 @@ namespace Fibrous
                 _callback?.Invoke(e);
             }
         }
-
-        public async Task Execute(int count, Func<Task>[] actions)
-        {
-            for (var index = 0; index < count; index++)
-            {
-                var action = actions[index];
-                await Execute(action);
-            }
-        }
     }
 }

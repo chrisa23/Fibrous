@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 
 namespace Fibrous.Internal
@@ -18,23 +16,19 @@ namespace Fibrous.Internal
         {
             if (NextSpinWillYield)
             {
-                int yieldsSoFar = (_count >= _yieldThreshold ? _count - _yieldThreshold : _count);
+                var yieldsSoFar = _count >= _yieldThreshold ? _count - _yieldThreshold : _count;
 
-                if ((yieldsSoFar % _sleep0EveryHowManyTimes) == (_sleep0EveryHowManyTimes - 1))
-                {
+                if (yieldsSoFar % _sleep0EveryHowManyTimes == _sleep0EveryHowManyTimes - 1)
                     Thread.Sleep(0);
-                }
                 else
-                {
                     Thread.Yield();
-                }
             }
             else
             {
                 Thread.SpinWait(4 << _count);
             }
 
-            _count = (_count == int.MaxValue ? _yieldThreshold : _count + 1);
+            _count = _count == int.MaxValue ? _yieldThreshold : _count + 1;
         }
     }
 }

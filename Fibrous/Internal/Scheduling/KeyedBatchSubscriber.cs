@@ -38,10 +38,7 @@ namespace Fibrous
         private void Flush()
         {
             var toReturn = ClearPending();
-            if (toReturn != null)
-            {
-                Fiber.Enqueue(() => _target(toReturn));
-            }
+            if (toReturn != null) Fiber.Enqueue(() => _target(toReturn));
         }
 
         private IDictionary<TKey, T> ClearPending()

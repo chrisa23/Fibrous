@@ -22,6 +22,7 @@ namespace Fibrous
         /// <param name="onReply"></param>
         /// <returns></returns>
         IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply);
+
         /// <summary>
         ///     Send an asynchronous request, and let the reply be delivered to the fiber when ready
         /// </summary>
@@ -30,6 +31,7 @@ namespace Fibrous
         /// <param name="onReply"></param>
         /// <returns></returns>
         IDisposable SendRequest(TRequest request, IAsyncFiber fiber, Func<TReply, Task> onReply);
+
         /// <summary>
         ///     Send an asynchronous request and get a reply object for handling the response in the same code block.
         /// </summary>
@@ -80,5 +82,4 @@ namespace Fibrous
         /// <returns></returns>
         IDisposable SetRequestHandler(IAsyncFiber fiber, Func<IRequest<TRequest, TReply>, Task> onRequest);
     }
-
 }

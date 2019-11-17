@@ -12,11 +12,6 @@ namespace Fibrous
             Fiber = AsyncFiber.StartNew(executor);
         }
 
-        public void Dispose()
-        {
-            Fiber?.Dispose();
-        }
-
         public IDisposable Schedule(Func<Task> action, TimeSpan dueTime)
         {
             return Fiber.Schedule(action, dueTime);
@@ -25,6 +20,11 @@ namespace Fibrous
         public IDisposable Schedule(Func<Task> action, TimeSpan startTime, TimeSpan interval)
         {
             return Fiber.Schedule(action, startTime, interval);
+        }
+
+        public void Dispose()
+        {
+            Fiber?.Dispose();
         }
     }
 }

@@ -93,7 +93,7 @@ namespace Fibrous
                 Request = request;
                 _sub = _resp.Subscribe(fiber, replier);
             }
-            
+
             public void Dispose()
             {
                 _sub?.Dispose();

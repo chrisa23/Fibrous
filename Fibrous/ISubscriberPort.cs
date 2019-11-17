@@ -37,6 +37,7 @@ namespace Fibrous
         {
             return new AsyncBatchSubscriber<T>(port, fiber, interval, receive);
         }
+
         /// <summary>Method that subscribe to a periodic batch. </summary>
         /// <typeparam name="T">    Generic type parameter. </typeparam>
         /// <param name="port">     The port to act on. </param>
@@ -71,6 +72,7 @@ namespace Fibrous
         {
             return new KeyedBatchSubscriber<TKey, T>(port, fiber, interval, keyResolver, receive);
         }
+
         /// <summary>
         ///     Subscribe to a periodic batch, maintaining the last item by key
         /// </summary>
@@ -90,6 +92,7 @@ namespace Fibrous
         {
             return new AsyncKeyedBatchSubscriber<TKey, T>(port, fiber, interval, keyResolver, receive);
         }
+
         /// <summary>
         ///     Subscribe to a port but only consume the last msg per interval
         /// </summary>
@@ -106,6 +109,7 @@ namespace Fibrous
         {
             return new LastSubscriber<T>(port, fiber, interval, receive);
         }
+
         /// <summary>
         ///     Subscribe to a port but only consume the last msg per interval
         /// </summary>
@@ -117,11 +121,12 @@ namespace Fibrous
         /// <returns></returns>
         public static IDisposable SubscribeToLast<T>(this ISubscriberPort<T> port,
             IAsyncFiber fiber,
-            Func<T,Task> receive,
+            Func<T, Task> receive,
             TimeSpan interval)
         {
             return new AsyncLastSubscriber<T>(port, fiber, interval, receive);
         }
+
         /// <summary>
         ///     Subscribe with a message predicate to filter messages
         /// </summary>

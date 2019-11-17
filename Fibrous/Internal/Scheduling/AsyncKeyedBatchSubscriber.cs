@@ -14,7 +14,7 @@ namespace Fibrous
             IAsyncFiber fiber,
             TimeSpan interval,
             Converter<T, TKey> keyResolver,
-            Func<IDictionary<TKey, T>,Task> target)
+            Func<IDictionary<TKey, T>, Task> target)
             : base(channel, fiber, interval)
         {
             _keyResolver = keyResolver;
