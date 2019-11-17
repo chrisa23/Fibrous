@@ -5,7 +5,7 @@ namespace Fibrous
 {
     /// <summary>
     ///     Channel that maintains its last value which is passed to new subscribers.  Useful with Enums or values representing
-    ///     latest state.
+    ///     latest status.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public sealed class StateChannel<T> : IChannel<T>
@@ -18,6 +18,11 @@ namespace Fibrous
         public StateChannel(T initial)
         {
             _last = initial;
+            _hasValue = true;
+        }
+
+        public StateChannel()
+        {
         }
 
         public bool HasValue

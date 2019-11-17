@@ -29,22 +29,28 @@ namespace Fibrous
         {
         }
 
-        public void Start()
+        public IAsyncFiber Start()
         {
-            if (_state == ExecutionState.Running) return; //??just ignore.  why explode?
+            if (_state == ExecutionState.Running) return this;
             InternalStart();
             lock (_preQueue)
             {
                 _state = ExecutionState.Running;
                 if (_preQueue.Count > 0)
+                {
                     for (var i = 0; i < _preQueue.Count; i++)
+                    {
                         InternalEnqueue(_preQueue[i]);
+                    }
+                }
             }
+
+            return this;
         }
 
         public void Stop()
         {
-            if (_state != ExecutionState.Running) return; //??just ignore.  why explode?
+            if (_state != ExecutionState.Running) return; 
             lock (_preQueue)
             {
                 _state = ExecutionState.Created;

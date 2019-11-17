@@ -28,9 +28,9 @@ namespace Fibrous
         {
         }
 
-        public void Start()
+        public IFiber Start()
         {
-            if (_started == ExecutionState.Running) return; //??just ignore.  why explode?
+            if (_started == ExecutionState.Running) return this; 
             InternalStart();
             lock (_preQueue)
             {
@@ -39,11 +39,12 @@ namespace Fibrous
                     for (var i = 0; i < _preQueue.Count; i++)
                         InternalEnqueue(_preQueue[i]);
             }
+            return this;
         }
 
         public void Stop()
         {
-            if (_started != ExecutionState.Running) return; //??just ignore.  why explode?
+            if (_started != ExecutionState.Running) return; 
             lock (_preQueue)
             {
                 _started = ExecutionState.Created;

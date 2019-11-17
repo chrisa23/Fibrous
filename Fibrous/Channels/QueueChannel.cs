@@ -19,7 +19,7 @@ namespace Fibrous
 
         public IDisposable Subscribe(IAsyncFiber fiber, Func<TMsg, Task> receive)
         {
-            throw new NotImplementedException();
+            return new AsyncQueueConsumer(fiber, receive, this);
         }
 
         public void Publish(TMsg message)
@@ -43,6 +43,32 @@ namespace Fibrous
             private readonly IExecutionContext _target;
 
             public QueueConsumer(IExecutionContext target, Action<TMsg> callback, QueueChannel<TMsg> eventChannel)
+            {
+                _target = target;
+                _callback = callback;
+                _eventChannel = eventChannel;
+                _eventChannel.SignalEvent += Signal;
+            }
+
+            public void Dispose()
+            {
+                _eventChannel.SignalEvent -= Signal;
+            }
+
+            private void Signal()
+            {
+                if (_eventChannel.Pop(out var msg))
+                    _target.Enqueue(() => _callback(msg));
+            }
+        }
+
+        private sealed class AsyncQueueConsumer : IDisposable
+        {
+            private readonly Func<TMsg, Task> _callback;
+            private readonly QueueChannel<TMsg> _eventChannel;
+            private readonly IAsyncExecutionContext _target;
+
+            public AsyncQueueConsumer(IAsyncExecutionContext target, Func<TMsg, Task> callback, QueueChannel<TMsg> eventChannel)
             {
                 _target = target;
                 _callback = callback;

@@ -12,7 +12,7 @@ namespace Fibrous
         ///     Start the fiber's queue
         /// </summary>
         /// <returns></returns>
-        void Start();
+        IFiber Start();
 
         /// <summary>
         ///     Stop the fiber
@@ -67,7 +67,7 @@ namespace Fibrous
         /// <returns></returns>
         IDisposable Schedule(Action action, TimeSpan startTime, TimeSpan interval);
 
-        //IDisposable ScheduleCron(Action action, string cron);
+        
     }
 
 
@@ -96,6 +96,11 @@ namespace Fibrous
         public static IDisposable Schedule(this IScheduler scheduler, Action action, DateTime when, TimeSpan interval)
         {
             return scheduler.Schedule(action, when - DateTime.Now, interval);
+        }
+
+        public static IDisposable CronSchedule(this IScheduler scheduler, Action action, string cron)
+        {
+            return new CronScheduler(scheduler, action, cron);
         }
     }
 

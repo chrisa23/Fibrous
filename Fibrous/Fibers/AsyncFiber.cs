@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Fibrous.Internal;
 
 namespace Fibrous
 {
@@ -17,7 +16,7 @@ namespace Fibrous
         private bool _flushPending;
         private SpinLock _spinLock = new SpinLock(false);
 
-        public AsyncFiber(IAsyncExecutor executor, int size = 1024 * 8)
+        public AsyncFiber(IAsyncExecutor executor, int size = QueueSize.DefaultQueueSize)
             : base(executor)
         {
             _queue = new ArrayQueue<Func<Task>>(size);
@@ -25,6 +24,11 @@ namespace Fibrous
 
         public AsyncFiber() : this(new AsyncExecutor())
         {
+        }
+
+        public AsyncFiber(IAsyncExecutor executor, int queueSize, IAsyncFiberScheduler scheduler):base(executor, scheduler)
+        {
+            _queue = new ArrayQueue<Func<Task>>(queueSize);
         }
 
         protected override void InternalEnqueue(Func<Task> action)
@@ -112,6 +116,14 @@ namespace Fibrous
         public static IAsyncFiber StartNew(IAsyncExecutor exec)
         {
             var fiber = new AsyncFiber(exec);
+            fiber.Start();
+            return fiber;
+        }
+
+
+        public static IAsyncFiber StartNew(IAsyncExecutor exec, int size, IAsyncFiberScheduler scheduler = null)
+        {
+            var fiber = new AsyncFiber(exec, size, scheduler ?? new AsyncTimerScheduler());
             fiber.Start();
             return fiber;
         }

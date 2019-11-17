@@ -10,7 +10,7 @@ namespace Fibrous
         ///     Start the fiber's queue
         /// </summary>
         /// <returns></returns>
-        void Start();
+        IAsyncFiber Start();
 
         /// <summary>
         ///     Stop the fiber

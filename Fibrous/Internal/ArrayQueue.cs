@@ -9,6 +9,11 @@ namespace Fibrous
         (int, T[]) Drain();
     }
 
+    internal static class QueueSize
+    {
+        internal const int DefaultQueueSize = 1024 * 8;
+    }
+
     internal class ArrayQueue<T> : IQueue<T>
     {
         public static readonly (int, T[]) Empty = (0, new T[0]);

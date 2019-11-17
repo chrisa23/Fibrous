@@ -50,14 +50,14 @@ namespace Fibrous.Tests
         {
             var queues = new List<IFiber>();
             IChannel<string> channel = new QueueChannel<string>();
-
+            void OnReceive(string message)
+            {
+                var firstChar = message[0];
+            }
             //Init executing Fibers
             for (var i = 0; i < 10; i++)
             {
-                void OnReceive(string message)
-                {
-                    var firstChar = message[0];
-                }
+       
 
                 var fiber = PoolFiber.StartNew();
                 queues.Add(fiber);

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace Fibrous.Internal
+namespace Fibrous
 {
     internal struct AggressiveSpinWait
     {

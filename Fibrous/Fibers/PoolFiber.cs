@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Fibrous.Internal;
 
 namespace Fibrous
 {
@@ -15,13 +14,18 @@ namespace Fibrous
         private bool _flushPending;
         private SpinLock _spinLock = new SpinLock(false);
 
-        public PoolFiber(IExecutor config, int size = 1024 * 16)
+        public PoolFiber(IExecutor config, int size, IFiberScheduler scheduler)
+            : base(config, scheduler)
+        {
+            _queue = new ArrayQueue<Action>(size);
+        }
+        public PoolFiber(IExecutor config, int size = QueueSize.DefaultQueueSize)
             : base(config)
         {
             _queue = new ArrayQueue<Action>(size);
         }
 
-        public PoolFiber() : this(new Executor())
+        public PoolFiber(int size = QueueSize.DefaultQueueSize) : this(new Executor(), size)
         {
         }
 
@@ -94,18 +98,10 @@ namespace Fibrous
             }
         }
 
-        public static IFiber StartNew()
-        {
-            var fiber = new PoolFiber();
-            fiber.Start();
-            return fiber;
-        }
-
-        public static IFiber StartNew(IExecutor exec = null, int size = 1024 * 16)
-        {
-            var fiber = new PoolFiber(exec ?? new Executor(), size);
-            fiber.Start();
-            return fiber;
-        }
+        public static IFiber StartNew() => new PoolFiber().Start();
+        public static IFiber StartNew(int size ) => new PoolFiber(new Executor(), size).Start();
+        public static IFiber StartNew(IExecutor exec, int size = QueueSize.DefaultQueueSize) => new PoolFiber(exec ?? new Executor(), size).Start();
+        public static IFiber StartNew(IExecutor executor, int size, IFiberScheduler scheduler) => new PoolFiber(executor, size, scheduler).Start();
+        
     }
 }
