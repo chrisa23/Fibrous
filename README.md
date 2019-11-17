@@ -11,17 +11,17 @@ Some of the library benefits:
  - Single or multiple subscribers
  - UI fibers for worry free UI marshalling
  - Batching support
- - Scheduling support
+ - Scheduling support (Cron, DateTime and TimeSpan based)
  - Synchronous and asynchronous request reply
  
- Fibrous is great for multi-threading when you don't need extreme low latency or distributed actors but want an easy to reason about messaging based model.  Fibrous is also fast and capable of more than 20 million messages per second. 
+ Fibrous is great for multi-threading when you don't need extreme low latency or distributed actors but want an easy to reason about messaging based model.  Fibrous is also fast.
 
  If you need distributed concurrency, look into Akka.net or Proto.Actor.  If you need extreme performance and super low latency, look into Disruptor.net.
 
 Fibers
 ------
 
-Fibers are synchronous execution contexts with an action queue.  They can be backed by a thread or the thread pool.  There is also a StubFiber, which is used for testing and in special cases, and immediately executes actions on the calling thread.  Fibers can manage state without worries of cross threading issues.  While a Fiber is synchronous, your system can consist of multiple Fibers communicating through messaging to provide parallelism to your system.
+Fibers are synchronous execution contexts that maintain order of actions.  There is a StubFiber, which is used for testing and in special cases, and immediately executes actions on the calling thread.  Fibers can manage state without worries of cross threading issues.  While a Fiber is synchronous, your system can consist of multiple Fibers communicating through messaging to provide parallelism to your system.
 
 Fibers subscribe to channels to receive messages which queues an action based on the assigned handler.  Fibers have a scheduling API that allows actions to be scheduled in the future as well as repeatedly.  You can also directly queue actions onto a Fiber for it to execute.
 
@@ -50,9 +50,11 @@ IFiber fiber = PoolFiber.StartNew();
 	 
 //Create a channel and subscribe to messages
 IChannel<string> channel = new Channel<string>();
-channel.Subscribe(fiber, (s) => Console.WriteLine(s.ToUpper()));
+
+channel.Subscribe(fiber, s => Console.WriteLine(s.ToUpper()));
+
 // or you can subscribe via the Fiber
-fiber.Subscribe(channel, (s) => Console.WriteLine(s.ToUpper()));
+fiber.Subscribe(channel, s => Console.WriteLine(s.ToUpper()));
 
 //Publish a message to the channel
 channel.Publish("the message");
@@ -70,6 +72,9 @@ fiber.Schedule(ScheduledMethod, when);
 fiber.Schedule(ScheduledMethod, when, repeat);
 ```
 
+Extras
+------
 
+There are a variety of extra features like thread safe timers, Fiber backed collections, Pipelines, Agents and Actors.
 
 	
