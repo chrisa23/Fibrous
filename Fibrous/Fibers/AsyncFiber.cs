@@ -6,8 +6,6 @@ namespace Fibrous
 {
     public class AsyncFiber : AsyncFiberBase
     {
-        private readonly object _lock = new object();
-
         private readonly ArrayQueue<Func<Task>> _queue;
 
         private readonly TaskFactory _taskFactory =

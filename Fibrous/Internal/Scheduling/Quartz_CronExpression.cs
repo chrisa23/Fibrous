@@ -2023,7 +2023,7 @@ namespace Quartz
                             daysToAdd = (dow + (7 - cDow)) + (7 * (everyNthWeek - 1));
                         }
 
-                        int lDay = GetLastDayOfMonth(mon, d.Year);
+                      //  int lDay = GetLastDayOfMonth(mon, d.Year);
 
                         //if (day + daysToAdd > lDay)
                         //{
@@ -2134,7 +2134,7 @@ namespace Quartz
                 }
                 d = new DateTimeOffset(d.Year, mon, d.Day, d.Hour, d.Minute, d.Second, d.Offset);
                 year = d.Year;
-                t = -1;
+//                t = -1;
 
                 // get year...................................................
                 st = years.TailSet(year);
@@ -2255,8 +2255,7 @@ namespace Quartz
             CronExpression copy;
             try
             {
-                copy = new CronExpression(CronExpressionString);
-                copy.TimeZone = TimeZone;
+                copy = new CronExpression(CronExpressionString) {TimeZone = TimeZone};
             }
             catch (FormatException e)
             {
