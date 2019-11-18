@@ -93,5 +93,22 @@ namespace Fibrous
             add.Invoke(obj, addHandlerArgs);
             return new DisposeAction(() => remove.Invoke(obj, addHandlerArgs));
         }
+
+        public static IDisposable SubscribeToEvent<T>(this IAsyncExecutionContext fiber, object obj, string eventName,
+            Func<T, Task> receive)
+        {
+            var evt = obj.GetType().GetEvent(eventName);
+            var add = evt.GetAddMethod();
+            var remove = evt.GetRemoveMethod();
+
+            void Action(T msg)
+            {
+               fiber.Enqueue(() => receive(msg));
+            }
+
+            object[] addHandlerArgs = {(Action<T>)Action};
+            add.Invoke(obj, addHandlerArgs);
+            return new DisposeAction(() => remove.Invoke(obj, addHandlerArgs));
+        }
     }
 }
