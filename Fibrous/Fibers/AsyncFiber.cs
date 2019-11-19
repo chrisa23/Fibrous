@@ -126,5 +126,10 @@ namespace Fibrous
             fiber.Start();
             return fiber;
         }
+
+        public static IAsyncFiber StartNew(int size)
+        {
+            return new AsyncFiber(new AsyncExecutor(), size, new AsyncTimerScheduler()).Start();
+        }
     }
 }

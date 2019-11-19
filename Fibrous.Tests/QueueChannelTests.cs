@@ -11,38 +11,34 @@ namespace Fibrous.Tests
     {
         private void QueueChannelTest(int fibers, Func<IFiber> factory, int messageCount)
         {
-            using (var queues = new Disposables())
+            using var queues = new Disposables();
+            var receiveCount = 0;
+            using var reset = new AutoResetEvent(false);
+            var channel = new QueueChannel<int>();
+
+            void OnReceive(int obj)
             {
-                var receiveCount = 0;
-                using (var reset = new AutoResetEvent(false))
-                {
-                    var channel = new QueueChannel<int>();
-
-                    void OnReceive(int obj)
-                    {
-                        var x = Interlocked.Increment(ref receiveCount);
-                        if (x == messageCount)
-                            reset.Set();
-                    }
-
-                    for (var i = 0; i < fibers; i++)
-                    {
-                        var fiber = factory();
-                        queues.Add(fiber);
-                        channel.Subscribe(fiber, OnReceive);
-                    }
-
-                    var sw = new Stopwatch();
-                    sw.Start();
-
-                    //Push messages
-                    for (var i = 0; i < messageCount; i++) channel.Publish(i);
-                    sw.Stop();
-                    Console.WriteLine($"Fibers: {fibers}  MessageCount: {messageCount}");
-                    Console.WriteLine("End : " + sw.ElapsedMilliseconds);
-                    Assert.IsTrue(reset.WaitOne(10000, false));
-                }
+                var x = Interlocked.Increment(ref receiveCount);
+                if (x == messageCount)
+                    reset.Set();
             }
+
+            for (var i = 0; i < fibers; i++)
+            {
+                var fiber = factory();
+                queues.Add(fiber);
+                channel.Subscribe(fiber, OnReceive);
+            }
+
+            var sw = new Stopwatch();
+            sw.Start();
+
+            //Push messages
+            for (var i = 0; i < messageCount; i++) channel.Publish(i);
+            sw.Stop();
+            Console.WriteLine($"Fibers: {fibers}  MessageCount: {messageCount}");
+            Console.WriteLine("End : " + sw.ElapsedMilliseconds);
+            Assert.IsTrue(reset.WaitOne(10000, false));
         }
 
         [Test]

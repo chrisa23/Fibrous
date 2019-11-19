@@ -60,7 +60,6 @@ namespace Fibrous
                 {
                     _replied = true;
                     _disposed = true;
-                    Monitor.PulseAll(_lock);
                 }
             }
 
@@ -72,7 +71,7 @@ namespace Fibrous
                 {
                     if (_replied || _disposed) return;
                     Resp.SetResult(response);
-                    Monitor.PulseAll(_lock);
+                    _replied = true;
                 }
             }
         }

@@ -3,3 +3,4 @@
 - add multi producer tests
 - add queue full tests
 - clean up ctors to allow injection of schedulers
+- req/reply performance

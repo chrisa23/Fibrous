@@ -25,7 +25,7 @@ namespace Fibrous.Tests
             channel.Publish("hello2");
             Thread.Sleep(100);
             Assert.AreEqual("Prime", primeResult[0]);
-            Assert.AreEqual("hello2", primeResult[primeResult.Count - 1]);
+            Assert.AreEqual("hello2", primeResult[^1]);
         }
     }
 }

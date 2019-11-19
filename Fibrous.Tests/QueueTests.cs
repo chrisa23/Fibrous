@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NUnit.Framework;
 
 namespace Fibrous.Tests
@@ -7,15 +8,22 @@ namespace Fibrous.Tests
     public class QueueTests
     {
         [Test]
-        public void EnquueDrain()
+        public void EnqueueDrain()
         {
-            Action noop = () => { };
+            void Noop()
+            {
+            }
+
             var queue = new ArrayQueue<Action>(16);
-            for (var i = 0; i < 16; i++) queue.Enqueue(noop);
+            for (var i = 0; i < 16; i++) 
+                queue.Enqueue(Noop);
 
             Assert.IsTrue(queue.IsFull);
+
             var (count, actions ) = queue.Drain();
+            
             Assert.AreEqual(16, count);
+            Assert.IsTrue(actions.All(x => x != null));
         }
     }
 }

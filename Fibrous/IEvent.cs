@@ -91,6 +91,7 @@ namespace Fibrous
 
             object[] addHandlerArgs = {(Action<T>) Action};
             add.Invoke(obj, addHandlerArgs);
+
             return new DisposeAction(() => remove.Invoke(obj, addHandlerArgs));
         }
 
@@ -108,6 +109,7 @@ namespace Fibrous
 
             object[] addHandlerArgs = {(Action<T>) Action};
             add.Invoke(obj, addHandlerArgs);
+
             return new DisposeAction(() => remove.Invoke(obj, addHandlerArgs));
         }
     }
