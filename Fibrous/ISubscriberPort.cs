@@ -21,6 +21,7 @@ namespace Fibrous
         IDisposable Subscribe(IAsyncFiber fiber, Func<T, Task> receive);
     }
 
+
     public static class SubscriberPortExtensions
     {
         /// <summary>Method that subscribe to a periodic batch. </summary>

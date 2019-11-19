@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace Fibrous
 {
     /// <summary>
-    ///     Simple subscribable event with Dispose() for unsubscription.
+    ///     Simple subscribe event with Dispose() for unsubscribe.
     /// </summary>
     /// <typeparam name="TEvent"></typeparam>
     public interface IEvent<TEvent> : IPublisherPort<TEvent>, IDisposable

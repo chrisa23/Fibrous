@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Fibrous
 {
-    public interface IAsyncFiber : IAsyncScheduler, IDisposableRegistry, IAsyncExecutionContext
+    public interface IAsyncFiber : IAsyncExecutionContext, IAsyncScheduler, IDisposableRegistry
     {
         /// <summary>
         ///     Start the fiber's queue
@@ -16,6 +16,11 @@ namespace Fibrous
         ///     Stop the fiber
         /// </summary>
         void Stop();
+    }
+    
+    public interface IAsyncExecutionContext
+    {
+        void Enqueue(Func<Task> action);
     }
 
     public interface IAsyncScheduler
@@ -38,17 +43,6 @@ namespace Fibrous
         IDisposable Schedule(Func<Task> action, TimeSpan startTime, TimeSpan interval);
     }
 
-
-    public interface IAsyncExecutionContext
-    {
-        void Enqueue(Func<Task> action);
-    }
-
-
-    public interface IAsyncExecutor
-    {
-        Task Execute(Func<Task> toExecute);
-    }
     public static class AsyncSchedulerExtensions
     {
         /// <summary>
@@ -82,6 +76,7 @@ namespace Fibrous
             return new AsyncCronScheduler(scheduler, action, cron);
         }
     }
+
     public static class AsyncFiberExtensions
     {
         /// <summary>
