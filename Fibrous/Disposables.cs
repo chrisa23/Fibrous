@@ -8,8 +8,7 @@ namespace Fibrous
         private readonly SingleShotGuard _guard = new SingleShotGuard();
         private readonly List<IDisposable> _items = new List<IDisposable>();
         private readonly object _lock = new object();
-
-
+        
         public void Add(IDisposable toAdd)
         {
             lock (_lock)

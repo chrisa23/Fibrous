@@ -46,7 +46,7 @@ Examples:
 ```
 //create a fiber that is already started and backed by a thread pool
 //Work is done on the thread pool, but in a sequential fashion 
-IFiber fiber = PoolFiber.StartNew();
+IFiber fiber = Fiber.StartNew();
 	 
 //Create a channel and subscribe to messages
 IChannel<string> channel = new Channel<string>();
@@ -75,6 +75,6 @@ fiber.Schedule(ScheduledMethod, when, repeat);
 Extras
 ------
 
-There are a variety of extra features like thread safe timers, Fiber backed collections, Pipelines, Agents and Actors.
+There are a variety of extra features like Fiber backed collections, Pipelines, Agents and Actors.
 
 	

@@ -6,17 +6,24 @@ namespace Fibrous.Pipeline
     /// </summary>
     /// <typeparam name="TIn"></typeparam>
     /// <typeparam name="TOut"></typeparam>
-    public sealed class ConcurrentComponent<TIn, TOut> : ConcurrentComponentBase
+    public sealed class ConcurrentComponent<TIn, TOut> : IDisposable
     {
+        private readonly IFiber _fiber;
         public ConcurrentComponent(IProcessor<TIn, TOut> processor,
             ISubscriberPort<TIn> input,
             IPublisherPort<TOut> output,
-            IPublisherPort<Exception> error) : base(new ExceptionHandlingExecutor(error.Publish))
+            IPublisherPort<Exception> error)
         {
+            _fiber = Fiber.StartNew(new ExceptionHandlingExecutor(error.Publish));
             processor.Exception += error.Publish;
             processor.Output += output.Publish;
-            processor.Initialize(this);
-            input.Subscribe(Fiber, processor.Process);
+            processor.Initialize(_fiber);
+            input.Subscribe(_fiber, processor.Process);
+        }
+
+        public void Dispose()
+        {
+            _fiber?.Dispose();
         }
     }
 }

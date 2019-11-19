@@ -12,7 +12,7 @@ namespace Example1
             IChannel<string> completed = new Channel<string>();
 
             //first fiber will place something on channel for 2nd fiber to process
-            using (var fiber1 = PoolFiber.StartNew())
+            using (var fiber1 = Fiber.StartNew())
                 //2nd fiber just writes to the completed channel
             using (IDisposable processor = new ChannelAgent<string>(toProcess, s => completed.Publish("Received " + s)))
                 //A logger that watches the completed channel.  Could be optional

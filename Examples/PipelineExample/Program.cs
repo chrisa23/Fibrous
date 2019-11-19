@@ -23,7 +23,7 @@ namespace PipelineExample
                 channels.Output.Subscribe(stub, payload => Console.WriteLine("Got output"));
                 channels.Stage1To2.Subscribe(stub,
                     payload => Console.WriteLine("Monitoring Stage1to2 channel saw a message"));
-                using (var timer = new ThreadSafeTimer())
+                using (var timer = Fiber.StartNew())
                 {
                     timer.Schedule(() => channels.Input.Publish(new Payload()), TimeSpan.FromSeconds(2),
                         TimeSpan.FromSeconds(2));
