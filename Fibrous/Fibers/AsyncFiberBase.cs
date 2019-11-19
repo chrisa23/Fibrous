@@ -37,12 +37,8 @@ namespace Fibrous
             {
                 _state = ExecutionState.Running;
                 if (_preQueue.Count > 0)
-                {
                     for (var i = 0; i < _preQueue.Count; i++)
-                    {
                         InternalEnqueue(_preQueue[i]);
-                    }
-                }
             }
 
             return this;
@@ -50,7 +46,7 @@ namespace Fibrous
 
         public void Stop()
         {
-            if (_state != ExecutionState.Running) return; 
+            if (_state != ExecutionState.Running) return;
             lock (_preQueue)
             {
                 _state = ExecutionState.Created;

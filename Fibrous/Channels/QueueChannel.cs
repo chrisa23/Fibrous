@@ -68,7 +68,8 @@ namespace Fibrous
             private readonly QueueChannel<TMsg> _eventChannel;
             private readonly IAsyncExecutionContext _target;
 
-            public AsyncQueueConsumer(IAsyncExecutionContext target, Func<TMsg, Task> callback, QueueChannel<TMsg> eventChannel)
+            public AsyncQueueConsumer(IAsyncExecutionContext target, Func<TMsg, Task> callback,
+                QueueChannel<TMsg> eventChannel)
             {
                 _target = target;
                 _callback = callback;

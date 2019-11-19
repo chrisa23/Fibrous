@@ -9,6 +9,7 @@ namespace Fibrous.Pipeline
     public sealed class ConcurrentComponent<TIn, TOut> : IDisposable
     {
         private readonly IFiber _fiber;
+
         public ConcurrentComponent(IProcessor<TIn, TOut> processor,
             ISubscriberPort<TIn> input,
             IPublisherPort<TOut> output,

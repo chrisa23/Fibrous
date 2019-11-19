@@ -25,19 +25,9 @@ namespace Fibrous.WPF
         {
         }
 
-        public static IAsyncFiber StartNew()
-        {
-            var dispatchFiber = new AsyncDispatcherFiber();
-            dispatchFiber.Start();
-            return dispatchFiber;
-        }
+        public static IAsyncFiber StartNew() => new AsyncDispatcherFiber().Start();
 
-        public static IAsyncFiber StartNew(IAsyncExecutor executor)
-        {
-            var dispatchFiber = new AsyncDispatcherFiber(executor, Dispatcher.CurrentDispatcher);
-            dispatchFiber.Start();
-            return dispatchFiber;
-        }
+        public static IAsyncFiber StartNew(IAsyncExecutor executor) => new AsyncDispatcherFiber(executor, Dispatcher.CurrentDispatcher).Start();
 
         private class AsyncDispatcherAdapter : IAsyncExecutionContext
         {

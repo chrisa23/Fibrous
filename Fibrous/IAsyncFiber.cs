@@ -17,7 +17,7 @@ namespace Fibrous
         /// </summary>
         void Stop();
     }
-    
+
     public interface IAsyncExecutionContext
     {
         void Enqueue(Func<Task> action);
@@ -65,11 +65,12 @@ namespace Fibrous
         /// <param name="when"></param>
         /// <param name="interval"></param>
         /// <returns></returns>
-        public static IDisposable Schedule(this IAsyncScheduler scheduler, Func<Task> action, DateTime when, TimeSpan interval)
+        public static IDisposable Schedule(this IAsyncScheduler scheduler, Func<Task> action, DateTime when,
+            TimeSpan interval)
         {
             return scheduler.Schedule(action, when - DateTime.Now, interval);
         }
-        
+
 
         public static IDisposable CronSchedule(this IAsyncScheduler scheduler, Func<Task> action, string cron)
         {

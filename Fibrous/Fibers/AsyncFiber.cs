@@ -24,7 +24,8 @@ namespace Fibrous
         {
         }
 
-        public AsyncFiber(IAsyncExecutor executor, int queueSize, IAsyncFiberScheduler scheduler):base(executor, scheduler)
+        public AsyncFiber(IAsyncExecutor executor, int queueSize, IAsyncFiberScheduler scheduler) : base(executor,
+            scheduler)
         {
             _queue = new ArrayQueue<Func<Task>>(queueSize);
         }

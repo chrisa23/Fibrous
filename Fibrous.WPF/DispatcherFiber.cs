@@ -24,20 +24,10 @@ namespace Fibrous.WPF
         {
         }
 
-        public static IFiber StartNew()
-        {
-            var dispatchFiber = new DispatcherFiber();
-            dispatchFiber.Start();
-            return dispatchFiber;
-        }
+        public static IFiber StartNew() => new DispatcherFiber().Start();
 
-        public static IFiber StartNew(IExecutor executor)
-        {
-            var dispatchFiber = new DispatcherFiber(executor, Dispatcher.CurrentDispatcher);
-            dispatchFiber.Start();
-            return dispatchFiber;
-        }
-
+        public static IFiber StartNew(IExecutor executor) => new DispatcherFiber(executor, Dispatcher.CurrentDispatcher).Start();
+        
         private class DispatcherAdapter : IExecutionContext
         {
             private readonly Dispatcher _dispatcher;

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Fibrous
 {
@@ -48,8 +47,6 @@ namespace Fibrous
         /// <param name="interval"></param>
         /// <returns></returns>
         IDisposable Schedule(Action action, TimeSpan startTime, TimeSpan interval);
-
-        
     }
 
 

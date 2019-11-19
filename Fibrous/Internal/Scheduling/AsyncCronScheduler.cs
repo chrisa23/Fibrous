@@ -6,11 +6,11 @@ namespace Fibrous
 {
     internal class AsyncCronScheduler : IDisposable
     {
-        private readonly IAsyncScheduler _scheduler;
         private readonly Func<Task> _action;
         private readonly CronExpression _cronExpression;
-        private IDisposable _sub;
+        private readonly IAsyncScheduler _scheduler;
         private bool _running = true;
+        private IDisposable _sub;
 
         //make use of current timespan scheduling 
         //but with UTC and add hour on ambiguous when time < now
@@ -28,6 +28,15 @@ namespace Fibrous
             //TODO:  try parse without and then with seconds
             _cronExpression = new CronExpression(cron);
             ScheduleNext();
+        }
+
+        public void Dispose()
+        {
+#if DEBUG
+            Console.WriteLine("Dispose");
+#endif
+            _sub?.Dispose();
+            _running = false;
         }
 
         private Task ScheduleNext()
@@ -51,15 +60,6 @@ namespace Fibrous
             }
 
             return Task.CompletedTask;
-        }
-
-        public void Dispose()
-        {
-#if DEBUG
-            Console.WriteLine("Dispose");
-#endif
-            _sub?.Dispose();
-            _running = false;
         }
     }
 }

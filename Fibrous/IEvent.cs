@@ -103,10 +103,10 @@ namespace Fibrous
 
             void Action(T msg)
             {
-               fiber.Enqueue(() => receive(msg));
+                fiber.Enqueue(() => receive(msg));
             }
 
-            object[] addHandlerArgs = {(Action<T>)Action};
+            object[] addHandlerArgs = {(Action<T>) Action};
             add.Invoke(obj, addHandlerArgs);
             return new DisposeAction(() => remove.Invoke(obj, addHandlerArgs));
         }

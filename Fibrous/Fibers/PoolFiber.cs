@@ -19,6 +19,7 @@ namespace Fibrous
         {
             _queue = new ArrayQueue<Action>(size);
         }
+
         public PoolFiber(IExecutor config, int size = QueueSize.DefaultQueueSize)
             : base(config)
         {
@@ -98,10 +99,24 @@ namespace Fibrous
             }
         }
 
-        public static IFiber StartNew() => new PoolFiber().Start();
-        public static IFiber StartNew(int size ) => new PoolFiber(new Executor(), size).Start();
-        public static IFiber StartNew(IExecutor exec, int size = QueueSize.DefaultQueueSize) => new PoolFiber(exec ?? new Executor(), size).Start();
-        public static IFiber StartNew(IExecutor executor, int size, IFiberScheduler scheduler) => new PoolFiber(executor, size, scheduler).Start();
-        
+        public static IFiber StartNew()
+        {
+            return new PoolFiber().Start();
+        }
+
+        public static IFiber StartNew(int size)
+        {
+            return new PoolFiber(new Executor(), size).Start();
+        }
+
+        public static IFiber StartNew(IExecutor exec, int size = QueueSize.DefaultQueueSize)
+        {
+            return new PoolFiber(exec ?? new Executor(), size).Start();
+        }
+
+        public static IFiber StartNew(IExecutor executor, int size, IFiberScheduler scheduler)
+        {
+            return new PoolFiber(executor, size, scheduler).Start();
+        }
     }
 }
