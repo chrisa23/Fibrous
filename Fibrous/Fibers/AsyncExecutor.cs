@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace Fibrous
 {
     /// <summary>
-    ///     Default executor that simply
+    ///     Default executor that simply awaits running the async method
     /// </summary>
     public sealed class AsyncExecutor : IAsyncExecutor
     {

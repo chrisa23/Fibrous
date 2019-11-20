@@ -21,7 +21,7 @@ namespace Fibrous.Tests
                 for (var i = 0; i < 1000000; i++)
                 {
                     var reply = await channel.SendRequest(0);
-                    Assert.AreEqual(1, reply);
+                   // Assert.AreEqual(1, reply);
                 }
             }
         }
@@ -37,9 +37,10 @@ namespace Fibrous.Tests
                 for (var i = 0; i < 1000000; i++)
                 {
                     var reply = await channel.SendRequest(0);
-                    Assert.AreEqual(1, reply);
+                   // Assert.AreEqual(1, reply);
                 }
             }
         }
+
     }
 }

@@ -42,10 +42,7 @@ namespace Fibrous
 
         private sealed class ChannelRequest : IRequest<TRequest, TReply>, IDisposable
         {
-            private readonly object _lock = new object();
-            private bool _disposed;
-            private bool _replied;
-
+            private readonly SingleShotGuard _guard = new SingleShotGuard();
             public ChannelRequest(TRequest req)
             {
                 Request = req;
@@ -56,10 +53,8 @@ namespace Fibrous
 
             public void Dispose()
             {
-                lock (_lock)
+                if(_guard.Check)
                 {
-                    _replied = true;
-                    _disposed = true;
                 }
             }
 
@@ -67,11 +62,9 @@ namespace Fibrous
 
             public void Reply(TReply response)
             {
-                lock (_lock)
+                if (_guard.Check)
                 {
-                    if (_replied || _disposed) return;
                     Resp.SetResult(response);
-                    _replied = true;
                 }
             }
         }

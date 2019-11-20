@@ -54,6 +54,20 @@ namespace Fibrous.Collections
             return _channel.Subscribe(fiber, receive, receiveSnapshot);
         }
 
+        public void Add(T item)
+        {
+            _add.Publish(item);
+        }
+
+        public void Remove(T item)
+        {
+            _remove.Publish(item);
+        }
+        public T[] GetItems(Func<T, bool> request) //, TimeSpan timout = TimeSpan.MaxValue)
+        {
+            return _request.SendRequest(request).Result;
+        }
+
         private void OnRequest(IRequest<Func<T, bool>, T[]> request)
         {
             request.Reply(_items.Where(request.Request).ToArray());
@@ -70,25 +84,10 @@ namespace Fibrous.Collections
             _items.Add(obj);
             _channel.Publish(new ItemAction<T>(ActionType.Add, obj));
         }
-
-        public void Add(T item)
-        {
-            _add.Publish(item);
-        }
-
-        public void Remove(T item)
-        {
-            _remove.Publish(item);
-        }
-
+        
         private T[] Reply()
         {
             return _items.ToArray();
-        }
-
-        public T[] GetItems(Func<T, bool> request) //, TimeSpan timout = TimeSpan.MaxValue)
-        {
-            return _request.SendRequest(request).Result;
         }
     }
 }

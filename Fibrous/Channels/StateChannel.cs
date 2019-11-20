@@ -24,29 +24,7 @@ namespace Fibrous
         public StateChannel()
         {
         }
-
-        public bool HasValue
-        {
-            get
-            {
-                lock (_lock)
-                {
-                    return _hasValue;
-                }
-            }
-        }
-
-        public T Current
-        {
-            get
-            {
-                lock (_lock)
-                {
-                    return _last;
-                }
-            }
-        }
-
+        
         public IDisposable Subscribe(IFiber fiber, Action<T> handler)
         {
             lock (_lock)

@@ -3,7 +3,7 @@ using System;
 namespace Fibrous
 {
     /// <summary>
-    ///     Default executor that simply
+    ///     Default executor that simply executes the action
     /// </summary>
     public sealed class Executor : IExecutor
     {

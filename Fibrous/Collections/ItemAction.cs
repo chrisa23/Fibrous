@@ -1,6 +1,6 @@
 ﻿namespace Fibrous.Collections
 {
-    public class ItemAction<T>
+    public sealed class ItemAction<T>
     {
         public ItemAction(ActionType actionType, T item)
         {

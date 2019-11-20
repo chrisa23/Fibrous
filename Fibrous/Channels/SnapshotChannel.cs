@@ -19,7 +19,7 @@ namespace Fibrous
         {
             var primedSubscribe = new SnapshotRequest(fiber, _updatesChannel, receive, receiveSnapshot);
             _requestChannel.SendRequest(null, fiber, x => primedSubscribe.Publish(x));
-            return primedSubscribe;
+            return new Unsubscriber(primedSubscribe, fiber);
         }
 
         public IDisposable ReplyToPrimingRequest(IFiber fiber, Func<TSnapshot> reply)

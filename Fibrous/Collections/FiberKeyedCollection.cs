@@ -26,16 +26,6 @@ namespace Fibrous.Collections
             _request.SetRequestHandler(_fiber, OnRequest);
         }
 
-        public T this[TKey key]
-        {
-            set
-            {
-                var exists = _items.ContainsKey(key);
-                _items[key] = value;
-                _channel.Publish(new ItemAction<T>(exists ? ActionType.Update : ActionType.Add, value));
-            }
-        }
-
         public void Dispose()
         {
             _fiber.Dispose();
@@ -61,6 +51,25 @@ namespace Fibrous.Collections
             return _channel.Subscribe(fiber, receive, receiveSnapshot);
         }
 
+        public void Add(T item)
+        {
+            _add.Publish(item);
+        }
+
+        public void Remove(T item)
+        {
+            _remove.Publish(item);
+        }
+
+        public T[] GetItems(Func<T, bool> request)
+        {
+            return _request.SendRequest(request).Result;
+        }
+        public async Task<T[]> GetItemsAsync(Func<T, bool> request)
+        {
+            return await _request.SendRequest(request);
+        }
+
         private void OnRequest(IRequest<Func<T, bool>, T[]> request)
         {
             request.Reply(_items.Values.Where(request.Request).ToArray());
@@ -81,24 +90,10 @@ namespace Fibrous.Collections
             _channel.Publish(new ItemAction<T>(exists ? ActionType.Update : ActionType.Add, obj));
         }
 
-        public void Add(T item)
-        {
-            _add.Publish(item);
-        }
-
-        public void Remove(T item)
-        {
-            _remove.Publish(item);
-        }
-
         private T[] Reply()
         {
             return _items.Values.ToArray();
         }
 
-        public T[] GetItems(Func<T, bool> request)
-        {
-            return _request.SendRequest(request).Result;
-        }
     }
 }

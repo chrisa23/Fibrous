@@ -173,7 +173,7 @@ namespace Fibrous
             //we use a stub fiber to force the filtering onto the publisher thread.
             var stub = StubFiber.StartNew();
             port.Subscribe(stub, FilteredReceiver);
-            return stub;
+            return new Unsubscriber( stub, fiber);
         }
 
         public static IPublisherPort<T> NewPublishPort<T>(this IFiber fiber, Action<T> onEvent)
