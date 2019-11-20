@@ -15,7 +15,7 @@ namespace Fibrous.Agents
         public AsyncAgent(Func<T, Task> handler, IAsyncExecutor executor = null)
         {
             Fiber = AsyncFiber.StartNew(executor);
-            _channel = Fiber.NewPublishPort(handler);
+            _channel = Fiber.NewChannel(handler);
         }
 
         public void Publish(T msg)

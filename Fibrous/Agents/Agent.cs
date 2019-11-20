@@ -14,7 +14,7 @@ namespace Fibrous.Agents
         public Agent(Action<T> handler, IExecutor executor = null)
         {
             Fiber = PoolFiber.StartNew(executor);
-            _channel = Fiber.NewPublishPort(handler);
+            _channel = Fiber.NewChannel(handler);
         }
 
         public void Publish(T msg)

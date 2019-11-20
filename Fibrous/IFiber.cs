@@ -176,7 +176,7 @@ namespace Fibrous
             return new Unsubscriber( stub, fiber);
         }
 
-        public static IPublisherPort<T> NewPublishPort<T>(this IFiber fiber, Action<T> onEvent)
+        public static IChannel<T> NewChannel<T>(this IFiber fiber, Action<T> onEvent)
         {
             var channel = new Channel<T>();
             channel.Subscribe(fiber, onEvent);

@@ -172,18 +172,13 @@ namespace Fibrous
             return new Unsubscriber( stub, fiber);
         }
 
-        public static IPublisherPort<T> NewPublishPort<T>(this IAsyncFiber fiber, Func<T, Task> onEvent)
-        {
-            var channel = new Channel<T>();
-            channel.Subscribe(fiber, onEvent);
-            return channel;
-        }
         public static IChannel<T> NewChannel<T>(this IAsyncFiber fiber, Func<T, Task> onEvent)
         {
             var channel = new Channel<T>();
             channel.Subscribe(fiber, onEvent);
             return channel;
         }
+
         public static IRequestPort<TRq, TRp> NewRequestPort<TRq, TRp>(this IAsyncFiber fiber,
             Func<IRequest<TRq, TRp>, Task> onEvent)
         {

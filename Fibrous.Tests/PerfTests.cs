@@ -217,7 +217,7 @@ namespace Fibrous.Tests
         }
 
         [Test]
-        [Explicit]
+        //[Explicit]
         public void TestAsync()
         {
             PointToPointPerfTestWithObject(new AsyncFiber());
@@ -225,7 +225,7 @@ namespace Fibrous.Tests
         }
 
         [Test]
-        [Explicit]
+       // [Explicit]
         public void TestPool()
         {
             PointToPointPerfTestWithStruct(new PoolFiber());

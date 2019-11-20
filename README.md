@@ -56,6 +56,9 @@ channel.Subscribe(fiber, s => Console.WriteLine(s.ToUpper()));
 // or you can subscribe via the Fiber
 fiber.Subscribe(channel, s => Console.WriteLine(s.ToUpper()));
 
+//You can also create a channel and subscribe in one line
+IChannel<string> channel = fiber.NewChannel<string>(s => Console.WriteLine(s.ToUpper()));
+
 //Publish a message to the channel
 channel.Publish("the message");
 
@@ -70,6 +73,10 @@ fiber.Schedule(ScheduledMethod, when);
 
 //and also have them repeat
 fiber.Schedule(ScheduledMethod, when, repeat);
+
+//Agents make some things even simpler
+var agent = new Agent<string>(s => Console.WriteLine(s.ToUpper()));
+agent.Publish("the message");
 ```
 
 Extras
