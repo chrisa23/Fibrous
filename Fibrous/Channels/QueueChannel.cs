@@ -14,12 +14,12 @@ namespace Fibrous
 
         public IDisposable Subscribe(IFiber fiber, Action<TMsg> onMessage)
         {
-            return new QueueConsumer(fiber, onMessage, this);
+            return new Unsubscriber( new QueueConsumer(fiber, onMessage, this), fiber);
         }
 
         public IDisposable Subscribe(IAsyncFiber fiber, Func<TMsg, Task> receive)
         {
-            return new AsyncQueueConsumer(fiber, receive, this);
+            return new Unsubscriber( new AsyncQueueConsumer(fiber, receive, this), fiber);
         }
 
         public void Publish(TMsg message)

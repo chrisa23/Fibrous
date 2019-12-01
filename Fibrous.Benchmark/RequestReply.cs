@@ -15,7 +15,7 @@ namespace Fibrous.Benchmark
         private IFiber _fiberReply;
 
         [Benchmark]
-        public async  Task<int> FiberReqRep()
+        public async Task<int> FiberReqRep()
         {
             return await _requestChannel.SendRequest(0);
         }

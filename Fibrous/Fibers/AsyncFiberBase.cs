@@ -37,8 +37,12 @@ namespace Fibrous
             {
                 _state = ExecutionState.Running;
                 if (_preQueue.Count > 0)
+                {
                     for (var i = 0; i < _preQueue.Count; i++)
+                    {
                         InternalEnqueue(_preQueue[i]);
+                    }
+                }
             }
 
             return this;
@@ -58,6 +62,7 @@ namespace Fibrous
             if (_state == ExecutionState.Stopped)
                 return;
             if (_state == ExecutionState.Created)
+            {
                 lock (_preQueue)
                 {
                     if (_state == ExecutionState.Created)
@@ -66,6 +71,7 @@ namespace Fibrous
                         return;
                     }
                 }
+            }
 
             InternalEnqueue(action);
         }
@@ -92,11 +98,5 @@ namespace Fibrous
 
         protected abstract void InternalEnqueue(Func<Task> action);
 
-        private enum ExecutionState
-        {
-            Created,
-            Running,
-            Stopped
-        }
     }
 }

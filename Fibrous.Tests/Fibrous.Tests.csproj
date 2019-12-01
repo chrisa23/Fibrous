@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Fibrous.Proxy\Fibrous.Proxy.csproj" />
     <ProjectReference Include="..\Fibrous\Fibrous.csproj" />
   </ItemGroup>
 

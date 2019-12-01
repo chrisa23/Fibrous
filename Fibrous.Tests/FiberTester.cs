@@ -229,20 +229,23 @@ namespace Fibrous.Tests
             using (fiber)
             using (var reset = new AutoResetEvent(false))
             {
-                var count = 0;
+                var channel = new Channel<int>();
                 var result = new List<int>();
 
-                void Command()
+                void Command(int i)
                 {
-                    result.Add(count++);
-                    if (count == 100)
+                    result.Add(i);
+                    if (i == 99)
                         reset.Set();
                 }
 
+                channel.Subscribe(fiber, Command);
                 for (var i = 0; i < 100; i++)
-                    fiber.Enqueue(Command);
+                    channel.Publish(i);
                 Assert.IsTrue(reset.WaitOne(10000, false));
-                Assert.AreEqual(100, count);
+                Assert.AreEqual(100, result.Count);
+                for (var i = 0; i < 100; i++)
+                    Assert.AreEqual(i, result[i]);
             }
         }
 
@@ -251,21 +254,24 @@ namespace Fibrous.Tests
             using (fiber)
             using (var reset = new AutoResetEvent(false))
             {
-                var count = 0;
+                var channel = new Channel<int>();
                 var result = new List<int>();
 
-                Task Command()
+                Task Command(int i)
                 {
-                    result.Add(count++);
-                    if (count == 100)
+                    result.Add(i);
+                    if (i == 99)
                         reset.Set();
                     return Task.CompletedTask;
                 }
+                channel.Subscribe(fiber, Command);
+                for (var i = 0; i < 100; i++)
+                    channel.Publish(i);
+                Assert.IsTrue(reset.WaitOne(10000, false));
+                Assert.AreEqual(100, result.Count);
 
                 for (var i = 0; i < 100; i++)
-                    fiber.Enqueue(Command);
-                Assert.IsTrue(reset.WaitOne(10000, false));
-                Assert.AreEqual(100, count);
+                    Assert.AreEqual(i, result[i]);
             }
         }
 

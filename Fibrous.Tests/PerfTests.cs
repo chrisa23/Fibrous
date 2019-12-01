@@ -19,19 +19,25 @@ namespace Fibrous.Tests
                 fiber.Start();
                 IChannel<MsgStruct> channel = new Channel<MsgStruct>();
                 const int Max = 5000000;
-                var reset = new AutoResetEvent(false);
-                var counter = new Counter(reset, Max);
-                channel.Subscribe(fiber, counter.OnMsg);
-                //Warmup
-                for (var i = 0; i <= Max; i++)
-                    channel.Publish(new MsgStruct {Count = i});
-                reset.WaitOne(30000);
+                
 
-                using (new PerfTimer(Max))
-                {
+
+                    var reset = new AutoResetEvent(false);
+                    var counter = new Counter(reset, Max);
+                    channel.Subscribe(fiber, counter.OnMsg);
+                    for (int j = 0; j < 3; j++)
+                    {
+                    //Warmup
                     for (var i = 0; i <= Max; i++)
                         channel.Publish(new MsgStruct {Count = i});
-                    Assert.IsTrue(reset.WaitOne(30000, false));
+                    reset.WaitOne(30000);
+
+                    using (new PerfTimer(Max))
+                    {
+                        for (var i = 0; i <= Max; i++)
+                            channel.Publish(new MsgStruct {Count = i});
+                        Assert.IsTrue(reset.WaitOne(30000, false));
+                    }
                 }
             }
         }

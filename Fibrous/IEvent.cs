@@ -17,8 +17,7 @@ namespace Fibrous
         public IDisposable Subscribe(Action<TEvent> receive)
         {
             InternalEvent += receive;
-            var disposeAction = new DisposeAction(() => InternalEvent -= receive);
-            return disposeAction;
+            return new DisposeAction(() => InternalEvent -= receive);
         }
 
         public void Publish(TEvent msg)
@@ -52,8 +51,7 @@ namespace Fibrous
         public IDisposable Subscribe(Action receive)
         {
             InternalEvent += receive;
-            var disposeAction = new DisposeAction(() => InternalEvent -= receive);
-            return disposeAction;
+            return new DisposeAction(() => InternalEvent -= receive);
         }
 
         public void Trigger()
