@@ -11,7 +11,7 @@
 //    {
 //        [FieldOffset(56)]
 //        protected object _actions;
-        
+
 //        [FieldOffset(120)]
 //        protected object _toPass;
 

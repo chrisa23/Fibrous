@@ -14,11 +14,6 @@
     <PackageTags>concurrency actors multi-threading messaging</PackageTags>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Fibrous.2.0.0.nupkg" />
-    <None Remove="Fibrous.3.0.1-beta.nupkg" />
-    <None Remove="Fibrous.3.0.2-beta.nupkg" />
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
 </Project>

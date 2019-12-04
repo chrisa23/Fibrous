@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace Fibrous
 {
@@ -8,7 +10,7 @@ namespace Fibrous
     /// <typeparam name="T"></typeparam>
     public static class EventBus<T>
     {
-        public static readonly IChannel<T> Channel = new Channel<T>();
+        private static readonly IChannel<T> Channel = new Channel<T>();
 
         public static IDisposable Subscribe(IFiber fiber, Action<T> receive)
         {

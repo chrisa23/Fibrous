@@ -52,6 +52,17 @@ namespace Fibrous.Tests
 
            Assert.IsTrue(reset.WaitOne(TimeSpan.FromSeconds(20)));
             
+           
+
+        }
+
+        [Test]
+        public void GuardTest()
+        {
+            var singleShot = new SingleShotGuard();
+            Assert.IsTrue(singleShot.Check);
+            Assert.IsFalse(singleShot.Check);
         }
     }
 }
+

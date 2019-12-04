@@ -1,6 +1,6 @@
 - Add more examples
-- better Req/reply tests
-- add multi producer tests
-- add queue full tests
-- clean up ctors to allow injection of schedulers
-- req/reply performance
+- Performance things to look at:
+	- Padding / layout for Array Queue
+	- IL generated array retrieval (Disruptor)
+	- Ring buffer type queue
+
