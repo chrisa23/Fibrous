@@ -32,7 +32,7 @@ namespace Fibrous.Tests
             await Task.Delay(100);
             Assert.AreEqual(6, test.Count);
         }
-        public class Tester : IHandle<string>, IHandle<int>, IDisposable
+        public class Tester : IHandle<string>, IHandle<int>, IHaveFiber
         {
             public IFiber Fiber { get; } = Fibrous.Fiber.StartNew();
             
@@ -54,7 +54,7 @@ namespace Fibrous.Tests
             }
         }
 
-        public class AsyncTester : IHandleAsync<string>, IHandleAsync<int>, IDisposable
+        public class AsyncTester : IHandleAsync<string>, IHandleAsync<int>, IHaveAsyncFiber
         {
             public IAsyncFiber Fiber { get; } = AsyncFiber.StartNew();
 

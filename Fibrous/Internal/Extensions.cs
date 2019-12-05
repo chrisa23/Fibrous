@@ -19,7 +19,6 @@ namespace Fibrous
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static Action<T> Receive<T>(this IAsyncExecutionContext fiber, Func<T, Task> receive)
         {
-            //how to avoid this closure...
             return msg => fiber.Enqueue(() => receive(msg));
         }
     }
