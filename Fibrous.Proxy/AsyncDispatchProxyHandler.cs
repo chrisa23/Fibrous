@@ -26,6 +26,7 @@ namespace System.Reflection
 
         protected abstract Task<T> InvokeAsyncT<T>(MethodInfo method, object[] args);
     }
+
     public class DispatchProxyHandler
     {
         public DispatchProxyHandler()

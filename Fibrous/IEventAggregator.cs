@@ -31,6 +31,7 @@ namespace Fibrous
         
         void Handle(TMessage message);
     }
+
     /// <summary>
     ///     For use with IEventAggregator to auto wire events
     ///     Denotes a class which can handle a particular type of message.
@@ -66,25 +67,23 @@ namespace Fibrous
                 throw new ArgumentException("Handler must be implement one of the interfaces, IHaveFiber or IHaveAsyncFiber");
 
             object fiber = regularFiber ? (object)((IHaveFiber)handler).Fiber : ((IHaveAsyncFiber)handler).Fiber;
-            
-            IDisposableRegistry registry = (IDisposableRegistry)fiber;
 
-            var disposable = SetupHandlers(handler,fiber,  regularFiber);
+            var disposable = SetupHandlers(handler, fiber, regularFiber);
 
-            return new Unsubscriber(disposable, registry) ;
+            return new Unsubscriber(disposable, (IDisposableRegistry) fiber);
         }
 
         private IDisposable SetupHandlers(object handler, object fiber, bool regular)
         {
-            var interfaceType = (regular ? typeof(IHandle<>) : typeof(IHandleAsync<>));
+            var interfaceType = regular ? typeof(IHandle<>) : typeof(IHandleAsync<>);
             var subMethod = regular ? "SubscribeToChannel" : "AsyncSubscribeToChannel";
-            var interfaces = handler.GetType().GetTypeInfo().ImplementedInterfaces
-                .Where(x => x.GetTypeInfo().IsGenericType && x.GetGenericTypeDefinition() == interfaceType);
+            var interfaces = handler.GetType().GetTypeInfo().ImplementedInterfaces.Where(x =>
+                    x.GetTypeInfo().IsGenericType && x.GetGenericTypeDefinition() == interfaceType);
             var disposables = new Disposables();
             foreach (var @interface in interfaces)
             {
                 var type = @interface.GetTypeInfo().GenericTypeArguments[0];
-                var method = @interface.GetRuntimeMethod("Handle", new[] { type});
+                var method = @interface.GetRuntimeMethod("Handle", new[] {type});
 
                 if (method == null) continue;
 
@@ -104,6 +103,7 @@ namespace Fibrous
             lock (_channels)
             {
                 if (!_channels.ContainsKey(type)) return;
+
                 channel = (IChannel<T>) _channels[type];
             }
             channel.Publish(msg);

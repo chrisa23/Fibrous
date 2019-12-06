@@ -4,7 +4,6 @@ using System.Linq;
 
 namespace Fibrous.Proxy
 {
-    
     public class FiberProxy<T>:DispatchProxy
     {
         private IFiber _fiber;
