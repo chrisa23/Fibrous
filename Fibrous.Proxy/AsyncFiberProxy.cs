@@ -12,28 +12,23 @@ namespace Fibrous.Proxy
 
         protected override object Invoke(MethodInfo targetMethod, object[] args)
         {
-            if (targetMethod != null)
+            if (targetMethod == null) throw new ArgumentException(nameof(targetMethod));
+
+            var targetMethodName = targetMethod.Name;
+            if (targetMethodName == "Dispose")
             {
-                var targetMethodName = targetMethod.Name;
-                if (targetMethodName == "Dispose")
-                {
-                    Dispose();
-                    return targetMethod.Invoke(_decorated, args);
+                Dispose();
+                return targetMethod.Invoke(_decorated, args);
 
-                }
-                //?? this is odd
-                if (targetMethod.ReturnType == typeof(void) && !(targetMethodName.StartsWith("add_", StringComparison.Ordinal) || targetMethodName.StartsWith("remove_", StringComparison.Ordinal)))
-                {
-                    _fiber.Enqueue(async () => targetMethod.Invoke(_decorated, args));
-                    return null;
-                }
-                else
-                {
-                    return targetMethod.Invoke(_decorated, args);
-                }
             }
+            
+            if (targetMethod.ReturnType != typeof(void) ||
+                (targetMethodName.StartsWith("add_", StringComparison.Ordinal) ||
+                 targetMethodName.StartsWith("remove_", StringComparison.Ordinal)))
+                return targetMethod.Invoke(_decorated, args);
 
-            throw new ArgumentException(nameof(targetMethod));
+            _fiber.Enqueue(async () => targetMethod.Invoke(_decorated, args));
+            return null;
         }
 
         protected override Task InvokeAsync(MethodInfo method, object[] args)
