@@ -7,18 +7,18 @@ using NUnit.Framework;
 namespace Fibrous.Tests
 {
     [TestFixture]
-    class EventAggregatorTests
+    public class EventHubTests
     {
-        private IEventAggregator eventAggregator = new EventAggregator();
+        private readonly IEventHub _eventHub = new EventHub();
         [Test]
         public async Task NonAsync()
         {
             using var test = new Tester();
-            using var sub = eventAggregator.Subscribe(test);
+            using var sub = _eventHub.Subscribe(test);
             
-            eventAggregator.Publish(3);
-            eventAggregator.Publish(2);
-            eventAggregator.Publish("test");
+            _eventHub.Publish(3);
+            _eventHub.Publish(2);
+            _eventHub.Publish("test");
             
             await Task.Delay(100);
             
@@ -29,11 +29,11 @@ namespace Fibrous.Tests
         public async Task Async()
         {
             using var test = new AsyncTester();
-            using var sub = eventAggregator.Subscribe(test);
+            using var sub = _eventHub.Subscribe(test);
             
-            eventAggregator.Publish(3);
-            eventAggregator.Publish(2);
-            eventAggregator.Publish("test");
+            _eventHub.Publish(3);
+            _eventHub.Publish(2);
+            _eventHub.Publish("test");
             
             await Task.Delay(100);
             
