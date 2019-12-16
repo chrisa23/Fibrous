@@ -5,6 +5,15 @@ namespace Fibrous
 {
     public static class EventExtensions
     {
+        /// <summary>
+        /// Subscribe a fiber to an Action based event.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fiber"></param>
+        /// <param name="obj"></param>
+        /// <param name="eventName"></param>
+        /// <param name="receive"></param>
+        /// <returns></returns>
         public static IDisposable SubscribeToEvent<T>(this IFiber fiber, object obj, string eventName,
             Action<T> receive)
         {
@@ -23,6 +32,15 @@ namespace Fibrous
             return new Unsubscriber(new DisposeAction(() => remove.Invoke(obj, addHandlerArgs)), fiber);
         }
 
+        /// <summary>
+        /// Subscribe an AsyncFiber to an Action based event
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fiber"></param>
+        /// <param name="obj"></param>
+        /// <param name="eventName"></param>
+        /// <param name="receive"></param>
+        /// <returns></returns>
         public static IDisposable SubscribeToEvent<T>(this IAsyncFiber fiber, object obj, string eventName,
             Func<T, Task> receive)
         {

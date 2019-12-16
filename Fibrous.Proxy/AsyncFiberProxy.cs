@@ -27,7 +27,7 @@ namespace Fibrous.Proxy
                  targetMethodName.StartsWith("remove_", StringComparison.Ordinal)))
                 return targetMethod.Invoke(_decorated, args);
 
-            _fiber.Enqueue(async () => targetMethod.Invoke(_decorated, args));
+            _fiber.Enqueue(() => (Task)targetMethod.Invoke(_decorated, args));
             return null;
         }
 
