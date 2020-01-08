@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Fibrous.Actors
 {
-    public abstract class AsyncUntypedActor
+    public abstract class AsyncUntypedActor : IDisposable
     {
         private readonly IRequestChannel<object, object> _askChannel = new RequestChannel<object, object>();
         private readonly IChannel<object> _tellChannel = new Channel<object>();
@@ -34,6 +34,11 @@ namespace Fibrous.Actors
         public async Task<object> Ask(object message)
         {
             return await Task.Run(() => _askChannel.SendRequest(message).Result);
+        }
+        
+        public void Dispose()
+        {
+            Fiber.Dispose();
         }
     }
 }
