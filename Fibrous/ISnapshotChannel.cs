@@ -11,9 +11,10 @@ namespace Fibrous
     {
         IDisposable Subscribe(IFiber fiber, Action<T> receive, Action<TSnapshot> receiveSnapshot);
     }
-
-    public interface ISnapshotPublisherPort<in T>
+    
+    //TODO:  think about adjusting this...
+    public interface ISnapshotPublisherPort<in TSnapshot>
     {
-        IDisposable ReplyToPrimingRequest(IFiber fiber, Func<T> reply);
+        IDisposable ReplyToPrimingRequest(IFiber fiber, Func<TSnapshot> reply);
     }
 }
