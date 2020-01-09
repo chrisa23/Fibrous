@@ -2,66 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace Fibrous
 {
-
-    /// <summary>
-    ///   Injectable event hub where classes implementing a combination of
-    ///   IHaveFiber / IHandle or IHaveAsyncFiber / IHandleAsync
-    ///   can auto wire up to receive events publish on the hub
-    /// </summary>
-    public interface IEventHub
-    {
-        IDisposable Subscribe(object handler);
-        void Publish<T>(T msg);
-    }
-
-    /// <summary>
-    ///     For use with IEventHub to auto wire events
-    ///     Denotes a class which has a regular Fiber.
-    ///     Must be used in conjunction with IHandle<T>
-    /// </summary>
-    public interface IHaveFiber
-    {
-        IFiber Fiber { get; }
-    }
-
-    /// <summary>
-    ///     For use with IEventHub to auto wire events
-    ///     Denotes a class which can handle a particular type of message.
-    ///     Must be used in conjunction with IHaveFiber
-    /// </summary>
-    /// <typeparam name="TMessage">The type of message to handle.</typeparam>
-    // ReSharper disable once TypeParameterCanBeVariant
-    public interface IHandle<TMessage>
-    {
-        void Handle(TMessage message);
-    }
-
-    /// <summary>
-    ///     For use with IEventHub to auto wire events
-    ///     Denotes a class which has an async Fiber.
-    ///     Must be used in conjunction with IHandleAsync<T>
-    /// </summary>
-    public interface IHaveAsyncFiber
-    {
-        IAsyncFiber Fiber { get; }
-    }
-    
-    /// <summary>
-    ///     For use with IEventHub to auto wire events
-    ///     Denotes a class which can handle a particular type of message.
-    ///     Must be used in conjunction with IHaveAsyncFiber
-    /// </summary>
-    /// <typeparam name="TMessage">The type of message to handle.</typeparam>
-    // ReSharper disable once TypeParameterCanBeVariant
-    public interface IHandleAsync<TMessage>
-    {
-        Task Handle(TMessage message);
-    }
-    
     public sealed class EventHub : IEventHub
     {
         private readonly Dictionary<Type, object> _channels = new Dictionary<Type, object>();
@@ -98,7 +41,7 @@ namespace Fibrous
             var interfaceType = regular ? typeof(IHandle<>) : typeof(IHandleAsync<>);
             var subMethod = regular ? "SubscribeToChannel" : "AsyncSubscribeToChannel";
             var interfaces = handler.GetType().GetTypeInfo().ImplementedInterfaces.Where(x =>
-                x.GetTypeInfo().IsGenericType && x.GetGenericTypeDefinition() == interfaceType);
+                IntrospectionExtensions.GetTypeInfo(x).IsGenericType && x.GetGenericTypeDefinition() == interfaceType);
 
             var disposables = new Disposables();
 

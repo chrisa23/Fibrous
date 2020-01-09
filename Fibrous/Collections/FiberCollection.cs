@@ -13,19 +13,15 @@ namespace Fibrous.Collections
     public class FiberCollection<T> : ISnapshotSubscriberPort<ItemAction<T>, T[]>, IRequestPort<Func<T, bool>, T[]>,
         IDisposable
     {
-        private readonly IChannel<T> _add = new Channel<T>();
         private readonly ISnapshotChannel<ItemAction<T>, T[]> _channel = new SnapshotChannel<ItemAction<T>, T[]>();
         private readonly IFiber _fiber;
         private readonly List<T> _items = new List<T>();
-        private readonly IChannel<T> _remove = new Channel<T>();
         private readonly IRequestChannel<Func<T, bool>, T[]> _request = new RequestChannel<Func<T, bool>, T[]>();
 
         public FiberCollection(IExecutor executor = null)
         {
             _fiber = PoolFiber.StartNew(executor);
             _channel.ReplyToPrimingRequest(_fiber, Reply);
-            _add.Subscribe(_fiber, AddItem);
-            _remove.Subscribe(_fiber, RemoveItem);
             _request.SetRequestHandler(_fiber, OnRequest);
         }
 
@@ -54,15 +50,45 @@ namespace Fibrous.Collections
             return _channel.Subscribe(fiber, receive, receiveSnapshot);
         }
 
+        public void Clear()
+        {
+            _fiber.Enqueue(() =>
+            {
+                _items.Clear();
+                _channel.Publish(new ItemAction<T>(ActionType.Clear, new T[] { }));
+            });
+        }
+
+        public void AddRange(IEnumerable<T> items)
+        {
+            _fiber.Enqueue(() =>
+            {
+                var itemArray = items.ToArray();
+                _items.AddRange(itemArray);
+                _channel.Publish(new ItemAction<T>(ActionType.Add, itemArray));
+            });
+        }
+
         public void Add(T item)
         {
-            _add.Publish(item);
+            _fiber.Enqueue(() =>
+            {
+                _items.Add(item);
+                _channel.Publish(new ItemAction<T>(ActionType.Add, new[] {item}));
+            });
         }
 
         public void Remove(T item)
         {
-            _remove.Publish(item);
+            _fiber.Enqueue(() =>
+                {
+                    var removed = _items.Remove(item);
+                    if (removed)
+                        _channel.Publish(new ItemAction<T>(ActionType.Remove, new[] {item}));
+                }
+            );
         }
+
         public T[] GetItems(Func<T, bool> request) //, TimeSpan timout = TimeSpan.MaxValue)
         {
             return _request.SendRequest(request).Result;
@@ -73,18 +99,6 @@ namespace Fibrous.Collections
             request.Reply(_items.Where(request.Request).ToArray());
         }
 
-        private void RemoveItem(T obj)
-        {
-            _items.Remove(obj);
-            _channel.Publish(new ItemAction<T>(ActionType.Remove, obj));
-        }
-
-        private void AddItem(T obj)
-        {
-            _items.Add(obj);
-            _channel.Publish(new ItemAction<T>(ActionType.Add, obj));
-        }
-        
         private T[] Reply()
         {
             return _items.ToArray();

@@ -16,6 +16,21 @@ namespace Fibrous
         ///     Stop the fiber
         /// </summary>
         void Stop();
+
+        //Rest of API
+        //void Enqueue(Func<Task> action);
+        //IDisposable Schedule(Func<Task> action, TimeSpan dueTime);
+        //IDisposable Schedule(Func<Task> action, TimeSpan startTime, TimeSpan interval);
+        //IDisposable Schedule(Func<Task> action, DateTime when);
+        //IDisposable Schedule(Func<Task> action, DateTime when, TimeSpan interval);
+        //IDisposable CronSchedule(Func<Task> action, string cron);
+        //IDisposable Subscribe<T>(ISubscriberPort<T> channel, Func<T, Task> handler);
+        //IDisposable SubscribeToBatch<T>(ISubscriberPort<T> port, Func<T[], Task> receive, TimeSpan interval);
+        //IDisposable SubscribeToKeyedBatch<TKey, T>(ISubscriberPort<T> port, Converter<T, TKey> keyResolver, Func<IDictionary<TKey, T>, Task> receive, TimeSpan interval);
+        //IDisposable SubscribeToLast<T>(ISubscriberPort<T> port, Func<T, Task> receive, TimeSpan interval);
+        //IDisposable Subscribe<T>(ISubscriberPort<T> port, Func<T, Task> receive, Predicate<T> filter);
+        //IChannel<T> NewChannel<T>(Func<T, Task> onEvent);
+        //IRequestPort<TRq, TRp> NewRequestPort<TRq, TRp>(Func<IRequest<TRq, TRp>, Task> onEvent);
     }
 
     public interface IAsyncExecutionContext

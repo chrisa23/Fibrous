@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Fibrous
 {
     /// <summary>
-    ///     Fibers are execution contexts that use Threads or ThreadPools for work handlers
+    ///     Fibers are independent synchronous execution contexts.
     /// </summary>
     public interface IFiber : IExecutionContext, IScheduler, IDisposableRegistry
     {
@@ -18,6 +18,21 @@ namespace Fibrous
         ///     Stop the fiber
         /// </summary>
         void Stop();
+
+        //Rest of API
+        //void Enqueue(Action action);
+        //IDisposable Schedule(Action action, TimeSpan dueTime);
+        //IDisposable Schedule(Action action, TimeSpan startTime, TimeSpan interval);
+        //IDisposable Schedule(Action action, DateTime when);
+        //IDisposable Schedule(Action action, DateTime when, TimeSpan interval);
+        //IDisposable CronSchedule(Action action, string cron);
+        //IDisposable Subscribe<T>(ISubscriberPort<T> channel, Action<T> handler);
+        //IDisposable SubscribeToBatch<T>(ISubscriberPort<T> port, Action<T[]> receive, TimeSpan interval);
+        //IDisposable SubscribeToKeyedBatch<TKey, T>(ISubscriberPort<T> port, Converter<T, TKey> keyResolver, Action<IDictionary<TKey, T>> receive, TimeSpan interval);
+        //IDisposable SubscribeToLast<T>(ISubscriberPort<T> port, Action<T> receive, TimeSpan interval);
+        //IDisposable Subscribe<T>(ISubscriberPort<T> port, Action<T> receive, Predicate<T> filter);
+        //IChannel<T> NewChannel<T>(Action<T> onEvent);
+        //IRequestPort<TRq, TRp> NewRequestPort<TRq, TRp>(Action<IRequest<TRq, TRp>> onEvent);
     }
 
     public interface IExecutionContext

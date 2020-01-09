@@ -79,7 +79,7 @@ namespace Fibrous.Collections
         {
             var removed = _items.Remove(_keyGen(obj));
             if (removed)
-                _channel.Publish(new ItemAction<T>(ActionType.Remove, obj));
+                _channel.Publish(new ItemAction<T>(ActionType.Remove, new []{ obj}));
         }
 
         private void AddItem(T obj)
@@ -87,7 +87,7 @@ namespace Fibrous.Collections
             var key = _keyGen(obj);
             var exists = _items.ContainsKey(key);
             _items[key] = obj;
-            _channel.Publish(new ItemAction<T>(exists ? ActionType.Update : ActionType.Add, obj));
+            _channel.Publish(new ItemAction<T>(exists ? ActionType.Update : ActionType.Add, new[] { obj }));
         }
 
         private T[] Reply()

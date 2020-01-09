@@ -3,8 +3,23 @@ using System.Threading.Tasks;
 
 namespace Fibrous
 {
-    public interface IRequestChannel<T, T1> : IRequestPort<T, T1>, IRequestHandlerPort<T, T1>
+    public interface IRequestChannel<TRequest, TReply> : IRequestPort<TRequest, TReply>
     {
+        /// <summary>
+        ///     Set the fiber and handler for responding to requests.
+        /// </summary>
+        /// <param name="fiber"></param>
+        /// <param name="onRequest"></param>
+        /// <returns></returns>
+        IDisposable SetRequestHandler(IFiber fiber, Action<IRequest<TRequest, TReply>> onRequest);
+
+        /// <summary>
+        ///     Set the fiber and handler for responding to requests.
+        /// </summary>
+        /// <param name="fiber"></param>
+        /// <param name="onRequest"></param>
+        /// <returns></returns>
+        IDisposable SetRequestHandler(IAsyncFiber fiber, Func<IRequest<TRequest, TReply>, Task> onRequest);
     }
 
     /// <summary>
@@ -57,29 +72,5 @@ namespace Fibrous
         /// </summary>
         /// <param name="reply"></param>
         void Reply(TReply reply);
-    }
-
-    /// <summary>
-    ///     Port for setting up request handling fibers
-    /// </summary>
-    /// <typeparam name="TRequest"></typeparam>
-    /// <typeparam name="TReply"></typeparam>
-    public interface IRequestHandlerPort<out TRequest, in TReply>
-    {
-        /// <summary>
-        ///     Set the fiber and handler for responding to requests.
-        /// </summary>
-        /// <param name="fiber"></param>
-        /// <param name="onRequest"></param>
-        /// <returns></returns>
-        IDisposable SetRequestHandler(IFiber fiber, Action<IRequest<TRequest, TReply>> onRequest);
-
-        /// <summary>
-        ///     Set the fiber and handler for responding to requests.
-        /// </summary>
-        /// <param name="fiber"></param>
-        /// <param name="onRequest"></param>
-        /// <returns></returns>
-        IDisposable SetRequestHandler(IAsyncFiber fiber, Func<IRequest<TRequest, TReply>, Task> onRequest);
     }
 }

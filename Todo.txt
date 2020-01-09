@@ -1,5 +1,18 @@
+- Create detailed documentation covering functionality
+	- Fibers
+		- Basic functionality
+		- Scheduling
+		- Disposables
+		- Subscribing to .Net events
+	- Ports
+	- Channels
+	- Events
+	- Event Hub and Event Bus
+	- Collections
+	- Pipelines
 - Add more examples
 - Performance things to look at:
+	- Verify that a spin lock is a good choice
 	- Padding / layout for Array Queue
 	- IL generated array retrieval (Disruptor)
 	- Ring buffer type queue

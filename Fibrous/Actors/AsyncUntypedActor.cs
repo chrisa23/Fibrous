@@ -33,7 +33,7 @@ namespace Fibrous.Actors
 
         public async Task<object> Ask(object message)
         {
-            return await Task.Run(() => _askChannel.SendRequest(message).Result);
+            return await _askChannel.SendRequest(message);
         }
         
         public void Dispose()

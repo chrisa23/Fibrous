@@ -21,9 +21,9 @@ namespace Fibrous.Tests
                 action =>
                 {
                     if (action.ActionType == ActionType.Add)
-                        list.Add(action.Item);
+                        list.Add(action.Items[0]);
                     else
-                        list.Remove(action.Item);
+                        list.Remove(action.Items[0]);
                 },
                 ints => snapshot = ints);
             Thread.Sleep(10);
@@ -54,9 +54,9 @@ namespace Fibrous.Tests
                 action =>
                 {
                     if (action.ActionType == ActionType.Add)
-                        list.Add(action.Item);
+                        list.Add(action.Items[0]);
                     else
-                        list.Remove(action.Item);
+                        list.Remove(action.Items[0]);
                 },
                 ints => snapshot = ints);
             Thread.Sleep(10);

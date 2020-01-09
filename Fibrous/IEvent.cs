@@ -12,6 +12,15 @@ namespace Fibrous
         IDisposable Subscribe(Action<TEvent> receive);
     }
 
+    /// <summary>
+    ///     Simple subscribe event with Dispose() for unsubscribe.
+    /// </summary>
+    public interface IEvent : IDisposable
+    {
+        IDisposable Subscribe(Action receive);
+        void Trigger();
+    }
+
     public sealed class Event<TEvent> : IEvent<TEvent>
     {
         public IDisposable Subscribe(Action<TEvent> receive)
@@ -39,7 +48,8 @@ namespace Fibrous
         }
     }
 
-    public sealed class Event : IDisposable
+
+    public sealed class Event : IEvent
     {
         public void Dispose()
         {
