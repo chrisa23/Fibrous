@@ -28,7 +28,7 @@ namespace Fibrous
 
         public void Enqueue(Func<Task> action)
         {
-            if (_disposed) throw new ObjectDisposedException(GetType().Name);
+            if (_disposed) return;
 
             InternalEnqueue(action);
         }
