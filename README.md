@@ -46,7 +46,7 @@ Examples:
 ```
 //create a fiber that is already started and backed by a thread pool
 //Work is done on the thread pool, but in a sequential fashion 
-IFiber fiber = Fiber.StartNew();
+IFiber fiber = new Fiber();
 	 
 //Create a channel and subscribe to messages
 IChannel<string> channel = new Channel<string>();
