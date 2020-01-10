@@ -19,7 +19,7 @@ namespace Fibrous.Collections
 
         public FiberDictionary(IExecutor executor = null)
         {
-            _fiber = Fiber.StartNew(executor);
+            _fiber = new Fiber(executor);
             _channel.ReplyToPrimingRequest(_fiber, Reply);
             _add.Subscribe(_fiber, AddItem);
             _remove.Subscribe(_fiber, RemoveItem);

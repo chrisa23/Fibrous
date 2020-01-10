@@ -24,9 +24,9 @@ namespace Fibrous.Benchmark
         [GlobalSetup]
         public void Setup()
         {
-            _fiber = Fiber.StartNew();
-            _fiberReply = Fiber.StartNew();
-            _asyncFiber = AsyncFiber.StartNew();
+            _fiber = new Fiber();
+            _fiberReply = new Fiber();
+            _asyncFiber = new AsyncFiber();
             _requestChannel.SetRequestHandler(_fiberReply, r => r.Reply(1));
         }
 

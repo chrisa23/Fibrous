@@ -13,8 +13,8 @@ namespace Fibrous.Tests
         [Test]
         public void SlowerConsumer()
         {
-            using var fiber1 = Fiber.StartNew(4);
-            using var fiber2 = Fiber.StartNew();
+            using var fiber1 = new Fiber(size: 4);
+            using var fiber2 = new Fiber();
             int count = 0;
             var reset = new AutoResetEvent(false);
             void Action(int o)
@@ -35,8 +35,8 @@ namespace Fibrous.Tests
         [Test]
         public void AsyncSlowerConsumer()
         {
-            using var fiber1 = AsyncFiber.StartNew(4);
-            using var fiber2 = Fiber.StartNew();
+            using var fiber1 = new AsyncFiber( size: 4);
+            using var fiber2 = new Fiber();
             int count = 0;
             var reset = new AutoResetEvent(false);
             async Task Action(int o)

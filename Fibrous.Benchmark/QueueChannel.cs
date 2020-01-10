@@ -88,17 +88,17 @@ namespace Fibrous.Benchmark
         [GlobalSetup]
         public void Setup()
         {
-            _async = AsyncFiber.StartNew();
-            _pool = PoolFiber.StartNew();
-            _pool2 = PoolFiber.StartNew();
-            _pool3= PoolFiber.StartNew();
+            _async = new AsyncFiber();
+            _pool = new Fiber();
+            _pool2 = new Fiber();
+            _pool3= new Fiber();
         }
 
         [GlobalCleanup]
         public void Cleanup()
         {
-            _pool.Stop();
-            _async.Stop();
+            _pool.Dispose();
+            _async.Dispose();
         }
     }
 }

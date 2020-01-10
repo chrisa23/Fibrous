@@ -81,21 +81,19 @@ namespace Fibrous.Benchmark
         {
             _pool1 = PoolFiber_OLD.StartNew();
             _pool2 = new PoolFiber2();
-            _pool2.Start();
             _spinPool = new SpinLockPoolFiber();
-            _spinPool.Start();
-            _async = AsyncFiber.StartNew();
-            _pool3 = PoolFiber.StartNew();
+            _async = new AsyncFiber();
+            _pool3 = new Fiber();
         }
 
         [GlobalCleanup]
         public void Cleanup()
         {
-            _pool1.Stop();
-            _pool2.Stop();
-            _spinPool.Stop();
-            _pool3.Stop();
-            _async.Stop();
+            _pool1.Dispose();
+            _pool2.Dispose();
+            _spinPool.Dispose();
+            _pool3.Dispose();
+            _async.Dispose();
         }
     }
 }

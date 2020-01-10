@@ -16,9 +16,9 @@ namespace Fibrous.Tests
         public async Task NoFiberError()
         {
             var rnd = new Random();
-            using var gen1 = Fiber.StartNew();
-            using var gen2 = Fiber.StartNew();
-            using var gen3 = Fiber.StartNew();
+            using var gen1 = new Fiber();
+            using var gen2 = new Fiber();
+            using var gen3 = new Fiber();
 
             using var stateMgr = FiberProxy<IStateManager>.Create(new StateManager());
             gen1.Schedule(() => stateMgr.Add(letters[rnd.Next(16)].ToString()), TimeSpan.FromMilliseconds(10), TimeSpan.FromMilliseconds(30));

@@ -6,23 +6,15 @@ namespace Fibrous
     /// <summary>
     ///     Fibers are independent synchronous execution contexts.
     /// </summary>
-    public interface IFiber : IExecutionContext, IScheduler, IDisposableRegistry
+    public partial interface IFiber : IScheduler, IDisposableRegistry
     {
         /// <summary>
-        ///     Start the fiber's queue
+        ///     Enqueue an Action to be executed
         /// </summary>
-        /// <returns></returns>
-        IFiber Start();
-
-        /// <summary>
-        ///     Stop the fiber
-        /// </summary>
-        void Stop();
+        /// <param name="action"></param>
+        void Enqueue(Action action);
 
         //Rest of API
-        //void Enqueue(Action action);
-        //IDisposable Schedule(Action action, TimeSpan dueTime);
-        //IDisposable Schedule(Action action, TimeSpan startTime, TimeSpan interval);
         //IDisposable Schedule(Action action, DateTime when);
         //IDisposable Schedule(Action action, DateTime when, TimeSpan interval);
         //IDisposable CronSchedule(Action action, string cron);
@@ -33,15 +25,6 @@ namespace Fibrous
         //IDisposable Subscribe<T>(ISubscriberPort<T> port, Action<T> receive, Predicate<T> filter);
         //IChannel<T> NewChannel<T>(Action<T> onEvent);
         //IRequestPort<TRq, TRp> NewRequestPort<TRq, TRp>(Action<IRequest<TRq, TRp>> onEvent);
-    }
-
-    public interface IExecutionContext
-    {
-        /// <summary>
-        ///     Enqueue an Action to be executed
-        /// </summary>
-        /// <param name="action"></param>
-        void Enqueue(Action action);
     }
 
     public interface IScheduler
@@ -64,9 +47,8 @@ namespace Fibrous
         IDisposable Schedule(Action action, TimeSpan startTime, TimeSpan interval);
     }
 
-
-    public static class SchedulerExtensions
-    {
+    public static class FiberExtensions
+    { 
         /// <summary>
         ///     Schedule an action at a DateTime
         /// </summary>
@@ -96,10 +78,7 @@ namespace Fibrous
         {
             return new CronScheduler(scheduler, action, cron);
         }
-    }
 
-    public static class FiberExtensions
-    {
         /// <summary>
         ///     Subscribe to a channel from the fiber.
         /// </summary>
@@ -186,7 +165,7 @@ namespace Fibrous
             }
 
             //we use a stub fiber to force the filtering onto the publisher thread.
-            var stub = StubFiber.StartNew();
+            var stub = new StubFiber();
             port.Subscribe(stub, FilteredReceiver);
             return new Unsubscriber( stub, fiber);
         }
@@ -206,4 +185,5 @@ namespace Fibrous
             return channel;
         }
     }
+
 }

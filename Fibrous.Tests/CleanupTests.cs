@@ -8,7 +8,7 @@ namespace Fibrous.Tests
         [Test]
         public void ChannelSubscription()
         {
-            var fiber = StubFiber.StartNew();
+            var fiber = new StubFiber();
             var channel = new Channel<int>();
             fiber.Subscribe(channel, i => { });
             Assert.AreEqual(true, channel.HasSubscriptions());

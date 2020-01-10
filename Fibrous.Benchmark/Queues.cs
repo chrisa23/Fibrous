@@ -7,10 +7,10 @@ namespace Fibrous.Benchmark
     public class Queues
     {
         private readonly Action _lambda = () => { };
-        private IFiber _busyWait;
-        private IFiber _sleep;
-        private IFiber _spin;
-        private IFiber _yield;
+        private FiberBase_old _busyWait;
+        private FiberBase_old _sleep;
+        private FiberBase_old _spin;
+        private FiberBase_old _yield;
 
         [Benchmark]
         public void Yield()

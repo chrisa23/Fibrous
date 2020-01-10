@@ -15,7 +15,7 @@ namespace Fibrous.Agents
 
         public RequestAgent(Action<IRequest<TRequest, TReply>> handler, IExecutor executor = null)
         {
-            Fiber = PoolFiber.StartNew(executor);
+            Fiber = new Fiber(executor);
             _channel = Fiber.NewRequestPort(handler);
         }
 

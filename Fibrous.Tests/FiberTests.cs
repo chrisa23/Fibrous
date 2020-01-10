@@ -5,62 +5,62 @@ namespace Fibrous.Tests
     [TestFixture]
     public class FiberTests
     {
-        [Test]
-        public void ExecuteOnlyAfterStart()
-        {
-            FiberTester.ExecuteOnlyAfterStart(new AsyncFiber());
-            FiberTester.ExecuteOnlyAfterStart(new PoolFiber());
-            FiberTester.ExecuteOnlyAfterStart(new StubFiber());
-        }
+        //[Test]
+        //public void ExecuteOnlyAfterStart()
+        //{
+        //    FiberTester.ExecuteOnlyAfterStart(new AsyncFiber());
+        //    FiberTester.ExecuteOnlyAfterStart(new Fiber());
+        //    FiberTester.ExecuteOnlyAfterStart(new StubFiber());
+        //}
 
         [Test]
         public void InOrderExecution()
         {
-            FiberTester.InOrderExecution(AsyncFiber.StartNew());
-            FiberTester.InOrderExecution(PoolFiber.StartNew());
-            FiberTester.InOrderExecution(StubFiber.StartNew());
+            FiberTester.InOrderExecution(new AsyncFiber());
+            FiberTester.InOrderExecution(new Fiber());
+            FiberTester.InOrderExecution(new StubFiber());
         }
 
         [Test]
         public void TestBatching()
         {
-            FiberTester.TestBatching(AsyncFiber.StartNew());
-            FiberTester.TestBatching(PoolFiber.StartNew());
-            FiberTester.TestBatching(StubFiber.StartNew());
-            FiberTester.TestBatchingWithKey(AsyncFiber.StartNew());
-            FiberTester.TestBatchingWithKey(PoolFiber.StartNew());
-            FiberTester.TestBatchingWithKey(StubFiber.StartNew());
+            FiberTester.TestBatching(new AsyncFiber());
+            FiberTester.TestBatching(new Fiber());
+            FiberTester.TestBatching(new StubFiber());
+            FiberTester.TestBatchingWithKey(new AsyncFiber());
+            FiberTester.TestBatchingWithKey(new Fiber());
+            FiberTester.TestBatchingWithKey(new StubFiber());
         }
 
         [Test]
         public void TestPubSubSimple()
         {
-            FiberTester.TestPubSubSimple(AsyncFiber.StartNew());
-            FiberTester.TestPubSubSimple(PoolFiber.StartNew());
-            FiberTester.TestPubSubSimple(StubFiber.StartNew());
+            FiberTester.TestPubSubSimple(new AsyncFiber());
+            FiberTester.TestPubSubSimple(new Fiber());
+            FiberTester.TestPubSubSimple(new StubFiber());
         }
 
         [Test]
         public void TestPubSubWithFilter()
         {
-            FiberTester.TestPubSubWithFilter(AsyncFiber.StartNew());
-            FiberTester.TestPubSubWithFilter(PoolFiber.StartNew());
-            FiberTester.TestPubSubWithFilter(StubFiber.StartNew());
+            FiberTester.TestPubSubWithFilter(new AsyncFiber());
+            FiberTester.TestPubSubWithFilter(new Fiber());
+            FiberTester.TestPubSubWithFilter(new StubFiber());
         }
 
         [Test]
         public void TestReqReply()
         {
-            FiberTester.TestReqReply1(PoolFiber.StartNew());
-            FiberTester.TestReqReply1(StubFiber.StartNew());
+            FiberTester.TestReqReply1(new Fiber());
+            FiberTester.TestReqReply1(new StubFiber());
         }
 
         [Test]
         public void TestTwoFibers()
         {
-            FiberTester.TestPubSubWExtraFiber(AsyncFiber.StartNew(), PoolFiber.StartNew());
-            FiberTester.TestPubSubWExtraFiber(PoolFiber.StartNew(), PoolFiber.StartNew());
-            FiberTester.TestPubSubWExtraFiber(PoolFiber.StartNew(), StubFiber.StartNew());
+            FiberTester.TestPubSubWExtraFiber(new AsyncFiber(), new Fiber());
+            FiberTester.TestPubSubWExtraFiber(new Fiber(), new Fiber());
+            FiberTester.TestPubSubWExtraFiber(new Fiber(), new StubFiber());
         }
     }
 }

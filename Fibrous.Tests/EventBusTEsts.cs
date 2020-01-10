@@ -12,7 +12,7 @@ namespace Fibrous.Tests
         [Test]
         public void EventBusInt()
         {
-            using var fiber = Fiber.StartNew();
+            using var fiber = new Fiber();
             using var reset = new AutoResetEvent(false);
             EventBus<int>.Subscribe(fiber, _ => reset.Set());
             EventBus<int>.Publish(0);
@@ -22,8 +22,8 @@ namespace Fibrous.Tests
         [Test]
         public void EventBusMixed()
         {
-            using var fiber = Fiber.StartNew();
-            using var fiber2 = Fiber.StartNew();
+            using var fiber = new Fiber();
+            using var fiber2 = new Fiber();
             using var reset = new AutoResetEvent(false);
             using var reset2 = new AutoResetEvent(false);
             EventBus<int>.Subscribe(fiber, _ => reset.Set());

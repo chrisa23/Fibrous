@@ -19,7 +19,7 @@ namespace Fibrous.Collections
         public FiberKeyedCollection(Func<T, TKey> keyGen, IExecutor executor = null)
         {
             _keyGen = keyGen;
-            _fiber = PoolFiber.StartNew(executor);
+            _fiber = new Fiber(executor);
             _channel.ReplyToPrimingRequest(_fiber, Reply);
             _add.Subscribe(_fiber, AddItem);
             _remove.Subscribe(_fiber, RemoveItem);

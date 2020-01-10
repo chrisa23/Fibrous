@@ -42,7 +42,7 @@ namespace Fibrous.Proxy
 
             _decorated = decorated;
             var executor = callback != null ? new ExceptionHandlingExecutor(callback) : (IExecutor) new Executor();
-            _fiber = Fiber.StartNew(executor);
+            _fiber = new Fiber(executor);
         }
 
         public static T Create(T decorated, Action<Exception> callback = null)

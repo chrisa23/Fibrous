@@ -20,7 +20,7 @@ namespace Fibrous.Collections
 
         public FiberCollection(IExecutor executor = null)
         {
-            _fiber = PoolFiber.StartNew(executor);
+            _fiber = new Fiber(executor);
             _channel.ReplyToPrimingRequest(_fiber, Reply);
             _request.SetRequestHandler(_fiber, OnRequest);
         }
@@ -81,12 +81,11 @@ namespace Fibrous.Collections
         public void Remove(T item)
         {
             _fiber.Enqueue(() =>
-                {
-                    var removed = _items.Remove(item);
-                    if (removed)
-                        _channel.Publish(new ItemAction<T>(ActionType.Remove, new[] {item}));
-                }
-            );
+            {
+                var removed = _items.Remove(item);
+                if (removed)
+                    _channel.Publish(new ItemAction<T>(ActionType.Remove, new[] {item}));
+            });
         }
 
         public T[] GetItems(Func<T, bool> request) //, TimeSpan timout = TimeSpan.MaxValue)

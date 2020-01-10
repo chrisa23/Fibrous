@@ -55,7 +55,7 @@ namespace Fibrous.Tests
             {
        
 
-                var fiber = PoolFiber.StartNew();
+                var fiber = new Fiber();
                 queues.Add(fiber);
                 channel.Subscribe(fiber, OnReceive);
             }
@@ -104,7 +104,7 @@ namespace Fibrous.Tests
                         }
                     }
 
-                    var fiber = PoolFiber.StartNew();
+                    var fiber = new Fiber();
                     queues.Add(fiber);
                     channel.Subscribe(fiber, OnReceive);
                 }
@@ -120,7 +120,7 @@ namespace Fibrous.Tests
         public void PoolQueue()
         {
             var msgCount = 1000000;
-            Func<IFiber> factory = PoolFiber.StartNew;
+            Func<IFiber> factory = () => new Fiber();
             for (var i = 1; i < 10; i++) QueueChannelTest(i, factory, msgCount);
         }
 
@@ -128,7 +128,7 @@ namespace Fibrous.Tests
         public void SingleConsumer()
         {
             var oneConsumed = 0;
-            using (var one = PoolFiber.StartNew())
+            using (var one = new Fiber())
             using (var reset = new AutoResetEvent(false))
             {
                 var channel = new QueueChannel<int>();
@@ -152,7 +152,7 @@ namespace Fibrous.Tests
         {
             var failed = new List<Exception>();
             var exec = new ExceptionHandlingExecutor(failed.Add);
-            using (var one = PoolFiber.StartNew(exec))
+            using (var one = new Fiber(exec))
             using (var reset = new AutoResetEvent(false))
             {
                 var channel = new QueueChannel<int>();

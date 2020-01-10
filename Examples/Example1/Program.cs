@@ -12,7 +12,7 @@ namespace Example1
             using (IAgent<string> logger = new Agent<string>(Console.WriteLine))
             using (IAgent<string> processor = new Agent<string>(s => logger.Publish("Received " + s)))
             
-            using (var fiber1 = Fiber.StartNew())
+            using (var fiber1 = new Fiber())
             {
                 var count = 0;
                 //Start sending a message after a second, every 2 seconds...

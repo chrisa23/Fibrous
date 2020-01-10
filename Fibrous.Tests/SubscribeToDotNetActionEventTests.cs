@@ -21,7 +21,7 @@ namespace Fibrous.Tests
         public void CanSubscribeToEvent()
         {
             var triggered = false;
-            var stub = StubFiber.StartNew();
+            var stub = new StubFiber();
             var evt = new EventTester();
             var dispose = stub.SubscribeToEvent<object>(evt, "Event", x => triggered = true);
             Assert.IsTrue(evt.IsAttached);

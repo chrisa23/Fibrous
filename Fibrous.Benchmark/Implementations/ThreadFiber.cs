@@ -7,7 +7,7 @@ namespace Fibrous
     ///     Fiber implementation backed by a dedicated thread., needs a thread safe queue
     ///     <see cref="FiberBase" />
     /// </summary>
-    public sealed class ThreadFiber : FiberBase
+    public sealed class ThreadFiber : FiberBase_old
     {
         private static int threadCount;
         private readonly IQueue _queue;

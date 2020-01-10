@@ -13,7 +13,7 @@ namespace Fibrous.Agents
 
         public Agent(Action<T> handler, IExecutor executor = null)
         {
-            Fiber = PoolFiber.StartNew(executor);
+            Fiber = new Fiber(executor);
             _channel = Fiber.NewChannel(handler);
         }
 

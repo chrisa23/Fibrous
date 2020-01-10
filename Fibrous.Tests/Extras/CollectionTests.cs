@@ -14,7 +14,7 @@ namespace Fibrous.Tests
             int[] snapshot = null;
             var list = new List<int>();
             var collection = new FiberCollection<int>();
-            var receive = PoolFiber.StartNew();
+            var receive = new Fiber();
             collection.Add(1);
             collection.Add(2);
             collection.Subscribe(receive,
@@ -47,7 +47,7 @@ namespace Fibrous.Tests
             int[] snapshot = null;
             var list = new List<int>();
             var collection = new FiberKeyedCollection<int, int>(x => x);
-            var receive = PoolFiber.StartNew();
+            var receive = new Fiber();
             collection.Add(1);
             collection.Add(2);
             collection.Subscribe(receive,

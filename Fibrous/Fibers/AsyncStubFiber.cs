@@ -8,25 +8,9 @@ namespace Fibrous
     /// </summary>
     public sealed class AsyncStubFiber : AsyncFiberBase
     {
-        public AsyncStubFiber(IAsyncExecutor executor, IAsyncFiberScheduler scheduler)
+        public AsyncStubFiber(IAsyncExecutor executor = null, IAsyncFiberScheduler scheduler = null)
             : base(executor, scheduler)
         {
-        }
-
-        public AsyncStubFiber(IAsyncExecutor executor) : base(executor)
-        {
-        }
-
-        public AsyncStubFiber()
-        {
-        }
-
-
-        public static IAsyncFiber StartNew()
-        {
-            var stub = new AsyncStubFiber();
-            stub.Start();
-            return stub;
         }
 
         protected override void InternalEnqueue(Func<Task> action)

@@ -11,8 +11,8 @@ namespace Fibrous.Tests
         [Test]
         public void Snapshot()
         {
-            using var fiber = PoolFiber.StartNew();
-            using var fiber2 = PoolFiber.StartNew();
+            using var fiber = new Fiber();
+            using var fiber2 = new Fiber();
             var list = new List<string> {"Prime"};
             var channel = new SnapshotChannel<string, string[]>();
             channel.ReplyToPrimingRequest(fiber2, list.ToArray);

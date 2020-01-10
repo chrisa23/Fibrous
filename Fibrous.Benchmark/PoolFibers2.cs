@@ -11,10 +11,10 @@ namespace Fibrous.Benchmark
         private readonly IChannel<object> _channel = new Channel<object>();
         private readonly AutoResetEvent _wait = new AutoResetEvent(false);
         private IAsyncFiber _async;
-        private IFiber _pool1;
-        private IFiber _pool2;
+        private FiberBase_old _pool1;
+        private FiberBase_old _pool2;
         private IFiber _pool3;
-        private IFiber _spinPool;
+        private FiberBase_old _spinPool;
         private int i;
 
         private void Handler(object obj)
@@ -88,13 +88,14 @@ namespace Fibrous.Benchmark
         [GlobalSetup]
         public void Setup()
         {
-            _pool1 = PoolFiber_OLD.StartNew();
+            _pool1 = new PoolFiber_OLD();
+            _pool1.Start();
             _pool2 = new PoolFiber2();
             _pool2.Start();
             _spinPool = new SpinLockPoolFiber();
             _spinPool.Start();
-            _async = AsyncFiber.StartNew();
-            _pool3 = PoolFiber.StartNew();
+            _async = new AsyncFiber();
+            _pool3 = new Fiber();
         }
 
         [GlobalCleanup]
@@ -103,8 +104,8 @@ namespace Fibrous.Benchmark
             _pool1.Stop();
             _pool2.Stop();
             _spinPool.Stop();
-            _pool3.Stop();
-            _async.Stop();
+            _pool3.Dispose();
+            _async.Dispose();
         }
     }
 }

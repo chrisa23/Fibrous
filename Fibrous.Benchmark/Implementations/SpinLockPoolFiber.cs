@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Fibrous.Experimental
 {
-    public sealed class SpinLockPoolFiber : FiberBase
+    public sealed class SpinLockPoolFiber : FiberBase_old
     {
         private readonly TaskFactory _taskFactory;
         private bool _flushPending;
@@ -97,20 +97,6 @@ namespace Fibrous.Experimental
             {
                 if (lockTaken) _spinLock.Exit();
             }
-        }
-
-        public static IFiber StartNew()
-        {
-            var fiber = new SpinLockPoolFiber();
-            fiber.Start();
-            return fiber;
-        }
-
-        public static IFiber StartNew(IExecutor exec)
-        {
-            var fiber = new SpinLockPoolFiber(exec);
-            fiber.Start();
-            return fiber;
         }
     }
 }

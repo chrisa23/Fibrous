@@ -42,7 +42,7 @@ namespace Fibrous.Tests
 
         public class Tester : IHandle<string>, IHandle<int>, IHaveFiber, IDisposable
         {
-            public IFiber Fiber { get; } = Fibrous.Fiber.StartNew();
+            public IFiber Fiber { get; } = new Fiber();
             
             public int Count { get; private set; }
 
@@ -64,7 +64,7 @@ namespace Fibrous.Tests
 
         public class AsyncTester : IHandleAsync<string>, IHandleAsync<int>, IHaveAsyncFiber, IDisposable
         {
-            public IAsyncFiber Fiber { get; } = AsyncFiber.StartNew();
+            public IAsyncFiber Fiber { get; } = new AsyncFiber();
 
             public int Count { get; private set; }
 

@@ -13,7 +13,7 @@ namespace Fibrous.Agents
 
         public AsyncChannelAgent(IChannel<T> channel, Func<T, Task> handler, IAsyncExecutor executor = null)
         {
-            Fiber = AsyncFiber.StartNew(executor);
+            Fiber = new AsyncFiber(executor);
             channel.Subscribe(Fiber, handler);
         }
 

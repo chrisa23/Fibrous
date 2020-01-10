@@ -12,7 +12,7 @@ namespace Fibrous.Agents
 
         public ChannelAgent(IChannel<T> channel, Action<T> handler, IExecutor executor = null)
         {
-            Fiber = PoolFiber.StartNew(executor);
+            Fiber = new Fiber(executor);
             channel.Subscribe(Fiber, handler);
         }
 

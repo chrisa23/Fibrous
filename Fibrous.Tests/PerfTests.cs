@@ -16,7 +16,6 @@ namespace Fibrous.Tests
         {
             using (fiber)
             {
-                fiber.Start();
                 IChannel<MsgStruct> channel = new Channel<MsgStruct>();
                 const int Max = 5000000;
                 
@@ -46,7 +45,6 @@ namespace Fibrous.Tests
         {
             using (fiber)
             {
-                fiber.Start();
                 IChannel<MsgStruct> channel = new Channel<MsgStruct>();
                 const int Max = 5000000;
                 var reset = new AutoResetEvent(false);
@@ -139,7 +137,6 @@ namespace Fibrous.Tests
         {
             using (fiber)
             {
-                fiber.Start();
                 var channel = new Channel<int>();
                 const int Max = 5000000;
                 var reset = new AutoResetEvent(false);
@@ -161,7 +158,6 @@ namespace Fibrous.Tests
         {
             using (fiber)
             {
-                fiber.Start();
                 var channel = new Channel<object>();
                 const int Max = 5000000;
                 var reset = new AutoResetEvent(false);
@@ -193,7 +189,6 @@ namespace Fibrous.Tests
         {
             using (fiber)
             {
-                fiber.Start();
                 var channel = new Channel<object>();
                 const int Max = 5000000;
                 var reset = new AutoResetEvent(false);
@@ -234,9 +229,9 @@ namespace Fibrous.Tests
        // [Explicit]
         public void TestPool()
         {
-            PointToPointPerfTestWithStruct(new PoolFiber());
-            PointToPointPerfTestWithInt(new PoolFiber());
-            PointToPointPerfTestWithObject(new PoolFiber());
+            PointToPointPerfTestWithStruct(new Fiber());
+            PointToPointPerfTestWithInt(new Fiber());
+            PointToPointPerfTestWithObject(new Fiber());
         }
     }
 }

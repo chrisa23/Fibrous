@@ -10,7 +10,7 @@ namespace Fibrous.Pipeline
 
         protected StageBase(IExecutor executor = null)
         {
-            Fiber = PoolFiber.StartNew(executor);
+            Fiber = new Fiber(executor);
             Fiber.Subscribe(In, Receive);
         }
 

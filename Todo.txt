@@ -17,3 +17,7 @@
 	- IL generated array retrieval (Disruptor)
 	- Ring buffer type queue
 
+- ? Start and stop are basically useless now that ThreadFiber is gone
+	- creation should just start
+	- Dispose should stop
+	

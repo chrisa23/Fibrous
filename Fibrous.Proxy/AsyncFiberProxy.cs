@@ -55,7 +55,7 @@ namespace Fibrous.Proxy
             }
             _decorated = decorated;
             IAsyncExecutor executor = callback != null ? new AsyncExceptionHandlingExecutor(callback) : (IAsyncExecutor)new AsyncExecutor();
-            _fiber = AsyncFiber.StartNew(executor);
+            _fiber = new AsyncFiber(executor);
         }
 
         public static T Create(T decorated, Action<Exception> callback = null)

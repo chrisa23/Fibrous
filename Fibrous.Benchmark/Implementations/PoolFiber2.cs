@@ -8,7 +8,7 @@ namespace Fibrous.Experimental
     /// <summary>
     ///     Fiber that uses a thread pool for execution. Pool is used instead of thread, but messages are handled sequentially.
     /// </summary>
-    public sealed class PoolFiber2 : FiberBase
+    public sealed class PoolFiber2 : FiberBase_old
     {
         private readonly object _lock = new object();
         private readonly TaskFactory _taskFactory;

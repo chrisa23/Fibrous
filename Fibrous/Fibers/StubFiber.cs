@@ -7,16 +7,8 @@ namespace Fibrous
     /// </summary>
     public sealed class StubFiber : FiberBase
     {
-        public StubFiber(IExecutor excecutor, IFiberScheduler scheduler)
-            : base(excecutor, scheduler)
-        {
-        }
-
-        public StubFiber(IExecutor executor) : base(executor)
-        {
-        }
-
-        public StubFiber()
+        public StubFiber(IExecutor executor = null, IFiberScheduler scheduler =  null)
+            : base(executor, scheduler)
         {
         }
 
@@ -25,13 +17,6 @@ namespace Fibrous
             //There is no lock here to force sequentiality, since that will cause deadlocks in some
             //situations.  Stub fibers are not thread safe.  
             Executor.Execute(action);
-        }
-
-        public static IFiber StartNew()
-        {
-            var stub = new StubFiber();
-            stub.Start();
-            return stub;
         }
     }
 }

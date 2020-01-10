@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 
 namespace Fibrous
 {
-    public class AsyncFiber : AsyncFiberBase
+    public class Fiber : FiberBase
     {
-        private readonly ArrayQueue<Func<Task>> _queue;
+        private readonly ArrayQueue<Action> _queue;
 
         private readonly TaskFactory _taskFactory =
             new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None);
@@ -14,14 +14,13 @@ namespace Fibrous
         private bool _flushPending;
         private SpinLock _spinLock = new SpinLock(false);
 
-        public AsyncFiber(IAsyncExecutor executor = null, int size = QueueSize.DefaultQueueSize, IAsyncFiberScheduler scheduler = null)
-            : base(executor, scheduler)
+        public Fiber(IExecutor config = null, int size = QueueSize.DefaultQueueSize, IFiberScheduler scheduler = null)
+            : base(config, scheduler)
         {
-            _queue = new ArrayQueue<Func<Task>>(size);
+            _queue = new ArrayQueue<Action>(size);
         }
 
-
-        protected override void InternalEnqueue(Func<Task> action)
+        protected override void InternalEnqueue(Action action)
         {
             var spinWait = default(AggressiveSpinWait);
             while (_queue.IsFull) spinWait.SpinOnce();
@@ -40,20 +39,16 @@ namespace Fibrous
             }
             finally
             {
-                if (lockTaken) _spinLock.Exit();
+                if (lockTaken) _spinLock.Exit(false);
             }
         }
 
-        private async Task Flush()
+        private void Flush()
         {
             var (count, actions) = Drain();
             if (count > 0)
             {
-                for (var i = 0; i < count; i++)
-                {
-                    var action = actions[i];
-                    await Executor.Execute(action);
-                }
+                for (var i = 0; i < count; i++) Executor.Execute(actions[i]);
 
                 var lockTaken = false;
                 try
@@ -62,20 +57,18 @@ namespace Fibrous
 
                     if (_queue.Count > 0)
                         //don't monopolize thread.
-#pragma warning disable 4014
                         _taskFactory.StartNew(Flush);
-#pragma warning restore 4014
                     else
                         _flushPending = false;
                 }
                 finally
                 {
-                    if (lockTaken) _spinLock.Exit();
+                    if (lockTaken) _spinLock.Exit(false);
                 }
             }
         }
 
-        private (int, Func<Task>[]) Drain()
+        private (int, Action[]) Drain()
         {
             var lockTaken = false;
             try
@@ -85,15 +78,19 @@ namespace Fibrous
                 if (_queue.Count == 0)
                 {
                     _flushPending = false;
-                    return ArrayQueue<Func<Task>>.Empty;
+                    return ArrayQueue<Action>.Empty;
                 }
 
                 return _queue.Drain();
             }
             finally
             {
-                if (lockTaken) _spinLock.Exit();
+                if (lockTaken) _spinLock.Exit(false);
             }
         }
     }
+
+    [Obsolete]
+    public sealed class PoolFiber:Fiber
+    { }
 }

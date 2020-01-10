@@ -4,18 +4,9 @@ using System.Threading.Tasks;
 
 namespace Fibrous
 {
-    public interface IAsyncFiber : IAsyncExecutionContext, IAsyncScheduler, IDisposableRegistry
+    public interface IAsyncFiber : IAsyncScheduler, IDisposableRegistry
     {
-        /// <summary>
-        ///     Start the fiber's queue
-        /// </summary>
-        /// <returns></returns>
-        IAsyncFiber Start();
-
-        /// <summary>
-        ///     Stop the fiber
-        /// </summary>
-        void Stop();
+        void Enqueue(Func<Task> action);
 
         //Rest of API
         //void Enqueue(Func<Task> action);
@@ -33,13 +24,9 @@ namespace Fibrous
         //IRequestPort<TRq, TRp> NewRequestPort<TRq, TRp>(Func<IRequest<TRq, TRp>, Task> onEvent);
     }
 
-    public interface IAsyncExecutionContext
-    {
-        void Enqueue(Func<Task> action);
-    }
-
     public interface IAsyncScheduler
     {
+
         /// <summary>
         ///     Schedule an action to be executed once
         /// </summary>
@@ -58,7 +45,7 @@ namespace Fibrous
         IDisposable Schedule(Func<Task> action, TimeSpan startTime, TimeSpan interval);
     }
 
-    public static class AsyncSchedulerExtensions
+    public static class AsyncFiberExtensions
     {
         /// <summary>
         ///     Schedule an action at a DateTime
@@ -91,10 +78,7 @@ namespace Fibrous
         {
             return new AsyncCronScheduler(scheduler, action, cron);
         }
-    }
 
-    public static class AsyncFiberExtensions
-    {
         /// <summary>
         ///     Subscribe to a channel from the fiber.
         /// </summary>
@@ -182,7 +166,7 @@ namespace Fibrous
             }
 
             //we use a stub fiber to force the filtering onto the publisher thread.
-            var stub = StubFiber.StartNew();
+            var stub = new StubFiber();
             port.Subscribe(stub, FilteredReceiver);
             return new Unsubscriber( stub, fiber);
         }

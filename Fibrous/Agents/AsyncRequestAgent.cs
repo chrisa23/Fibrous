@@ -15,7 +15,7 @@ namespace Fibrous.Agents
 
         public AsyncRequestAgent(Func<IRequest<TRequest, TReply>,Task> handler, IAsyncExecutor executor = null)
         {
-            Fiber = AsyncFiber.StartNew(executor);
+            Fiber = new AsyncFiber(executor);
             _channel = Fiber.NewRequestPort(handler);
         }
 

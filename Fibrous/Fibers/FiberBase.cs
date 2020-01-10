@@ -6,74 +6,22 @@ namespace Fibrous
     public abstract class FiberBase : Disposables, IFiber
     {
         private readonly IFiberScheduler _fiberScheduler;
-        private readonly List<Action> _preQueue = new List<Action>();
-
         protected readonly IExecutor Executor;
-        private ExecutionState _started = ExecutionState.Created;
+        private bool _disposed;
 
-        protected FiberBase(IExecutor executor, IFiberScheduler scheduler)
+        protected FiberBase(IExecutor executor = null, IFiberScheduler scheduler = null)
         {
-            _fiberScheduler = scheduler;
-            Executor = executor;
-        }
-
-        protected FiberBase(IExecutor executor)
-        {
-            _fiberScheduler = new TimerScheduler();
-            Executor = executor;
-        }
-
-        protected FiberBase()
-            : this(new Executor(), new TimerScheduler())
-        {
-        }
-
-        public IFiber Start()
-        {
-            if (_started == ExecutionState.Running) return this;
-            InternalStart();
-            lock (_preQueue)
-            {
-                _started = ExecutionState.Running;
-                if (_preQueue.Count > 0)
-                {
-                    for (var i = 0; i < _preQueue.Count; i++)
-                    {
-                        InternalEnqueue(_preQueue[i]);
-                    }
-                }
-            }
-
-            return this;
-        }
-
-        public void Stop()
-        {
-            if (_started != ExecutionState.Running) return;
-            lock (_preQueue)
-            {
-                _started = ExecutionState.Created;
-            }
+            _fiberScheduler = scheduler ?? new TimerScheduler();
+            Executor = executor ?? new Executor();
         }
 
         public void Enqueue(Action action)
         {
-            if (_started == ExecutionState.Stopped)
-                return;
-            if (_started == ExecutionState.Created)
-            {
-                lock (_preQueue)
-                {
-                    if (_started == ExecutionState.Created)
-                    {
-                        _preQueue.Add(action);
-                        return;
-                    }
-                }
-            }
+            if (_disposed) throw new ObjectDisposedException(GetType().Name);
 
             InternalEnqueue(action);
         }
+        protected abstract void InternalEnqueue(Action action);
 
         public IDisposable Schedule(Action action, TimeSpan dueTime)
         {
@@ -87,22 +35,8 @@ namespace Fibrous
 
         public override void Dispose()
         {
-            _started = ExecutionState.Stopped;
+            _disposed = true;
             base.Dispose();
         }
-
-        protected virtual void InternalStart()
-        {
-        }
-
-        protected abstract void InternalEnqueue(Action action);
-
-
-    }
-    internal enum ExecutionState
-    {
-        Created,
-        Running,
-        Stopped
     }
 }

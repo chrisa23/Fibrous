@@ -18,12 +18,12 @@ namespace PipelineExample
                 channels.Stage1To2, channels.Errors))
             using (var stage2 = new ConcurrentComponent<Payload, Payload>(new Stage2(new SomeDataAccess()),
                 channels.Stage1To2, channels.Output, channels.Errors))
-            using (var stub = StubFiber.StartNew())
+            using (var stub = new StubFiber())
             {
                 channels.Output.Subscribe(stub, payload => Console.WriteLine("Got output"));
                 channels.Stage1To2.Subscribe(stub,
                     payload => Console.WriteLine("Monitoring Stage1to2 channel saw a message"));
-                using (var timer = Fiber.StartNew())
+                using (var timer = new Fiber())
                 {
                     timer.Schedule(() => channels.Input.Publish(new Payload()), TimeSpan.FromSeconds(2),
                         TimeSpan.FromSeconds(2));

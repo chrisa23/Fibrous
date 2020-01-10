@@ -40,9 +40,9 @@ namespace Fibrous
         {
             private readonly Action<TMsg> _callback;
             private readonly QueueChannel<TMsg> _eventChannel;
-            private readonly IExecutionContext _target;
+            private readonly IFiber _target;
 
-            public QueueConsumer(IExecutionContext target, Action<TMsg> callback, QueueChannel<TMsg> eventChannel)
+            public QueueConsumer(IFiber target, Action<TMsg> callback, QueueChannel<TMsg> eventChannel)
             {
                 _target = target;
                 _callback = callback;
@@ -66,9 +66,9 @@ namespace Fibrous
         {
             private readonly Func<TMsg, Task> _callback;
             private readonly QueueChannel<TMsg> _eventChannel;
-            private readonly IAsyncExecutionContext _target;
+            private readonly IAsyncFiber _target;
 
-            public AsyncQueueConsumer(IAsyncExecutionContext target, Func<TMsg, Task> callback,
+            public AsyncQueueConsumer(IAsyncFiber target, Func<TMsg, Task> callback,
                 QueueChannel<TMsg> eventChannel)
             {
                 _target = target;

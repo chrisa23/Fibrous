@@ -13,7 +13,7 @@ namespace Fibrous.Tests
         [Test]
         public void StateChannel()
         {
-            using var fiber = PoolFiber.StartNew();
+            using var fiber = new Fiber();
             string result = null;
             var reset = new AutoResetEvent(false);
             void Handle(string s)
@@ -49,7 +49,7 @@ namespace Fibrous.Tests
         [Test]
         public void StateChannelNoInit()
         {
-            using var fiber = PoolFiber.StartNew();
+            using var fiber = new Fiber();
             string result = null;
             var reset = new AutoResetEvent(false);
             void Handle(string s)
@@ -85,7 +85,7 @@ namespace Fibrous.Tests
         [Test]
         public void AsyncStateChannel()
         {
-            using var fiber = AsyncFiber.StartNew();
+            using var fiber = new AsyncFiber();
             string result = null;
             var reset = new AutoResetEvent(false);
             Task Handle(string s)
@@ -122,7 +122,7 @@ namespace Fibrous.Tests
         [Test]
         public void AsyncStateChannelNoInit()
         {
-            using var fiber = AsyncFiber.StartNew();
+            using var fiber = new AsyncFiber();
             string result = null;
             var reset = new AutoResetEvent(false);
             Task Handle(string s)

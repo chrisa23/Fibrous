@@ -10,7 +10,7 @@ namespace Fibrous.Tests
         public async Task BasicAsyncRequestReply()
         {
             IRequestChannel<int, int> channel = new RequestChannel<int, int>();
-            var fiber1 = AsyncFiber.StartNew();
+            var fiber1 = new AsyncFiber();
             channel.SetRequestHandler(fiber1, request =>
             {
                 request.Reply(request.Request + 1);
@@ -30,7 +30,7 @@ namespace Fibrous.Tests
         public async Task BasicRequestReply()
         {
             IRequestChannel<int, int> channel = new RequestChannel<int, int>();
-            var fiber1 = PoolFiber.StartNew();
+            var fiber1 = new Fiber();
             channel.SetRequestHandler(fiber1, request => request.Reply(request.Request + 1));
             using (var perfTimer = new PerfTimer(1000000))
             {
