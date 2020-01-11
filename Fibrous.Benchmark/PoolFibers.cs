@@ -45,17 +45,17 @@ namespace Fibrous.Benchmark
             WaitHandle.WaitAny(new WaitHandle[] {_wait});
         }
 
-        [Benchmark(OperationsPerInvoke = 1000000, Baseline = true)]
-        public void Pool1()
-        {
-            Run(_pool1);
-        }
+        //[Benchmark(OperationsPerInvoke = 1000000, Baseline = true)]
+        //public void Pool1()
+        //{
+        //    Run(_pool1);
+        //}
 
-        [Benchmark(OperationsPerInvoke = 1000000)]
-        public void Pool2()
-        {
-            Run(_pool2);
-        }
+        //[Benchmark(OperationsPerInvoke = 1000000)]
+        //public void Pool2()
+        //{
+        //    Run(_pool2);
+        //}
 
         [Benchmark(OperationsPerInvoke = 1000000)]
         public void Pool3()
@@ -64,11 +64,11 @@ namespace Fibrous.Benchmark
         }
 
 
-        [Benchmark(OperationsPerInvoke = 1000000)]
-        public void PoolSpin()
-        {
-            Run(_spinPool);
-        }
+        //[Benchmark(OperationsPerInvoke = 1000000)]
+        //public void PoolSpin()
+        //{
+        //    Run(_spinPool);
+        //}
 
         [Benchmark(OperationsPerInvoke = 1000000)]
         public void Async()

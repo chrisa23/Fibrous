@@ -15,6 +15,8 @@ namespace Fibrous
         void Enqueue(Action action);
 
         //Rest of API
+        //IDisposable Schedule(Action action, TimeSpan dueTime);
+        //IDisposable Schedule(Action action, TimeSpan startTime, TimeSpan interval);
         //IDisposable Schedule(Action action, DateTime when);
         //IDisposable Schedule(Action action, DateTime when, TimeSpan interval);
         //IDisposable CronSchedule(Action action, string cron);

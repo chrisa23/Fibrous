@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace Fibrous
+﻿namespace Fibrous
 {
     /// <summary>
     ///     IChannels are in-memory conduits for messages

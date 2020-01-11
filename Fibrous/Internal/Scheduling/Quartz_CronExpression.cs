@@ -462,12 +462,7 @@ namespace Quartz
         public TimeZoneInfo TimeZone
         {
             set => timeZone = value;
-            get
-            {
-                if (timeZone == null) timeZone = TimeZoneInfo.Local;
-
-                return timeZone;
-            }
+            get => timeZone ?? (timeZone = TimeZoneInfo.Local);
         }
 
         /// <summary>

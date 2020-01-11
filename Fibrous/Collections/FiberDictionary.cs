@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Fibrous.Collections
@@ -107,7 +106,7 @@ namespace Fibrous.Collections
 
         private void RemoveItem(TKey obj)
         {
-            var data = _items.ContainsKey(obj) ? _items[obj] : default(T);
+            var data = _items.ContainsKey(obj) ? _items[obj] : default;
             var removed = _items.Remove(obj);
             if (removed)
                 _channel.Publish(new ItemAction<KeyValuePair<TKey, T>>(ActionType.Remove, new []{ new KeyValuePair<TKey, T>(obj, data)}));
@@ -123,6 +122,52 @@ namespace Fibrous.Collections
         private KeyValuePair<TKey, T>[] Reply()
         {
             return _items.ToArray();
+        }
+
+        
+        public static Action<ItemAction<KeyValuePair<TKey, T>>> CreateReceive(Dictionary<TKey, T> localDict,
+            Action updateCallback)
+        {
+            return x =>
+            {
+                switch (x.ActionType)
+                {
+                    case ActionType.Add:
+                    case ActionType.Update:
+                        foreach (var item in x.Items)
+                        {
+                            localDict[item.Key] = item.Value;
+                        }
+                        break;
+                    case ActionType.Remove:
+                        foreach (var item in x.Items)
+                        {
+                            localDict.Remove(item.Key);
+                        }
+                        break;
+                    case ActionType.Clear:
+                        localDict.Clear();
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                updateCallback();
+            };
+        }
+
+        public static Action<KeyValuePair<TKey, T>[]> CreateSnapshot(Dictionary<TKey, T> localDict,
+            Action updateCallback)
+        {
+            return x =>
+            {
+                foreach (var item in x)
+                {
+                    localDict[item.Key] = item.Value;
+                }
+
+                updateCallback();
+            };
         }
     }
 }

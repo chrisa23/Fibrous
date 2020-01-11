@@ -38,16 +38,5 @@ namespace Fibrous.Agents
         {
             Fiber.Dispose();
         }
-
-        /// <summary>
-        ///     Create and start an agent
-        /// </summary>
-        /// <param name="handler"></param>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public static IRequestAgent<TRequest, TReply> Start(Action<IRequest<TRequest, TReply>> handler)
-        {
-            return new RequestAgent<TRequest, TReply>(handler);
-        }
     }
 }

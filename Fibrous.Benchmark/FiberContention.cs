@@ -69,11 +69,11 @@ namespace Fibrous.Benchmark
             Run(_pool1);
         }
 
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void Pool2()
-        {
-            Run(_pool2);
-        }
+        //[Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        //public void Pool2()
+        //{
+        //    Run(_pool2);
+        //}
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void Pool3()
@@ -82,11 +82,11 @@ namespace Fibrous.Benchmark
         }
 
 
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void PoolSpin()
-        {
-            Run(_spinPool);
-        }
+        //[Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        //public void PoolSpin()
+        //{
+        //    Run(_spinPool);
+        //}
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void Async()

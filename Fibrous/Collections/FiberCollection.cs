@@ -88,7 +88,7 @@ namespace Fibrous.Collections
             });
         }
 
-        public T[] GetItems(Func<T, bool> request) //, TimeSpan timout = TimeSpan.MaxValue)
+        public T[] GetItems(Func<T, bool> request) //, TimeSpan timeout = TimeSpan.MaxValue)
         {
             return _request.SendRequest(request).Result;
         }

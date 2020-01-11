@@ -15,9 +15,9 @@ namespace Fibrous.Pipeline
             IPublisherPort<TOut> output,
             IPublisherPort<Exception> error)
         {
-            _fiber = new Fiber(new ExceptionHandlingExecutor(error.Publish));
             processor.Exception += error.Publish;
             processor.Output += output.Publish;
+            _fiber = new Fiber(new ExceptionHandlingExecutor(error.Publish));
             processor.Initialize(_fiber);
             input.Subscribe(_fiber, processor.Process);
         }

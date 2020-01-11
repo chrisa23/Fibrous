@@ -14,8 +14,7 @@ namespace Fibrous
         {
             _callback = callback;
         }
-
-
+        
         public async Task Execute(Func<Task> toExecute)
         {
             try

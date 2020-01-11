@@ -23,7 +23,7 @@ namespace Fibrous.Tests
             var (count, actions ) = queue.Drain();
             
             Assert.AreEqual(16, count);
-            Assert.IsTrue(actions.All(x => x != null));
+            Assert.IsTrue(actions.Take(count).All(x => x != null));
         }
     }
 }

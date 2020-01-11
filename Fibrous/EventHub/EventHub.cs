@@ -41,7 +41,7 @@ namespace Fibrous
             var interfaceType = regular ? typeof(IHandle<>) : typeof(IHandleAsync<>);
             var subMethod = regular ? "SubscribeToChannel" : "AsyncSubscribeToChannel";
             var interfaces = handler.GetType().GetTypeInfo().ImplementedInterfaces.Where(x =>
-                IntrospectionExtensions.GetTypeInfo(x).IsGenericType && x.GetGenericTypeDefinition() == interfaceType);
+                x.GetTypeInfo().IsGenericType && x.GetGenericTypeDefinition() == interfaceType);
 
             var disposables = new Disposables();
 

@@ -23,7 +23,7 @@ namespace Fibrous
     }
 
     /// <summary>
-    ///     Port for sending requests and receiving repplies.
+    ///     Port for sending requests and receiving replies.
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>
     /// <typeparam name="TReply"></typeparam>

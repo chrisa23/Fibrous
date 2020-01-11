@@ -14,11 +14,11 @@ namespace Fibrous
 
     internal static class QueueSize
     {
-        internal const int DefaultQueueSize = 1024;
+        internal const int DefaultQueueSize = 1008;
     }
     internal class ArrayQueue<T> : IQueue<T>
     {
-        private readonly int _size;
+        private readonly int _maxIndex;
         private T[] _actions;
         private T[] _toPass;
         private int _processCount;
@@ -26,14 +26,14 @@ namespace Fibrous
     
         public ArrayQueue(int size)
         {
-            _size = size;
-            _actions = new T[size];
-            _toPass = new T[size];
+            _maxIndex = size - 1;
+            _actions = new T[size + 16];
+            _toPass = new T[size + 16];
         }
 
         public int Count => _count;
 
-        public bool IsFull => _count >= _size;
+        public bool IsFull => _count >=  _maxIndex;
 
         public void Enqueue(T a)
         {
