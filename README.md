@@ -35,7 +35,7 @@ Ports and Channels
 
 Ports are the end points for publishing and subscribing to messages.  
 
-Channels are the conduit for message passing between Fibers, and allow decoupling of the parts of your system.  There are a variety of channel types built into Fibrous: one way channels that notify all subscribers, request/reply, queue channels that give messages to one of multiple sibscribers, as well as a state channel that acts like a last value cache.
+Channels are the conduit for message passing between Fibers, and allow decoupling of the parts of your system.  There are a variety of channel types built into Fibrous: one way channels that notify all subscribers, request/reply, queue channels that give messages to one of multiple subscribers, as well as a state channel that acts like a last value cache.
 
 There is a static EventBus which allows a simpler mechanism for passing messages when only one normal channel per type is needed and and EventHub that allows auto-wiring of handlers.
 
