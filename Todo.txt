@@ -16,9 +16,10 @@
 	- Padding / layout for Array Queue
 	- IL generated array retrieval (Disruptor)
 	- Ring buffer type queue
+- Allow injection of TaskFactory?
 
 - ? Start and stop are basically useless now that ThreadFiber is gone
 	- creation should just start
 	- Dispose should stop
-	- In all my time using Fibrous, I have never stopped and then restarted a Fiber...  I might not be seeing a use someone might need...  
+	- In all my time using Fibrous, I have never stopped and then restarted a Fiber...  I might not be seeing a use someone might need, but simple ...  
 	

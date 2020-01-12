@@ -1,12 +1,12 @@
 ﻿using System;
 
-namespace Fibrous.Pipeline
+namespace Fibrous.Pipelines
 {
     public class Tee<T> : StageBase<T, T>
     {
         private readonly Action<T> _f;
 
-        public Tee(Action<T> f, IExecutor executor = null) : base(executor)
+        public Tee(Action<T> f, Action<Exception> errorCallback = null) : base(errorCallback)
         {
             _f = f;
         }

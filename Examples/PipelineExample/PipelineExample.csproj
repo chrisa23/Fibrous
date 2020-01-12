@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -31,6 +32,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -43,14 +45,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Channels.cs" />
-    <Compile Include="ISomeDataAccess.cs" />
-    <Compile Include="ISomeService.cs" />
-    <Compile Include="Payload.cs" />
+    <Compile Include="CompnentBased\Channels.cs" />
+    <Compile Include="CompnentBased\ISomeDataAccess.cs" />
+    <Compile Include="CompnentBased\ISomeService.cs" />
+    <Compile Include="CompnentBased\Payload.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Stage1.cs" />
-    <Compile Include="Stage2.cs" />
+    <Compile Include="CompnentBased\Stage1.cs" />
+    <Compile Include="CompnentBased\Stage2.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -61,5 +63,6 @@
       <Name>Fibrous</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

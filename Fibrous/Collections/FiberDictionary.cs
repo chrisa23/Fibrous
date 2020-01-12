@@ -125,6 +125,7 @@ namespace Fibrous.Collections
         }
 
         
+        //Helper functions to create handlers for maintaining a local collection based on a FiberDictionary
         public static Action<ItemAction<KeyValuePair<TKey, T>>> CreateReceive(Dictionary<TKey, T> localDict,
             Action updateCallback)
         {

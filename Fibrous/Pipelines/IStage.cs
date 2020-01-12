@@ -1,9 +1,14 @@
 ﻿using System;
 
-namespace Fibrous.Pipeline
+namespace Fibrous.Pipelines
 {
     public interface IStage<in TIn, out TOut> : IPublisherPort<TIn>, ISubscriberPort<TOut>, IDisposable
     {
-        IFiber Fiber { get; }
+      //  IFiber Fiber { get; }
     }
+
+    //public interface IPipeline<in TIn, out TOut> : IPublisherPort<TIn>, ISubscriberPort<TOut>, IDisposable
+    //{
+     
+    //}
 }

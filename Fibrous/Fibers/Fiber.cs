@@ -14,10 +14,15 @@ namespace Fibrous
         private bool _flushPending;
         private SpinLock _spinLock = new SpinLock(false);
 
-        public Fiber(IExecutor config = null, int size = QueueSize.DefaultQueueSize, IFiberScheduler scheduler = null)
-            : base(config, scheduler)
+        public Fiber(IExecutor executor = null, int size = QueueSize.DefaultQueueSize, IFiberScheduler scheduler = null)
+            : base(executor, scheduler)
         {
             _queue = new ArrayQueue<Action>(size);
+        }
+
+        public Fiber(Action<Exception> errorCallback, int size = QueueSize.DefaultQueueSize, IFiberScheduler scheduler = null)
+            : this(new ExceptionHandlingExecutor(errorCallback), size, scheduler)
+        {
         }
 
         protected override void InternalEnqueue(Action action)

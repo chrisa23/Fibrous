@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Threading.Tasks;
 
-namespace Fibrous.Pipeline
+namespace Fibrous.Pipelines
 {
     /// <summary>
     ///     Interface for a concurrent processing component.
@@ -9,7 +10,7 @@ namespace Fibrous.Pipeline
     /// </summary>
     /// <typeparam name="TIn"></typeparam>
     /// <typeparam name="TOut"></typeparam>
-    public interface IProcessor<in TIn, out TOut>
+    public interface IAsyncProcessor<in TIn, out TOut>
     {
         event Action<TOut> Output;
         event Action<Exception> Exception;
@@ -18,12 +19,12 @@ namespace Fibrous.Pipeline
         ///     Main processing call when input received
         /// </summary>
         /// <param name="input"></param>
-        void Process(TIn input);
+        Task Process(TIn input);
 
         /// <summary>
         ///     Allows for any needed initialization, including timer based scheduling to be initialized
         /// </summary>
         /// <param name="scheduler"></param>
-        void Initialize(IScheduler scheduler);
+        void Initialize(IAsyncScheduler scheduler);
     }
 }

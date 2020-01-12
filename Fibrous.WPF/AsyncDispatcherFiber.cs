@@ -20,6 +20,12 @@ namespace Fibrous.WPF
             _priority = priority;
         }
 
+        public AsyncDispatcherFiber(Action<Exception> errorCallback, Dispatcher dispatcher = null,
+            DispatcherPriority priority = DispatcherPriority.Normal)
+            : this(new AsyncExceptionHandlingExecutor(errorCallback), dispatcher, priority)
+        {
+        }
+
         protected override void InternalEnqueue(Func<Task> action)
         {
             _dispatcher.InvokeAsync(action, _priority);

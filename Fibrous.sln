@@ -25,7 +25,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipelineExample", "Examples
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fibrous.Tests", "Fibrous.Tests\Fibrous.Tests.csproj", "{292F826B-CB33-4A65-90C1-FD865361A0FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fibrous.Proxy", "Fibrous.Proxy\Fibrous.Proxy.csproj", "{D4A21B90-16CB-46A9-B96A-0AD198EA4715}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fibrous.Proxy", "Fibrous.Proxy\Fibrous.Proxy.csproj", "{D4A21B90-16CB-46A9-B96A-0AD198EA4715}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{3A0C1AA9-A416-4C28-BAF7-83DE18B3BC0A}"
+	ProjectSection(SolutionItems) = preProject
+		Agents.md = Agents.md
+		AkkaThoughts.md = AkkaThoughts.md
+		Channels.md = Channels.md
+		Collections.md = Collections.md
+		EventBusHub.md = EventBusHub.md
+		Docs\Fibers.md = Docs\Fibers.md
+		Pipelines.md = Pipelines.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -20,7 +20,10 @@ namespace Fibrous
             _queue = new ArrayQueue<Func<Task>>(size);
         }
 
-
+        public AsyncFiber(Action<Exception> errorCallback, int size = QueueSize.DefaultQueueSize, IAsyncFiberScheduler scheduler = null)
+            : this(new AsyncExceptionHandlingExecutor(errorCallback), size, scheduler)
+        {
+        }
         protected override void InternalEnqueue(Func<Task> action)
         {
             var spinWait = default(AggressiveSpinWait);

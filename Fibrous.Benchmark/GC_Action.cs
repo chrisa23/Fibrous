@@ -18,7 +18,7 @@ namespace Fibrous.Benchmark
         [GlobalSetup]
         public void Setup()
         {
-            _fiber = PoolFiber_OLD.StartNew();
+            _fiber = new Fiber();
             _channel.Subscribe(_fiber, o => { });
         }
 

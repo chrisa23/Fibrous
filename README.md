@@ -3,7 +3,7 @@ Fibrous
 
 High performance concurrency library for the .Net platform.  Fibrous is a fork of Retlang [http://code.google.com/p/retlang/]. 
 
-Fibrous is an actor-like framework that uses the concept of Fibers, Ports and Channels as abstractions.  Fibers represent execution contexts (aka thread/actor/event loop) and Ports represent messaging end points.  Channels allow decoupling of fiber components.
+Fibrous is an actor-like framework but also a flexible set of concurrency components. The main abstractions are Fibers, Ports and Channels.  Fibers are execution contexts, Ports are messaging end points, and channels are combinations of ports that allow decoupling of fiber components.
 
 Some of the library benefits:
  - Tiny library that makes multi-threading simple and easy to reason about
@@ -13,6 +13,7 @@ Some of the library benefits:
  - Batching support
  - Scheduling support (Cron, DateTime and TimeSpan based)
  - Synchronous and asynchronous request reply
+ - Easy Pipeline construction
  
  Fibrous is great for multi-threading when you don't need extreme low latency or distributed actors but want an easy to reason about messaging based model.  Fibrous is also fast.
 
@@ -21,9 +22,9 @@ Some of the library benefits:
 Fibers
 ------
 
-Fibers are synchronous execution contexts that maintain order of actions.  Fibers can manage state without worries of cross threading issues.  While a Fiber is synchronous, your system can consist of multiple Fibers communicating through messaging to provide parallelism to your system.
+Fibers are synchronous execution contexts that maintain order of actions.  Like Actorx, Fibers can manage state without worries of cross threading issues.  While a Fiber is synchronous, your system can consist of multiple Fibers communicating through messaging to provide parallelism to your system.
 
-Fibers subscribe to channels to receive messages which queues an action based on the assigned handler.  Fibers have a scheduling API that allows actions to be scheduled in the future as well as repeatedly.  You can also directly queue actions onto a Fiber for it to execute.
+Fibers subscribe to channels to receive messages which queue actions based on the assigned handler.  Fibers have a scheduling API that allows actions to be scheduled in the future as well as repeatedly.  You can also directly queue actions onto a Fiber for it to execute.
 
 Fibers are a repository of IDisposable objects and will dispose of all children upon the Fibers disposal.  This is used to clean up subscriptions and scheduling for any fiber.  This is also useful for dealing with children used in the Fiber's context that implement IDisposable.
 
@@ -34,9 +35,9 @@ Ports and Channels
 
 Ports are the end points for publishing and subscribing to messages.  
 
-Channels are the conduit for message passing between Fibers, and allow decoupling of the parts of your system.  There are a variety of channel types built into Fibrous, including one way channels that notify all subscribers, request/reply, queue channels that give messages to one of multiple sibscribers, as well as some channels with functionality like a last value cache and replay channels.
+Channels are the conduit for message passing between Fibers, and allow decoupling of the parts of your system.  There are a variety of channel types built into Fibrous: one way channels that notify all subscribers, request/reply, queue channels that give messages to one of multiple sibscribers, as well as a state channel that acts like a last value cache.
 
-There is also a static EventBus which allows a simpler mechanism for passing messages when only one normal channel per type is needed.
+There is a static EventBus which allows a simpler mechanism for passing messages when only one normal channel per type is needed and and EventHub that allows auto-wiring of handlers.
 
 There are a variety of subscription methods, including filtered, batched, keyed batched and the last message after a time interval.
  
@@ -72,7 +73,7 @@ fiber.Enqueue(() => DoSomeWork(someParam));
 fiber.Schedule(ScheduledMethod, when);
 
 //and also have them repeat
-fiber.Schedule(ScheduledMethod, when, repeat);
+fiber.Schedule(ScheduledMethod, startWhen, repeatInterval);
 
 //Agents make some things even simpler
 var agent = new Agent<string>(s => Console.WriteLine(s.ToUpper()));

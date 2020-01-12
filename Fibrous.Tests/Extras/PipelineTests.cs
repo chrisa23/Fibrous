@@ -1,5 +1,5 @@
 ﻿using System.Threading;
-using Fibrous.Pipeline;
+using Fibrous.Pipelines;
 using NUnit.Framework;
 
 namespace Fibrous.Tests

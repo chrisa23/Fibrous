@@ -1,7 +1,0 @@
-- Rework these for usability
-  *- Clear 
-  *- Add multiple
-  *- ItemAction should take 0-n items (0 for clear - seems better than sending all items on clear)
-  
-  
-
