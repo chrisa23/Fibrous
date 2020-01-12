@@ -17,14 +17,16 @@ namespace Example1
         private static void MoreComplexExample()
         {
             using var calculator = new Calculator();
-            calculator.Publish(new Message(3, Operation.Add));
-            calculator.Publish(new Message(24, Operation.Add));
-            calculator.Publish(new Message(3, Operation.Divide));
-            calculator.Publish(new Message(1.5, Operation.Multiply));
+            calculator.Messages.Publish(new Message(3, Operation.Add));
+            calculator.Messages.Publish(new Message(24, Operation.Add));
+            calculator.Messages.Publish(new Message(3, Operation.Divide));
+            calculator.Messages.Publish(new Message(1.5, Operation.Multiply));
 
-            var result = calculator.SendRequest(null).Result;
-
+            var result = calculator.Requests.SendRequest(null).Result;
+            
             Console.WriteLine(result);
+            calculator.Messages.Publish(new Message(0, Operation.Divide));
+
             Console.ReadKey();
         }
 
@@ -54,17 +56,19 @@ namespace Example1
         }
     }
 
-    public class Calculator : IPublisherPort<Message>, IRequestPort<object,double>, IDisposable
+    public class Calculator : IDisposable
     {
-        readonly IFiber _fiber;
-        readonly IChannel<Message> _channel;
-        readonly IRequestPort<object, double> _request;
         double _current;
+        readonly IFiber _fiber;
+
+        public IChannel<Message> Messages { get; }
+        public IRequestPort<object, double> Requests { get; }
+        
         public Calculator()
         {
             _fiber = new Fiber(OnError);
-            _channel = _fiber.NewChannel<Message>(OnMessage);
-            _request = _fiber.NewRequestPort<object, double>(OnRequest);
+            Messages = _fiber.NewChannel<Message>(OnMessage);
+            Requests = _fiber.NewRequestPort<object, double>(OnRequest);
         }
 
         private void OnRequest(IRequest<object, double> obj)
@@ -83,10 +87,10 @@ namespace Example1
                     _current -= obj.Value;
                     break;
                 case Operation.Multiply:
-                    _current /= obj.Value;
+                    _current *= obj.Value;
                     break;
                 case Operation.Divide:
-                    _current *= obj.Value;
+                    _current /= obj.Value;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -96,26 +100,6 @@ namespace Example1
         private void OnError(Exception obj)
         {
             Console.WriteLine(obj);
-        }
-
-        public void Publish(Message msg)
-        {
-            _channel.Publish(msg);
-        }
-
-        public IDisposable SendRequest(object request, IFiber fiber, Action<double> onReply)
-        {
-            return _request.SendRequest(request, fiber, onReply);
-        }
-
-        public IDisposable SendRequest(object request, IAsyncFiber fiber, Func<double, Task> onReply)
-        {
-            return _request.SendRequest(request, fiber, onReply);
-        }
-
-        public Task<double> SendRequest(object request)
-        {
-            return _request.SendRequest(request);
         }
 
         public void Dispose()
