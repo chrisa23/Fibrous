@@ -29,13 +29,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fibrous.Proxy", "Fibrous.Pr
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{3A0C1AA9-A416-4C28-BAF7-83DE18B3BC0A}"
 	ProjectSection(SolutionItems) = preProject
-		Agents.md = Agents.md
-		AkkaThoughts.md = AkkaThoughts.md
-		Channels.md = Channels.md
-		Collections.md = Collections.md
-		EventBusHub.md = EventBusHub.md
+		Docs\Agents.md = Docs\Agents.md
+		Docs\AkkaThoughts.md = Docs\AkkaThoughts.md
+		Docs\Channels.md = Docs\Channels.md
+		Docs\Collections.md = Docs\Collections.md
+		Docs\EventBusHub.md = Docs\EventBusHub.md
 		Docs\Fibers.md = Docs\Fibers.md
-		Pipelines.md = Pipelines.md
+		Docs\Pipelines.md = Docs\Pipelines.md
 	EndProjectSection
 EndProject
 Global
