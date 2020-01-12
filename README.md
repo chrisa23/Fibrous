@@ -45,7 +45,6 @@ There are a variety of subscription methods, including filtered, batched, keyed 
 Examples:
 
 ```
-//create a fiber that is already started and backed by a thread pool
 //Work is done on the thread pool, but in a sequential fashion 
 IFiber fiber = new Fiber();
 	 
