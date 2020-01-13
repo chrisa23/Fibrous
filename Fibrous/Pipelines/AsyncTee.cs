@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Fibrous.Pipelines
 {
-    public class AsyncTee<T> : AsyncStageBase<T, T>
+    public class AsyncTee<T> : StageAsyncFiberBase<T, T>
     {
         private readonly Func<T, Task> _f;
 

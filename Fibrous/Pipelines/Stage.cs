@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Fibrous.Pipelines
 {
-    public class Stage<TIn, TOut> : StageBase<TIn, TOut>
+    public class Stage<TIn, TOut> : StageFiberBase<TIn, TOut>
     {
         private readonly Func<TIn, TOut> _f;
         private readonly Func<TIn, IEnumerable<TOut>> _f2;

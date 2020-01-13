@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Fibrous.Pipelines
@@ -13,18 +12,28 @@ namespace Fibrous.Pipelines
             stages.Add(stage2);
             switch (stage2)
             {
-                case IHaveFiber fiber:
-                    stage1.Subscribe(fiber.Fiber, stage2.Publish);
-                    return new CompositeStage<T0, T1>(stage1, stage2, fiber.Fiber, stages);
-                case IHaveAsyncFiber fiber:
-                    stage1.Subscribe(fiber.Fiber, x =>
+                case IHaveFiber fiber2:
+                    stage1.Subscribe(fiber2.Fiber, stage2.Publish);
+                    break;
+                case IHaveAsyncFiber fiber2:
+                    stage1.Subscribe(fiber2.Fiber, x =>
                     {
                         stage2.Publish(x);
                         return Task.CompletedTask;
                     });
-                    return new CompositeAsyncStage<T0, T1>(stage1, stage2, fiber.Fiber, stages);
+                    break;
                 default:
                     throw new Exception("Stage2 must implement IHaveFiber or IHaveAsyncFiber");
+            }
+
+            switch (stage1)
+            {
+                case IHaveFiber fiber:
+                    return new CompositeStage<T0, T1>(stage1, stage2, fiber.Fiber, stages);
+                case IHaveAsyncFiber fiber:
+                    return new CompositeAsyncStage<T0, T1>(stage1, stage2, fiber.Fiber, stages);
+                default:
+                    throw new Exception("Stage1 must implement IHaveFiber or IHaveAsyncFiber");
             }
         }
 
@@ -40,13 +49,27 @@ namespace Fibrous.Pipelines
             return stage1.To(stage2);
         }
 
+        public static IStage<T0, T> Where<T0, T>(this IStage<T0, T> stage1, Predicate<T> f, Action<Exception> errorCallback = null)
+        {
+            var stage2 = new Filter<T>(f, errorCallback);
+            return stage1.To(stage2);
+        }
+
+        //batch
+        public static IStage<T0, T[]> Batch<T0, T>(this IStage<T0, T> stage1, TimeSpan time, Action<Exception> errorCallback = null)
+        {
+            var stage2 = new Batch<T>(time, errorCallback);
+            return stage1.To(stage2);
+        }
+        //last
+        //
 
         public static IStage<T0, T1> To<T0, T, T1>(this IStage<T0, T> stage1, Func<T, T1> f, Action<Exception> errorCallback = null)
         {
             var stage2 = new Stage<T, T1>(f, errorCallback);
             return stage1.To(stage2);
         }
-        
+
         public static IStage<T0, T1> To<T0, T, T1>(this IStage<T0, T> stage1, Func<T, T1> f, int count, Action<Exception> errorCallback = null)
         {
             var stages = new Disposables();

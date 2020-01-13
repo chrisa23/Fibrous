@@ -45,14 +45,23 @@ namespace Example1
 
         private static void AgentExample()
         {
-            using IAgent<string> logger = new Agent<string>(Console.WriteLine);
-            using IAgent<string> processor = new Agent<string>(s => logger.Publish("Received " + s));
-            using var fiber1 = new Fiber();
+            //agents provide thread safety to individual functions.
+            //in this case, we want one point for storing to the database that can be shared
+            using var dataAccess = new AsyncAgent<object>(StoreToDatabase);
 
-            var count = 0;
-            //Start sending a message after a second, every 2 seconds...
-            fiber1.Schedule(() => processor.Publish("Test" + count++), TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(2));
+            object latestData = new object();
+
+            //this could be called from multiple places, but all saves are sequential and thread safe
+            dataAccess.Publish(latestData);
+
             Console.ReadKey();
+        }
+
+        private static async Task StoreToDatabase(object toStore)
+        {
+            //Simulate storing data to a db
+            Console.WriteLine("Storing to database");
+            await Task.Delay(1000);
         }
     }
 
@@ -61,7 +70,7 @@ namespace Example1
         double _current;
         readonly IFiber _fiber;
 
-        public IChannel<Message> Messages { get; }
+        public IPublisherPort<Message> Messages { get; }
         public IRequestPort<object, double> Requests { get; }
         
         public Calculator()

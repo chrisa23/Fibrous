@@ -23,8 +23,9 @@ namespace PipelineExample
             using var pipeline = 
                 new Stage<string, string>(Directory.EnumerateFiles)
                 .To(x => (x, new FileInfo(x).Length), 4)
-                .To(info => Console.WriteLine($"{info.x} is {info.Length} in length"));
-
+                .To(info => Console.WriteLine($"{info.x} is {info.Length} in length"))
+                .Where(x => x.Length > 1000000)
+                .Batch(TimeSpan.FromSeconds(1));
             // the resulting pipeline is still an IStage, and can be composed into another pipeline
 
             pipeline.Publish("C:\\");
