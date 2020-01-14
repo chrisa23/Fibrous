@@ -2,6 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Fibrous.Internal;
 
 namespace Fibrous
 {
@@ -16,14 +17,21 @@ namespace Fibrous
     {
         internal const int DefaultQueueSize = 1008;
     }
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
     internal class ArrayQueue<T> : IQueue<T>
     {
         private readonly int _maxIndex;
         private T[] _actions;
         private T[] _toPass;
         private int _processCount;
+
+        Pad56 p0;
+
         private int _count;
-    
+
+        Pad64 p1;
+
+
         public ArrayQueue(int size)
         {
             _maxIndex = size - 1;
@@ -31,7 +39,7 @@ namespace Fibrous
             _toPass = new T[size + 16];
         }
 
-        public int Count => _count;
+        public int Count =>  _count;
 
         public bool IsFull => _count >=  _maxIndex;
 

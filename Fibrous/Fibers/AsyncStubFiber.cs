@@ -12,6 +12,10 @@ namespace Fibrous
             : base(executor, scheduler)
         {
         }
+        public AsyncStubFiber(Action<Exception> errorCallback, IAsyncFiberScheduler scheduler = null)
+            : this(new AsyncExceptionHandlingExecutor(errorCallback), scheduler)
+        {
+        }
 
         protected override void InternalEnqueue(Func<Task> action)
         {

@@ -37,13 +37,13 @@ namespace Fibrous.Pipelines
             }
         }
 
-        public static IStage<T0, T> To<T0, T>(this IStage<T0, T> stage1, Action<T> f, Action<Exception> errorCallback = null)
+        public static IStage<T0, T> Tap<T0, T>(this IStage<T0, T> stage1, Action<T> f, Action<Exception> errorCallback = null)
         {
             var stage2 = new Tee<T>(f, errorCallback);
             return stage1.To(stage2);
         }
 
-        public static IStage<T0, T> To<T0, T>(this IStage<T0, T> stage1, Func<T, Task> f, Action<Exception> errorCallback = null)
+        public static IStage<T0, T> Tap<T0, T>(this IStage<T0, T> stage1, Func<T, Task> f, Action<Exception> errorCallback = null)
         {
             var stage2 = new AsyncTee<T>(f, errorCallback);
             return stage1.To(stage2);
@@ -64,24 +64,26 @@ namespace Fibrous.Pipelines
         //last
         //
 
-        public static IStage<T0, T1> To<T0, T, T1>(this IStage<T0, T> stage1, Func<T, T1> f, Action<Exception> errorCallback = null)
+        public static IStage<T0, T1> Select<T0, T, T1>(this IStage<T0, T> stage1, Func<T, T1> f, Action<Exception> errorCallback = null)
         {
             var stage2 = new Stage<T, T1>(f, errorCallback);
             return stage1.To(stage2);
         }
 
-        public static IStage<T0, T1> To<T0, T, T1>(this IStage<T0, T> stage1, Func<T, T1> f, int count, Action<Exception> errorCallback = null)
+        public static IStage<T0, T1> Select<T0, T, T1>(this IStage<T0, T> stage1, Func<T, T1> f, int count, Action<Exception> errorCallback = null)
         {
-            var stages = new Disposables();
+            //TODO: assert if count < 2
+            var stages = new RoundRobinFanOut<T>();
             stages.Add(stage1);
-            IChannel<T1> output = new QueueChannel<T1>();
+            stages.SetUpSubscribe(stage1);
+            IChannel<T1> output = new Channel<T1>();
             var stub = new StubFiber();
             stages.Add(stub);
             for (int i = 0; i < count; i++)
             {
                 var stage = new Stage<T, T1>(f, errorCallback);
-                stages.Add(stage);
-                stage1.Subscribe(stage.Fiber, stage.Publish);
+                stages.AddStage(stage);
+                // this is the part of the Fan OUt stage1.Subscribe(stage.Fiber, stage.Publish);
                 stage.Subscribe(stub, output.Publish);
             }
 
@@ -97,28 +99,25 @@ namespace Fibrous.Pipelines
         }
 
 
-        public static IStage<T0, T1> To<T0, T, T1>(this IStage<T0, T> stage1, Func<T, Task<T1>> f, Action<Exception> errorCallback = null)
+        public static IStage<T0, T1> Select<T0, T, T1>(this IStage<T0, T> stage1, Func<T, Task<T1>> f, Action<Exception> errorCallback = null)
         {
             var stage2 = new AsyncStage<T, T1>(f, errorCallback);
             return stage1.To(stage2);
         }
 
-        public static IStage<T0, T1> To<T0, T, T1>(this IStage<T0, T> stage1, Func<T, Task<T1>> f, int count, Action<Exception> errorCallback = null)
+        public static IStage<T0, T1> Select<T0, T, T1>(this IStage<T0, T> stage1, Func<T, Task<T1>> f, int count, Action<Exception> errorCallback = null)
         {
-            var stages = new Disposables();
+            var stages = new RoundRobinFanOut<T>();
             stages.Add(stage1);
-            IChannel<T1> output = new QueueChannel<T1>();
+            stages.SetUpSubscribe(stage1);
+            IChannel<T1> output = new Channel<T1>();
             var stub = new StubFiber();
             stages.Add(stub);
             for (int i = 0; i < count; i++)
             {
                 var stage = new AsyncStage<T, T1>(f, errorCallback);
-                stages.Add(stage);
-                stage1.Subscribe(stage.Fiber, x =>
-                {
-                    stage.Publish(x);
-                    return Task.CompletedTask;
-                });
+                stages.AddStage(stage);
+            
                 stage.Subscribe(stub, output.Publish);
             }
 

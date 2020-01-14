@@ -8,20 +8,21 @@ namespace Fibrous
     {
         private readonly ArrayQueue<Func<Task>> _queue;
 
-        private readonly TaskFactory _taskFactory =
-            new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None);
+        private readonly TaskFactory _taskFactory;
 
         private bool _flushPending;
         private SpinLock _spinLock = new SpinLock(false);
 
-        public AsyncFiber(IAsyncExecutor executor = null, int size = QueueSize.DefaultQueueSize, IAsyncFiberScheduler scheduler = null)
+        public AsyncFiber(IAsyncExecutor executor = null, int size = QueueSize.DefaultQueueSize, TaskFactory taskFactory = null, IAsyncFiberScheduler scheduler = null)
             : base(executor, scheduler)
         {
+            
             _queue = new ArrayQueue<Func<Task>>(size);
+            _taskFactory = taskFactory ?? new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None);
         }
 
-        public AsyncFiber(Action<Exception> errorCallback, int size = QueueSize.DefaultQueueSize, IAsyncFiberScheduler scheduler = null)
-            : this(new AsyncExceptionHandlingExecutor(errorCallback), size, scheduler)
+        public AsyncFiber(Action<Exception> errorCallback, int size = QueueSize.DefaultQueueSize, TaskFactory taskFactory = null, IAsyncFiberScheduler scheduler = null)
+            : this(new AsyncExceptionHandlingExecutor(errorCallback), size, taskFactory, scheduler)
         {
         }
         protected override void InternalEnqueue(Func<Task> action)

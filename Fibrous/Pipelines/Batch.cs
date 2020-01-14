@@ -4,13 +4,15 @@ using System.Collections.Generic;
 namespace Fibrous.Pipelines
 {
     //Should this use a stub fiber?
+    //this should probably not start immediately...
     public class Batch<T> : StageFiberBase<T, T[]>
     {
+        private readonly TimeSpan _time;
         private readonly List<T> _batch = new List<T>();
-        
+        IDisposable _sub;
         public Batch(TimeSpan time, Action<Exception> errorCallback):base(errorCallback)
         {
-            Fiber.Schedule(Flush, time, time);
+            _time = time;
         }
 
         private void Flush()
@@ -25,6 +27,9 @@ namespace Fibrous.Pipelines
 
         protected override void Receive(T @in)
         {
+            if(_sub == null)
+                _sub = Fiber.Schedule(Flush, _time, _time);
+
             _batch.Add(@in);
         }
     }

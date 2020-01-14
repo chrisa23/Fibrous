@@ -22,9 +22,10 @@ namespace PipelineExample
 
             using var pipeline = 
                 new Stage<string, string>(Directory.EnumerateFiles)
-                .To(x => (x, new FileInfo(x).Length), 4)
-                .To(info => Console.WriteLine($"{info.x} is {info.Length} in length"))
+                .Select(x => (x, new FileInfo(x).Length), 4)
+                .Tap(info => Console.WriteLine($"**{info.x} is {info.Length} in length")) // equivalent to Select(x => {f(x); return x;})
                 .Where(x => x.Length > 1000000)
+                .Tap(info => Console.WriteLine($"{info.x} is {info.Length} in length"))
                 .Batch(TimeSpan.FromSeconds(1));
             // the resulting pipeline is still an IStage, and can be composed into another pipeline
 

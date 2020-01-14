@@ -12,6 +12,10 @@ namespace Fibrous
         {
         }
 
+        public StubFiber(Action<Exception> errorCallback, IFiberScheduler scheduler = null)
+            : this(new ExceptionHandlingExecutor(errorCallback), scheduler)
+        {
+        }
         protected override void InternalEnqueue(Action action)
         {
             //There is no lock here to force sequentiality, since that will cause deadlocks in some

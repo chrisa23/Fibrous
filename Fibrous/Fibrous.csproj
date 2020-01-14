@@ -14,7 +14,6 @@
     <PackageTags>concurrency actors multi-threading messaging</PackageTags>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Pipelines\SImple\" />
     <Folder Include="Properties\" />
   </ItemGroup>
 </Project>

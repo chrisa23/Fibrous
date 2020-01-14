@@ -7,21 +7,19 @@ namespace Fibrous
     public class Fiber : FiberBase
     {
         private readonly ArrayQueue<Action> _queue;
-
-        private readonly TaskFactory _taskFactory =
-            new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None);
-
+        private readonly TaskFactory _taskFactory;
         private bool _flushPending;
         private SpinLock _spinLock = new SpinLock(false);
 
-        public Fiber(IExecutor executor = null, int size = QueueSize.DefaultQueueSize, IFiberScheduler scheduler = null)
+        public Fiber(IExecutor executor = null, int size = QueueSize.DefaultQueueSize, TaskFactory taskFactory = null, IFiberScheduler scheduler = null)
             : base(executor, scheduler)
         {
             _queue = new ArrayQueue<Action>(size);
+            _taskFactory = taskFactory ?? new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None);
         }
 
-        public Fiber(Action<Exception> errorCallback, int size = QueueSize.DefaultQueueSize, IFiberScheduler scheduler = null)
-            : this(new ExceptionHandlingExecutor(errorCallback), size, scheduler)
+        public Fiber(Action<Exception> errorCallback, int size = QueueSize.DefaultQueueSize, TaskFactory taskFactory = null, IFiberScheduler scheduler = null)
+            : this(new ExceptionHandlingExecutor(errorCallback), size,  taskFactory, scheduler)
         {
         }
 
