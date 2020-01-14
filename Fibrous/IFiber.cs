@@ -94,6 +94,19 @@ namespace Fibrous
             return channel.Subscribe(fiber, handler);
         }
 
+        /// <summary>
+        ///     Subscribe to a channel from the fiber.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fiber"></param>
+        /// <param name="channel"></param>
+        /// <param name="handler"></param>
+        /// <returns></returns>
+        public static IDisposable Subscribe<T, TSnapshot>(this IFiber fiber, ISnapshotSubscriberPort<T, TSnapshot> channel, Action<T> handler, Action<TSnapshot> snapshot)
+        {
+            return channel.Subscribe(fiber, handler, snapshot);
+        }
+
         /// <summary>Method that subscribe to a periodic batch. </summary>
         /// <typeparam name="T">    Generic type parameter. </typeparam>
         /// <param name="port">     The port to act on. </param>

@@ -13,10 +13,10 @@ namespace Fibrous.Pipelines
             switch (stage2)
             {
                 case IHaveFiber fiber2:
-                    stage1.Subscribe(fiber2.Fiber, stage2.Publish);
+                    fiber2.Fiber.Subscribe(stage1, stage2.Publish);
                     break;
                 case IHaveAsyncFiber fiber2:
-                    stage1.Subscribe(fiber2.Fiber, x =>
+                    fiber2.Fiber.Subscribe(stage1, x =>
                     {
                         stage2.Publish(x);
                         return Task.CompletedTask;
@@ -72,7 +72,9 @@ namespace Fibrous.Pipelines
 
         public static IStage<T0, T1> Select<T0, T, T1>(this IStage<T0, T> stage1, Func<T, T1> f, int count, Action<Exception> errorCallback = null)
         {
-            //TODO: assert if count < 2
+            if (count < 2)
+                throw new ArgumentException("Count must be 2 or more", nameof(count));
+            
             var stages = new RoundRobinFanOut<T>();
             stages.Add(stage1);
             stages.SetUpSubscribe(stage1);
@@ -83,8 +85,7 @@ namespace Fibrous.Pipelines
             {
                 var stage = new Stage<T, T1>(f, errorCallback);
                 stages.AddStage(stage);
-                // this is the part of the Fan OUt stage1.Subscribe(stage.Fiber, stage.Publish);
-                stage.Subscribe(stub, output.Publish);
+                stub.Subscribe(stage, output.Publish);
             }
 
             switch (stage1)
@@ -107,6 +108,9 @@ namespace Fibrous.Pipelines
 
         public static IStage<T0, T1> Select<T0, T, T1>(this IStage<T0, T> stage1, Func<T, Task<T1>> f, int count, Action<Exception> errorCallback = null)
         {
+            if (count < 2)
+                throw new ArgumentException("Count must be 2 or more", nameof(count));
+
             var stages = new RoundRobinFanOut<T>();
             stages.Add(stage1);
             stages.SetUpSubscribe(stage1);
@@ -117,8 +121,8 @@ namespace Fibrous.Pipelines
             {
                 var stage = new AsyncStage<T, T1>(f, errorCallback);
                 stages.AddStage(stage);
-            
-                stage.Subscribe(stub, output.Publish);
+
+                stub.Subscribe(stage, output.Publish);
             }
 
             switch (stage1)

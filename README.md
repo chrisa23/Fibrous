@@ -51,10 +51,10 @@ IFiber fiber = new Fiber();
 //Create a channel and subscribe to messages
 IChannel<string> channel = new Channel<string>();
 
-channel.Subscribe(fiber, s => Console.WriteLine(s.ToUpper()));
-
-// or you can subscribe via the Fiber
 fiber.Subscribe(channel, s => Console.WriteLine(s.ToUpper()));
+
+//or you can subscribe through the channel
+channel.Subscribe(fiber, s => Console.WriteLine(s.ToUpper()));
 
 //You can also create a channel and subscribe in one line
 IChannel<string> channel = fiber.NewChannel<string>(s => Console.WriteLine(s.ToUpper()));

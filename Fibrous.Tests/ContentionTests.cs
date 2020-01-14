@@ -54,9 +54,6 @@ namespace Fibrous.Tests
                 {
                     Task.Run(Iterate);
                 }
-                
-                //Task.Run(Iterate);
-
                 WaitHandle.WaitAny(new WaitHandle[] { _wait });
             }
         }
