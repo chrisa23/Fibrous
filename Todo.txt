@@ -1,3 +1,7 @@
+- Add subcription overloads to EventBus
+- Look at where I took Reply/Receive away...
+
+
 - Create detailed documentation covering functionality
 	- Fibers
 		- Basic functionality
