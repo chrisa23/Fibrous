@@ -34,6 +34,11 @@ namespace Fibrous.Agents
             return _channel.SendRequest(request);
         }
 
+        public Task<Result<TReply>> SendRequest(TRequest request, TimeSpan timeout)
+        {
+            return _channel.SendRequest(request, timeout);
+        }
+
         public void Dispose()
         {
             Fiber.Dispose();

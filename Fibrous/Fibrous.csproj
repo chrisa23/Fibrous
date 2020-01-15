@@ -12,6 +12,7 @@
     <FileVersion>4.0.0</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageTags>concurrency actors multi-threading messaging</PackageTags>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

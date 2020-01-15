@@ -45,6 +45,11 @@ namespace Fibrous.Collections
             return _request.SendRequest(request);
         }
 
+        public Task<Result<T[]>> SendRequest(Func<T, bool> request, TimeSpan timeout)
+        {
+            return _request.SendRequest(request, timeout);
+        }
+
         public IDisposable Subscribe(IFiber fiber, Action<ItemAction<T>> receive, Action<T[]> receiveSnapshot)
         {
             return _channel.Subscribe(fiber, receive, receiveSnapshot);

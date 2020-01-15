@@ -32,6 +32,21 @@ namespace Fibrous
             return channelRequest.Resp.Task;
         }
 
+        public async Task<Result<TReply>> SendRequest(TRequest request, TimeSpan timeout)
+        {
+            using var channelRequest = new ChannelRequest(request);
+            _requestChannel.Publish(channelRequest);
+            var task = channelRequest.Resp.Task;
+            var success = (await Task.WhenAny(new Task[] { task, Task.Delay(timeout) })) == task;
+            channelRequest.Dispose();
+            if (success)
+            {
+                return Result<TReply>.Ok(task.Result);
+            }
+
+            return Result<TReply>.Failed;
+        }
+
         public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply)
         {
             var channelRequest = new AsyncChannelRequest(fiber, request, onReply);
@@ -46,6 +61,7 @@ namespace Fibrous
             {
                 Request = req;
             }
+            
 
             //don't use a queue
             public TaskCompletionSource<TReply> Resp { get; } = new TaskCompletionSource<TReply>();
