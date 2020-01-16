@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 
 namespace Fibrous
 {
+    /// <summary>
+    /// It is suggested to always use an Exception callback with the IAsyncFiber
+    /// </summary>
     public class AsyncFiber : AsyncFiberBase
     {
         private readonly ArrayQueue<Func<Task>> _queue;
@@ -36,11 +39,11 @@ namespace Fibrous
                 _spinLock.Enter(ref lockTaken);
 
                 _queue.Enqueue(action);
-                if (!_flushPending)
-                {
-                    _taskFactory.StartNew(Flush);
-                    _flushPending = true;
-                }
+
+                if (_flushPending) return;
+
+                _flushPending = true;
+                _taskFactory.StartNew(Flush);
             }
             finally
             {

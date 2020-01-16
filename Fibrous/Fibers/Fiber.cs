@@ -36,8 +36,8 @@ namespace Fibrous
                 _queue.Enqueue(action);
                 if (!_flushPending)
                 {
-                    _taskFactory.StartNew(Flush);
                     _flushPending = true;
+                    _taskFactory.StartNew(Flush);
                 }
             }
             finally

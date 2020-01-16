@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 namespace Fibrous
 {
+    //It is suggested to always use an Exception callback with the IAsyncFiber
     public interface IAsyncFiber : IAsyncScheduler, IDisposableRegistry
     {
         void Enqueue(Func<Task> action);

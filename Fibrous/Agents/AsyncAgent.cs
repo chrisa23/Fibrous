@@ -12,9 +12,9 @@ namespace Fibrous.Agents
         private readonly IPublisherPort<T> _channel;
         protected readonly IAsyncFiber Fiber;
 
-        public AsyncAgent(Func<T, Task> handler, IAsyncExecutor executor = null)
+        public AsyncAgent(Func<T, Task> handler, Action<Exception> callback)
         {
-            Fiber = new AsyncFiber(executor);
+            Fiber = new AsyncFiber(callback);
             _channel = Fiber.NewChannel(handler);
         }
 

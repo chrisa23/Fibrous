@@ -8,8 +8,6 @@ namespace Fibrous
     {
         IFiber Create();
         IFiber Create(Action<Exception> errorHandler);
-
-        IAsyncFiber CreateAsync();
         IAsyncFiber CreateAsync(Action<Exception> errorHandler);
     }
 
@@ -23,11 +21,6 @@ namespace Fibrous
         public IFiber Create(Action<Exception> errorHandler)
         {
             return new Fiber(errorHandler);
-        }
-
-        public IAsyncFiber CreateAsync()
-        {
-            return new AsyncFiber();
         }
 
         public IAsyncFiber CreateAsync(Action<Exception> errorHandler)
@@ -46,11 +39,6 @@ namespace Fibrous
         public IFiber Create(Action<Exception> errorHandler)
         {
             return new StubFiber(errorHandler);
-        }
-
-        public IAsyncFiber CreateAsync()
-        {
-            return new AsyncStubFiber();
         }
 
         public IAsyncFiber CreateAsync(Action<Exception> errorHandler)

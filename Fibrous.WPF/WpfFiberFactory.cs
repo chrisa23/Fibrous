@@ -14,11 +14,6 @@ namespace Fibrous.WPF
             return new DispatcherFiber(errorHandler);
         }
 
-        public IAsyncFiber CreateAsync()
-        {
-            return new AsyncDispatcherFiber();
-        }
-
         public IAsyncFiber CreateAsync(Action<Exception> errorHandler)
         {
             return new AsyncDispatcherFiber(errorHandler);

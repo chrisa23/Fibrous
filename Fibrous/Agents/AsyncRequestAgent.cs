@@ -13,9 +13,9 @@ namespace Fibrous.Agents
         private readonly IRequestPort<TRequest, TReply> _channel;
         protected readonly IAsyncFiber Fiber;
 
-        public AsyncRequestAgent(Func<IRequest<TRequest, TReply>,Task> handler, IAsyncExecutor executor = null)
+        public AsyncRequestAgent(Func<IRequest<TRequest, TReply>,Task> handler, Action<Exception> callback)
         {
-            Fiber = new AsyncFiber(executor);
+            Fiber = new AsyncFiber(callback);
             _channel = Fiber.NewRequestPort(handler);
         }
 
