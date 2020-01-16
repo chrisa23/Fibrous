@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Fibrous
@@ -57,6 +58,7 @@ namespace Fibrous
         private sealed class ChannelRequest : IRequest<TRequest, TReply>, IDisposable
         {
             private readonly SingleShotGuard _guard = new SingleShotGuard();
+            private readonly CancellationTokenSource _cancel = new CancellationTokenSource();
             public ChannelRequest(TRequest req)
             {
                 Request = req;
@@ -70,6 +72,7 @@ namespace Fibrous
             {
                 if(_guard.Check)
                 {
+                    _cancel.Cancel();
                 }
             }
 
@@ -82,13 +85,15 @@ namespace Fibrous
                     Resp.SetResult(response);
                 }
             }
+
+            public CancellationToken CancellationToken => _cancel.Token;
         }
 
         private class AsyncChannelRequest : IRequest<TRequest, TReply>, IDisposable
         {
             private readonly IChannel<TReply> _resp = new Channel<TReply>();
             private readonly IDisposable _sub;
-
+            private readonly CancellationTokenSource _cancel = new CancellationTokenSource();
             public AsyncChannelRequest(IFiber fiber, TRequest request, Action<TReply> replier)
             {
                 Request = request;
@@ -103,6 +108,7 @@ namespace Fibrous
 
             public void Dispose()
             {
+                _cancel.Cancel();
                 _sub?.Dispose();
             }
 
@@ -112,6 +118,8 @@ namespace Fibrous
             {
                 _resp.Publish(response);
             }
+
+            public CancellationToken CancellationToken => _cancel.Token;
         }
     }
 }

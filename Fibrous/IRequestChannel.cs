@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Fibrous
@@ -39,5 +40,7 @@ namespace Fibrous
         /// </summary>
         /// <param name="reply"></param>
         void Reply(TReply reply);
+
+        CancellationToken CancellationToken { get; }
     }
 }

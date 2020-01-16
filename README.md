@@ -22,7 +22,7 @@ Some of the library benefits:
 Fibers
 ------
 
-Fibers are synchronous execution contexts that maintain order of actions.  Like Actorx, Fibers can manage state without worries of cross threading issues.  While a Fiber is synchronous, your system can consist of multiple Fibers communicating through messaging to provide parallelism to your system.
+Fibers are synchronous execution contexts that maintain order of actions.  Like Actors, Fibers can manage state without worries of cross threading issues.  While a Fiber is synchronous, your system can consist of multiple Fibers communicating through messaging to provide parallelism to your system.
 
 Fibers subscribe to channels to receive messages which queue actions based on the assigned handler.  Fibers have a scheduling API that allows actions to be scheduled in the future as well as repeatedly.  You can also directly queue actions onto a Fiber for it to execute.
 
@@ -37,7 +37,7 @@ Ports are the end points for publishing and subscribing to messages.
 
 Channels are the conduit for message passing between Fibers, and allow decoupling of the parts of your system.  There are a variety of channel types built into Fibrous: one way channels that notify all subscribers, request/reply, queue channels that give messages to one of multiple subscribers, as well as a state channel that acts like a last value cache.
 
-There is a static EventBus which allows a simpler mechanism for passing messages when only one normal channel per type is needed and and EventHub that allows auto-wiring of handlers.
+There is a static EventBus which allows a simpler mechanism for passing messages when only one normal channel per type is needed and an EventHub that allows auto-wiring of handlers.
 
 There are a variety of subscription methods, including filtered, batched, keyed batched and the last message after a time interval.
  
