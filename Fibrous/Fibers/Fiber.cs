@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -6,7 +7,7 @@ namespace Fibrous
 {
     public class Fiber : FiberBase
     {
-        private readonly ArrayQueue<Action> _queue;
+        private readonly IQueue<Action> _queue;
         private readonly TaskFactory _taskFactory;
         private bool _flushPending;
         private SpinLock _spinLock = new SpinLock(false);
@@ -34,11 +35,11 @@ namespace Fibrous
                 _spinLock.Enter(ref lockTaken);
 
                 _queue.Enqueue(action);
-                if (!_flushPending)
-                {
-                    _flushPending = true;
-                    _taskFactory.StartNew(Flush);
-                }
+
+                if (_flushPending) return;
+
+                _flushPending = true;
+                _taskFactory.StartNew(Flush);
             }
             finally
             {
@@ -49,28 +50,34 @@ namespace Fibrous
         private void Flush()
         {
             var (count, actions) = Drain();
+
             if (count > 0)
             {
-                for (var i = 0; i < count; i++) Executor.Execute(actions[i]);
-
-                var lockTaken = false;
-                try
+                for (var i = 0; i < count; i++)
                 {
-                    _spinLock.Enter(ref lockTaken);
+                    var action = actions[i];
+                    Executor.Execute(action);
+                }
+            }
 
-                    if (_queue.Count > 0)
-                        //don't monopolize thread.
-                        _taskFactory.StartNew(Flush);
-                    else
-                        _flushPending = false;
-                }
-                finally
-                {
-                    if (lockTaken) _spinLock.Exit(false);
-                }
+            var lockTaken = false;
+            try
+            {
+                _spinLock.Enter(ref lockTaken);
+
+                if (_queue.Count > 0)
+                    //don't monopolize thread.
+                    _taskFactory.StartNew(Flush);
+                else
+                    _flushPending = false;
+            }
+            finally
+            {
+                if (lockTaken) _spinLock.Exit(false);
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private (int, Action[]) Drain()
         {
             var lockTaken = false;
@@ -78,13 +85,12 @@ namespace Fibrous
             {
                 _spinLock.Enter(ref lockTaken);
 
-                if (_queue.Count == 0)
-                {
-                    _flushPending = false;
-                    return ArrayQueue<Action>.Empty;
-                }
+                var drain = _queue.Drain();
 
-                return _queue.Drain();
+                if (drain.Item1 <= 0)
+                    _flushPending = false;
+
+                return drain;
             }
             finally
             {

@@ -23,6 +23,11 @@ namespace Fibrous.Pipelines
             return Out.Subscribe(fiber, receive);
         }
 
+        public IDisposable Subscribe(Action<TOut> receive)
+        {
+            return Out.Subscribe(receive);
+        }
+
         public abstract void Dispose();
     }
 }

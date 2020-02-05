@@ -22,6 +22,11 @@ namespace Fibrous
             return new Unsubscriber( new AsyncQueueConsumer(fiber, receive, this), fiber);
         }
 
+        public IDisposable Subscribe(Action<TMsg> receive)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Publish(TMsg message)
         {
             _queue.Enqueue(message);

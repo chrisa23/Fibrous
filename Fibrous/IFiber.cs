@@ -180,9 +180,9 @@ namespace Fibrous
             }
 
             //we use a stub fiber to force the filtering onto the publisher thread.
-            var stub = new StubFiber();
-            port.Subscribe(stub, FilteredReceiver);
-            return new Unsubscriber( stub, fiber);
+           
+            var sub = port.Subscribe(FilteredReceiver);
+            return new Unsubscriber(sub, fiber);
         }
 
         public static IChannel<T> NewChannel<T>(this IFiber fiber, Action<T> onEvent)

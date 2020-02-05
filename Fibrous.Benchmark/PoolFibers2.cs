@@ -8,26 +8,25 @@ namespace Fibrous.Benchmark
     [MemoryDiagnoser]
     public class PoolFibers2
     {
-        private readonly IChannel<object> _channel = new Channel<object>();
+        private const int OperationsPerInvoke = 1000000;
+        private readonly IChannel<int> _channel = new Channel<int>();
         private readonly AutoResetEvent _wait = new AutoResetEvent(false);
         private IAsyncFiber _async;
-        private FiberBase_old _pool1;
-        private FiberBase_old _pool2;
         private IFiber _pool3;
-        private FiberBase_old _spinPool;
+        private IFiber _stub;
         private int i;
 
-        private void Handler(object obj)
+        private void Handler(int obj)
         {
             i++;
-            if (i == 1000000)
+            if (i == OperationsPerInvoke)
                 _wait.Set();
         }
 
-        private Task AsyncHandler(object obj)
+        private Task AsyncHandler(int obj)
         {
             i++;
-            if (i == 1000000)
+            if (i == OperationsPerInvoke)
                 _wait.Set();
             return Task.CompletedTask;
         }
@@ -37,7 +36,7 @@ namespace Fibrous.Benchmark
             using (var sub = _channel.Subscribe(fiber, Handler))
             {
                 i = 0;
-                for (var j = 0; j < 1000000; j++) _channel.Publish(null);
+                for (var j = 0; j < OperationsPerInvoke; j++) _channel.Publish(0);
 
                 WaitHandle.WaitAny(new WaitHandle[] {_wait});
             }
@@ -48,64 +47,73 @@ namespace Fibrous.Benchmark
             using (var sub = _channel.Subscribe(fiber, AsyncHandler))
             {
                 i = 0;
-                for (var j = 0; j < 1000000; j++) _channel.Publish(null);
+                for (var j = 0; j < OperationsPerInvoke; j++) _channel.Publish(0);
 
                 WaitHandle.WaitAny(new WaitHandle[] {_wait});
             }
         }
 
-        [Benchmark(OperationsPerInvoke = 1000000, Baseline = true)]
-        public void Pool1Old()
-        {
-            Run(_pool1);
-        }
+        //[Benchmark(OperationsPerInvoke = 1000000, Baseline = true)]
+        //public void Pool1Old()
+        //{
+        //    Run(_pool1);
+        //}
 
-        [Benchmark(OperationsPerInvoke = 1000000)]
-        public void Pool2()
-        {
-            Run(_pool2);
-        }
+        //[Benchmark(OperationsPerInvoke = 1000000)]
+        //public void Pool2()
+        //{
+        //    Run(_pool2);
+        //}
 
-        [Benchmark(OperationsPerInvoke = 1000000)]
-        public void Pool3()
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        public void Fiber()
         {
             Run(_pool3);
         }
 
 
-        [Benchmark(OperationsPerInvoke = 1000000)]
-        public void PoolSpin()
-        {
-            Run(_spinPool);
-        }
+        //[Benchmark(OperationsPerInvoke = 1000000)]
+        //public void PoolSpin()
+        //{
+        //    Run(_spinPool);
+        //}
 
-        [Benchmark(OperationsPerInvoke = 1000000)]
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void Async()
         {
             Run(_async);
         }
 
+
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        public void Stub()
+        {
+            Run(_stub);
+        }
+
         [GlobalSetup]
         public void Setup()
         {
-            _pool1 = new PoolFiber_OLD();
-            _pool1.Start();
-            _pool2 = new PoolFiber2();
-            _pool2.Start();
-            _spinPool = new SpinLockPoolFiber();
-            _spinPool.Start();
+            //_pool1 = new PoolFiber_OLD();
+            //_pool1.Start();
+            //_pool2 = new PoolFiber2();
+            //_pool2.Start();
+            //_spinPool = new SpinLockPoolFiber();
+            //_spinPool.Start();
             _async = new AsyncFiber();
             _pool3 = new Fiber();
+            _stub = new StubFiber();
         }
 
         [GlobalCleanup]
         public void Cleanup()
         {
-            _pool1.Stop();
-            _pool2.Stop();
-            _spinPool.Stop();
+            //_pool1.Stop();
+            //_pool2.Stop();
+            //_spinPool.Stop();
             _pool3.Dispose();
             _async.Dispose();
+            _stub.Dispose();
         }
     }
 }

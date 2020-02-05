@@ -9,6 +9,7 @@ namespace Fibrous
     internal interface IQueue<T>
     {
         bool IsFull { get; }
+        int Count { get; }
         void Enqueue(T a);
         (int, T[]) Drain();
     }
@@ -20,40 +21,46 @@ namespace Fibrous
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
     internal class ArrayQueue<T> : IQueue<T>
     {
-        private readonly int _maxIndex;
+        
+        private readonly int _size;
+        //Pad112 p01;
         private T[] _actions;
+        //Pad112 p02;
         private T[] _toPass;
+        //Pad120 p03;
         private int _processCount;
 
         Pad56 p0;
 
         private int _count;
 
-        Pad64 p1;
+        Pad56 p1;
 
 
         public ArrayQueue(int size)
         {
-            _maxIndex = size - 1;
+            _size = size;
             _actions = new T[size + 16];
             _toPass = new T[size + 16];
         }
 
         public int Count =>  _count;
 
-        public bool IsFull => _count >=  _maxIndex;
+        public bool IsFull => _count >= _size;
 
         public void Enqueue(T a)
         {
-            _actions[_count++] = a;
+            var index0 = _count++;
+            _actions[index0] = a;
         }
 
         public (int, T[]) Drain()
         {
-            if (_count == 0) return Empty;
+            int processCount = _count;
+            if (processCount == 0) return Empty;
             Swap(ref _actions, ref _toPass);
             var old = _processCount;
-            _processCount = _count;
+            _processCount = processCount;
             Array.Clear(_actions, 0, old);
             _count = 0;
             return (_processCount, _toPass);

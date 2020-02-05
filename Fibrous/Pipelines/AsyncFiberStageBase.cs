@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 
 namespace Fibrous.Pipelines
 {
-    public abstract class StageAsyncFiberBase<TIn, TOut> : StageBase<TIn, TOut>, IHaveAsyncFiber
+    public abstract class AsyncFiberStageBase<TIn, TOut> : StageBase<TIn, TOut>, IHaveAsyncFiber
     {
-        protected StageAsyncFiberBase(Action<Exception> errorCallback = null)
+        protected AsyncFiberStageBase(Action<Exception> errorCallback = null)
         {
             IAsyncExecutor executor = errorCallback == null
                 ? (IAsyncExecutor)new AsyncExecutor()

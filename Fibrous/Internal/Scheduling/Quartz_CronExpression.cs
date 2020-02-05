@@ -1290,29 +1290,17 @@ namespace Quartz
             var max = -1;
             if (stopAt < startAt)
             {
-                switch (type)
+                max = type switch
                 {
-                    case Second:
-                        max = 60;
-                        break;
-                    case Minute:
-                        max = 60;
-                        break;
-                    case Hour:
-                        max = 24;
-                        break;
-                    case Month:
-                        max = 12;
-                        break;
-                    case DayOfWeek:
-                        max = 7;
-                        break;
-                    case DayOfMonth:
-                        max = 31;
-                        break;
-                    case Year: throw new ArgumentException("Start year must be less than stop year");
-                    default: throw new ArgumentException("Unexpected type encountered");
-                }
+                    Second => 60,
+                    Minute => 60,
+                    Hour => 24,
+                    Month => 12,
+                    DayOfWeek => 7,
+                    DayOfMonth => 31,
+                    Year => throw new ArgumentException("Start year must be less than stop year"),
+                    _ => throw new ArgumentException("Unexpected type encountered")
+                };
 
                 stopAt += max;
             }

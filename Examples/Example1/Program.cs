@@ -9,9 +9,29 @@ namespace Example1
     {
         private static void Main()
         {
+            ExceptionTest();
+
             SimpleExample();
             MoreComplexExample();
             AgentExample();
+            
+        }
+
+        private static void ExceptionTest()
+        {
+            //Exceptions get lost with AsyncFiber, so use an 
+            //exception callback
+            var h = new AsyncFiber();
+            for (int i = 0; i < 10; i++)
+            {
+                h.Enqueue(() =>
+                {
+                    Console.WriteLine("Test");
+                    throw new Exception();
+                });
+            }
+
+            Console.ReadKey();
         }
 
         private static void MoreComplexExample()
@@ -47,7 +67,7 @@ namespace Example1
         {
             //agents provide thread safety to individual functions.
             //in this case, we want one point for storing to the database that can be shared
-            using var dataAccess = new AsyncAgent<object>(StoreToDatabase);
+            using var dataAccess = new AsyncAgent<object>(StoreToDatabase, x => { });
 
             object latestData = new object();
 

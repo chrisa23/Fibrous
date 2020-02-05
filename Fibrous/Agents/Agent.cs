@@ -17,6 +17,12 @@ namespace Fibrous.Agents
             _channel = Fiber.NewChannel(handler);
         }
 
+        public Agent(Action<T> handler, Action<Exception> errorCallback)
+        {
+            Fiber = new Fiber(errorCallback);
+            _channel = Fiber.NewChannel(handler);
+        }
+
         public void Publish(T msg)
         {
             _channel.Publish(msg);

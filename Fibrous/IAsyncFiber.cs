@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Fibrous
 {
-    //It is suggested to always use an Exception callback with the IAsyncFiber
+    //It's suggested to always use an Exception callback with the IAsyncFiber
     public interface IAsyncFiber : IAsyncScheduler, IDisposableRegistry
     {
         void Enqueue(Func<Task> action);
@@ -167,9 +167,8 @@ namespace Fibrous
             }
 
             //we use a stub fiber to force the filtering onto the publisher thread.
-            var stub = new StubFiber();
-            port.Subscribe(stub, FilteredReceiver);
-            return new Unsubscriber( stub, fiber);
+            var sub = port.Subscribe(FilteredReceiver);
+            return new Unsubscriber(sub, fiber);
         }
 
         public static IChannel<T> NewChannel<T>(this IAsyncFiber fiber, Func<T, Task> onEvent)

@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Fibrous.Pipelines;
 
 namespace Fibrous
 {
-    internal class RoundRobinFanOut<T>:Disposables
+    internal sealed class RoundRobinFanOut<T>:Disposables
     {
-        private readonly IFiber _fiber = new StubFiber();
+        private readonly IFiber _fiber = new Fiber();
         private readonly List<IPublisherPort<T>> _stages = new List<IPublisherPort<T>>();
         private int _index;
         public void AddStage(IPublisherPort<T> stage)
@@ -31,6 +30,5 @@ namespace Fibrous
             _fiber.Dispose();
             base.Dispose();
         }
-
     }
 }

@@ -11,9 +11,9 @@ namespace Fibrous.Agents
     {
         protected readonly IAsyncFiber Fiber;
 
-        public AsyncChannelAgent(IChannel<T> channel, Func<T, Task> handler, IAsyncExecutor executor = null)
+        public AsyncChannelAgent(IChannel<T> channel, Func<T, Task> handler, Action<Exception> errorCallback)
         {
-            Fiber = new AsyncFiber(executor);
+            Fiber = new AsyncFiber(errorCallback);
             channel.Subscribe(Fiber, handler);
         }
 

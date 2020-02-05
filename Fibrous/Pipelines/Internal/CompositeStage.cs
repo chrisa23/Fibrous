@@ -3,18 +3,17 @@ using System.Threading.Tasks;
 
 namespace Fibrous.Pipelines
 {
-    internal sealed class CompositeAsyncStage<TIn, TOut> : IStage<TIn, TOut>, IHaveAsyncFiber
+    internal sealed class CompositeStage<TIn, TOut> : IStage<TIn, TOut>//, IHaveFiber
     {
         private readonly IPublisherPort<TIn> _input;
         private readonly ISubscriberPort<TOut> _output;
         private readonly IDisposable _disposables;
 
-        public CompositeAsyncStage(IPublisherPort<TIn> input, ISubscriberPort<TOut> output, IAsyncFiber fiber, IDisposable disposables)
+        public CompositeStage(IPublisherPort<TIn> input, ISubscriberPort<TOut> output, IDisposable disposables)
         {
             _input = input;
             _output = output;
             _disposables = disposables;
-            Fiber = fiber;
         }
 
         public void Publish(TIn msg)
@@ -32,11 +31,15 @@ namespace Fibrous.Pipelines
             return _output.Subscribe(fiber, receive);
         }
 
+        public IDisposable Subscribe(Action<TOut> receive)
+        {
+            return _output.Subscribe(receive);
+        }
+
         public void Dispose()
         {
             _disposables.Dispose();
         }
 
-        public IAsyncFiber Fiber { get; }
     }
 }

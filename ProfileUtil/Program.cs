@@ -1,44 +1,57 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using NUnit.Framework;
+using Fibrous;
 
-namespace Fibrous.Tests
+namespace ProfileUtil
 {
-    [TestFixture]
-    public class ContentionTests
+    class Program
     {
-        private const int OperationsPerInvoke = 1000000;
-        private int i;
-        private readonly AutoResetEvent _wait = new AutoResetEvent(false);
-        [Test]
-        public void Test()
+        static void Main(string[] args)
+        {
+            RunSimple();
+            //RunContention();
+        }
+
+        private static void RunSimple()
+        {
+            using var afiber = new AsyncFiber();
+            using var fiber = new Fiber();
+            _count = 1;
+            Run(afiber);
+            Run(fiber);
+        }
+
+        private static void RunContention()
         {
             using var afiber = new AsyncFiber();
             using var fiber = new Fiber();
             _count = 2;
-            Run(fiber);
             Run(afiber);
-            Console.WriteLine("2");
+            Run(fiber);
 
             _count = 4;
             Run(afiber);
             Run(fiber);
-            Console.WriteLine("4");
 
             _count = 10;
             Run(afiber);
             Run(fiber);
-            Console.WriteLine("10");
         }
-        private void Handler(object obj)
+
+        private const int OperationsPerInvoke = 100000;
+        private static int i;
+        private static readonly AutoResetEvent _wait = new AutoResetEvent(false);
+        
+   
+        private static void Handler(object obj)
         {
             i++;
             if (i == OperationsPerInvoke)
                 _wait.Set();
         }
 
-        private Task AsyncHandler(object obj)
+        private static Task AsyncHandler(object obj)
         {
             i++;
             if (i == OperationsPerInvoke)
@@ -46,10 +59,10 @@ namespace Fibrous.Tests
             return Task.CompletedTask;
         }
 
-        private readonly IChannel<object> _channel = new Channel<object>();
-        private int _count;
+        private static readonly IChannel<object> _channel = new Channel<object>();
+        private static int _count;
 
-        public void Run(IFiber fiber)
+        public static void Run(IFiber fiber)
         {
             using (var sub = _channel.Subscribe(fiber, Handler))
             {
@@ -62,13 +75,13 @@ namespace Fibrous.Tests
             }
         }
 
-        private void Iterate()
+        private static void Iterate()
         {
             var count = OperationsPerInvoke / _count;
             for (var j = 0; j < count; j++) _channel.Publish(null);
         }
 
-        public void Run(IAsyncFiber fiber)
+        public static void Run(IAsyncFiber fiber)
         {
             using (var sub = _channel.Subscribe(fiber, AsyncHandler))
             {
@@ -77,10 +90,9 @@ namespace Fibrous.Tests
                 {
                     Task.Run(Iterate);
                 }
-                
+
                 WaitHandle.WaitAny(new WaitHandle[] { _wait });
             }
         }
-
     }
 }

@@ -19,6 +19,8 @@ namespace Fibrous
         IDisposable Subscribe(IFiber fiber, Action<T> receive);
 
         IDisposable Subscribe(IAsyncFiber fiber, Func<T, Task> receive);
+
+        IDisposable Subscribe(Action<T> receive);
     }
 
 
@@ -147,12 +149,9 @@ namespace Fibrous
                 if (filter(x))
                     fiber.Enqueue(() => receive(x));
             }
-
-            //we use a stub fiber to force the filtering onto the publisher thread.
-            var stub = new StubFiber();
-            port.Subscribe(stub, FilteredReceiver);
-            //We return the fiber which is disposable and contains the subscription
-            return new Unsubscriber(stub, fiber);
+            
+            var sub = port.Subscribe(FilteredReceiver);
+            return new Unsubscriber(sub, fiber);
         }
 
         /// <summary>
@@ -175,11 +174,8 @@ namespace Fibrous
                     fiber.Enqueue(() => receive(x));
             }
 
-            //we use a stub fiber to force the filtering onto the publisher thread.
-            var stub = new StubFiber();
-            port.Subscribe(stub, FilteredReceiver);
-            //We return the fiber which is disposable and contains the subscription
-            return new Unsubscriber(stub, fiber);
+            var sub = port.Subscribe(FilteredReceiver);
+            return new Unsubscriber(sub, fiber);
         }
 
         /// <summary>
@@ -192,9 +188,7 @@ namespace Fibrous
         public static IDisposable Connect<T>(this ISubscriberPort<T> port,
             IPublisherPort<T> receive)
         {
-            var stub = new StubFiber();
-            port.Subscribe(stub, receive.Publish);
-            return stub;
+            return port.Subscribe(receive.Publish);
         }
     }
 }

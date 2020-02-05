@@ -55,6 +55,21 @@ namespace Fibrous
             }
         }
 
+        public IDisposable Subscribe(Action<T> receive)
+        {
+            lock (_lock)
+            {
+                var disposable = _updateChannel.Subscribe(receive);
+                if (_hasValue)
+                {
+                    var item = _last;
+                    receive(item);
+                }
+
+                return disposable;
+            }
+        }
+
         public void Publish(T msg)
         {
             lock (_lock)

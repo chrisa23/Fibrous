@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,7 +10,7 @@ namespace Fibrous
     /// </summary>
     public class AsyncFiber : AsyncFiberBase
     {
-        private readonly ArrayQueue<Func<Task>> _queue;
+        private readonly IQueue<Func<Task>> _queue;
 
         private readonly TaskFactory _taskFactory;
 
@@ -28,6 +29,7 @@ namespace Fibrous
             : this(new AsyncExceptionHandlingExecutor(errorCallback), size, taskFactory, scheduler)
         {
         }
+
         protected override void InternalEnqueue(Func<Task> action)
         {
             var spinWait = default(AggressiveSpinWait);
@@ -54,6 +56,7 @@ namespace Fibrous
         private async Task Flush()
         {
             var (count, actions) = Drain();
+
             if (count > 0)
             {
                 for (var i = 0; i < count; i++)
@@ -61,27 +64,28 @@ namespace Fibrous
                     var action = actions[i];
                     await Executor.Execute(action);
                 }
+            }
 
-                var lockTaken = false;
-                try
-                {
-                    _spinLock.Enter(ref lockTaken);
+            var lockTaken = false;
+            try
+            {
+                _spinLock.Enter(ref lockTaken);
 
-                    if (_queue.Count > 0)
-                        //don't monopolize thread.
+                if (_queue.Count > 0)
+                    //don't monopolize thread.
 #pragma warning disable 4014
-                        _taskFactory.StartNew(Flush);
+                    _taskFactory.StartNew(Flush);
 #pragma warning restore 4014
-                    else
-                        _flushPending = false;
-                }
-                finally
-                {
-                    if (lockTaken) _spinLock.Exit();
-                }
+                else
+                    _flushPending = false;
+            }
+            finally
+            {
+                if (lockTaken) _spinLock.Exit();
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private (int, Func<Task>[]) Drain()
         {
             var lockTaken = false;
@@ -89,13 +93,12 @@ namespace Fibrous
             {
                 _spinLock.Enter(ref lockTaken);
 
-                if (_queue.Count == 0)
-                {
-                    _flushPending = false;
-                    return ArrayQueue<Func<Task>>.Empty;
-                }
+                var drain = _queue.Drain();
 
-                return _queue.Drain();
+                if(drain.Item1 <= 0)
+                    _flushPending = false;
+
+                return drain;
             }
             finally
             {
