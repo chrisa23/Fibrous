@@ -6,7 +6,7 @@ namespace Fibrous
     /// <summary>
     ///     Fibers are independent synchronous execution contexts.
     /// </summary>
-    public partial interface IFiber : IScheduler, IDisposableRegistry
+    public interface IFiber : IScheduler, IDisposableRegistry
     {
         /// <summary>
         ///     Enqueue an Action to be executed

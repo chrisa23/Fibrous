@@ -18,8 +18,6 @@
 - Performance things to look at:
 	- Verify that a spin lock is a good choice
 	- Padding / layout for Array Queue
-	- IL generated array retrieval (Disruptor)
-	- Ring buffer type queue
 - Allow injection of TaskFactory?
 
 - ? Start and stop are basically useless now that ThreadFiber is gone
