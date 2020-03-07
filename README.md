@@ -30,7 +30,7 @@ Fibers are a repository of IDisposable objects and will dispose of all children 
 
 There are specialised Fibers for Windows Forms and WPF, which automatically handle invoking actions on the UI/Dispatcher thread.  There is a StubFiber, which is used for testing and in special cases, and immediately executes actions on the calling thread.
 
-```
+```csharp
 //Representation of the main IFiber interface.
 //There are many extensions to enable more complex behavior
 public interface IFiber : IDisposable
@@ -95,15 +95,15 @@ Pipelines
 -- TBD --
 
 ```csharp
-            using var pipeline = 
-                new Stage<string, string>(Directory.EnumerateFiles) //A stage can take single input and generate an IEnumerable output
-                .SelectOrdered(x => (x, new FileInfo(x).Length), 4) //Ordered fanning out 
-                .Tap(info => Console.WriteLine($"**{info.x} is {info.Length} in length")) // equivalent to Select(x => {f(x); return x;})
-                .Where(x => x.Length > 1000000)  //Filtering
-                .Tap(info => Console.WriteLine($"{info.x} is {info.Length} in length"));
-            // the resulting pipeline is still an IStage, and can be composed into another pipeline
+using var pipeline = 
+    new Stage<string, string>(Directory.EnumerateFiles) //A stage can take single input and generate an IEnumerable output
+    .SelectOrdered(x => (x, new FileInfo(x).Length), 4) //Ordered fanning out 
+    .Tap(info => Console.WriteLine($"**{info.x} is {info.Length} in length")) // equivalent to Select(x => {f(x); return x;})
+    .Where(x => x.Length > 1000000)  //Filtering
+    .Tap(info => Console.WriteLine($"{info.x} is {info.Length} in length"));
+// the resulting pipeline is still an IStage, and can be composed into another pipeline
 
-            pipeline.Publish("C:\\");
+pipeline.Publish("C:\\");
 ```
 
 How to Use
