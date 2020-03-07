@@ -60,7 +60,7 @@ fiber.Schedule(ScheduledMethod, when);
 fiber.Schedule(ScheduledMethod, startWhen, repeatInterval);
 ```
 
-In version 3, Async Fibers were introduced.  These work off of Func<Task> rather than Action delegates.  -- More to come --
+In version 3, Async Fibers were introduced.  These work off of Func&lt;Task> rather than Action delegates.  -- More to come --
 
 Ports and Channels
 ------------------
