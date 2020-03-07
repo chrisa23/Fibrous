@@ -36,7 +36,7 @@ namespace Fibrous.Pipelines
             return stage1.To(new Batch<T>(time, errorCallback));
         }
         //last
-        //
+        //distinct
 
         public static IStage<T0, T1> Select<T0, T, T1>(this IStage<T0, T> stage1, Func<T, T1> f, Action<Exception> errorCallback = null)
         {
@@ -53,9 +53,8 @@ namespace Fibrous.Pipelines
             if (count < 2)
                 throw new ArgumentException("Count must be 2 or more", nameof(count));
             
-            var stages = new RoundRobinFanOut<T>();
+            var stages = new RoundRobinFanOut<T>(stage1);
             stages.Add(stage1);
-            stages.SetUpSubscribe(stage1);
             IChannel<T1> output = new Channel<T1>();
             for (int i = 0; i < count; i++)
             {
@@ -106,9 +105,8 @@ namespace Fibrous.Pipelines
             if (count < 2)
                 throw new ArgumentException("Count must be 2 or more", nameof(count));
 
-            var stages = new RoundRobinFanOut<T>();
+            var stages = new RoundRobinFanOut<T>(stage1);
             stages.Add(stage1);
-            stages.SetUpSubscribe(stage1);
             IChannel<T1> output = new Channel<T1>();
             for (int i = 0; i < count; i++)
             {
@@ -117,6 +115,15 @@ namespace Fibrous.Pipelines
                 stages.Add(stage.Connect(output));
             }
             return new CompositeStage<T0, T1>(stage1, output,  stages);
+
+        }
+
+        public static IStage<T0, T1[]> Buffer<T0, T1>(this IStage<T0, T1> stage1, int size)
+        {
+            IChannel<T1[]> output = new Channel<T1[]>();
+            var stages = new Buffer<T1>(size, stage1, output);
+            stages.Add(stage1);
+            return new CompositeStage<T0, T1[]>(stage1, output, stages);
 
         }
     }

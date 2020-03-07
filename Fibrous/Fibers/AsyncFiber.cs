@@ -95,7 +95,7 @@ namespace Fibrous
 
                 var drain = _queue.Drain();
 
-                if(drain.Item1 <= 0)
+                if(drain.count <= 0)
                     _flushPending = false;
 
                 return drain;

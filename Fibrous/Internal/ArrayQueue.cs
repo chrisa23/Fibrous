@@ -11,7 +11,7 @@ namespace Fibrous
         bool IsFull { get; }
         int Count { get; }
         void Enqueue(T a);
-        (int, T[]) Drain();
+        (int count, T[] actions) Drain();
     }
 
     internal static class QueueSize
@@ -54,7 +54,7 @@ namespace Fibrous
             _actions[index0] = a;
         }
 
-        public (int, T[]) Drain()
+        public (int count, T[] actions) Drain()
         {
             int processCount = _count;
             if (processCount == 0) return Empty;

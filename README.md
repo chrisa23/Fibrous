@@ -43,6 +43,25 @@ public interface IFiber : IDisposable
 }
 ```
 
+```csharp
+//Work is done on the thread pool, but in a sequential fashion 
+IFiber fiber = new Fiber();  //this is v4 syntax where Start/Stop is no longer part of the API
+	 
+//You can enqueue methods
+fiber.Enqueue(SomeParameterlessMethod);
+ 
+//or lambdas
+fiber.Enqueue(() => DoSomeWork(someParam));
+
+//You can schedule when things happen
+fiber.Schedule(ScheduledMethod, when);
+
+//and also have them repeat
+fiber.Schedule(ScheduledMethod, startWhen, repeatInterval);
+```
+
+In version 3, Async Fibers were introduced.  These work off of Func<Task> rather than Action delegates.  -- More to come --
+
 Ports and Channels
 ------------------
 
@@ -58,7 +77,6 @@ There are a variety of subscription methods, including filtered, batched, keyed 
 Examples:
 
 ```csharp
-//Work is done on the thread pool, but in a sequential fashion 
 IFiber fiber = new Fiber();  //this is v4 syntax where Start/Stop is no longer part of the API
 	 
 //Create a channel and subscribe to messages
@@ -72,17 +90,11 @@ IChannel<string> channel = fiber.NewChannel<string>(s => Console.WriteLine(s.ToU
 //Publish a message to the channel
 channel.Publish("the message");
 
-//You can enqueue methods
-fiber.Enqueue(SomeParameterlessMethod);
- 
-//or lambdas
-fiber.Enqueue(() => DoSomeWork(someParam));
+//EventBus... Global static channel per type (string is only used as an example)
+EventBus<string>.Subscribe(fiber, s => Console.WriteLine(s.ToUpper()));
 
-//You can schedule when things happen
-fiber.Schedule(ScheduledMethod, when);
+EventBus<string>.Publish("the message");
 
-//and also have them repeat
-fiber.Schedule(ScheduledMethod, startWhen, repeatInterval);
 
 //Agents make some things even simpler
 var agent = new Agent<string>(s => Console.WriteLine(s.ToUpper()));
@@ -104,6 +116,63 @@ using var pipeline =
 // the resulting pipeline is still an IStage, and can be composed into another pipeline
 
 pipeline.Publish("C:\\");
+```
+
+Proxy
+-----
+
+***Experimental
+You can generate a proxy wrapper to a class instance that will take a non-thread safe object and make it thread-safe.
+
+```csharp
+    //An interface with only void or Task returning methods, implementing IDisposable
+    public interface ITest:IDisposable
+    {
+        void Init();
+        void Add(int i);
+        void Subtract(int i);
+        event Action<int> Event1;
+    }
+
+    //An implementation
+    public class Test : ITest
+    {
+        public bool Inited { get; set; }
+        public int Count { get; set; }
+        public void Init() => Inited = true;
+
+        public void Add(int i)
+        {
+            Count += i;
+            Event1?.Invoke(Count);
+        }
+
+        public void Subtract(int i)
+        {
+            Count -= i;
+            Event1?.Invoke(Count);
+        }
+
+        public event Action<int> Event1;
+
+        public void Dispose() {}
+    }
+
+    //create a conrete instance
+    var t = new Test();
+
+    //Generate a Fiber or Async Fiber based proxy
+    var proxy = FiberProxy<ITest>.Create(t);
+
+    //proxy is now an ITest Fiber based wrapper around a concrete ITest instance
+    //all methods are wrapped and events are exposed directly.
+    
+    proxy.Event1 += i => Console.WriteLine(i);
+
+    proxy.Init();
+    proxy.Add(1);
+    proxy.Subtract(2);
+
 ```
 
 How to Use

@@ -13,20 +13,9 @@ namespace Fibrous.Pipelines
             In.Publish(msg);
         }
 
-        public IDisposable Subscribe(IFiber fiber, Action<TOut> receive)
-        {
-            return Out.Subscribe(fiber, receive);
-        }
-
-        public IDisposable Subscribe(IAsyncFiber fiber, Func<TOut, Task> receive)
-        {
-            return Out.Subscribe(fiber, receive);
-        }
-
-        public IDisposable Subscribe(Action<TOut> receive)
-        {
-            return Out.Subscribe(receive);
-        }
+        public IDisposable Subscribe(IFiber fiber, Action<TOut> receive) => Out.Subscribe(fiber, receive);
+        public IDisposable Subscribe(IAsyncFiber fiber, Func<TOut, Task> receive) => Out.Subscribe(fiber, receive);
+        public IDisposable Subscribe(Action<TOut> receive) => Out.Subscribe(receive);
 
         public abstract void Dispose();
     }

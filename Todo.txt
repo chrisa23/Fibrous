@@ -1,7 +1,3 @@
-- Add subcription overloads to EventBus
-- Look at where I took Reply/Receive away...
-	- https://stackoverflow.com/questions/4238345/asynchronously-wait-for-taskt-to-complete-with-timeout
-
 - Create detailed documentation covering functionality
 	- Fibers
 		- Basic functionality
@@ -17,11 +13,6 @@
 - Add more examples
 - Performance things to look at:
 	- Verify that a spin lock is a good choice
+		- the StartNew of the Flush is the only concern
 	- Padding / layout for Array Queue
-- Allow injection of TaskFactory?
-
-- ? Start and stop are basically useless now that ThreadFiber is gone
-	- creation should just start
-	- Dispose should stop
-	- In all my time using Fibrous, I have never stopped and then restarted a Fiber...  I might not be seeing a use someone might need, but simple ...  
 	
