@@ -143,7 +143,7 @@ You can generate a proxy wrapper to a class instance that will take a non-thread
     //create a conrete instance
     var t = new Test();
 
-    //Generate a Fiber based proxy (AsyncFIberProxy also available)
+    //Generate a Fiber based proxy (AsyncFiberProxy also available)
     var proxy = FiberProxy<ITest>.Create(t);
 
     //proxy is now an ITest but wrapped with a Fiber around a concrete ITest instance
