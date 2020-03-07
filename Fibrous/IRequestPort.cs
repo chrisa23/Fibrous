@@ -38,10 +38,11 @@ namespace Fibrous
         Task<Result<TReply>> SendRequest(TRequest request, TimeSpan timeout);
     }
 
-    public class Result<T>
+    public sealed class Result<T>
     {
-        public T Value { get; set; }
-        public bool Succeeded { get; set; }
+        public T Value { get; private set; }
+        public bool Succeeded { get; private set; }
+
         public static Result<T> Ok(T value) => new Result<T> {Succeeded = true, Value = value};
         public static Result<T> Failed {get;} = new Result<T> { Succeeded = false };
     }

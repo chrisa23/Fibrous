@@ -33,6 +33,12 @@ namespace Fibrous
             return channelRequest.Resp.Task;
         }
 
+        /// <summary>
+        ///     Async ReqReply with timeout
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
         public async Task<Result<TReply>> SendRequest(TRequest request, TimeSpan timeout)
         {
             using var channelRequest = new ChannelRequest(request);

@@ -14,13 +14,17 @@ namespace Fibrous
 
         public IDisposable Subscribe(IFiber fiber, Action<T> receive)
         {
-            var disposable = _internalEvent.Subscribe(msg => fiber.Enqueue(() => receive(msg)));
+            void Receive(T msg) => fiber.Enqueue(() => receive(msg));
+
+            var disposable = _internalEvent.Subscribe(Receive);
             return new Unsubscriber(disposable, fiber);
         }
 
         public IDisposable Subscribe(IAsyncFiber fiber, Func<T, Task> receive)
         {
-            var disposable = _internalEvent.Subscribe(msg => fiber.Enqueue(() => receive(msg)));
+            void Receive(T msg) => fiber.Enqueue(() => receive(msg));
+
+            var disposable = _internalEvent.Subscribe(Receive);
             return new Unsubscriber(disposable, fiber);
         }
 

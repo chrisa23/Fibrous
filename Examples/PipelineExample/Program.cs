@@ -22,7 +22,7 @@ namespace PipelineExample
 
             using var pipeline = 
                 new Stage<string, string>(Directory.EnumerateFiles)
-                .Select(x => (x, new FileInfo(x).Length), 4)
+                .SelectOrdered(x => (x, new FileInfo(x).Length), 4)
                 .Tap(info => Console.WriteLine($"**{info.x} is {info.Length} in length")) // equivalent to Select(x => {f(x); return x;})
                 .Where(x => x.Length > 1000000)
                 .Tap(info => Console.WriteLine($"{info.x} is {info.Length} in length"))

@@ -36,6 +36,30 @@ namespace Fibrous.Benchmark
             reset.WaitOne(TimeSpan.FromSeconds(10));
 
         }
+
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        public void Complex1()
+        {
+            long index = 0;
+            using var reset = new AutoResetEvent(false);
+            using var pipe = new Stage<int, int>(x => x)
+                .SelectOrdered(x => x , 4)
+                .Where(x => x % 2 == 0)
+                .Select(x => x );
+
+            pipe.Subscribe(x =>
+            {
+                index++;
+                if (index == OperationsPerInvoke / 2)
+                    reset.Set();
+            });
+            for (int i = 0; i < OperationsPerInvoke; i++)
+            {
+                pipe.Publish(i);
+            }
+            reset.WaitOne(TimeSpan.FromSeconds(10));
+
+        }
     }
 
 }

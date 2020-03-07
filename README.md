@@ -9,10 +9,10 @@ Some of the library benefits:
  - Tiny library that makes multi-threading simple and easy to reason about
  - Thread safe publishing
  - Single or multiple subscribers
+ - Request reply
  - UI fibers for worry free UI marshalling
  - Batching support
  - Scheduling support (Cron, DateTime and TimeSpan based)
- - Synchronous and asynchronous request reply
  - Easy Pipeline construction
  
  Fibrous is great for multi-threading when you don't need extreme low latency or distributed actors but want an easy to reason about messaging based model.  Fibrous is also fast.
@@ -30,6 +30,19 @@ Fibers are a repository of IDisposable objects and will dispose of all children 
 
 There are specialised Fibers for Windows Forms and WPF, which automatically handle invoking actions on the UI/Dispatcher thread.  There is a StubFiber, which is used for testing and in special cases, and immediately executes actions on the calling thread.
 
+```
+//Representation of the main IFiber interface.
+//There are many extensions to enable more complex behavior
+public interface IFiber : IDisposable
+{
+    void Enqueue(Action action);
+    IDisposable Schedule(Action action, TimeSpan dueTime);
+    IDisposable Schedule(Action action, TimeSpan startTime, TimeSpan interval);
+    void Add(IDisposable toAdd);
+    void Remove(IDisposable toRemove);
+}
+```
+
 Ports and Channels
 ------------------
 
@@ -44,16 +57,13 @@ There are a variety of subscription methods, including filtered, batched, keyed 
   
 Examples:
 
-```
+```csharp
 //Work is done on the thread pool, but in a sequential fashion 
-IFiber fiber = new Fiber();
+IFiber fiber = new Fiber();  //this is v4 syntax where Start/Stop is no longer part of the API
 	 
 //Create a channel and subscribe to messages
 IChannel<string> channel = new Channel<string>();
 
-fiber.Subscribe(channel, s => Console.WriteLine(s.ToUpper()));
-
-//or you can subscribe through the channel
 channel.Subscribe(fiber, s => Console.WriteLine(s.ToUpper()));
 
 //You can also create a channel and subscribe in one line
@@ -78,6 +88,30 @@ fiber.Schedule(ScheduledMethod, startWhen, repeatInterval);
 var agent = new Agent<string>(s => Console.WriteLine(s.ToUpper()));
 agent.Publish("the message");
 ```
+
+Pipelines
+---------
+
+-- TBD --
+
+```csharp
+            using var pipeline = 
+                new Stage<string, string>(Directory.EnumerateFiles) //A stage can take single input and generate an IEnumerable output
+                .SelectOrdered(x => (x, new FileInfo(x).Length), 4) //Ordered fanning out 
+                .Tap(info => Console.WriteLine($"**{info.x} is {info.Length} in length")) // equivalent to Select(x => {f(x); return x;})
+                .Where(x => x.Length > 1000000)  //Filtering
+                .Tap(info => Console.WriteLine($"{info.x} is {info.Length} in length"));
+            // the resulting pipeline is still an IStage, and can be composed into another pipeline
+
+            pipeline.Publish("C:\\");
+```
+
+How to Use
+----------
+
+There are a variety of patterns for using Fibrous.  
+
+One of the simplest is to use an Agent as a thread safe action queue.  You can use this for things like asynchronous logging or storing data to a database.
 
 Extras
 ------

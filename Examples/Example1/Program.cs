@@ -42,7 +42,7 @@ namespace Example1
             calculator.Messages.Publish(new Message(3, Operation.Divide));
             calculator.Messages.Publish(new Message(1.5, Operation.Multiply));
 
-            var result = calculator.Requests.SendRequest(null).Result;
+            var result = calculator.Requests.SendRequest(new object()).Result;
             
             Console.WriteLine(result);
             calculator.Messages.Publish(new Message(0, Operation.Divide));
@@ -88,8 +88,8 @@ namespace Example1
     public class Calculator : IDisposable
     {
         double _current;
+        
         readonly IFiber _fiber;
-
         public IPublisherPort<Message> Messages { get; }
         public IRequestPort<object, double> Requests { get; }
         
