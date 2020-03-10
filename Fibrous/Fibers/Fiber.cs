@@ -77,7 +77,6 @@ namespace Fibrous
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private (int, Action[]) Drain()
         {
             var lockTaken = false;
@@ -85,12 +84,7 @@ namespace Fibrous
             {
                 _spinLock.Enter(ref lockTaken);
 
-                var drain = _queue.Drain();
-
-                if (drain.count <= 0)
-                    _flushPending = false;
-
-                return drain;
+                return _queue.Drain();
             }
             finally
             {

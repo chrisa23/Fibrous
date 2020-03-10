@@ -157,12 +157,10 @@ You can generate a proxy wrapper to a class instance that will take a non-thread
 
 ```
 
-How to Use
-----------
+Usage patterns
+--------------
 
-There are a variety of patterns for using Fibrous.  
-
-One of the simplest is to use an Agent as a thread safe action queue.  You can use this for things like asynchronous logging or storing data to a database.
+---
 
 Extras
 ------
