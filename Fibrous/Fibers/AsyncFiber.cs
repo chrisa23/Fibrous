@@ -49,7 +49,7 @@ namespace Fibrous
             }
             finally
             {
-                if (lockTaken) _spinLock.Exit();
+                if (lockTaken) _spinLock.Exit(false);
             }
         }
 
@@ -57,13 +57,10 @@ namespace Fibrous
         {
             var (count, actions) = Drain();
 
-            if (count > 0)
+            for (var i = 0; i < count; i++)
             {
-                for (var i = 0; i < count; i++)
-                {
-                    var action = actions[i];
-                    await Executor.Execute(action);
-                }
+                var action = actions[i];
+                await Executor.Execute(action);
             }
 
             var lockTaken = false;
@@ -81,10 +78,11 @@ namespace Fibrous
             }
             finally
             {
-                if (lockTaken) _spinLock.Exit();
+                if (lockTaken) _spinLock.Exit(false);
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private (int, Func<Task>[]) Drain()
         {
             var lockTaken = false;
@@ -96,7 +94,7 @@ namespace Fibrous
             }
             finally
             {
-                if (lockTaken) _spinLock.Exit();
+                if (lockTaken) _spinLock.Exit(false);
             }
         }
     }

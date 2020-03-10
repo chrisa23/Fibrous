@@ -51,15 +51,12 @@ namespace Fibrous
         {
             var (count, actions) = Drain();
 
-            if (count > 0)
+            for (var i = 0; i < count; i++)
             {
-                for (var i = 0; i < count; i++)
-                {
-                    var action = actions[i];
-                    Executor.Execute(action);
-                }
+                var action = actions[i];
+                Executor.Execute(action);
             }
-
+                
             var lockTaken = false;
             try
             {
@@ -76,7 +73,7 @@ namespace Fibrous
                 if (lockTaken) _spinLock.Exit(false);
             }
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private (int, Action[]) Drain()
         {
             var lockTaken = false;
