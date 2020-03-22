@@ -42,10 +42,7 @@ namespace Fibrous
             if (next.HasValue)
             {
                 var utc = next.Value.UtcDateTime;
-                //                var isAmbiguous = TimeZoneInfo.Local.IsAmbiguousTime(next);
                 var now = DateTime.UtcNow;
-                //              if (isAmbiguous && utc < now)
-                //utc = utc.AddHours(1);
                 var span = utc - now;
 
                 if (!_running) return;

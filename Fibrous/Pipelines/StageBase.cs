@@ -8,10 +8,7 @@ namespace Fibrous.Pipelines
         protected readonly IChannel<TIn> In = new Channel<TIn>();
         protected readonly IChannel<TOut> Out = new Channel<TOut>();
 
-        public void Publish(TIn msg)
-        {
-            In.Publish(msg);
-        }
+        public void Publish(TIn msg) => In.Publish(msg);
 
         public IDisposable Subscribe(IFiber fiber, Action<TOut> receive) => Out.Subscribe(fiber, receive);
         public IDisposable Subscribe(IAsyncFiber fiber, Func<TOut, Task> receive) => Out.Subscribe(fiber, receive);

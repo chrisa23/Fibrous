@@ -56,6 +56,11 @@ namespace Fibrous.Collections
             return _channel.Subscribe(fiber, receive, receiveSnapshot);
         }
 
+        public IDisposable Subscribe(IAsyncFiber fiber, Func<ItemAction<T>, Task> receive, Func<T[], Task> receiveSnapshot)
+        {
+            return _channel.Subscribe(fiber, receive, receiveSnapshot);
+        }
+
         public void Add(T item)
         {
             _add.Publish(item);

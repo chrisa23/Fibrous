@@ -85,12 +85,7 @@ namespace Fibrous.Proxy
 
         private static bool CheckName(MethodInfo x)
         {
-            foreach (var y in new[] {"add_", "remove_", "Dispose"})
-            {
-                if (x.Name.Contains(y)) return true;
-            }
-
-            return false;
+            return new[] {"add_", "remove_", "Dispose"}.Any(y => x.Name.Contains(y));
         }
     }
 }

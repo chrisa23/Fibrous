@@ -99,6 +99,11 @@ namespace Fibrous.Collections
             return _channel.Subscribe(fiber, receive, receiveSnapshot);
         }
 
+        public IDisposable Subscribe(IAsyncFiber fiber, Func<ItemAction<KeyValuePair<TKey, T>>, Task> receive, Func<KeyValuePair<TKey, T>[], Task> receiveSnapshot)
+        {
+            return _channel.Subscribe(fiber, receive, receiveSnapshot);
+        }
+
 
         public KeyValuePair<TKey, T>[] GetItems(Func<TKey, bool> request)
         {

@@ -2,6 +2,8 @@
 
 namespace Fibrous
 {
+    //This is interesting for batching,
+    //but what happens if buffer not filled...
     internal sealed class Buffer<T> :Disposables
     {
         private readonly int _size;

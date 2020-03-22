@@ -6,12 +6,11 @@ namespace Fibrous.Pipelines
     /// </summary>
     /// <typeparam name="TIn"></typeparam>
     /// <typeparam name="TOut"></typeparam>
-    public sealed class Component<TIn, TOut> : IDisposable
+    public sealed class Component<TIn, TOut> : FiberComponent
     {
         private readonly IProcessor<TIn, TOut> _processor;
         private readonly IPublisherPort<TOut> _output;
         private readonly IPublisherPort<Exception> _error;
-        private readonly IFiber _fiber;
 
         public Component(IProcessor<TIn, TOut> processor,
             ISubscriberPort<TIn> input,
@@ -23,16 +22,16 @@ namespace Fibrous.Pipelines
             _error = error;
             processor.Exception += error.Publish;
             processor.Output += output.Publish;
-            _fiber = new Fiber(new ExceptionHandlingExecutor(error.Publish));
-            processor.Initialize(_fiber);
-            input.Subscribe(_fiber, processor.Process);
+            processor.Initialize(Fiber);
+            input.Subscribe(Fiber, processor.Process);
         }
+        protected override void OnError(Exception obj) => _error.Publish(obj);
 
-        public void Dispose()
+        public new void Dispose()
         {
             _processor.Exception -= _error.Publish;
             _processor.Output -= _output.Publish;
-            _fiber?.Dispose();
+            base.Dispose();
         }
     }
 }

@@ -13,10 +13,7 @@ namespace Fibrous.Pipelines
 
         public IAsyncFiber Fiber { get; }
 
-        public override void Dispose()
-        {
-            Fiber?.Dispose();
-        }
+        public override void Dispose() => Fiber?.Dispose();
 
         protected abstract Task Receive(TIn @in);
     }

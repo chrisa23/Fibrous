@@ -2,15 +2,15 @@
 
 namespace Fibrous
 {
-    public abstract class AsyncConcurrentComponent : IHaveAsyncFiber
+    public abstract class AsyncFiberComponent : IHaveAsyncFiber
     {
         public IAsyncFiber Fiber { get; }
 
-        protected AsyncConcurrentComponent()
+        protected AsyncFiberComponent()
         {
             Fiber = new AsyncFiber(OnError);
         }
-        protected AsyncConcurrentComponent(IFiberFactory factory)
+        protected AsyncFiberComponent(IFiberFactory factory)
         {
             Fiber =factory.CreateAsync(OnError);
         }

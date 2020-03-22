@@ -28,6 +28,15 @@ namespace Fibrous
         private readonly List<IDisposable> _items = new List<IDisposable>();
         private readonly object _lock = new object();
 
+        public Disposables()
+        {
+        }
+
+        public Disposables(IEnumerable<IDisposable> initial)
+        {
+            _items.AddRange(initial);
+        }
+
         public void Add(IDisposable toAdd)
         {
             lock (_lock)

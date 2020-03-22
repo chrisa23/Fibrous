@@ -4,15 +4,15 @@ using System.Text;
 
 namespace Fibrous
 {
-    public abstract class ConcurrentComponent : IHaveFiber
+    public abstract class FiberComponent : IHaveFiber
     {
         public IFiber Fiber { get; }
 
-        protected ConcurrentComponent()
+        protected FiberComponent()
         {
             Fiber = new Fiber(OnError);
         }
-        protected ConcurrentComponent(IFiberFactory factory)
+        protected FiberComponent(IFiberFactory factory)
         {
             Fiber = factory.Create(OnError);
         }

@@ -107,7 +107,6 @@ namespace Fibrous.Tests
         {
             RunTest(fiber, () => f(fiber), () => EventBus<int>.Channel.HasSubscriptions);
         }
-
         public static void RunTest(IAsyncFiber fiber, Channel<int> channel, Func<IAsyncFiber, Channel<int>, IDisposable> f)
         {
             RunTest(fiber, () => f(fiber, channel), () => channel.HasSubscriptions);
