@@ -5,18 +5,11 @@ namespace Fibrous.Tests
     [TestFixture]
     public class FiberTests
     {
-        //[Test]
-        //public void ExecuteOnlyAfterStart()
-        //{
-        //    FiberTester.ExecuteOnlyAfterStart(new AsyncFiber());
-        //    FiberTester.ExecuteOnlyAfterStart(new Fiber());
-        //    FiberTester.ExecuteOnlyAfterStart(new StubFiber());
-        //}
-
         [Test]
         public void InOrderExecution()
         {
             FiberTester.InOrderExecution(new AsyncFiber());
+            FiberTester.InOrderExecution(new AsyncStubFiber());
             FiberTester.InOrderExecution(new Fiber());
             FiberTester.InOrderExecution(new StubFiber());
         }
@@ -25,9 +18,11 @@ namespace Fibrous.Tests
         public void TestBatching()
         {
             FiberTester.TestBatching(new AsyncFiber());
+            FiberTester.TestBatching(new AsyncStubFiber());
             FiberTester.TestBatching(new Fiber());
             FiberTester.TestBatching(new StubFiber());
             FiberTester.TestBatchingWithKey(new AsyncFiber());
+            FiberTester.TestBatchingWithKey(new AsyncStubFiber());
             FiberTester.TestBatchingWithKey(new Fiber());
             FiberTester.TestBatchingWithKey(new StubFiber());
         }
@@ -36,6 +31,7 @@ namespace Fibrous.Tests
         public void TestPubSubSimple()
         {
             FiberTester.TestPubSubSimple(new AsyncFiber());
+            FiberTester.TestPubSubSimple(new AsyncStubFiber());
             FiberTester.TestPubSubSimple(new Fiber());
             FiberTester.TestPubSubSimple(new StubFiber());
         }
@@ -44,6 +40,7 @@ namespace Fibrous.Tests
         public void TestPubSubWithFilter()
         {
             FiberTester.TestPubSubWithFilter(new AsyncFiber());
+            FiberTester.TestPubSubWithFilter(new AsyncStubFiber());
             FiberTester.TestPubSubWithFilter(new Fiber());
             FiberTester.TestPubSubWithFilter(new StubFiber());
         }

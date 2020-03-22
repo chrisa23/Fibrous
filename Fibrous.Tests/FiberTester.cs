@@ -145,28 +145,26 @@ namespace Fibrous.Tests
 
         public static void TestBatchingWithKey(IFiber fiber)
         {
-            using (fiber)
-            using (var reset = new ManualResetEvent(false))
+            using var fiber1 = fiber;
+            using var reset = new ManualResetEvent(false);
+            var counter = new Channel<int>();
+
+            void Cb(IDictionary<string, int> batch)
             {
-                var counter = new Channel<int>();
-
-                void Cb(IDictionary<string, int> batch)
-                {
-                    if (batch.ContainsKey("9"))
-                        reset.Set();
-                }
-
-                string KeyResolver(int x)
-                {
-                    return x.ToString();
-                }
-
-                //disposed with fiber
-                counter.SubscribeToKeyedBatch(fiber, KeyResolver, Cb, TimeSpan.FromMilliseconds(1));
-                for (var i = 0; i < 10; i++)
-                    counter.Publish(i);
-                Assert.IsTrue(reset.WaitOne(10000, false));
+                if (batch.ContainsKey("9"))
+                    reset.Set();
             }
+
+            string KeyResolver(int x)
+            {
+                return x.ToString();
+            }
+
+            //disposed with fiber
+            counter.SubscribeToKeyedBatch(fiber, KeyResolver, Cb, TimeSpan.FromMilliseconds(1));
+            for (var i = 0; i < 10; i++)
+                counter.Publish(i);
+            Assert.IsTrue(reset.WaitOne(10000, false));
         }
 
         public static void TestBatchingWithKey(IAsyncFiber fiber)

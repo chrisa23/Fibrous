@@ -33,6 +33,11 @@ namespace Fibrous.Collections
         {
             _add.Publish(item);
         }
+        
+        public void Add(TKey key, T item)
+        {
+            _add.Publish(new KeyValuePair<TKey, T>(key, item));
+        }
 
         public void Remove(TKey item)
         {
@@ -99,6 +104,7 @@ namespace Fibrous.Collections
         {
             return _request.SendRequest(request).Result;
         }
+
         public async Task<KeyValuePair<TKey, T>[]> GetItemsAsync(Func<TKey, bool> request)
         {
             return await _request.SendRequest(request);

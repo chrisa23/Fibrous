@@ -44,8 +44,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsyncDispatcherFiber.cs" />
+    <Compile Include="AsyncWpfConcurrentComponent.cs" />
     <Compile Include="DispatcherFiber.cs" />
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WpfConcurrentComponent.cs" />
     <Compile Include="WpfFiberFactory.cs" />
   </ItemGroup>
   <ItemGroup>

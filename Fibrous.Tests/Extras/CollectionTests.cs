@@ -13,8 +13,8 @@ namespace Fibrous.Tests
         {
             int[] snapshot = null;
             var list = new List<int>();
-            var collection = new FiberCollection<int>();
-            var receive = new Fiber();
+            using var collection = new FiberCollection<int>();
+            using var receive = new Fiber();
             collection.Add(1);
             collection.Add(2);
             collection.Subscribe(receive,
@@ -46,8 +46,8 @@ namespace Fibrous.Tests
         {
             int[] snapshot = null;
             var list = new List<int>();
-            var collection = new FiberKeyedCollection<int, int>(x => x);
-            var receive = new Fiber();
+            using var collection = new FiberKeyedCollection<int, int>(x => x);
+            using var receive = new Fiber();
             collection.Add(1);
             collection.Add(2);
             collection.Subscribe(receive,
@@ -65,6 +65,39 @@ namespace Fibrous.Tests
             Assert.AreEqual(2, snapshot[1]);
             Assert.AreEqual(0, list.Count);
             collection.Add(3);
+            Thread.Sleep(10);
+            Assert.AreEqual(1, list.Count);
+            collection.Remove(3);
+            Thread.Sleep(10);
+            Assert.AreEqual(0, list.Count);
+            var items = collection.GetItems(x => true);
+            Assert.AreEqual(2, items.Length);
+        }
+
+        [Test]
+        public void DictionaryCollectionTest1()
+        {
+            KeyValuePair<int, int>[] snapshot = null;
+            var list = new List<KeyValuePair<int, int>>();
+            using var collection = new FiberDictionary<int, int>();
+            using var receive = new Fiber();
+            collection.Add(1, 1);
+            collection.Add(2, 2);
+            collection.Subscribe(receive,
+                action =>
+                {
+                    if (action.ActionType == ActionType.Add)
+                        list.Add(action.Items[0]);
+                    else
+                        list.Remove(action.Items[0]);
+                },
+                ints => snapshot = ints);
+            Thread.Sleep(10);
+            Assert.AreEqual(2, snapshot.Length);
+            Assert.AreEqual(1, snapshot[0].Key);
+            Assert.AreEqual(2, snapshot[1].Key);
+            Assert.AreEqual(0, list.Count);
+            collection.Add(3, 3);
             Thread.Sleep(10);
             Assert.AreEqual(1, list.Count);
             collection.Remove(3);

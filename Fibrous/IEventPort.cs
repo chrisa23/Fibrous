@@ -11,4 +11,9 @@ namespace Fibrous
 
         IDisposable Subscribe(Action receive);
     }
+
+    public static class EventPortExtensions
+    {
+
+    }
 }

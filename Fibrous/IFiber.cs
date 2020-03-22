@@ -98,6 +98,18 @@ namespace Fibrous
         ///     Subscribe to a channel from the fiber.
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <param name="fiber"></param>
+        /// <param name="channel"></param>
+        /// <param name="handler"></param>
+        /// <returns></returns>
+        public static IDisposable Subscribe(this IFiber fiber, IEventPort channel, Action handler)
+        {
+            return channel.Subscribe(fiber, handler);
+        }
+        /// <summary>
+        ///     Subscribe to a channel from the fiber.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
         /// <typeparam name="TSnapshot"></typeparam>
         /// <param name="fiber"></param>
         /// <param name="channel"></param>
