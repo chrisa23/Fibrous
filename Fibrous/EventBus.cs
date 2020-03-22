@@ -10,7 +10,7 @@ namespace Fibrous
     /// <typeparam name="T"></typeparam>
     public static class EventBus<T>
     {
-        public static readonly IChannel<T> Channel = new Channel<T>();
+        internal static readonly IChannel<T> Channel = new Channel<T>();
         
         public static void Publish(T msg)
         {
@@ -38,14 +38,14 @@ namespace Fibrous
             Action<IDictionary<TKey, T>> receive,
             TimeSpan interval)
         {
-            return new KeyedBatchSubscriber<TKey, T>(Channel, fiber, interval, keyResolver, receive);
+            return Channel.SubscribeToKeyedBatch(fiber, keyResolver, receive, interval);
         }
 
         public static IDisposable SubscribeToLast(IFiber fiber,
             Action<T> receive,
             TimeSpan interval)
         {
-            return new LastSubscriber<T>(Channel, fiber, interval, receive);
+            return Channel.SubscribeToLast(fiber,  receive, interval);
         }
 
         public static IDisposable Subscribe(IAsyncFiber fiber, Func<T, Task> receive)
@@ -61,7 +61,7 @@ namespace Fibrous
             Func<T[], Task> receive,
             TimeSpan interval)
         {
-            return new AsyncBatchSubscriber<T>(Channel, fiber, interval, receive);
+            return Channel.SubscribeToBatch(fiber, receive, interval);
         }
 
         public static IDisposable SubscribeToKeyedBatch<TKey>(IAsyncFiber fiber,
@@ -69,14 +69,14 @@ namespace Fibrous
             Func<IDictionary<TKey, T>, Task> receive,
             TimeSpan interval)
         {
-            return new AsyncKeyedBatchSubscriber<TKey, T>(Channel, fiber, interval, keyResolver, receive);
+            return Channel.SubscribeToKeyedBatch(fiber, keyResolver, receive, interval);
         }
 
         public static IDisposable SubscribeToLast(IAsyncFiber fiber,
             Func<T,Task> receive,
             TimeSpan interval)
         {
-            return new AsyncLastSubscriber<T>(Channel, fiber, interval, receive);
+            return Channel.SubscribeToLast(fiber, receive, interval);
         }
     }
 }

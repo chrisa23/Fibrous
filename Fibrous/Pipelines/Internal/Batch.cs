@@ -5,7 +5,7 @@ namespace Fibrous.Pipelines
 {
     //Should this use a stub fiber?
     //this should probably not start immediately...
-    public class Batch<T> : FiberStageBase<T, T[]>
+    internal class Batch<T> : FiberStageBase<T, T[]>
     {
         private readonly TimeSpan _time;
         private readonly List<T> _batch = new List<T>();

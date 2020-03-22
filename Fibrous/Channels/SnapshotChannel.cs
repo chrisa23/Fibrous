@@ -69,5 +69,11 @@ namespace Fibrous
                 _sub = _updatesPort.Subscribe(_fiber, _receive);
             }
         }
+
+        public void Dispose()
+        {
+            _requestChannel.Dispose();
+            _updatesChannel.Dispose();
+        }
     }
 }

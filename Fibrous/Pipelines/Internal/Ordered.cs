@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Fibrous.Pipelines
+﻿namespace Fibrous.Pipelines
 {
     internal struct Ordered<T>
     {

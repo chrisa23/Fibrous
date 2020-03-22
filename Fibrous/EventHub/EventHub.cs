@@ -60,6 +60,7 @@ namespace Fibrous
 
             return disposables;
         }
+        // ReSharper disable once UnusedMember.Local
         private IDisposable SubscribeToChannel<T>(IFiber fiber, IHandle<T> receive)
         {
             var type = typeof(T);
@@ -74,6 +75,7 @@ namespace Fibrous
             return channel.Subscribe(fiber, receive.Handle);
         }
 
+        // ReSharper disable once UnusedMember.Local
         private IDisposable AsyncSubscribeToChannel<T>(IAsyncFiber fiber, IHandleAsync<T> receive)
         {
             var type = typeof(T);

@@ -1330,25 +1330,17 @@ namespace Quartz
         /// <returns></returns>
         protected virtual ISet<int> GetSet(int type)
         {
-            switch (type)
+            return type switch
             {
-                case Second:
-                    return seconds;
-                case Minute:
-                    return minutes;
-                case Hour:
-                    return hours;
-                case DayOfMonth:
-                    return daysOfMonth;
-                case Month:
-                    return months;
-                case DayOfWeek:
-                    return daysOfWeek;
-                case Year:
-                    return years;
-                default:
-                    return null;
-            }
+                Second => seconds,
+                Minute => minutes,
+                Hour => hours,
+                DayOfMonth => daysOfMonth,
+                Month => months,
+                DayOfWeek => daysOfWeek,
+                Year => years,
+                _ => null
+            };
         }
 
         /// <summary>
@@ -1993,7 +1985,7 @@ namespace Quartz
         /// <param name="other">The <see cref="CronExpression" /> to compare with the current <see cref="CronExpression" />. </param>
         public bool Equals(CronExpression other)
         {
-            if (ReferenceEquals(null, other)) return false;
+            if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
             return Equals(other.CronExpressionString, CronExpressionString) && Equals(other.TimeZone, TimeZone);
         }
@@ -2009,7 +2001,7 @@ namespace Quartz
         /// <param name="obj">The <see cref="T:System.Object" /> to compare with the current <see cref="T:System.Object" />. </param>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
+            if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != typeof(CronExpression)) return false;
             return Equals((CronExpression) obj);

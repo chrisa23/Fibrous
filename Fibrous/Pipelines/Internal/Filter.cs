@@ -2,7 +2,7 @@
 
 namespace Fibrous.Pipelines
 {
-    public class Filter<T> : StubStageBase<T, T>
+    internal class Filter<T> : StubStageBase<T, T>
     {
         private readonly Predicate<T> _f;
 

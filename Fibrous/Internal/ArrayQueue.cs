@@ -1,7 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Threading;
 using Fibrous.Internal;
 
 namespace Fibrous
@@ -23,11 +22,11 @@ namespace Fibrous
     {
         
         private readonly int _size;
-        //Pad112 p01;
+        Pad112 p01;
         private T[] _actions;
-        //Pad112 p02;
+        Pad112 p02;
         private T[] _toPass;
-        //Pad120 p03;
+        Pad120 p03;
         private int _processCount;
 
         Pad56 p0;

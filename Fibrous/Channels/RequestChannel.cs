@@ -44,14 +44,9 @@ namespace Fibrous
             using var channelRequest = new ChannelRequest(request);
             _requestChannel.Publish(channelRequest);
             var task = channelRequest.Resp.Task;
-            var success = (await Task.WhenAny(new Task[] { task, Task.Delay(timeout) })) == task;
+            var success = await Task.WhenAny(task, Task.Delay(timeout)) == task;
             channelRequest.Dispose();
-            if (success)
-            {
-                return Result<TReply>.Ok(task.Result);
-            }
-
-            return Result<TReply>.Failed;
+            return success ? Result<TReply>.Ok(task.Result) : Result<TReply>.Failed;
         }
 
         public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply)
@@ -70,8 +65,6 @@ namespace Fibrous
                 Request = req;
             }
             
-
-            //don't use a queue
             public TaskCompletionSource<TReply> Resp { get; } = new TaskCompletionSource<TReply>();
 
             public void Dispose()
@@ -126,6 +119,11 @@ namespace Fibrous
             }
 
             public CancellationToken CancellationToken => _cancel.Token;
+        }
+
+        public void Dispose()
+        {
+            _requestChannel.Dispose();
         }
     }
 }

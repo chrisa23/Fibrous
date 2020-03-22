@@ -93,5 +93,9 @@ namespace Fibrous
                     _target.Enqueue(() => _callback(msg));
             }
         }
+
+        public void Dispose()
+        {
+        }
     }
 }

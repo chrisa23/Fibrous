@@ -266,33 +266,33 @@ namespace System.Reflection
             internal const int MethodTokenPosition = 2;
             internal const int ArgsPosition = 3;
             internal const int GenericTypesPosition = 4;
-            internal const int ReturnValuePosition = 5;
+            private const int ReturnValuePosition = 5;
 
             internal static readonly Type[] PackedTypes = new Type[] { typeof(object), typeof(Type), typeof(int), typeof(object[]), typeof(Type[]), typeof(object) };
 
-            private object[] _args;
+            private readonly object[] _args;
             internal PackedArgs() : this(new object[PackedTypes.Length]) { }
             internal PackedArgs(object[] args) { _args = args; }
 
-            internal DispatchProxyAsync DispatchProxy { get { return (DispatchProxyAsync)_args[DispatchProxyPosition]; } }
-            internal Type DeclaringType { get { return (Type)_args[DeclaringTypePosition]; } }
-            internal int MethodToken { get { return (int)_args[MethodTokenPosition]; } }
-            internal object[] Args { get { return (object[])_args[ArgsPosition]; } }
-            internal Type[] GenericTypes { get { return (Type[])_args[GenericTypesPosition]; } }
-            internal object ReturnValue { /*get { return args[ReturnValuePosition]; }*/ set { _args[ReturnValuePosition] = value; } }
+            internal DispatchProxyAsync DispatchProxy => (DispatchProxyAsync)_args[DispatchProxyPosition];
+            internal Type DeclaringType => (Type)_args[DeclaringTypePosition];
+            internal int MethodToken => (int)_args[MethodTokenPosition];
+            internal object[] Args => (object[])_args[ArgsPosition];
+            internal Type[] GenericTypes => (Type[])_args[GenericTypesPosition];
+            internal object ReturnValue { /*get { return args[ReturnValuePosition]; }*/ set => _args[ReturnValuePosition] = value; }
         }
 
         private class ProxyAssembly
         {
-            public AssemblyBuilder _ab;
-            private ModuleBuilder _mb;
+            private readonly AssemblyBuilder _ab;
+            private readonly ModuleBuilder _mb;
             private int _typeId = 0;
 
             // Maintain a MethodBase-->int, int-->MethodBase mapping to permit generated code
             // to pass methods by token
-            private Dictionary<MethodBase, int> _methodToToken = new Dictionary<MethodBase, int>();
-            private List<MethodBase> _methodsByToken = new List<MethodBase>();
-            private HashSet<string> _ignoresAccessAssemblyNames = new HashSet<string>();
+            private readonly Dictionary<MethodBase, int> _methodToToken = new Dictionary<MethodBase, int>();
+            private readonly List<MethodBase> _methodsByToken = new List<MethodBase>();
+            private readonly HashSet<string> _ignoresAccessAssemblyNames = new HashSet<string>();
             private ConstructorInfo _ignoresAccessChecksToAttributeConstructor;
 
             public ProxyAssembly()
@@ -307,7 +307,7 @@ namespace System.Reflection
             // Gets or creates the ConstructorInfo for the IgnoresAccessChecksAttribute.
             // This attribute is both defined and referenced in the dynamic assembly to
             // allow access to internal types in other assemblies.
-            internal ConstructorInfo IgnoresAccessChecksAttributeConstructor
+            private ConstructorInfo IgnoresAccessChecksAttributeConstructor
             {
                 get
                 {
@@ -418,7 +418,7 @@ namespace System.Reflection
             // Generates an instance of the IgnoresAccessChecksToAttribute to
             // identify the given assembly as one which contains internal types
             // the dynamic assembly will need to reference.
-            internal void GenerateInstanceOfIgnoresAccessChecksToAttribute(string assemblyName)
+            private void GenerateInstanceOfIgnoresAccessChecksToAttribute(string assemblyName)
             {
                 // Add this assembly level attribute:
                 // [assembly: System.Runtime.CompilerServices.IgnoresAccessChecksToAttribute(assemblyName)]

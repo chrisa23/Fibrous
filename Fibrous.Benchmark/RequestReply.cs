@@ -9,7 +9,7 @@ namespace Fibrous.Benchmark
     [MemoryDiagnoser]
     public class RequestReply
     {
-        private IRequestChannel<int, int> _requestChannel = new RequestChannel<int, int>();
+        private readonly IRequestChannel<int, int> _requestChannel = new RequestChannel<int, int>();
         private IFiber _fiber;
         private IAsyncFiber _asyncFiber;
         private IFiber _fiberReply;

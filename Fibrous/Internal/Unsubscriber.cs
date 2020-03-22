@@ -17,11 +17,10 @@ namespace Fibrous
 
         public void Dispose()
         {
-            if (_guard.Check)
-            {
-                _disposables.Remove(_disposable);
-                _disposable.Dispose();
-            }
+            if (!_guard.Check) return;
+
+            _disposables.Remove(_disposable);
+            _disposable.Dispose();
         }
     }
 }

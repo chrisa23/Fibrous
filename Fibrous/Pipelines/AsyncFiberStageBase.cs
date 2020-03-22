@@ -7,10 +7,7 @@ namespace Fibrous.Pipelines
     {
         protected AsyncFiberStageBase(Action<Exception> errorCallback = null)
         {
-            IAsyncExecutor executor = errorCallback == null
-                ? (IAsyncExecutor)new AsyncExecutor()
-                : new AsyncExceptionHandlingExecutor(errorCallback);
-            Fiber = new AsyncFiber(executor);
+            Fiber = new AsyncFiber(errorCallback);
             Fiber.Subscribe(In, Receive);
         }
 

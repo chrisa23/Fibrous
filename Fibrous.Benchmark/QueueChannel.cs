@@ -10,7 +10,7 @@ namespace Fibrous.Benchmark
     {
         private const int OperationsPerInvoke = 1000000;
         private readonly AutoResetEvent _wait = new AutoResetEvent(false);
-        private IChannel<string> _queue = new QueueChannel<string>();
+        private readonly IChannel<string> _queue = new QueueChannel<string>();
         private IAsyncFiber _async;
         private IFiber _pool;
         private IFiber _pool2; 

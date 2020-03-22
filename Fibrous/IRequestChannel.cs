@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Fibrous
 {
-    public interface IRequestChannel<TRequest, TReply> : IRequestPort<TRequest, TReply>
+    public interface IRequestChannel<TRequest, TReply> : IRequestPort<TRequest, TReply>, IDisposable
     {
         /// <summary>
         ///     Set the fiber and handler for responding to requests.

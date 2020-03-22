@@ -79,5 +79,10 @@ namespace Fibrous
                 _updateChannel.Publish(msg);
             }
         }
+
+        public void Dispose()
+        {
+            _updateChannel.Dispose();
+        }
     }
 }

@@ -23,8 +23,10 @@ namespace Fibrous.Tests
         public async Task AsyncExceptionHandlingExecutor()
         {
             using var reset = new AutoResetEvent(false);
+#pragma warning disable 1998
             var h = new AsyncExceptionHandlingExecutor(async x => reset.Set());
             await h.Execute(async () => throw new Exception());
+#pragma warning restore 1998
             Assert.IsTrue(reset.WaitOne(100));
         }
     }

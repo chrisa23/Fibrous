@@ -8,13 +8,29 @@ namespace Fibrous.Tests
     {
         private class EventTester
         {
-            public bool IsAttached => Event != null;
-            public event Action<object> Event;
-
+            public bool IsAttachedWithObject => EventWithObject != null;
+            public event Action<object> EventWithObject;
+            public bool IsAttached=> Event!= null;
+            public event Action Event;
             public void Invoke()
             {
-                Event?.Invoke(null);
+                EventWithObject?.Invoke(null);
+                Event?.Invoke();
             }
+        }
+
+        [Test]
+        public void CanSubscribeToEventWithObject()
+        {
+            var triggered = false;
+            var stub = new StubFiber();
+            var evt = new EventTester();
+            var dispose = stub.SubscribeToEvent<object>(evt, "EventWithObject", x => triggered = true);
+            Assert.IsTrue(evt.IsAttachedWithObject);
+            evt.Invoke();
+            Assert.IsTrue(triggered);
+            dispose.Dispose();
+            Assert.IsFalse(evt.IsAttachedWithObject);
         }
 
         [Test]
@@ -23,7 +39,7 @@ namespace Fibrous.Tests
             var triggered = false;
             var stub = new StubFiber();
             var evt = new EventTester();
-            var dispose = stub.SubscribeToEvent<object>(evt, "Event", x => triggered = true);
+            var dispose = stub.SubscribeToEvent(evt, "Event", () => triggered = true);
             Assert.IsTrue(evt.IsAttached);
             evt.Invoke();
             Assert.IsTrue(triggered);

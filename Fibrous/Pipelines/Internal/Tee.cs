@@ -2,7 +2,7 @@
 
 namespace Fibrous.Pipelines
 {
-    public class Tee<T> : FiberStageBase<T, T>
+    internal class Tee<T> : FiberStageBase<T, T>
     {
         private readonly Action<T> _f;
 

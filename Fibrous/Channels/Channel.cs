@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Fibrous
 {
-    public sealed class Channel<T> : IChannel<T>
+    public sealed class Channel<T> : IChannel<T> 
     {
         private readonly Event<T> _internalEvent = new Event<T>();
 
@@ -28,14 +28,16 @@ namespace Fibrous
             return new Unsubscriber(disposable, fiber);
         }
 
-        internal bool HasSubscriptions()
-        {
-            return _internalEvent.HasSubscriptions();
-        }
+        internal bool HasSubscriptions =>  _internalEvent.HasSubscriptions;
 
         public IDisposable Subscribe(Action<T> receive)
         {
             return _internalEvent.Subscribe(receive);
+        }
+
+        public void Dispose()
+        {
+            _internalEvent.Dispose();
         }
     }
 }

@@ -70,11 +70,9 @@ namespace Fibrous.Tests
         {
             long index = 0;
 
-            int Id(int i) => i;
-            void Handle(Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            static int Id(int i) => i;
+            static void Handle(Exception e) => Console.WriteLine(e);
+
             using var reset = new AutoResetEvent(false);
             using var pipe = new Stage<int, int>(Id, Handle)
                 .Select(Id, Handle)

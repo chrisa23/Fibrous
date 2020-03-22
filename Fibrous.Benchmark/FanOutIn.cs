@@ -12,9 +12,9 @@ namespace Fibrous.Benchmark
     public class FanOutIn
     {
         private const int OperationsPerInvoke = 1000000;
-        private IChannel<string> _input = new Channel<string>();
-        private IChannel<string> _queue = new QueueChannel<string>();
-        private IChannel<string> _output = new Channel<string>();
+        private readonly IChannel<string> _input = new Channel<string>();
+        private readonly IChannel<string> _queue = new QueueChannel<string>();
+        private readonly IChannel<string> _output = new Channel<string>();
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void Pool2()
