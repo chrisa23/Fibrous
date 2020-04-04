@@ -7,9 +7,10 @@ using BenchmarkDotNet.Attributes;
 namespace Fibrous.Benchmark
 {
     [MemoryDiagnoser]
-    class Channel
+    public class Channel
     {
         private readonly IChannel<int> _channel = new Channel<int>();
+        private const int OperationsPerInvoke = 1000000;
         private readonly AutoResetEvent _wait = new AutoResetEvent(false);
         private int i = 0;
         private void Handler(int obj)
@@ -19,13 +20,16 @@ namespace Fibrous.Benchmark
                 _wait.Set();
         }
 
-        public void Run(IFiber fiber)
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        public void NoFiber()
         {
-            using var sub = _channel.Subscribe(fiber, Handler);
+            using var sub = _channel.Subscribe(Handler);
             i = 0;
             for (var j = 0; j < 1000000; j++) _channel.Publish(0);
 
             WaitHandle.WaitAny(new WaitHandle[] { _wait });
         }
+
+        
     }
 }

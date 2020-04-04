@@ -5,20 +5,13 @@ using Fibrous.Internal;
 
 namespace Fibrous
 {
-    internal interface IQueue<T>
-    {
-        bool IsFull { get; }
-        int Count { get; }
-        void Enqueue(T a);
-        (int count, T[] actions) Drain();
-    }
-
     internal static class QueueSize
     {
         internal const int DefaultQueueSize = 1008;
     }
+
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
-    internal class ArrayQueue<T> : IQueue<T>
+    internal sealed class ArrayQueue<T>
     {
         
         private readonly int _size;
@@ -42,9 +35,9 @@ namespace Fibrous
             _actions = new T[size + 16];
             _toPass = new T[size + 16];
         }
-
+        
         public int Count =>  _count;
-
+        
         public bool IsFull => _count >= _size;
 
         public void Enqueue(T a)
@@ -52,7 +45,7 @@ namespace Fibrous
             var index0 = _count++;
             _actions[index0] = a;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public (int count, T[] actions) Drain()
         {
             int processCount = _count;

@@ -8,14 +8,14 @@ namespace Fibrous.Collections
     public class FiberDictionary<TKey, T> : ISnapshotSubscriberPort<ItemAction<KeyValuePair<TKey, T>>, KeyValuePair<TKey, T>[]>,
             IRequestPort<Func<TKey, bool>, KeyValuePair<TKey, T>[]>, IDisposable
     {
-        private readonly IChannel<KeyValuePair<TKey, T>> _add = new Channel<KeyValuePair<TKey, T>>();
         private readonly ISnapshotChannel<ItemAction<KeyValuePair<TKey, T>>, KeyValuePair<TKey, T>[]> _channel = new SnapshotChannel<ItemAction<KeyValuePair<TKey, T>>, KeyValuePair<TKey, T>[]>();
-        private readonly IFiber _fiber;
-        private readonly Dictionary<TKey, T> _items = new Dictionary<TKey, T>();
-
-        private readonly IChannel<TKey> _remove = new Channel<TKey>();
         private readonly IRequestChannel<Func<TKey, bool>, KeyValuePair<TKey, T>[]> _request = new RequestChannel<Func<TKey, bool>, KeyValuePair<TKey, T>[]>();
+        private readonly IChannel<KeyValuePair<TKey, T>> _add = new Channel<KeyValuePair<TKey, T>>();
+        private readonly IChannel<TKey> _remove = new Channel<TKey>();
+        private readonly IFiber _fiber;
 
+        private readonly Dictionary<TKey, T> _items = new Dictionary<TKey, T>();
+        
         public FiberDictionary(IExecutor executor = null)
         {
             _fiber = new Fiber(executor);

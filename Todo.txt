@@ -11,10 +11,13 @@
 	- Events
 	- Event Hub and Event Bus
 	- Collections
-	- Pipelines
+	- Pipelines (move to experimental)
 - Add more examples
 - Performance things to look at:
 	- Verify that a spin lock is a good choice
 		- the StartNew of the Flush is the only concern
 	- Padding / layout for Array Queue
+	- Optimize req/reply 
+		- Lower allocations
+		- Make more efficient
 	

@@ -7,8 +7,9 @@ namespace Fibrous
 {
     public class Fiber : FiberBase
     {
-        private readonly IQueue<Action> _queue;
+        private readonly ArrayQueue<Action> _queue;
         private readonly TaskFactory _taskFactory;
+        private readonly Action _flushCache;
         private bool _flushPending;
         private SpinLock _spinLock = new SpinLock(false);
 
@@ -17,6 +18,7 @@ namespace Fibrous
         {
             _queue = new ArrayQueue<Action>(size);
             _taskFactory = taskFactory ?? new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None);
+            _flushCache = Flush;
         }
 
         public Fiber(Action<Exception> errorCallback, int size = QueueSize.DefaultQueueSize, TaskFactory taskFactory = null, IFiberScheduler scheduler = null)
@@ -39,22 +41,21 @@ namespace Fibrous
                 if (_flushPending) return;
 
                 _flushPending = true;
-                _taskFactory.StartNew(Flush);
+                _taskFactory.StartNew(_flushCache);
             }
             finally
             {
                 if (lockTaken) _spinLock.Exit(false);
             }
         }
-
+        
         private void Flush()
         {
             var (count, actions) = Drain();
 
             for (var i = 0; i < count; i++)
             {
-                var action = actions[i];
-                Executor.Execute(action);
+                Executor.Execute(actions[i]);
             }
                 
             var lockTaken = false;
@@ -64,7 +65,7 @@ namespace Fibrous
 
                 if (_queue.Count > 0)
                     //don't monopolize thread.
-                    _taskFactory.StartNew(Flush);
+                    _taskFactory.StartNew(_flushCache);
                 else
                     _flushPending = false;
             }
@@ -97,16 +98,17 @@ namespace Fibrous
 
     internal class LockFiber : FiberBase
     {
-        private readonly IQueue<Action> _queue;
+        private readonly ArrayQueue<Action> _queue;
         private readonly TaskFactory _taskFactory;
+        private readonly Action _flushCache;
         private bool _flushPending;
-     //   private SpinLock _spinLock = new SpinLock(false);
         private readonly object _lock = new object();
         public LockFiber(IExecutor executor = null, int size = QueueSize.DefaultQueueSize, TaskFactory taskFactory = null, IFiberScheduler scheduler = null)
             : base(executor, scheduler)
         {
             _queue = new ArrayQueue<Action>(size);
             _taskFactory = taskFactory ?? new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None);
+            _flushCache = Flush;
         }
 
         public LockFiber(Action<Exception> errorCallback, int size = QueueSize.DefaultQueueSize, TaskFactory taskFactory = null, IFiberScheduler scheduler = null)
@@ -126,7 +128,7 @@ namespace Fibrous
                 if (_flushPending) return;
 
                 _flushPending = true;
-                _taskFactory.StartNew(Flush);
+                _taskFactory.StartNew(_flushCache);
             }
         }
 
@@ -136,13 +138,14 @@ namespace Fibrous
 
             for (var i = 0; i < count; i++)
             {
-                var action = actions[i];
-                Executor.Execute(action);
+                Executor.Execute(actions[i]);
             }
-            lock (_lock) { 
+
+            lock (_lock)
+            {
                 if (_queue.Count > 0)
                     //don't monopolize thread.
-                    _taskFactory.StartNew(Flush);
+                    _taskFactory.StartNew(_flushCache);
                 else
                     _flushPending = false;
             }

@@ -19,8 +19,12 @@ namespace Fibrous.Benchmark
         {
             return await _requestChannel.SendRequest(0);
         }
+        [Benchmark]
+        public async Task<Result<int>> FiberReqRepTimeout()
+        {
+            return await _requestChannel.SendRequest(0, TimeSpan.FromSeconds(1));
+        }
 
-     
         [GlobalSetup]
         public void Setup()
         {

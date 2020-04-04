@@ -39,11 +39,10 @@ namespace Fibrous.Tests
             channel.ReplyToPrimingRequest(fiber2, async () => list.ToArray());
             var primeResult = new List<string>();
             Func<string, Task> update = x =>
-                {
-                    primeResult.Add(x);
-
-                    return Task.CompletedTask;
-                };
+            {
+                primeResult.Add(x);
+                return Task.CompletedTask;
+            };
             Func<string[], Task> snap = x =>
             {
                 primeResult.AddRange(x);

@@ -19,6 +19,13 @@ namespace Fibrous
             return _requestChannel.Subscribe(fiber, onRequest);
         }
 
+        public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply)
+        {
+            var channelRequest = new AsyncChannelRequest(fiber, request, onReply);
+            _requestChannel.Publish(channelRequest);
+            return new Unsubscriber(channelRequest, fiber);
+        }
+
         public IDisposable SendRequest(TRequest request, IAsyncFiber fiber, Func<TReply, Task> onReply)
         {
             var channelRequest = new AsyncChannelRequest(fiber, request, onReply);
@@ -48,32 +55,19 @@ namespace Fibrous
             channelRequest.Dispose();
             return success ? Result<TReply>.Ok(task.Result) : Result<TReply>.Failed;
         }
-
-        public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply)
-        {
-            var channelRequest = new AsyncChannelRequest(fiber, request, onReply);
-            _requestChannel.Publish(channelRequest);
-            return new Unsubscriber(channelRequest, fiber);
-        }
-
+        
         private sealed class ChannelRequest : IRequest<TRequest, TReply>, IDisposable
         {
             private readonly SingleShotGuard _guard = new SingleShotGuard();
             private readonly CancellationTokenSource _cancel = new CancellationTokenSource();
+            
             public ChannelRequest(TRequest req)
             {
                 Request = req;
             }
             
             public TaskCompletionSource<TReply> Resp { get; } = new TaskCompletionSource<TReply>();
-
-            public void Dispose()
-            {
-                if(_guard.Check)
-                {
-                    _cancel.Cancel();
-                }
-            }
+            public CancellationToken CancellationToken => _cancel.Token;
 
             public TRequest Request { get; }
 
@@ -85,7 +79,13 @@ namespace Fibrous
                 }
             }
 
-            public CancellationToken CancellationToken => _cancel.Token;
+            public void Dispose()
+            {
+                if (_guard.Check)
+                {
+                    _cancel.Cancel();
+                }
+            }
         }
 
         private class AsyncChannelRequest : IRequest<TRequest, TReply>, IDisposable

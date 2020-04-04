@@ -15,6 +15,7 @@ namespace Fibrous
         public IDisposable Subscribe(IFiber fiber, Action<T> receive)
         {
             void Receive(T msg) => fiber.Enqueue(() => receive(msg));
+            void Receive1LessClosure(T msg) => fiber.Enqueue(receive, msg);
 
             var disposable = _internalEvent.Subscribe(Receive);
             return new Unsubscriber(disposable, fiber);

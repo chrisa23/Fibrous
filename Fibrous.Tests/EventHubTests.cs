@@ -9,7 +9,7 @@ namespace Fibrous.Tests
     [TestFixture]
     public class EventHubTests
     {
-        private readonly IEventHub _eventHub = new EventHub();
+        private readonly EventHub _eventHub = new EventHub();
         [Test]
         public async Task NonAsync()
         {
@@ -38,6 +38,31 @@ namespace Fibrous.Tests
             await Task.Delay(100);
             
             Assert.AreEqual(6, test.Count);
+        }
+
+
+        [Test]
+        public async Task AsyncUnsubscribeCheck()
+        {
+            using var test = new AsyncTester();
+            var sub = _eventHub.Subscribe(test);
+
+            _eventHub.Publish(3);
+
+            sub.Dispose();
+            Assert.IsFalse(_eventHub.HasSubscriptions<int>());
+        }
+
+        [Test]
+        public void UnsubscribeCheck()
+        {
+            using var test = new Tester();
+            var sub = _eventHub.Subscribe(test);
+
+            _eventHub.Publish(3);
+
+            sub.Dispose();
+            Assert.IsFalse(_eventHub.HasSubscriptions<int>());
         }
 
         public class Tester : IHandle<string>, IHandle<int>, IHaveFiber, IDisposable

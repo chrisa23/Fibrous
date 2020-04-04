@@ -10,10 +10,9 @@ namespace Fibrous
     /// </summary>
     public class AsyncFiber : AsyncFiberBase
     {
-        private readonly IQueue<Func<Task>> _queue;
-
+        private readonly ArrayQueue<Func<Task>> _queue;
         private readonly TaskFactory _taskFactory;
-
+        private readonly Func<Task> _flushCache;
         private bool _flushPending;
         private SpinLock _spinLock = new SpinLock(false);
 
@@ -23,6 +22,7 @@ namespace Fibrous
             
             _queue = new ArrayQueue<Func<Task>>(size);
             _taskFactory = taskFactory ?? new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None);
+            _flushCache = Flush;
         }
 
         public AsyncFiber(Action<Exception> errorCallback, int size = QueueSize.DefaultQueueSize, TaskFactory taskFactory = null, IAsyncFiberScheduler scheduler = null)
@@ -45,22 +45,21 @@ namespace Fibrous
                 if (_flushPending) return;
 
                 _flushPending = true;
-                _taskFactory.StartNew(Flush);
+                _taskFactory.StartNew(_flushCache);
             }
             finally
             {
                 if (lockTaken) _spinLock.Exit(false);
             }
         }
-
+        
         private async Task Flush()
         {
             var (count, actions) = Drain();
 
             for (var i = 0; i < count; i++)
             {
-                var action = actions[i];
-                await Executor.Execute(action);
+                await Executor.Execute(actions[i]);
             }
 
             var lockTaken = false;
@@ -71,7 +70,7 @@ namespace Fibrous
                 if (_queue.Count > 0)
                     //don't monopolize thread.
 #pragma warning disable 4014
-                    _taskFactory.StartNew(Flush);
+                    _taskFactory.StartNew(_flushCache);
 #pragma warning restore 4014
                 else
                     _flushPending = false;
@@ -101,12 +100,10 @@ namespace Fibrous
 
     internal class AsyncLockFiber : AsyncFiberBase
     {
-        private readonly IQueue<Func<Task>> _queue;
-
+        private readonly ArrayQueue<Func<Task>> _queue;
         private readonly TaskFactory _taskFactory;
-
+        private readonly Func<Task> _flushCache;
         private bool _flushPending;
-
         private readonly object _lock = new object();
 
         public AsyncLockFiber(IAsyncExecutor executor = null, int size = QueueSize.DefaultQueueSize, TaskFactory taskFactory = null, IAsyncFiberScheduler scheduler = null)
@@ -115,6 +112,7 @@ namespace Fibrous
 
             _queue = new ArrayQueue<Func<Task>>(size);
             _taskFactory = taskFactory ?? new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None);
+            _flushCache = Flush;
         }
 
         public AsyncLockFiber(Action<Exception> errorCallback, int size = QueueSize.DefaultQueueSize, TaskFactory taskFactory = null, IAsyncFiberScheduler scheduler = null)
@@ -132,7 +130,7 @@ namespace Fibrous
                 if (_flushPending) return;
 
                 _flushPending = true;
-                _taskFactory.StartNew(Flush);
+                _taskFactory.StartNew(_flushCache);
             }
            
         }
@@ -153,7 +151,7 @@ namespace Fibrous
                 if (_queue.Count > 0)
                     //don't monopolize thread.
 #pragma warning disable 4014
-                    _taskFactory.StartNew(Flush);
+                    _taskFactory.StartNew(_flushCache);
 #pragma warning restore 4014
                 else
                     _flushPending = false;

@@ -11,12 +11,12 @@ namespace Fibrous.Benchmark
         private const int OperationsPerInvoke = 1000000;
         private readonly IChannel<int> _channel = new Channel<int>();
         private readonly AutoResetEvent _wait = new AutoResetEvent(false);
-        private IAsyncFiber _async;
-        private IAsyncFiber _asyncLock;
-        private IFiber _pool3;
-        private IFiber _stub;
+        private AsyncFiber _async;
+        private AsyncLockFiber _asyncLock;
+        private Fiber _fiber;
+        private StubFiber _stub;
         private int _i;
-        private IFiber _lock;
+        private LockFiber _lock;
 
         private void Handler(int obj)
         {
@@ -56,7 +56,7 @@ namespace Fibrous.Benchmark
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void Fiber()
         {
-            Run(_pool3);
+            Run(_fiber);
         }
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
@@ -87,7 +87,7 @@ namespace Fibrous.Benchmark
         public void Setup()
         {
             _async = new AsyncFiber();
-            _pool3 = new Fiber();
+            _fiber = new Fiber();
             _stub = new StubFiber();
             _lock = new LockFiber();
             _asyncLock = new AsyncLockFiber();
@@ -96,7 +96,7 @@ namespace Fibrous.Benchmark
         [GlobalCleanup]
         public void Cleanup()
         {
-            _pool3.Dispose();
+            _fiber.Dispose();
             _async.Dispose();
             _stub.Dispose();
             _lock.Dispose();

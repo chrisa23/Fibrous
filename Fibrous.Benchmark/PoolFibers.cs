@@ -1,10 +1,12 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using Fibrous.Experimental;
 
 namespace Fibrous.Benchmark
 {
+  //  [DisassemblyDiagnoser(printAsm: true, printSource: true)]
     [MemoryDiagnoser]
     public class PoolFibers
     {
@@ -43,6 +45,28 @@ namespace Fibrous.Benchmark
             WaitHandle.WaitAny(new WaitHandle[] {_wait});
         }
 
+        //0 allocations when caching the handler to Action
+        public void Run2(IFiber fiber)
+        {
+            Action handler = Handler;
+            i = 0;
+            for (var j = 0; j < OperationsPerInvoke; j++) fiber.Enqueue(handler);
+            WaitHandle.WaitAny(new WaitHandle[] { _wait });
+        }
+
+        //0 allocations when caching the handler to Action
+        public void Run2(IAsyncFiber fiber)
+        {
+            Func<Task> asyncHandler = AsyncHandler;
+            i = 0;
+            for (var j = 0; j < OperationsPerInvoke; j++)
+            {
+                fiber.Enqueue(asyncHandler);
+            }
+
+            WaitHandle.WaitAny(new WaitHandle[] { _wait });
+        }
+
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void Fiber()
         {
@@ -53,6 +77,18 @@ namespace Fibrous.Benchmark
         public void Async()
         {
             Run(_async);
+        }
+
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        public void Fiber2()
+        {
+            Run2(_fiber);
+        }
+
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        public void Async2()
+        {
+            Run2(_async);
         }
 
         [IterationSetup]

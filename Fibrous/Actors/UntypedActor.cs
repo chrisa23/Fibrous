@@ -11,7 +11,7 @@ namespace Fibrous.Actors
 
         protected UntypedActor()
         {
-            Fiber = new Fiber(new ExceptionHandlingExecutor(OnError));
+            Fiber = new Fiber(OnError);
             Fiber.Subscribe(_tellChannel, Receive);
             _askChannel.SetRequestHandler(Fiber, OnRequest);
         }

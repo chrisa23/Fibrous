@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
 namespace Fibrous
 {
+    //for some reason EventHub is about 4x slower to publish through.......????
     public sealed class EventHub : IEventHub
     {
-        private readonly Dictionary<Type, object> _channels = new Dictionary<Type, object>();
+        //concurrent dict and no lock?
+        private readonly ConcurrentDictionary<Type, object> _channels = new ConcurrentDictionary<Type, object>();
 
         public IDisposable Subscribe(object handler)
         {
@@ -23,16 +26,14 @@ namespace Fibrous
             return new Unsubscriber(disposable, (IDisposableRegistry) fiber);
         }
         
+        //20 ns for this with no subscribers (now 16ns with changes)
         public void Publish<T>(T msg)
         {
-            var type = typeof(T);
-            IChannel<T> channel;
-            lock (_channels)
-            {
-                if (!_channels.ContainsKey(type)) return;
+            var type = msg.GetType(); 
+            
+            if (!_channels.ContainsKey(type)) return;
 
-                channel = (IChannel<T>) _channels[type];
-            }
+            IChannel<T> channel = (IChannel<T>) _channels[type];
             channel.Publish(msg);
         }
 
@@ -64,14 +65,7 @@ namespace Fibrous
         private IDisposable SubscribeToChannel<T>(IFiber fiber, IHandle<T> receive)
         {
             var type = typeof(T);
-            IChannel<T> channel;
-            lock (_channels)
-            {
-                if (!_channels.ContainsKey(type))
-                    _channels.Add(type, new Channel<T>());
-
-                channel = ((IChannel<T>) _channels[type]);
-            }
+            var channel = (IChannel<T>) _channels.GetOrAdd(type, _ => new Channel<T>());
             return channel.Subscribe(fiber, receive.Handle);
         }
 
@@ -79,15 +73,18 @@ namespace Fibrous
         private IDisposable AsyncSubscribeToChannel<T>(IAsyncFiber fiber, IHandleAsync<T> receive)
         {
             var type = typeof(T);
-            IChannel<T> channel;
-            lock (_channels)
-            {
-                if (!_channels.ContainsKey(type))
-                    _channels.Add(type, new Channel<T>());
-
-                channel = (IChannel<T>) _channels[type];
-            }
+            var channel = (IChannel<T>)_channels.GetOrAdd(type, _ => new Channel<T>());
             return channel.Subscribe(fiber, receive.Handle);
+        }
+
+        internal bool HasSubscriptions<T>()
+        {
+            var type = typeof(T);
+
+            if (!_channels.ContainsKey(type)) return false;
+
+           Channel<T> channel = (Channel<T>)_channels[type];
+           return channel.HasSubscriptions;
         }
     }
 }
