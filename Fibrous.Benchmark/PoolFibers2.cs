@@ -12,7 +12,7 @@ namespace Fibrous.Benchmark
         private readonly IChannel<int> _channel = new Channel<int>();
         private readonly AutoResetEvent _wait = new AutoResetEvent(false);
         private AsyncFiber _async;
-        private AsyncLockFiber _asyncLock;
+        private LockAsyncFiber _lockAsync;
         private Fiber _fiber;
         private StubFiber _stub;
         private int _i;
@@ -74,7 +74,7 @@ namespace Fibrous.Benchmark
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void AsyncLock()
         {
-            Run(_asyncLock);
+            Run(_lockAsync);
         }
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
@@ -90,7 +90,7 @@ namespace Fibrous.Benchmark
             _fiber = new Fiber();
             _stub = new StubFiber();
             _lock = new LockFiber();
-            _asyncLock = new AsyncLockFiber();
+            _lockAsync = new LockAsyncFiber();
         }
 
         [GlobalCleanup]
@@ -100,7 +100,7 @@ namespace Fibrous.Benchmark
             _async.Dispose();
             _stub.Dispose();
             _lock.Dispose();
-            _asyncLock.Dispose();
+            _lockAsync.Dispose();
         }
     }
 }

@@ -114,7 +114,7 @@ namespace Fibrous.Benchmark
             _async = new AsyncFiber();
             _fiber = new Fiber();
             _lock = new LockFiber();
-            _asyncLock = new AsyncLockFiber();
+            _asyncLock = new LockAsyncFiber();
         }
 
         [GlobalCleanup]

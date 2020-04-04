@@ -50,10 +50,7 @@ namespace Fibrous.Tests
                 _input.Publish("a");
             }
 
-           Assert.IsTrue(reset.WaitOne(TimeSpan.FromSeconds(20)));
-            
-           
-
+            Assert.IsTrue(reset.WaitOne(TimeSpan.FromSeconds(20)));
         }
 
         [Test]
