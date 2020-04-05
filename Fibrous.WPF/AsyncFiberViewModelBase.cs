@@ -1,25 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using Fibrous.WPF.Annotations;
 
 namespace Fibrous.WPF
 {
-    public abstract class WpfConcurrentComponent : IHaveFiber, INotifyPropertyChanged
+    public abstract class AsyncFiberViewModelBase : IHaveAsyncFiber, INotifyPropertyChanged
     {
-        public IFiber Fiber { get; }
+        public IAsyncFiber Fiber { get; }
 
-        protected WpfConcurrentComponent()
+        protected AsyncFiberViewModelBase()
         {
-            Fiber = new DispatcherFiber(OnError);
+            Fiber = new AsyncDispatcherFiber(OnError);
         }
-        protected WpfConcurrentComponent(IFiberFactory factory)
+        protected AsyncFiberViewModelBase(IFiberFactory factory)
         {
-            Fiber = factory.Create(OnError);
+            Fiber = factory.CreateAsync(OnError);
         }
 
         protected abstract void OnError(Exception obj);
