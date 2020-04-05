@@ -17,6 +17,7 @@
 	- Verify that a spin lock is a good choice
 		- the StartNew of the Flush is the only concern
 	- Padding / layout for Array Queue
+	- Figure out EventHub performance difference
 	- Optimize req/reply 
 		- Lower allocations
 		- Make more efficient

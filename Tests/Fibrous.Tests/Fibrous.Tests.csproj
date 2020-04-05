@@ -22,8 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Fibrous.Proxy\Fibrous.Proxy.csproj" />
-    <ProjectReference Include="..\Fibrous\Fibrous.csproj" />
+    <ProjectReference Include="..\..\Fibrous.Proxy\Fibrous.Proxy.csproj" />
+    <ProjectReference Include="..\..\Fibrous\Fibrous.csproj" />
   </ItemGroup>
 
   <ItemGroup>

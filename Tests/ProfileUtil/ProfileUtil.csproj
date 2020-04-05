@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Fibrous\Fibrous.csproj" />
+    <ProjectReference Include="..\..\Fibrous\Fibrous.csproj" />
   </ItemGroup>
 
 </Project>
