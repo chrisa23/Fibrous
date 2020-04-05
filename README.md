@@ -1,3 +1,5 @@
+[![NuGet](https://img.shields.io/nuget/v/Fibrous.svg)](https://www.nuget.org/packages/Fibrous/)
+
 Fibrous
 =======
 
