@@ -4,6 +4,17 @@ using System.Threading.Tasks;
 
 namespace Fibrous.Pipelines
 {
+    public static class Pipeline
+    {
+        public static IStage<TIn, TOut> Start<TIn, TOut>(Func<TIn, TOut> fn, Action<Exception> errorCallback = null) => new Stage<TIn, TOut>(fn, errorCallback);
+
+        public static IStage<TIn, TOut> Start<TIn, TOut>(Func<TIn, IEnumerable<TOut>> fn, Action<Exception> errorCallback = null) => new Stage<TIn, TOut>(fn, errorCallback);
+
+        public static IStage<TIn, TOut> Start<TIn, TOut>(Func<TIn, Task<TOut>> fn, Action<Exception> errorCallback = null) => new AsyncStage<TIn, TOut>(fn, errorCallback);
+
+        public static IStage<TIn, TOut> Start<TIn, TOut>(Func<TIn, Task<IEnumerable<TOut>>> fn, Action<Exception> errorCallback = null) => new AsyncStage<TIn, TOut>(fn, errorCallback);
+    }
+
     public static class StageExtensions
     {
         public static IStage<T0, T1> To<T0, T, T1>(this IStage<T0, T> stage1, IStage<T, T1> stage2)

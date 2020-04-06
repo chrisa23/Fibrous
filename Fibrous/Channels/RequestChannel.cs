@@ -48,24 +48,38 @@ namespace Fibrous
         /// <returns></returns>
         public async Task<Result<TReply>> SendRequest(TRequest request, TimeSpan timeout)
         {
-            using var channelRequest = new ChannelRequest(request);
+            using var cts = new CancellationTokenSource(timeout);
+            using var channelRequest = new ChannelRequest(request, cts);
             _requestChannel.Publish(channelRequest);
-            var task = channelRequest.Resp.Task;
-            var success = await Task.WhenAny(task, Task.Delay(timeout)) == task;
-            channelRequest.Dispose();
-            return success ? Result<TReply>.Ok(task.Result) : Result<TReply>.Failed;
+            try
+            {
+                var reply = await channelRequest.Resp.Task;
+                return Result<TReply>.Ok(reply);
+            }
+            catch (TaskCanceledException)
+            {
+                return Result<TReply>.Failed;
+            }
         }
         
-        private sealed class ChannelRequest : IRequest<TRequest, TReply>, IDisposable
+        public sealed class ChannelRequest : IRequest<TRequest, TReply>, IDisposable
         {
             private readonly SingleShotGuard _guard = new SingleShotGuard();
-            private readonly CancellationTokenSource _cancel = new CancellationTokenSource();
-            
-            public ChannelRequest(TRequest req)
+            private readonly CancellationTokenSource _cancel;
+           
+            public ChannelRequest(TRequest req, CancellationTokenSource cts = null)
             {
                 Request = req;
+                _cancel = cts ?? new CancellationTokenSource();
+                if(cts != null)
+                    _cancel.Token.Register(Callback);
             }
-            
+
+            private void Callback()
+            {
+                Resp.TrySetCanceled();
+            }
+
             public TaskCompletionSource<TReply> Resp { get; } = new TaskCompletionSource<TReply>();
             public CancellationToken CancellationToken => _cancel.Token;
 
@@ -84,12 +98,14 @@ namespace Fibrous
                 if (_guard.Check)
                 {
                     _cancel.Cancel();
+                    
                 }
             }
         }
 
-        private class AsyncChannelRequest : IRequest<TRequest, TReply>, IDisposable
+        public class AsyncChannelRequest : IRequest<TRequest, TReply>, IDisposable
         {
+            private readonly SingleShotGuard _guard = new SingleShotGuard();
             private readonly IChannel<TReply> _resp = new Channel<TReply>();
             private readonly IDisposable _sub;
             private readonly CancellationTokenSource _cancel = new CancellationTokenSource();
@@ -107,15 +123,21 @@ namespace Fibrous
 
             public void Dispose()
             {
-                _cancel.Cancel();
-                _sub?.Dispose();
+                if (_guard.Check)
+                {
+                    _cancel.Cancel();
+                    _sub?.Dispose();
+                }
             }
 
             public TRequest Request { get; }
 
             public void Reply(TReply response)
             {
-                _resp.Publish(response);
+                if (_guard.Check)
+                {
+                    _resp.Publish(response);
+                }
             }
 
             public CancellationToken CancellationToken => _cancel.Token;

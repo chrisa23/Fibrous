@@ -20,13 +20,14 @@ namespace PipelineExample
             // - use 4 parallel workers to fan out and handle getting the file length
             // - print out the file length
 
-            using var pipeline = 
-                new Stage<string, string>(Directory.EnumerateFiles)
-                .SelectOrdered(x => (x, new FileInfo(x).Length), 4)
-                .Tap(info => Console.WriteLine($"**{info.x} is {info.Length} in length")) // equivalent to Select(x => {f(x); return x;})
-                .Where(x => x.Length > 1000000)
-                .Tap(info => Console.WriteLine($"{info.x} is {info.Length} in length"))
-                .Batch(TimeSpan.FromSeconds(1));
+            using var pipeline =
+                Pipeline
+                    .Start<string, string>(Directory.EnumerateFiles)
+                    .SelectOrdered(x => (x, new FileInfo(x).Length), 4)
+                    .Tap(info => Console.WriteLine($"**{info.x} is {info.Length} in length")) // equivalent to Select(x => {f(x); return x;})
+                    .Where(x => x.Length > 1000000)
+                    .Tap(info => Console.WriteLine($"{info.x} is {info.Length} in length"))
+                    .Batch(TimeSpan.FromSeconds(1));
             // the resulting pipeline is still an IStage, and can be composed into another pipeline
 
             pipeline.Publish("C:\\");

@@ -105,6 +105,9 @@ namespace Fibrous.Tests
             Assert.AreEqual(0, list.Count);
             var items = collection.GetItems(x => true);
             Assert.AreEqual(2, items.Length);
+            collection.Clear();
+            items = collection.GetItems(x => true);
+            Assert.AreEqual(0, items.Length);
         }
     }
 }
