@@ -33,76 +33,98 @@ namespace Fibrous.Benchmark
 
         public void Run(IFiber fiber)
         {
-            i = 0;
-            for (var j = 0; j < OperationsPerInvoke; j++) fiber.Enqueue(Handler);
-            WaitHandle.WaitAny(new WaitHandle[] {_wait});
+            using (fiber)
+            {
+                i = 0;
+                for (var j = 0; j < OperationsPerInvoke; j++) fiber.Enqueue(Handler);
+                WaitHandle.WaitAny(new WaitHandle[] {_wait});
+            }
         }
 
         public void Run(IAsyncFiber fiber)
         {
-            i = 0;
-            for (var j = 0; j < OperationsPerInvoke; j++) fiber.Enqueue(AsyncHandler);
-            WaitHandle.WaitAny(new WaitHandle[] {_wait});
+            using (fiber)
+            {
+                i = 0;
+                for (var j = 0; j < OperationsPerInvoke; j++) fiber.Enqueue(AsyncHandler);
+                WaitHandle.WaitAny(new WaitHandle[] {_wait});
+            }
         }
 
         //0 allocations when caching the handler to Action
         public void Run2(IFiber fiber)
         {
-            Action handler = Handler;
-            i = 0;
-            for (var j = 0; j < OperationsPerInvoke; j++) fiber.Enqueue(handler);
-            WaitHandle.WaitAny(new WaitHandle[] { _wait });
+            using (fiber)
+            {
+                Action handler = Handler;
+                i = 0;
+                for (var j = 0; j < OperationsPerInvoke; j++) fiber.Enqueue(handler);
+                WaitHandle.WaitAny(new WaitHandle[] {_wait});
+            }
         }
 
         //0 allocations when caching the handler to Action
         public void Run2(IAsyncFiber fiber)
         {
-            Func<Task> asyncHandler = AsyncHandler;
-            i = 0;
-            for (var j = 0; j < OperationsPerInvoke; j++)
+            using (fiber)
             {
-                fiber.Enqueue(asyncHandler);
-            }
+                Func<Task> asyncHandler = AsyncHandler;
+                i = 0;
+                for (var j = 0; j < OperationsPerInvoke; j++)
+                {
+                    fiber.Enqueue(asyncHandler);
+                }
 
-            WaitHandle.WaitAny(new WaitHandle[] { _wait });
+                WaitHandle.WaitAny(new WaitHandle[] {_wait});
+            }
         }
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void Fiber()
         {
-            Run(_fiber);
+            Run(new Fiber());
         }
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void Async()
         {
-            Run(_async);
+            Run(new AsyncFiber());
         }
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void Fiber2()
+        public void FiberWCache()
         {
-            Run2(_fiber);
+            Run2(new Fiber());
         }
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void Async2()
+        public void AsyncWCache()
         {
-            Run2(_async);
+            Run2(new AsyncFiber());
         }
 
-        [IterationSetup]
-        public void Setup()
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        public void LockFiber()
         {
-            _async = new AsyncFiber();
-            _fiber = new Fiber();
+            Run(new LockFiber());
         }
 
-        [IterationCleanup]
-        public void Cleanup()
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        public void LockAsync()
         {
-            _fiber.Dispose();
-            _async.Dispose();
+            Run(new LockAsyncFiber());
+        }
+
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        public void LockFiberWCache()
+        {
+            Run2(new LockFiber());
+        }
+
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        public void LockAsyncWCache()
+        {
+            Run2(new LockAsyncFiber());
         }
     }
 }
