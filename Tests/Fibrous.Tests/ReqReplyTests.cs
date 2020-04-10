@@ -49,7 +49,7 @@ namespace Fibrous.Tests
             IRequestChannel<int, int> channel = new RequestChannel<int, int>();
             var fiber1 = new AsyncFiber();
 
-            async Task Reply(IRequest<int, int> request)
+            static async Task Reply(IRequest<int, int> request)
             {
                 await Task.Delay(TimeSpan.FromSeconds(3));
                 request.Reply(request.Request + 1);
@@ -87,7 +87,7 @@ namespace Fibrous.Tests
             //the request's cancel token in a try catch
             var fiber1 = new AsyncFiber();
 
-            async Task Reply(IRequest<int, int> request)
+            static async Task Reply(IRequest<int, int> request)
             {
                 try
                 {

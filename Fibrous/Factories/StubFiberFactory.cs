@@ -13,14 +13,13 @@ namespace Fibrous
             _scheduler = scheduler;
             _asyncScheduler = asyncScheduler;
         }
-        public IFiber Create()
-        {
-            return new StubFiber(scheduler: _scheduler);
-        }
 
-        public IFiber Create(Action<Exception> errorHandler)
+
+        public IFiber Create(Action<Exception> errorHandler = null)
         {
-            return new StubFiber(errorHandler, _scheduler);
+            return errorHandler == null
+                ? new StubFiber(scheduler: _scheduler)
+                : new StubFiber(errorHandler, _scheduler);
         }
 
         public IAsyncFiber CreateAsync(Action<Exception> errorHandler)

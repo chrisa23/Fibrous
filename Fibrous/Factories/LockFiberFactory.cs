@@ -19,14 +19,12 @@ namespace Fibrous
             _asyncScheduler = asyncScheduler;
         }
 
-        public IFiber Create()
-        {
-            return new LockFiber(size: _size, taskFactory: _taskFactory, scheduler: _scheduler);
-        }
 
-        public IFiber Create(Action<Exception> errorHandler)
+        public IFiber Create(Action<Exception> errorHandler = null)
         {
-            return new LockFiber(errorHandler, _size, _taskFactory, _scheduler);
+            return errorHandler == null
+                ? new LockFiber(size: _size, taskFactory: _taskFactory, scheduler: _scheduler)
+                : new LockFiber(errorHandler, _size, _taskFactory, _scheduler);
         }
 
         public IAsyncFiber CreateAsync(Action<Exception> errorHandler)

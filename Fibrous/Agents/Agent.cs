@@ -6,26 +6,25 @@ namespace Fibrous.Agents
     ///     Agent using injected handler function.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class Agent<T> : IAgent<T>
+    public class Agent<T> :  IAgent<T>
     {
-        private readonly IPublisherPort<T> _channel;
-        protected readonly IFiber Fiber;
-
-        public Agent(Action<T> handler, IExecutor executor = null)
+        private readonly Action<T> _handler;
+        protected IFiber Fiber;
+        public Agent(Action<T> handler, Action<Exception> errorCallback = null)
         {
-            Fiber = new Fiber(executor);
-            _channel = Fiber.NewChannel(handler);
+            _handler = handler;
+            Fiber = errorCallback == null? new Fiber() : new Fiber(errorCallback);
         }
 
-        public Agent(Action<T> handler, Action<Exception> errorCallback)
+        public Agent(IFiberFactory factory, Action<T> handler, Action<Exception> errorCallback = null)
         {
-            Fiber = new Fiber(errorCallback);
-            _channel = Fiber.NewChannel(handler);
+            _handler = handler;
+            Fiber = errorCallback == null ? factory.Create() : factory.Create(errorCallback);
         }
 
         public void Publish(T msg)
         {
-            _channel.Publish(msg);
+            Fiber.Enqueue(() => _handler( msg));
         }
 
         public void Dispose()
@@ -33,4 +32,6 @@ namespace Fibrous.Agents
             Fiber.Dispose();
         }
     }
+
+ 
 }

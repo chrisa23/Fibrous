@@ -5,15 +5,15 @@ namespace Fibrous.Actors
 {
     public abstract class UntypedActor : IDisposable
     {
-        private readonly IRequestChannel<object, object> _askChannel = new RequestChannel<object, object>();
-        private readonly IChannel<object> _tellChannel = new Channel<object>();
+        private readonly IRequestPort<object, object> _askChannel;
+        private readonly IChannel<object> _tellChannel;
         protected IFiber Fiber;
 
-        protected UntypedActor()
+        protected UntypedActor(IFiberFactory factory = null)
         {
-            Fiber = new Fiber(OnError);
-            Fiber.Subscribe(_tellChannel, Receive);
-            _askChannel.SetRequestHandler(Fiber, OnRequest);
+            Fiber = factory?.Create(OnError) ?? new Fiber(OnError);
+            _tellChannel = Fiber.NewChannel<object>(Receive);
+            _askChannel = Fiber.NewRequestPort<object, object>(OnRequest);
         }
 
         private void OnRequest(IRequest<object, object> request)

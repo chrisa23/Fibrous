@@ -12,7 +12,7 @@ namespace Fibrous
         }
         protected AsyncFiberComponent(IFiberFactory factory)
         {
-            Fiber =factory.CreateAsync(OnError);
+            Fiber = factory.CreateAsync(OnError);
         }
 
         protected abstract void OnError(Exception obj);

@@ -7,25 +7,30 @@ namespace Fibrous.Agents
     ///     Agent using injected handler function.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class AsyncAgent<T> : IAgent<T>
+    public class AsyncAgent<T> :  IAgent<T>
     {
-        private readonly IPublisherPort<T> _channel;
-        protected readonly IAsyncFiber Fiber;
-
+        private readonly Func<T, Task> _handler;
+        protected IAsyncFiber Fiber;
         public AsyncAgent(Func<T, Task> handler, Action<Exception> callback)
         {
+            _handler = handler;
             Fiber = new AsyncFiber(callback);
-            _channel = Fiber.NewChannel(handler);
+        }
+
+        public AsyncAgent(IFiberFactory factory, Func<T, Task> handler, Action<Exception> callback)
+        {
+            _handler = handler;
+            Fiber = factory.CreateAsync(callback);
         }
 
         public void Publish(T msg)
         {
-            _channel.Publish(msg);
+            Fiber.Enqueue(() => _handler(msg));
         }
 
         public void Dispose()
         {
-            Fiber.Dispose();
+            Fiber?.Dispose();
         }
     }
 }

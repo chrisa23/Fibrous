@@ -18,9 +18,20 @@ namespace Fibrous
         /// <returns></returns>
        IDisposable Subscribe(IFiber fiber, Action<T> receive);
 
-       IDisposable Subscribe(IAsyncFiber fiber, Func<T, Task> receive);
+        /// <summary>
+        ///     Subscribe to messages on this channel with a fiber and handler.
+        /// </summary>
+        /// <param name="fiber"></param>
+        /// <param name="receive"></param>
+        /// <returns></returns>
+        IDisposable Subscribe(IAsyncFiber fiber, Func<T, Task> receive);
 
-       IDisposable Subscribe(Action<T> receive);
+        /// <summary>
+        ///    Subscribe to messages on this channel with a  handler directly.
+        /// </summary>
+        /// <param name="receive"></param>
+        /// <returns></returns>
+        IDisposable Subscribe(Action<T> receive);
     }
 
 

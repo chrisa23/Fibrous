@@ -2,19 +2,25 @@
 using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
-using Fibrous.Experimental;
+using Fibrous.Benchmark.Implementations;
 
 namespace Fibrous.Benchmark
 {
-  //  [DisassemblyDiagnoser(printAsm: true, printSource: true)]
+    //[DisassemblyDiagnoser(pr: true, printSource: true)]
     [MemoryDiagnoser]
-    public class PoolFibers
+    public class FiberEnqueue
     {
         private const int OperationsPerInvoke = 10000000;
         private readonly AutoResetEvent _wait = new AutoResetEvent(false);
-        private IAsyncFiber _async;
-        private IFiber _fiber;
         private int i;
+        private readonly Action _handler;
+        private readonly Func<Task> _asyncHandler;
+
+        public FiberEnqueue()
+        {
+            _handler = Handler;
+            _asyncHandler = AsyncHandler;
+        }
 
         private void Handler()
         {
@@ -29,6 +35,13 @@ namespace Fibrous.Benchmark
             if (i == OperationsPerInvoke)
                 _wait.Set();
             return Task.CompletedTask;
+        }
+
+        private async ValueTask ValueAsyncHandler()
+        {
+            i++;
+            if (i == OperationsPerInvoke)
+                _wait.Set();
         }
 
         public void Run(IFiber fiber)
@@ -51,14 +64,23 @@ namespace Fibrous.Benchmark
             }
         }
 
+        public void Run(IValueAsyncFiber fiber)
+        {
+            using (fiber)
+            {
+                i = 0;
+                for (var j = 0; j < OperationsPerInvoke; j++) fiber.Enqueue(ValueAsyncHandler);
+                WaitHandle.WaitAny(new WaitHandle[] { _wait });
+            }
+        }
+
         //0 allocations when caching the handler to Action
         public void Run2(IFiber fiber)
         {
             using (fiber)
             {
-                Action handler = Handler;
                 i = 0;
-                for (var j = 0; j < OperationsPerInvoke; j++) fiber.Enqueue(handler);
+                for (var j = 0; j < OperationsPerInvoke; j++) fiber.Enqueue(_handler);
                 WaitHandle.WaitAny(new WaitHandle[] {_wait});
             }
         }
@@ -68,11 +90,10 @@ namespace Fibrous.Benchmark
         {
             using (fiber)
             {
-                Func<Task> asyncHandler = AsyncHandler;
                 i = 0;
                 for (var j = 0; j < OperationsPerInvoke; j++)
                 {
-                    fiber.Enqueue(asyncHandler);
+                    fiber.Enqueue(_asyncHandler);
                 }
 
                 WaitHandle.WaitAny(new WaitHandle[] {_wait});
@@ -89,6 +110,12 @@ namespace Fibrous.Benchmark
         public void Async()
         {
             Run(new AsyncFiber());
+        }
+
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        public void ValueAsync()
+        {
+            Run(new ValueAsyncFiber());
         }
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]

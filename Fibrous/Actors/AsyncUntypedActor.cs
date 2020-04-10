@@ -5,15 +5,15 @@ namespace Fibrous.Actors
 {
     public abstract class AsyncUntypedActor : IDisposable
     {
-        private readonly IRequestChannel<object, object> _askChannel = new RequestChannel<object, object>();
-        private readonly IChannel<object> _tellChannel = new Channel<object>();
+        private readonly IRequestPort<object, object> _askChannel;
+        private readonly IChannel<object> _tellChannel;
         protected IAsyncFiber Fiber;
 
-        protected AsyncUntypedActor()
+        protected AsyncUntypedActor(IFiberFactory factory = null)
         {
-            Fiber =  new AsyncFiber(OnError);
-            Fiber.Subscribe(_tellChannel, Receive);
-            _askChannel.SetRequestHandler(Fiber, OnRequest);
+            Fiber = factory?.CreateAsync(OnError) ?? new AsyncFiber(OnError);
+            _tellChannel = Fiber.NewChannel<object>(Receive);
+            _askChannel = Fiber.NewRequestPort<object,object>(OnRequest);
         }
 
         private Task OnRequest(IRequest<object, object> request)

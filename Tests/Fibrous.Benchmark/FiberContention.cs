@@ -11,13 +11,6 @@ namespace Fibrous.Benchmark
         private const int OperationsPerInvoke = 1000000;
         private readonly IChannel<object> _channel = new Channel<object>();
         private readonly AutoResetEvent _wait = new AutoResetEvent(false);
-        private IAsyncFiber _async;
-        private IAsyncFiber _asyncLock;
-        private IFiber _pool1;
-        private IFiber _pool2;
-        private IFiber _fiber;
-        private IFiber _spinPool;
-        private IFiber _lock;
         private int i;
 
         private void Handler(object obj)
@@ -37,8 +30,9 @@ namespace Fibrous.Benchmark
 
         public void Run(IFiber fiber)
         {
-            using (var sub = _channel.Subscribe(fiber, Handler))
+            using (fiber)
             {
+                using var sub = _channel.Subscribe(fiber, Handler);
                 i = 0;
                 Task.Run(Iterate);
                 Task.Run(Iterate);
@@ -55,8 +49,9 @@ namespace Fibrous.Benchmark
 
         public void Run(IAsyncFiber fiber)
         {
-            using (var sub = _channel.Subscribe(fiber, AsyncHandler))
+            using (fiber)
             {
+                using var sub = _channel.Subscribe(fiber, AsyncHandler);
                 i = 0;
                 Task.Run(Iterate);
                 Task.Run(Iterate);
@@ -68,65 +63,32 @@ namespace Fibrous.Benchmark
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void Pool1()
         {
-            Run(_pool1);
+            Run(PoolFiber_OLD.StartNew());
         }
 
-        //[Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        //public void Pool2()
-        //{
-        //    Run(_pool2);
-        //}
-        //[Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        //public void PoolSpin()
-        //{
-        //    Run(_spinPool);
-        //}
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void Fiber()
         {
-            Run(_fiber);
+            Run(new Fiber());
         }
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void LockFiber()
         {
-            Run(_lock);
+            Run(new LockFiber());
         }
 
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void Async()
         {
-            Run(_async);
+            Run(new AsyncFiber());
         }
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void AsyncLock()
         {
-            Run(_asyncLock);
+            Run(new LockAsyncFiber());
         }
 
-        [GlobalSetup]
-        public void Setup()
-        {
-            _pool1 = PoolFiber_OLD.StartNew();
-            _pool2 = new PoolFiber2();
-            _spinPool = new SpinLockPoolFiber();
-            _async = new AsyncFiber();
-            _fiber = new Fiber();
-            _lock = new LockFiber();
-            _asyncLock = new LockAsyncFiber();
-        }
-
-        [GlobalCleanup]
-        public void Cleanup()
-        {
-            _pool1.Dispose();
-            _pool2.Dispose();
-            _spinPool.Dispose();
-            _fiber.Dispose();
-            _async.Dispose();
-            _lock.Dispose();
-            _asyncLock.Dispose();
-        }
     }
 }

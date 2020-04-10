@@ -19,10 +19,7 @@ namespace Fibrous
 
         public IDisposable Subscribe(IFiber fiber, Action receive)
         {
-            void Action()
-            {
-                fiber.Enqueue(receive);
-            }
+            void Action() => fiber.Enqueue(receive);
 
             var disposable = _internalEvent.Subscribe(Action);
             return new Unsubscriber(disposable, fiber);
@@ -30,10 +27,7 @@ namespace Fibrous
 
         public IDisposable Subscribe(IAsyncFiber fiber, Func<Task> receive)
         {
-            void Action()
-            {
-                fiber.Enqueue(receive);
-            }
+            void Action() => fiber.Enqueue(receive);
 
             var disposable = _internalEvent.Subscribe(Action);
             return new Unsubscriber(disposable, fiber);

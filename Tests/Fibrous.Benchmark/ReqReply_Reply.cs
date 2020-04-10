@@ -7,7 +7,7 @@ using BenchmarkDotNet.Attributes;
 namespace Fibrous.Benchmark
 {
     [MemoryDiagnoser]
-    public class ReqReply2
+    public class ReqReply_Reply
     {
         [Benchmark]
         public Task<int> ChannelRequest()
