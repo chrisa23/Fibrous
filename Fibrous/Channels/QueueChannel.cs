@@ -9,13 +9,6 @@ using System.Threading.Tasks;
 
 namespace Fibrous
 {
-
-    [StructLayout(LayoutKind.Sequential, Pack = 8)]
-    internal struct Pad56
-    {
-        long p00, p01, p02, p03, p04, p05, p06;
-    }
-
     /// <summary>
     ///     Queue channel where a message is consumed by only one consumer.
     /// </summary>
