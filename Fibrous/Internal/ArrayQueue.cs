@@ -17,6 +17,7 @@ namespace Fibrous
         private T[] _actions;
         private T[] _toPass;
         private int _processCount;
+        private  volatile int _count;
 
         public ArrayQueue(int size)
         {
@@ -25,13 +26,13 @@ namespace Fibrous
             _toPass = new T[size + 16];
         }
 
-        public int Count { get; private set; }
+        public int Count => _count;
 
         public bool IsFull => Count >= _size;
 
         public void Enqueue(T a)
         {
-            var index0 = Count++;
+            var index0 = _count++;
             _actions[index0] = a;
         }
 
@@ -43,7 +44,7 @@ namespace Fibrous
             var old = _processCount;
             _processCount = processCount;
             Array.Clear(_actions, 0, old);
-            Count = 0;
+            _count = 0;
             return (_processCount, _toPass);
         }
 

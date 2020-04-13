@@ -1,104 +1,123 @@
-﻿using System.Threading;
+﻿using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using Fibrous.Experimental;
 
 namespace Fibrous.Benchmark
 {
-    [MemoryDiagnoser]
+    [MemoryDiagnoser, ShortRunJob]
     public class QueueChannel
     {
-        private const int OperationsPerInvoke = 1000000;
-        private readonly AutoResetEvent _wait = new AutoResetEvent(false);
-        private readonly IChannel<string> _queue = new QueueChannel<string>();
-        private IAsyncFiber _async;
-        private IFiber _pool;
-        private IFiber _pool2; 
-        private IFiber _pool3;
-        
-        private int i;
-
-        private void Handler(string s)
+        private readonly Random _rnd = new Random();
+        private const int OperationsPerInvoke = 1_000_000;
+        private static Stopwatch _sw = Stopwatch.StartNew();
+        [Params( 2, 3, 4, 5)] public int N;
+        [Params(0, 1)] public int Wait;
+        private static void NOP(double durationMS)
         {
-            i++;
-            if (i == OperationsPerInvoke)
-                _wait.Set();
+            var durationTicks = Math.Round(durationMS * Stopwatch.Frequency / 1000) + _sw.ElapsedTicks;
+            
+            while (_sw.ElapsedTicks < durationTicks)
+            {
+
+            }
+        }
+        private void RunMult(IFiberFactory factory, Func<IChannel<int>> queueFactory, int count, int wait1)
+        {
+            using AutoResetEvent wait = new AutoResetEvent(false);
+            int hCount = 0;
+            void Handler(int s)
+            {
+                int c = Interlocked.Increment(ref hCount);
+                if (c == OperationsPerInvoke)
+                    wait.Set();
+                NOP(wait1/1000.0);//_rnd.NextDouble() + .5);
+            }
+            using IChannel<int> queue = queueFactory();
+            using IDisposable fibers = new Disposables( Enumerable.Range(0, count).Select(x =>
+            {
+                var fiber = factory.Create();
+                var sub = queue.Subscribe(fiber, Handler);
+                return fiber;
+            }));
+            for (var j = 1; j <= OperationsPerInvoke; j++) queue.Publish(j);
+            WaitHandle.WaitAny(new WaitHandle[] { wait });
         }
 
-        private Task AsyncHandler(string s)
+        public void RunMultAsync(IFiberFactory factory, Func<IChannel<int>> queueFactory, int count, int wait1)
         {
-            i++;
-            if (i == OperationsPerInvoke)
-                _wait.Set();
-            return Task.CompletedTask;
+            using AutoResetEvent wait = new AutoResetEvent(false);
+            int hCount = 0;
+            Task AsyncHandler(int s)
+            {
+                int c = Interlocked.Increment(ref hCount);
+                if (c == OperationsPerInvoke)
+                    wait.Set();
+                NOP(wait1 / 1000.0);//_rnd.NextDouble() + .5);
+                return Task.CompletedTask;
+            }
+
+            using IChannel<int> _queue = queueFactory();
+            using IDisposable fibers = new Disposables( Enumerable.Range(0, count).Select(x =>
+            {
+                var fiber = factory.CreateAsync(ex => { });
+                var sub = _queue.Subscribe(fiber, AsyncHandler);
+                return fiber;
+            }));
+            for (var j = 1; j <= OperationsPerInvoke; j++) _queue.Publish(j);
+            WaitHandle.WaitAny(new WaitHandle[] {wait});
         }
 
-        public void Run(IFiber fiber)
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        public void Fiber()
         {
-
-            using var sub = _queue.Subscribe(fiber, Handler);
-            i = 0;
-            for (var j = 0; j < OperationsPerInvoke; j++) _queue.Publish("0");
-            WaitHandle.WaitAny(new WaitHandle[] {_wait});
+            RunMult(new FiberFactory(), () => new QueueChannel<int>(), N, Wait);
         }
+        //[Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        //public void Fiber2()
+        //{
+        //    RunMult(new FiberFactory(), () => new QueueChannel2<int>(), N, Wait);
+        //}
+        //[Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        //public void FiberRR()
+        //{
+        //    RunMult(new FiberFactory(), () => new QueueChannelRR<int>(), N, Wait);
+        //}
+        //[Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        //public void FiberRR2()
+        //{
+        //    RunMult(new FiberFactory(), () => new QueueChannelRR2<int>(), N, Wait);
+        //}
 
-        public void Run(IAsyncFiber fiber)
-        {
-            using var sub = _queue.Subscribe(fiber, AsyncHandler);
-            i = 0;
-            for (var j = 0; j < OperationsPerInvoke; j++) _queue.Publish("0");
-            WaitHandle.WaitAny(new WaitHandle[] {_wait});
-        }
+        //[Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        //public void FiberRR3()
+        //{
+        //    RunMult(new FiberFactory(), () => new QueueChannelRR3<int>(), N, Wait);
 
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke, Baseline = true)]
-        public void Pool()
-        {
-            Run(_pool);
-        }
+        //}
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void Async()
         {
-            Run(_async);
+            RunMultAsync(new FiberFactory(), () => new QueueChannel<int>(), N, Wait);
         }
-
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void TwoMixed()
-        {
-            using var sub = _queue.Subscribe(_pool, Handler);
-            using var sub2 = _queue.Subscribe(_async, AsyncHandler);
-            i = 0;
-            for (var j = 0; j < OperationsPerInvoke; j++) _queue.Publish("0");
-            WaitHandle.WaitAny(new WaitHandle[] { _wait });
-        }
-
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void Three()
-        {
-            using var sub = _queue.Subscribe(_pool, Handler);
-            using var sub2 = _queue.Subscribe(_pool2, Handler);
-            using var sub3 = _queue.Subscribe(_pool3, Handler);
-            i = 0;
-            for (var j = 0; j < OperationsPerInvoke; j++) _queue.Publish("0");
-            WaitHandle.WaitAny(new WaitHandle[] { _wait });
-        }
-
-
-
-        [GlobalSetup]
-        public void Setup()
-        {
-            _async = new AsyncFiber();
-            _pool = new Fiber();
-            _pool2 = new Fiber();
-            _pool3= new Fiber();
-        }
-
-        [GlobalCleanup]
-        public void Cleanup()
-        {
-            _pool.Dispose();
-            _async.Dispose();
-        }
+        //[Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        //public void Async2()
+        //{
+        //    RunMultAsync(new FiberFactory(), () => new QueueChannel2<int>(), N, Wait);
+        //}
+        //[Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        //public void AsyncRR()
+        //{
+        //    RunMultAsync(new FiberFactory(), () => new QueueChannelRR<int>(), N, Wait);
+        //}
+        //[Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        //public void AsyncRR2()
+        //{
+        //    RunMultAsync(new FiberFactory(), () => new QueueChannelRR2<int>(), N, Wait);
+        //}
     }
 }

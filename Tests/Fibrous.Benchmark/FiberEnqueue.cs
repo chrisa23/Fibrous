@@ -6,97 +6,101 @@ using Fibrous.Benchmark.Implementations;
 
 namespace Fibrous.Benchmark
 {
-    //[DisassemblyDiagnoser(pr: true, printSource: true)]
     [MemoryDiagnoser]
     public class FiberEnqueue
     {
         private const int OperationsPerInvoke = 10000000;
-        private readonly AutoResetEvent _wait = new AutoResetEvent(false);
-        private int i;
-        private readonly Action _handler;
-        private readonly Func<Task> _asyncHandler;
-
-        public FiberEnqueue()
-        {
-            _handler = Handler;
-            _asyncHandler = AsyncHandler;
-        }
-
-        private void Handler()
-        {
-            i++;
-            if (i == OperationsPerInvoke)
-                _wait.Set();
-        }
-
-        private Task AsyncHandler()
-        {
-            i++;
-            if (i == OperationsPerInvoke)
-                _wait.Set();
-            return Task.CompletedTask;
-        }
-
-        private async ValueTask ValueAsyncHandler()
-        {
-            i++;
-            if (i == OperationsPerInvoke)
-                _wait.Set();
-        }
-
+    
         public void Run(IFiber fiber)
         {
+            using var  wait = new AutoResetEvent(false);
             using (fiber)
             {
-                i = 0;
-                for (var j = 0; j < OperationsPerInvoke; j++) fiber.Enqueue(Handler);
-                WaitHandle.WaitAny(new WaitHandle[] {_wait});
+                int i = 0;
+                void Handler1()
+                {
+                    i++;
+                    if (i == OperationsPerInvoke)
+                        wait.Set();
+                }
+                for (var j = 0; j < OperationsPerInvoke; j++) fiber.Enqueue(Handler1);
+                WaitHandle.WaitAny(new WaitHandle[] {wait});
             }
         }
 
         public void Run(IAsyncFiber fiber)
         {
+            using var wait = new AutoResetEvent(false);
             using (fiber)
             {
-                i = 0;
+                int i = 0;
+                Task AsyncHandler()
+                {
+                    i++;
+                    if (i == OperationsPerInvoke)
+                        wait.Set();
+                    return Task.CompletedTask;
+                }
                 for (var j = 0; j < OperationsPerInvoke; j++) fiber.Enqueue(AsyncHandler);
-                WaitHandle.WaitAny(new WaitHandle[] {_wait});
+                WaitHandle.WaitAny(new WaitHandle[] {wait});
             }
         }
 
         public void Run(IValueAsyncFiber fiber)
         {
+            using var wait = new AutoResetEvent(false);
             using (fiber)
             {
-                i = 0;
-                for (var j = 0; j < OperationsPerInvoke; j++) fiber.Enqueue(ValueAsyncHandler);
-                WaitHandle.WaitAny(new WaitHandle[] { _wait });
+                int i = 0;
+                async ValueTask AsyncHandler()
+                {
+                    i++;
+                    if (i == OperationsPerInvoke)
+                        wait.Set();
+                }
+                for (var j = 0; j < OperationsPerInvoke; j++) fiber.Enqueue(AsyncHandler);
+                WaitHandle.WaitAny(new WaitHandle[] { wait });
             }
         }
 
         //0 allocations when caching the handler to Action
         public void Run2(IFiber fiber)
         {
+            using var wait = new AutoResetEvent(false);
             using (fiber)
             {
-                i = 0;
-                for (var j = 0; j < OperationsPerInvoke; j++) fiber.Enqueue(_handler);
-                WaitHandle.WaitAny(new WaitHandle[] {_wait});
+                int i = 0;
+                Action handler = () =>
+                {
+                    i++;
+                    if (i == OperationsPerInvoke)
+                        wait.Set();
+                };
+                for (var j = 0; j < OperationsPerInvoke; j++) fiber.Enqueue(handler);
+                WaitHandle.WaitAny(new WaitHandle[] {wait});
             }
         }
 
         //0 allocations when caching the handler to Action
         public void Run2(IAsyncFiber fiber)
         {
+            using var wait = new AutoResetEvent(false);
             using (fiber)
             {
-                i = 0;
+                int i = 0;
+                Func<Task> handler = () =>
+                {
+                    i++;
+                    if (i == OperationsPerInvoke)
+                        wait.Set();
+                    return Task.CompletedTask;
+                };
                 for (var j = 0; j < OperationsPerInvoke; j++)
                 {
-                    fiber.Enqueue(_asyncHandler);
+                    fiber.Enqueue(handler);
                 }
 
-                WaitHandle.WaitAny(new WaitHandle[] {_wait});
+                WaitHandle.WaitAny(new WaitHandle[] {wait});
             }
         }
 
@@ -104,6 +108,43 @@ namespace Fibrous.Benchmark
         public void Fiber()
         {
             Run(new Fiber());
+        }
+
+
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        public async Task TwoFibers()
+        {
+            var t1 = Task.Run(() => Run(new Fiber()));
+            var t2 = Task.Run(() => Run(new Fiber()));
+            await t1;
+            await t2;
+        }
+
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        public async Task TwoLockFibers()
+        {
+            var t1 = Task.Run(() => Run(new LockFiber()));
+            var t2 = Task.Run(() => Run(new LockFiber()));
+            await t1;
+            await t2;
+        }
+
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        public async Task TwoAsyncFibers()
+        {
+            var t1 = Task.Run(() => Run(new AsyncFiber()));
+            var t2 = Task.Run(() => Run(new AsyncFiber()));
+            await t1;
+            await t2;
+        }
+
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        public async Task TwoLockAsyncFibers()
+        {
+            var t1 = Task.Run(() => Run(new LockAsyncFiber()));
+            var t2 = Task.Run(() => Run(new LockAsyncFiber()));
+            await t1;
+            await t2;
         }
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]

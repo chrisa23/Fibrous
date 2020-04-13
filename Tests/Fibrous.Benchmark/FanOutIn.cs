@@ -12,37 +12,42 @@ namespace Fibrous.Benchmark
     [MemoryDiagnoser]
     public class FanOutIn
     {
-        private const int OperationsPerInvoke = 1000000;
-        private readonly IChannel<string> _input = new Channel<string>();
-        private readonly IChannel<string> _queue = new QueueChannel<string>();
-        private readonly IChannel<string> _output = new Channel<string>();
+        private const int OperationsPerInvoke = 1_000;
 
-       
+
+
         public void Run(IFiberFactory factory)
         {
+            using IChannel<string> _input = new Channel<string>();
+            using IChannel<string> _queue = new QueueChannel<string>();
+            using IChannel<string> _output = new Channel<string>();
             int count = 0;
             using var reset = new AutoResetEvent(false);
+
             void Handler1(string x)
             {
                 var u = x.ToUpper();
                 _queue.Publish(u);
             }
+
             void Handler(string x)
             {
                 var l = x.ToLower();
                 _output.Publish(l);
             }
+
             void Action(string x)
             {
                 count++;
-                if (count >= OperationsPerInvoke) reset.Set();
+                if (count == OperationsPerInvoke) reset.Set();
             }
 
-    
+
             using var fiber = new ChannelAgent<string>(factory, _input, Handler1);
-            IDisposable[] middle = Enumerable.Range(0, 10).Select(x => new ChannelAgent<string>(factory, _queue, Handler)).ToArray();
+            IDisposable[] middle = Enumerable.Range(0, 4)
+                .Select(x => new ChannelAgent<string>(factory, _queue, Handler)).ToArray();
             using var fiberOut = new ChannelAgent<string>(factory, _output, Action);
-            
+
             for (int i = 0; i < OperationsPerInvoke; i++)
             {
                 _input.Publish("a");
@@ -57,6 +62,9 @@ namespace Fibrous.Benchmark
 
         public void RunAsync(IFiberFactory factory)
         {
+            using IChannel<string> _input = new Channel<string>();
+            using IChannel<string> _queue = new QueueChannel<string>();
+            using IChannel<string> _output = new Channel<string>();
             int count = 0;
             using var reset = new AutoResetEvent(false);
             Task Handler1(string x)
@@ -74,13 +82,13 @@ namespace Fibrous.Benchmark
             Task Action(string x)
             {
                 count++;
-                if (count >= OperationsPerInvoke) reset.Set();
+                if (count == OperationsPerInvoke) reset.Set();
                 return Task.CompletedTask;
             }
             void Error(Exception e ) { }
 
             using var fiber = new AsyncChannelAgent<string>(factory, _input, Handler1, Error);
-            IDisposable[] middle = Enumerable.Range(0, 10).Select(x => new AsyncChannelAgent<string>(factory, _queue, Handler, Error)).ToArray();
+            IDisposable[] middle = Enumerable.Range(0, 4).Select(x => new AsyncChannelAgent<string>(factory, _queue, Handler, Error)).ToArray();
             using var fiberOut = new AsyncChannelAgent<string>(factory, _output, Action, Error);
 
             for (int i = 0; i < OperationsPerInvoke; i++)

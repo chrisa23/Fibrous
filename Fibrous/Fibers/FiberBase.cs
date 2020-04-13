@@ -6,7 +6,7 @@ namespace Fibrous
     {
         private readonly IFiberScheduler _fiberScheduler;
         protected readonly IExecutor Executor;
-        private bool _disposed;
+        private volatile bool _disposed;
 
         protected FiberBase(IExecutor executor = null, IFiberScheduler scheduler = null)
         {
