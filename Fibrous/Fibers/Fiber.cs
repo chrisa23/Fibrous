@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +12,7 @@ namespace Fibrous
         private readonly Action _flushCache;
         private bool _flushPending;
         private SpinLock _spinLock = new SpinLock(false);
-
+        
         public Fiber(IExecutor executor = null, int size = QueueSize.DefaultQueueSize, TaskFactory taskFactory = null, IFiberScheduler scheduler = null)
             : base(executor, scheduler)
         {
@@ -42,7 +41,8 @@ namespace Fibrous
                 if (_flushPending) return;
 
                 _flushPending = true;
-                _taskFactory.StartNew(_flushCache);
+                var flush = _flushCache;
+                _taskFactory.StartNew(flush);
             }
             finally
             {
@@ -56,7 +56,8 @@ namespace Fibrous
 
             for (var i = 0; i < count; i++)
             {
-                Executor.Execute(actions[i]);
+                var execute = actions[i];
+                Executor.Execute(execute);
             }
                 
             var lockTaken = false;
@@ -65,8 +66,11 @@ namespace Fibrous
                 _spinLock.Enter(ref lockTaken);
 
                 if (_queue.Count > 0)
+                {
                     //don't monopolize thread.
-                    _taskFactory.StartNew(_flushCache);
+                    var flush = _flushCache;
+                    _taskFactory.StartNew(flush);
+                }
                 else
                     _flushPending = false;
             }
@@ -75,6 +79,7 @@ namespace Fibrous
                 if (lockTaken) _spinLock.Exit(false);
             }
         }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private (int, Action[]) Drain()
         {

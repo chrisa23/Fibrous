@@ -3,8 +3,9 @@ using System.Threading.Tasks;
 
 namespace Fibrous
 {
-    public abstract class AsyncFiberBase : Disposables, IAsyncFiber
+    public abstract class AsyncFiberBase : IAsyncFiber
     {
+        private readonly Disposables _disposables = new Disposables();
         private readonly IAsyncFiberScheduler _fiberScheduler;
         protected readonly IAsyncExecutor Executor;
         private bool _disposed;
@@ -33,11 +34,21 @@ namespace Fibrous
         }
 
         protected abstract void InternalEnqueue(Func<Task> action);
-        
-        public override void Dispose()
+
+        public void Dispose()
         {
             _disposed = true;
-            base.Dispose();
+            _disposables.Dispose();
+        }
+
+        public void Add(IDisposable toAdd)
+        {
+            _disposables.Add(toAdd);
+        }
+
+        public void Remove(IDisposable toRemove)
+        {
+            _disposables.Remove(toRemove);
         }
     }
 }

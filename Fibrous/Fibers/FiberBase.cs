@@ -1,13 +1,15 @@
 using System;
+using System.Runtime.InteropServices;
 
 namespace Fibrous
 {
-    public abstract class FiberBase : Disposables, IFiber
+    public abstract class FiberBase : IFiber
     {
+        private readonly Disposables _disposables = new Disposables();
         private readonly IFiberScheduler _fiberScheduler;
         protected readonly IExecutor Executor;
         private volatile bool _disposed;
-
+        
         protected FiberBase(IExecutor executor = null, IFiberScheduler scheduler = null)
         {
             _fiberScheduler = scheduler ?? new TimerScheduler();
@@ -32,10 +34,20 @@ namespace Fibrous
             return _fiberScheduler.Schedule(this, action, startTime, interval);
         }
 
-        public override void Dispose()
+        public void Dispose()
         {
             _disposed = true;
-            base.Dispose();
+            _disposables.Dispose();
+        }
+
+        public void Add(IDisposable toAdd)
+        {
+            _disposables.Add(toAdd);
+        }
+
+        public void Remove(IDisposable toRemove)
+        {
+            _disposables.Remove(toRemove);
         }
     }
 }
