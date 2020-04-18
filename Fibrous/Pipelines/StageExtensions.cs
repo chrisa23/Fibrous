@@ -107,8 +107,7 @@ namespace Fibrous.Pipelines
 
         public static IStage<T0, T1> SelectMany<T0, T, T1>(this IStage<T0, T> stage1, Func<T, Task<IEnumerable<T1>>> f, Action<Exception> errorCallback = null)
         {
-            var stage2 = new AsyncStage<T, T1>(f, errorCallback);
-            return stage1.To(stage2);
+            return stage1.To(new AsyncStage<T, T1>(f, errorCallback));
         }
 
         public static IStage<T0, T1> Select<T0, T, T1>(this IStage<T0, T> stage1, Func<T, Task<T1>> f, int count, Action<Exception> errorCallback = null)

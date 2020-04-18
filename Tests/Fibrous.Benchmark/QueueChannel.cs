@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
+using Fibrous.Benchmark.Implementations.QueueChannels;
 using Fibrous.Experimental;
 
 namespace Fibrous.Benchmark
@@ -34,7 +35,7 @@ namespace Fibrous.Benchmark
                 int c = Interlocked.Increment(ref hCount);
                 if (c == OperationsPerInvoke)
                     wait.Set();
-                NOP(wait1/1000.0);//_rnd.NextDouble() + .5);
+                NOP(wait1/1000.0);
             }
             using IChannel<int> queue = queueFactory();
             using IDisposable fibers = new Disposables( Enumerable.Range(0, count).Select(x =>
@@ -56,7 +57,7 @@ namespace Fibrous.Benchmark
                 int c = Interlocked.Increment(ref hCount);
                 if (c == OperationsPerInvoke)
                     wait.Set();
-                NOP(wait1 / 1000.0);//_rnd.NextDouble() + .5);
+                NOP(wait1 / 1000.0);
                 return Task.CompletedTask;
             }
 
@@ -76,6 +77,12 @@ namespace Fibrous.Benchmark
         {
             RunMult(new FiberFactory(), () => new QueueChannel<int>(), N, Wait);
         }
+
+        //[Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        //public void Fiber3()
+        //{
+        //    RunMult(new FiberFactory(), () => new QueueChannel3<int>(), N, Wait);
+        //}
         //[Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         //public void Fiber2()
         //{
@@ -104,6 +111,13 @@ namespace Fibrous.Benchmark
         {
             RunMultAsync(new FiberFactory(), () => new QueueChannel<int>(), N, Wait);
         }
+
+        //[Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        //public void Async3()
+        //{
+        //    RunMultAsync(new FiberFactory(), () => new QueueChannel3<int>(), N, Wait);
+        //}
+
         //[Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         //public void Async2()
         //{

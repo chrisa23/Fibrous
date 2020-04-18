@@ -8,13 +8,9 @@ namespace Fibrous
     {
         public IFiber Fiber { get; }
 
-        protected FiberComponent()
+        protected FiberComponent(IFiberFactory factory = null)
         {
-            Fiber = new Fiber(OnError);
-        }
-        protected FiberComponent(IFiberFactory factory)
-        {
-            Fiber = factory.Create(OnError);
+            Fiber = factory?.Create(OnError) ?? new Fiber(OnError);
         }
 
         protected abstract void OnError(Exception obj);

@@ -4,7 +4,7 @@
 
 High performance concurrency library for the .Net platform.  Fibrous is a fork of Retlang [http://code.google.com/p/retlang/]. 
 
-Fibrous is an actor-like framework but also a flexible set of concurrency components. The main abstractions are Fibers, Ports and Channels.  Fibers are execution contexts, Ports are messaging end points, and channels are combinations of ports that allow decoupling of fiber components.
+Fibrous is an actor-like framework but more of a flexible set of concurrency components. The main abstractions are Fibers, Ports and Channels.  Fibers are execution contexts, Ports are messaging end points, and channels are combinations of ports that allow decoupling of fiber components.
 
 Some of the library benefits:
  - Tiny library that makes multi-threading simple and easy to reason about
@@ -25,6 +25,8 @@ Fibers
 
 Fibers are synchronous execution contexts that maintain order of actions.  Like Actors, Fibers can manage state without worries of cross threading issues.  While a Fiber is synchronous, your system can consist of multiple Fibers communicating through messaging to provide parallelism to your system.
 
+In version 3, Async Fibers were introduced.  These work off of Func&lt;Task> rather than Action delegates allowing a fiber based component to use async/await safely.
+
 Fibers subscribe to channels to receive messages which queue actions based on the assigned handler.  Fibers have a scheduling API that allows actions to be scheduled in the future as well as repeatedly.  You can also directly queue actions onto a Fiber for it to execute.
 
 Fibers are a repository of IDisposable objects and will dispose of all children upon the Fibers disposal.  This is used to clean up subscriptions and scheduling for any fiber.  This is also useful for dealing with children used in the Fiber's context that implement IDisposable.
@@ -32,13 +34,22 @@ Fibers are a repository of IDisposable objects and will dispose of all children 
 There are specialised Fibers for Windows Forms and WPF, which automatically handle invoking actions on the UI/Dispatcher thread.  There is a StubFiber, which is used for testing and in special cases, and immediately executes actions on the calling thread.
 
 ```csharp
-//Representation of the main IFiber interface.
+//Representations of the IFiber and IAsyncFiber interface.
 //There are many extensions to enable more complex behavior
 public interface IFiber : IDisposable
 {
     void Enqueue(Action action);
     IDisposable Schedule(Action action, TimeSpan dueTime);
     IDisposable Schedule(Action action, TimeSpan startTime, TimeSpan interval);
+    void Add(IDisposable toAdd);
+    void Remove(IDisposable toRemove);
+}
+
+public interface IAsyncFiber : IDisposable
+{
+    void Enqueue(Func&lt;Task> action);
+    IDisposable Schedule(Func&lt;Task> action, TimeSpan dueTime);
+    IDisposable Schedule(Func&lt;Task> action, TimeSpan startTime, TimeSpan interval);
     void Add(IDisposable toAdd);
     void Remove(IDisposable toRemove);
 }
@@ -61,13 +72,15 @@ fiber.Schedule(ScheduledMethod, when);
 fiber.Schedule(ScheduledMethod, startWhen, repeatInterval);
 ```
 
-In version 3, Async Fibers were introduced.  These work off of Func&lt;Task> rather than Action delegates.  -- More to come --
+
 
 Ports and Channels
 ------------------
 
 Ports are the end points for publishing and subscribing to messages.  
 
+The port types (ISubscriberPort<T>, IPublisherPort<T>, IRequestPort<TRequest, TReply>, ISnapshotSubscriberPort<T, TSnapshot>, IEventPort and IEventTrigger) allow a variety of behavior around message passing and events.
+    
 Channels are the conduit for message passing between Fibers, and allow decoupling of the parts of your system.  There are a variety of channel types built into Fibrous: one way channels that notify all subscribers, request/reply, queue channels that give messages to one of multiple subscribers, as well as a state channel that acts like a last value cache.
 
 There is a static EventBus which allows a simpler mechanism for passing messages when only one normal channel per type is needed and an EventHub that allows auto-wiring of handlers.
@@ -105,15 +118,17 @@ agent.Publish("the message");
 Pipelines
 ---------
 
--- TBD --
+*** Experimental
+
 
 ```csharp
 using var pipeline = 
-    new Stage<string, string>(Directory.EnumerateFiles) //A stage can take single input and generate an IEnumerable output
-    .SelectOrdered(x => (x, new FileInfo(x).Length), 4) //Ordered fanning out 
-    .Tap(info => Console.WriteLine($"**{info.x} is {info.Length} in length")) // equivalent to Select(x => {f(x); return x;})
-    .Where(x => x.Length > 1000000)  //Filtering
-    .Tap(info => Console.WriteLine($"{info.x} is {info.Length} in length"));
+    Pipeline
+        .StartStage<string, string>(Directory.EnumerateFiles) //A stage can take single input and generate an IEnumerable output
+        .SelectOrdered(x => (x, new FileInfo(x).Length), 4) //Ordered fanning out 
+        .Tap(info => Console.WriteLine($"**{info.x} is {info.Length} in length")) // equivalent to Select(x => {f(x); return x;})
+        .Where(x => x.Length > 1000000)  //Filtering
+        .Tap(info => Console.WriteLine($"{info.x} is {info.Length} in length"));
 // the resulting pipeline is still an IStage, and can be composed into another pipeline
 
 pipeline.Publish("C:\\");
@@ -122,7 +137,8 @@ pipeline.Publish("C:\\");
 Proxy
 -----
 
-***Experimental
+*** Experimental
+
 You can generate a proxy wrapper to a class instance that will take a non-thread safe object and make it thread-safe.
 
 ```csharp

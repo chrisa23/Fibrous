@@ -109,5 +109,42 @@ namespace Fibrous.Tests
             items = collection.GetItems(x => true);
             Assert.AreEqual(0, items.Length);
         }
+
+        [Test]
+        public void DictionaryCollectionTest2()
+        {
+            using var collection = new FiberDictionary<int, int>();
+            collection.Add(1, 1);
+            collection.Add(2, 2);
+
+            var local = new Dictionary<int, int>();
+            using var fiber = new Fiber();
+            
+            //Snapshot after subscribe local copy
+            collection.SubscribeLocalCopy(fiber, local, () =>{ });
+            Thread.Sleep(10);
+            Assert.AreEqual(2, local.Count);
+            Assert.AreEqual(1, local[1]);
+            Assert.AreEqual(2, local[2]);
+
+            //Add
+            collection.Add(3, 3);
+            Thread.Sleep(10);
+            Assert.AreEqual(3, local.Count);
+
+            //Remove
+            collection.Remove(3);
+            Thread.Sleep(10);
+            Assert.AreEqual(2, local.Count);
+
+            //GetItems
+            var items = collection.GetItems(x => true);
+            Assert.AreEqual(2, items.Length);
+            
+            //Clear
+            collection.Clear();
+            items = collection.GetItems(x => true);
+            Assert.AreEqual(0, items.Length);
+        }
     }
 }

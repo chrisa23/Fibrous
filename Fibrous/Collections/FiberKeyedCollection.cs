@@ -8,12 +8,10 @@ namespace Fibrous.Collections
     public class FiberKeyedCollection<TKey, T> : ISnapshotSubscriberPort<ItemAction<T>, T[]>,
         IRequestPort<Func<T, bool>, T[]>, IDisposable
     {
-        private readonly IChannel<T> _add = new Channel<T>();
         private readonly ISnapshotChannel<ItemAction<T>, T[]> _channel = new SnapshotChannel<ItemAction<T>, T[]>();
         private readonly IFiber _fiber;
         private readonly Dictionary<TKey, T> _items = new Dictionary<TKey, T>();
         private readonly Func<T, TKey> _keyGen;
-        private readonly IChannel<T> _remove = new Channel<T>();
         private readonly IRequestChannel<Func<T, bool>, T[]> _request = new RequestChannel<Func<T, bool>, T[]>();
 
         public FiberKeyedCollection(Func<T, TKey> keyGen, IExecutor executor = null)
@@ -21,8 +19,6 @@ namespace Fibrous.Collections
             _keyGen = keyGen;
             _fiber = new Fiber(executor);
             _channel.ReplyToPrimingRequest(_fiber, Reply);
-            _add.Subscribe(_fiber, AddItem);
-            _remove.Subscribe(_fiber, RemoveItem);
             _request.SetRequestHandler(_fiber, OnRequest);
         }
 
@@ -63,12 +59,12 @@ namespace Fibrous.Collections
 
         public void Add(T item)
         {
-            _add.Publish(item);
+            _fiber.Enqueue(() => AddItem(item));
         }
 
         public void Remove(T item)
         {
-            _remove.Publish(item);
+            _fiber.Enqueue(() => RemoveItem(item));
         }
 
         public T[] GetItems(Func<T, bool> request)

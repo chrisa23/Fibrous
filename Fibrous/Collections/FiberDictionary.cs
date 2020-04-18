@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Fibrous.Collections
@@ -140,40 +141,29 @@ namespace Fibrous.Collections
             return _items.ToArray();
         }
 
-        
         //Helper functions to create handlers for maintaining a local collection based on a FiberDictionary
-        public static Action<ItemAction<KeyValuePair<TKey, T>>> CreateReceive(Dictionary<TKey, T> localDict,
+        public IDisposable SubscribeLocalCopy(IFiber fiber, Dictionary<TKey, T> localDict, Action updateCallback)
+        {
+            return Subscribe(fiber, CreateReceive(localDict, updateCallback), CreateSnapshot(localDict, updateCallback));
+        }
+
+        public IDisposable SubscribeLocalCopy(IAsyncFiber fiber, Dictionary<TKey, T> localDict, Action updateCallback)
+        {
+            return Subscribe(fiber, CreateReceiveAsync(localDict, updateCallback), CreateSnapshotAsync(localDict, updateCallback));
+        }
+        
+        private static Action<ItemAction<KeyValuePair<TKey, T>>> CreateReceive(Dictionary<TKey, T> localDict,
             Action updateCallback)
         {
             return x =>
             {
-                switch (x.ActionType)
-                {
-                    case ActionType.Add:
-                    case ActionType.Update:
-                        foreach (var item in x.Items)
-                        {
-                            localDict[item.Key] = item.Value;
-                        }
-                        break;
-                    case ActionType.Remove:
-                        foreach (var item in x.Items)
-                        {
-                            localDict.Remove(item.Key);
-                        }
-                        break;
-                    case ActionType.Clear:
-                        localDict.Clear();
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                UpdateLocal(localDict, x);
 
                 updateCallback();
             };
         }
 
-        public static Action<KeyValuePair<TKey, T>[]> CreateSnapshot(Dictionary<TKey, T> localDict,
+        private static Action<KeyValuePair<TKey, T>[]> CreateSnapshot(Dictionary<TKey, T> localDict,
             Action updateCallback)
         {
             return x =>
@@ -184,6 +174,60 @@ namespace Fibrous.Collections
                 }
 
                 updateCallback();
+            };
+        }
+
+        private static Func<ItemAction<KeyValuePair<TKey, T>>, Task> CreateReceiveAsync(Dictionary<TKey, T> localDict,
+            Action updateCallback)
+        {
+            return x =>
+            {
+                UpdateLocal(localDict, x);
+
+                updateCallback();
+                return Task.CompletedTask;
+            };
+        }
+
+        private static void UpdateLocal(Dictionary<TKey, T> localDict, ItemAction<KeyValuePair<TKey, T>> x)
+        {
+            switch (x.ActionType)
+            {
+                case ActionType.Add:
+                case ActionType.Update:
+                    foreach (var item in x.Items)
+                    {
+                        localDict[item.Key] = item.Value;
+                    }
+
+                    break;
+                case ActionType.Remove:
+                    foreach (var item in x.Items)
+                    {
+                        localDict.Remove(item.Key);
+                    }
+
+                    break;
+                case ActionType.Clear:
+                    localDict.Clear();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private static Func<KeyValuePair<TKey, T>[], Task> CreateSnapshotAsync(Dictionary<TKey, T> localDict,
+            Action updateCallback)
+        {
+            return x =>
+            {
+                foreach (var item in x)
+                {
+                    localDict[item.Key] = item.Value;
+                }
+
+                updateCallback();
+                return Task.CompletedTask;
             };
         }
     }

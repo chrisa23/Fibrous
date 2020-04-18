@@ -10,7 +10,7 @@ namespace Fibrous
         private readonly int _size;
         private readonly TaskFactory _taskFactory;
 
-        public FiberFactory(int size = 1008, TaskFactory taskFactory = null, IFiberScheduler scheduler = null,
+        public FiberFactory(int size = QueueSize.DefaultQueueSize, TaskFactory taskFactory = null, IFiberScheduler scheduler = null,
             IAsyncFiberScheduler asyncScheduler = null)
         {
             _size = size;

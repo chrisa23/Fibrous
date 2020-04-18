@@ -6,13 +6,9 @@ namespace Fibrous
     {
         public IAsyncFiber Fiber { get; }
 
-        protected AsyncFiberComponent()
+        protected AsyncFiberComponent(IFiberFactory factory = null)
         {
-            Fiber = new AsyncFiber(OnError);
-        }
-        protected AsyncFiberComponent(IFiberFactory factory)
-        {
-            Fiber = factory.CreateAsync(OnError);
+            Fiber = factory?.CreateAsync(OnError) ?? new AsyncFiber(OnError);
         }
 
         protected abstract void OnError(Exception obj);

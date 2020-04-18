@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace Fibrous.Tests
@@ -23,7 +24,7 @@ namespace Fibrous.Tests
         }
 
         [Test]
-        public void ThrottledTest()
+        public async Task ThrottledTest()
         {
             IEventChannel eventChannel = new EventChannel();
             using var reset = new AutoResetEvent(false);
@@ -31,7 +32,8 @@ namespace Fibrous.Tests
             void Receive()
             {
                 i++;
-                reset.Set();
+                if(i == 2)
+                    reset.Set();
             }
 
             using var fiber = new Fiber();
@@ -41,10 +43,15 @@ namespace Fibrous.Tests
             {
                 eventChannel.Trigger();
             }
-            
 
-            Assert.IsTrue(reset.WaitOne(TimeSpan.FromSeconds(1)));
-            Assert.AreEqual(1, i);
+            await Task.Delay(TimeSpan.FromSeconds(.6));
+            for (int j = 0; j < 10; j++)
+            {
+                eventChannel.Trigger();
+            }
+
+            Assert.IsTrue(reset.WaitOne(TimeSpan.FromSeconds(2)));
+            Assert.AreEqual(2, i);
         }
     }
 }

@@ -112,5 +112,86 @@ namespace Fibrous.Collections
         {
             return _items.ToArray();
         }
+
+        //Helper functions to create handlers for maintaining a local collection based on a FiberDictionary
+        public IDisposable SubscribeLocalCopy(IFiber fiber, List<T> local, Action updateCallback)
+        {
+            return Subscribe(fiber, CreateReceive(local, updateCallback), CreateSnapshot(local, updateCallback));
+        }
+
+        public IDisposable SubscribeLocalCopy(IAsyncFiber fiber, List<T> local, Action updateCallback)
+        {
+            return Subscribe(fiber, CreateReceiveAsync(local, updateCallback), CreateSnapshotAsync(local, updateCallback));
+        }
+
+        public static Action<ItemAction<T>> CreateReceive(List<T> local, Action updateCallback)
+        {
+            return x =>
+            {
+                Update(local, x);
+
+                updateCallback();
+            };
+        }
+
+        private static Action<T[]> CreateSnapshot(List<T> local ,
+            Action updateCallback)
+        {
+            return x =>
+            {
+                local.AddRange(x);
+
+                updateCallback();
+            };
+        }
+
+        private static Func<T[], Task> CreateSnapshotAsync(List<T> local,
+            Action updateCallback)
+        {
+            return x =>
+            {
+                local.AddRange(x);
+
+                updateCallback();
+                return Task.CompletedTask;
+            };
+        }
+        
+        private static Func<ItemAction<T>, Task> CreateReceiveAsync(List<T> local,
+            Action updateCallback)
+        {
+            return x =>
+            {
+                Update(local, x);
+
+                updateCallback();
+                return Task.CompletedTask;
+            };
+        }
+
+        private static void Update(List<T> local, ItemAction<T> x)
+        {
+            switch (x.ActionType)
+            {
+                case ActionType.Add:
+                    local.AddRange(x.Items);
+                    break;
+                case ActionType.Update:
+                    //No update in this collection
+                    break;
+                case ActionType.Remove:
+                    foreach (var item in x.Items)
+                    {
+                        local.Remove(item);
+                    }
+                    break;
+                case ActionType.Clear:
+                    local.Clear();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
     }
 }
