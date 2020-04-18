@@ -634,6 +634,7 @@ namespace Fibrous.Benchmark.Implementations.QueueChannels
             {
                 _subscribers = _subscribers.Append(queueConsumer).ToArray();
                 _subCount++;
+            }
             return new Unsubscriber(queueConsumer, fiber);
         }
 
