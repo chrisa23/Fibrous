@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Security.Principal;
 using System.Windows.Threading;
-
 namespace Fibrous.WPF
 {
     /// <summary>

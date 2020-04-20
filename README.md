@@ -47,9 +47,9 @@ public interface IFiber : IDisposable
 
 public interface IAsyncFiber : IDisposable
 {
-    void Enqueue(Func&lt;Task> action);
-    IDisposable Schedule(Func&lt;Task> action, TimeSpan dueTime);
-    IDisposable Schedule(Func&lt;Task> action, TimeSpan startTime, TimeSpan interval);
+    void Enqueue(Func<Task> action);
+    IDisposable Schedule(Func<Task> action, TimeSpan dueTime);
+    IDisposable Schedule(Func<Task> action, TimeSpan startTime, TimeSpan interval);
     void Add(IDisposable toAdd);
     void Remove(IDisposable toRemove);
 }

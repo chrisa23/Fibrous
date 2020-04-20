@@ -8,7 +8,7 @@ namespace Fibrous.Benchmark
     [MemoryDiagnoser]
     public class PoolFibers2
     {
-        private const int OperationsPerInvoke = 1000000;
+        private const int OperationsPerInvoke = 1_000_000;
         private readonly IChannel<int> _channel = new Channel<int>();
         private readonly AutoResetEvent _wait = new AutoResetEvent(false);
         private int _i;

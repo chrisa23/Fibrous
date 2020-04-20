@@ -9,7 +9,7 @@ namespace Fibrous.Benchmark
     [MemoryDiagnoser]
     public class FiberEnqueue
     {
-        private const int OperationsPerInvoke = 10000000;
+        private const int OperationsPerInvoke = 1_000_000;
     
         public void Run(IFiber fiber)
         {

@@ -14,7 +14,4 @@
     <PackageTags>concurrency actors multi-threading messaging</PackageTags>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
 </Project>

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Fibrous.WPF.Annotations;
 
 namespace Fibrous.WPF
 {
@@ -9,13 +8,9 @@ namespace Fibrous.WPF
     {
         public IAsyncFiber Fiber { get; }
 
-        protected AsyncFiberViewModelBase()
+        protected AsyncFiberViewModelBase(IFiberFactory factory = null)
         {
-            Fiber = new AsyncDispatcherFiber(OnError);
-        }
-        protected AsyncFiberViewModelBase(IFiberFactory factory)
-        {
-            Fiber = factory.CreateAsync(OnError);
+            Fiber = factory?.CreateAsync(OnError) ?? new AsyncDispatcherFiber(OnError);
         }
 
         protected abstract void OnError(Exception obj);
@@ -27,7 +22,6 @@ namespace Fibrous.WPF
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

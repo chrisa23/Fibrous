@@ -20,5 +20,6 @@
   </metadata>
   <files>
     <file src=".\bin\Release\netstandard2.0\Fibrous.Proxy.dll"  target="lib/netstandard2.0" />
+    <file src=".\bin\Release\netstandard2.0\Fibrous.Proxy.pdb"  target="lib/netstandard2.0" />
   </files>
 </package>
