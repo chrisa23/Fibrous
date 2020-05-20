@@ -14,7 +14,6 @@ Some of the library benefits:
  - UI fibers for worry free UI marshalling
  - Batching support
  - Scheduling support (Cron, DateTime and TimeSpan based)
- - Easy Pipeline construction
  
  Fibrous is great for multi-threading when you don't need extreme low latency or distributed actors but want an easy to reason about messaging based model.  Fibrous is also fast.
 
