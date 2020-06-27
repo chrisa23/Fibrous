@@ -10,8 +10,9 @@
 	- Channels
 	- Events
 	- Event Hub and Event Bus
-	- Collections
-	- Pipelines (move to experimental)
+	- Extras 
+		- Collections
+		- Pipelines 
 - Add more examples
 - Performance things to look at:
 	- Are there places padding for cache coherence will help?

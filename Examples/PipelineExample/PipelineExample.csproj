@@ -58,6 +58,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Fibrous.Extras\Fibrous.Extras.csproj">
+      <Project>{8c389de2-b80c-4710-ba17-a3f653a004d5}</Project>
+      <Name>Fibrous.Extras</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Fibrous\Fibrous.csproj">
       <Project>{be1e0573-3fda-4988-a952-3ab8a338e99e}</Project>
       <Name>Fibrous</Name>

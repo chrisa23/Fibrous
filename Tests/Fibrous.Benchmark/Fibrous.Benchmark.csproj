@@ -27,6 +27,7 @@
   </ItemGroup>-->
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Fibrous.Extras\Fibrous.Extras.csproj" />
     <ProjectReference Include="..\..\Fibrous\Fibrous.csproj" />
   </ItemGroup>
 

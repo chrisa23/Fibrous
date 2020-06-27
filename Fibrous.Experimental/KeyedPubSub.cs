@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace Fibrous
 {
-    internal interface IKeyedPubSub<TKey, T, TSnapshot>
+    public interface IKeyedPubSub<TKey, T, TSnapshot>
     {
         IDisposable Subscribe(IFiber fiber, TKey key, Action<(TKey Key, T Item)> receive, Action<(TKey Key, TSnapshot Snapshot)> snapshot);
     }
 
-    internal abstract class KeyedPubSub<TKey, T, TSnapshot> : AsyncFiberComponent, IKeyedPubSub<TKey, T, TSnapshot>, IPublisherPort<(TKey Key, T Item)>
+    public abstract class KeyedPubSub<TKey, T, TSnapshot> : AsyncFiberComponent, IKeyedPubSub<TKey, T, TSnapshot>, IPublisherPort<(TKey Key, T Item)>
     {
         private readonly IChannel<Subscription> _subscribe;
         private readonly IChannel<TKey> _unsubscribe;
@@ -111,7 +111,7 @@ namespace Fibrous
         }
     }
 
-    internal class SampleKeyedPubSub:KeyedPubSub<string, int, int>
+    public class SampleKeyedPubSub:KeyedPubSub<string, int, int>
     {
         private Dictionary<string, int> _cache = new Dictionary<string, int>();
         protected override void OnError(Exception obj)

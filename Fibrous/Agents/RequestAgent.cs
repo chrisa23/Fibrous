@@ -15,7 +15,7 @@ namespace Fibrous.Agents
 
         public RequestAgent(Action<IRequest<TRequest, TReply>> handler, Action<Exception> errorHandler = null)
         {
-            Fiber = new Fiber(errorHandler);
+            Fiber = errorHandler == null ? new Fiber() : new Fiber(errorHandler);
             _channel = Fiber.NewRequestPort(handler);
         }
         public RequestAgent(IFiberFactory factory, Action<IRequest<TRequest, TReply>> handler, Action<Exception> errorHandler = null)
