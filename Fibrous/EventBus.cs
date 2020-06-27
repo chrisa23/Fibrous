@@ -26,6 +26,7 @@ namespace Fibrous
         {
             return Channel.Subscribe(fiber, receive, filter);
         }
+
         public static IDisposable SubscribeToBatch(IFiber fiber,
             Action<T[]> receive,
             TimeSpan interval)
