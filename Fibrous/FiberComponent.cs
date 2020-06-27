@@ -4,9 +4,9 @@ using System.Text;
 
 namespace Fibrous
 {
-    public abstract class FiberComponent : IHaveFiber
+    public abstract class FiberComponent : IDisposable
     {
-        public IFiber Fiber { get; }
+        protected IFiber Fiber { get; }
 
         protected FiberComponent(IFiberFactory factory = null)
         {

@@ -2,9 +2,9 @@
 
 namespace Fibrous
 {
-    public abstract class AsyncFiberComponent : IHaveAsyncFiber
+    public abstract class AsyncFiberComponent : IDisposable
     {
-        public IAsyncFiber Fiber { get; }
+        protected IAsyncFiber Fiber { get; }
 
         protected AsyncFiberComponent(IFiberFactory factory = null)
         {

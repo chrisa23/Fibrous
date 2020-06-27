@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -9,31 +8,30 @@ namespace Fibrous
     //for some reason EventHub is about 4x slower to publish through.......????
     public sealed class EventHub : IEventHub
     {
-        //concurrent dict and no lock?
         private readonly ConcurrentDictionary<Type, object> _channels = new ConcurrentDictionary<Type, object>();
 
-        public IDisposable Subscribe(object handler)
+        public IDisposable Subscribe(IAsyncFiber fiber, object handler)
         {
-            bool regularFiber = handler is IHaveFiber;
-            bool asyncFiber = handler is IHaveAsyncFiber;
-            if (!(regularFiber || asyncFiber) || (regularFiber && asyncFiber))
-                throw new ArgumentException("Handler must implement one of the interfaces, IHaveFiber or IHaveAsyncFiber");
+            var disposable = SetupHandlers(handler, fiber, false);
 
-            object fiber = regularFiber ? (object)((IHaveFiber)handler).Fiber : ((IHaveAsyncFiber)handler).Fiber;
-
-            var disposable = SetupHandlers(handler, fiber, regularFiber);
-
-            return new Unsubscriber(disposable, (IDisposableRegistry) fiber);
+            return new Unsubscriber(disposable, fiber);
         }
-        
+
+        public IDisposable Subscribe(IFiber fiber, object handler)
+        {
+            var disposable = SetupHandlers(handler, fiber, true);
+
+            return new Unsubscriber(disposable, fiber);
+        }
+
         //20 ns for this with no subscribers (now 16ns with changes)
         public void Publish<T>(T msg)
         {
-            var type = msg.GetType(); 
-            
+            var type = msg.GetType();
+
             if (!_channels.ContainsKey(type)) return;
 
-            IChannel<T> channel = (IChannel<T>) _channels[type];
+            var channel = (IChannel<T>) _channels[type];
             channel.Publish(msg);
         }
 
@@ -41,26 +39,28 @@ namespace Fibrous
         {
             var interfaceType = regular ? typeof(IHandle<>) : typeof(IHandleAsync<>);
             var subMethod = regular ? "SubscribeToChannel" : "AsyncSubscribeToChannel";
-            var interfaces = handler.GetType().GetTypeInfo().ImplementedInterfaces.Where(x =>
-                x.GetTypeInfo().IsGenericType && x.GetGenericTypeDefinition() == interfaceType);
+            var interfaces = handler.GetType().GetTypeInfo()
+                .ImplementedInterfaces.Where(x =>
+                    x.GetTypeInfo().IsGenericType && x.GetGenericTypeDefinition() == interfaceType);
 
             var disposables = new Disposables();
 
             foreach (var @interface in interfaces)
             {
                 var type = @interface.GetTypeInfo().GenericTypeArguments[0];
-                var method = @interface.GetRuntimeMethod("Handle", new[] { type });
+                var method = @interface.GetRuntimeMethod("Handle", new[] {type});
 
                 if (method == null) continue;
 
                 var sub = GetType().GetTypeInfo().GetDeclaredMethod(subMethod).MakeGenericMethod(type);
 
-                var dispose = sub.Invoke(this, new[] { fiber, handler }) as IDisposable;
+                var dispose = sub.Invoke(this, new[] {fiber, handler}) as IDisposable;
                 disposables.Add(dispose);
             }
 
             return disposables;
         }
+
         // ReSharper disable once UnusedMember.Local
         private IDisposable SubscribeToChannel<T>(IFiber fiber, IHandle<T> receive)
         {
@@ -73,7 +73,7 @@ namespace Fibrous
         private IDisposable AsyncSubscribeToChannel<T>(IAsyncFiber fiber, IHandleAsync<T> receive)
         {
             var type = typeof(T);
-            var channel = (IChannel<T>)_channels.GetOrAdd(type, _ => new Channel<T>());
+            var channel = (IChannel<T>) _channels.GetOrAdd(type, _ => new Channel<T>());
             return channel.Subscribe(fiber, receive.Handle);
         }
 
@@ -83,8 +83,8 @@ namespace Fibrous
 
             if (!_channels.ContainsKey(type)) return false;
 
-           Channel<T> channel = (Channel<T>)_channels[type];
-           return channel.HasSubscriptions;
+            var channel = (Channel<T>) _channels[type];
+            return channel.HasSubscriptions;
         }
     }
 }

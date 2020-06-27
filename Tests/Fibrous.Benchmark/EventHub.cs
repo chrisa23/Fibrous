@@ -17,8 +17,7 @@ namespace Fibrous.Benchmark
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public  void Fiber()
         {
-            using var consumer = new FiberConsumer(_wait);
-            using var sub = _hub.Subscribe(consumer);
+            using var consumer = new FiberConsumer(_hub, _wait);
 
             for (var j = 0; j < OperationsPerInvoke; j++) _hub.Publish(j);
 
@@ -27,8 +26,7 @@ namespace Fibrous.Benchmark
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void AsyncFiber()
         {
-            using var consumer = new AsyncFiberConsumer(_wait);
-            using var sub = _hub.Subscribe(consumer);
+            using var consumer = new AsyncFiberConsumer(_hub, _wait);
 
             for (var j = 0; j < OperationsPerInvoke; j++) _hub.Publish(j);
 
@@ -43,9 +41,10 @@ namespace Fibrous.Benchmark
         {
             private readonly AutoResetEvent _reset;
 
-            public FiberConsumer(AutoResetEvent reset)
+            public FiberConsumer(IEventHub hub, AutoResetEvent reset)
             {
                 _reset = reset;
+                hub.Subscribe(Fiber, this);
             }
             protected override void OnError(Exception obj)
             {
@@ -62,9 +61,10 @@ namespace Fibrous.Benchmark
         {
             private readonly AutoResetEvent _reset;
 
-            public AsyncFiberConsumer(AutoResetEvent reset)
+            public AsyncFiberConsumer(IEventHub hub, AutoResetEvent reset)
             {
                 _reset = reset;
+                hub.Subscribe(Fiber, this);
             }
             protected override void OnError(Exception obj)
             {

@@ -14,7 +14,7 @@ namespace Fibrous.Tests
         public async Task NonAsync()
         {
             using var test = new Tester();
-            using var sub = _eventHub.Subscribe(test);
+            using var sub = _eventHub.Subscribe(test.Fiber, test);
             
             _eventHub.Publish(3);
             _eventHub.Publish(2);
@@ -29,7 +29,7 @@ namespace Fibrous.Tests
         public async Task Async()
         {
             using var test = new AsyncTester();
-            using var sub = _eventHub.Subscribe(test);
+            using var sub = _eventHub.Subscribe(test.Fiber, test);
             
             _eventHub.Publish(3);
             _eventHub.Publish(2);
@@ -45,7 +45,7 @@ namespace Fibrous.Tests
         public Task AsyncUnsubscribeCheck()
         {
             using var test = new AsyncTester();
-            var sub = _eventHub.Subscribe(test);
+            var sub = _eventHub.Subscribe(test.Fiber, test);
 
             _eventHub.Publish(3);
 
@@ -58,7 +58,7 @@ namespace Fibrous.Tests
         public void UnsubscribeCheck()
         {
             using var test = new Tester();
-            var sub = _eventHub.Subscribe(test);
+            var sub = _eventHub.Subscribe(test.Fiber, test);
 
             _eventHub.Publish(3);
 
@@ -66,7 +66,7 @@ namespace Fibrous.Tests
             Assert.IsFalse(_eventHub.HasSubscriptions<int>());
         }
 
-        public class Tester : IHandle<string>, IHandle<int>, IHaveFiber
+        public class Tester : IHandle<string>, IHandle<int>, IDisposable
         {
             public IFiber Fiber { get; } = new Fiber();
             
@@ -88,7 +88,7 @@ namespace Fibrous.Tests
             }
         }
 
-        public class AsyncTester : IHandleAsync<string>, IHandleAsync<int>, IHaveAsyncFiber
+        public class AsyncTester : IHandleAsync<string>, IHandleAsync<int>, IDisposable
         {
             public IAsyncFiber Fiber { get; } = new AsyncFiber();
 

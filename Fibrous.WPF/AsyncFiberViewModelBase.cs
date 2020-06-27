@@ -4,9 +4,9 @@ using System.Runtime.CompilerServices;
 
 namespace Fibrous.WPF
 {
-    public abstract class AsyncFiberViewModelBase : IHaveAsyncFiber, INotifyPropertyChanged
+    public abstract class AsyncFiberViewModelBase :  INotifyPropertyChanged
     {
-        public IAsyncFiber Fiber { get; }
+        protected IAsyncFiber Fiber { get; }
 
         protected AsyncFiberViewModelBase(IFiberFactory factory = null)
         {

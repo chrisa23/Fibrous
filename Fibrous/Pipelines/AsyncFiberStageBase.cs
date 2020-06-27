@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Fibrous.Pipelines
 {
-    public abstract class AsyncFiberStageBase<TIn, TOut> : StageBase<TIn, TOut>, IHaveAsyncFiber
+    public abstract class AsyncFiberStageBase<TIn, TOut> : StageBase<TIn, TOut>
     {
         protected AsyncFiberStageBase(Action<Exception> errorCallback = null)
         {
