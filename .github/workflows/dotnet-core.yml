@@ -18,7 +18,7 @@ jobs:
       with:
         dotnet-version: 3.1.101
     - name: Install dependencies
-      run: dotnet restore
+      run: dotnet restore  !**/Fibrous.WPF.csproj
     - name: Build
       run: dotnet build !**/Fibrous.WPF.csproj --configuration Release --no-restore
     - name: Test
