@@ -51,12 +51,13 @@ namespace Fibrous.Benchmark
             using var wait = new AutoResetEvent(false);
             using (fiber)
             {
-                int i = 0;
-                async ValueTask AsyncHandler()
+                int i = 0; 
+                ValueTask AsyncHandler()
                 {
                     i++;
                     if (i == OperationsPerInvoke)
                         wait.Set();
+                    return new ValueTask();
                 }
                 for (var j = 0; j < OperationsPerInvoke; j++) fiber.Enqueue(AsyncHandler);
                 WaitHandle.WaitAny(new WaitHandle[] { wait });
