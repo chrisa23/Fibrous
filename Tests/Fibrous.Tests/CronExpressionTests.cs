@@ -22,7 +22,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-
+using System.Globalization;
+using System.Linq;
 using NUnit.Framework;
 
 
@@ -30,7 +31,7 @@ namespace Quartz.Tests.Unit
 {
     /// <author>Marko Lahma (.NET)</author>
     [TestFixture()]
-    public class CronExpressionTest 
+    public class CronExpressionTest
     {
         private static readonly TimeZoneInfo testTimeZone = TimeZoneInfo.Local;
 
@@ -505,12 +506,77 @@ namespace Quartz.Tests.Unit
                 return;
             }
 
-            var daylightChange = TimeZone.CurrentTimeZone.GetDaylightChanges(2012);
+            var daylightChange = GetDaylightChanges(TimeZoneInfo.Local, 2020);
             DateTimeOffset before = daylightChange.Start.ToUniversalTime().AddMinutes(-5); // keep outside the potentially undefined interval
             DateTimeOffset? after = expression.GetNextValidTimeAfter(before);
             Assert.IsTrue(after.HasValue);
             DateTimeOffset expected = daylightChange.Start.Add(daylightChange.Delta).AddMinutes(15).ToUniversalTime();
             Assert.AreEqual(expected, after.Value);
+        }
+
+        public static DaylightTime GetDaylightChanges(TimeZoneInfo InTimeZoneInfo, int InYear)
+        {
+            TimeZoneInfo.AdjustmentRule ruleFound = null;
+
+            TimeZoneInfo.AdjustmentRule[] adjustments = InTimeZoneInfo.GetAdjustmentRules();
+            if (adjustments.Length == 0)
+            {
+                throw new Exception(InTimeZoneInfo.StandardName + " has no adjustment rules");
+            }
+            //Find the correct adjustment rule
+            foreach (TimeZoneInfo.AdjustmentRule adjustment in adjustments.OrderByDescending(x => x.DateStart))
+            {
+                if (adjustment.DateStart.Year <= InYear)
+                {
+                    ruleFound = adjustment;
+                    break;
+                }
+            }
+            if (ruleFound == null)
+            {
+                throw new Exception("No TimeZoneInfo.AdjustmentRule found for TimeZoneInfo "
+                                    + InTimeZoneInfo.StandardName + " for year " + InYear);
+            }
+
+            DaylightTime outDaylightTime = new DaylightTime(
+                GetAdjustmentDate(InYear, ruleFound.DaylightTransitionStart)
+                , GetAdjustmentDate(InYear, ruleFound.DaylightTransitionEnd)
+                , ruleFound.DaylightDelta);
+
+            return outDaylightTime;
+        }
+
+
+        public static DateTime GetAdjustmentDate(int year, TimeZoneInfo.TransitionTime transitionTime)
+        {
+            if (transitionTime.IsFixedDateRule)
+            {
+                return new DateTime(year, transitionTime.Month, transitionTime.Day);
+            }
+            else
+            {
+                // For non-fixed date rules, get local calendar
+                Calendar cal = CultureInfo.CurrentCulture.Calendar;
+                // Get first day of week for transition
+                // For example, the 3rd week starts no earlier than the 15th of the month
+                int startOfWeek = transitionTime.Week * 7 - 6;
+                // What day of the week does the month start on?
+                int firstDayOfWeek = (int)cal.GetDayOfWeek(new DateTime(year, transitionTime.Month, 1));
+                // Determine how much start date has to be adjusted
+                int transitionDay;
+                int changeDayOfWeek = (int)transitionTime.DayOfWeek;
+
+                if (firstDayOfWeek <= changeDayOfWeek)
+                    transitionDay = startOfWeek + (changeDayOfWeek - firstDayOfWeek);
+                else
+                    transitionDay = startOfWeek + (7 - firstDayOfWeek + changeDayOfWeek);
+
+                // Adjust for months with no fifth week
+                if (transitionDay > cal.GetDaysInMonth(year, transitionTime.Month))
+                    transitionDay -= 7;
+
+                return new DateTime(year, transitionTime.Month, transitionDay, transitionTime.TimeOfDay.Hour, transitionTime.TimeOfDay.Minute, transitionTime.TimeOfDay.Second);
+            }
         }
 
         [Test]

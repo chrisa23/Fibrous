@@ -17,14 +17,20 @@ namespace Fibrous.Tests
             var list = new List<string> {"Prime"};
             var channel = new SnapshotChannel<string, string[]>();
             channel.ReplyToPrimingRequest(fiber2, list.ToArray);
+            
             var primeResult = new List<string>();
             Action<string> update = primeResult.Add;
             Action<string[]> snap = primeResult.AddRange;
+            
             channel.Subscribe(fiber, update, snap);
+            
             Thread.Sleep(100);
+            
             channel.Publish("hello");
             channel.Publish("hello2");
+            
             Thread.Sleep(100);
+            
             Assert.AreEqual("Prime", primeResult[0]);
             Assert.AreEqual("hello2", primeResult[^1]);
         }
@@ -36,23 +42,33 @@ namespace Fibrous.Tests
             using var fiber2 = new AsyncFiber();
             var list = new List<string> { "Prime" };
             var channel = new SnapshotChannel<string, string[]>();
-            channel.ReplyToPrimingRequest(fiber2, async () => list.ToArray());
+
+            Task<string[]> Reply() => Task.FromResult(list.ToArray());
+
+            channel.ReplyToPrimingRequest(fiber2, Reply);
             var primeResult = new List<string>();
-            Func<string, Task> update = x =>
+
+            Task Update(string x)
             {
                 primeResult.Add(x);
                 return Task.CompletedTask;
-            };
-            Func<string[], Task> snap = x =>
+            }
+
+            Task Snap(string[] x)
             {
                 primeResult.AddRange(x);
                 return Task.CompletedTask;
-            };
-            channel.Subscribe(fiber, update, snap);
+            }
+
+            channel.Subscribe(fiber, Update, Snap);
+
             Thread.Sleep(100);
+            
             channel.Publish("hello");
             channel.Publish("hello2");
+            
             Thread.Sleep(100);
+            
             Assert.AreEqual("Prime", primeResult[0]);
             Assert.AreEqual("hello2", primeResult[^1]);
         }
