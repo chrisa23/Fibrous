@@ -2,10 +2,48 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Fibrous
 {
-    //for some reason EventHub is about 4x slower to publish through.......????
+
+    /// <summary>
+    ///   Injectable event hub where classes implementing a combination of
+    ///   IHandle or IHandleAsync can auto wire up to receive events publish on the hub.
+    /// </summary>
+    public interface IEventHub
+    {
+        IDisposable Subscribe(IAsyncFiber fiber, object handler);
+        IDisposable Subscribe(IFiber fiber, object handler);
+        void Publish<T>(T msg);
+    }
+
+    /// <summary>
+    ///     For use with IEventHub to auto wire events
+    ///     Denotes a class which can handle a particular type of message.
+    /// </summary>
+    /// <typeparam name="TMessage">The type of message to handle.</typeparam>
+    // ReSharper disable once TypeParameterCanBeVariant
+    public interface IHandle<TMessage>
+    {
+        void Handle(TMessage message);
+    }
+
+    /// <summary>
+    ///     For use with IEventHub to auto wire events
+    ///     Denotes a class which can handle a particular type of message.
+    /// </summary>
+    /// <typeparam name="TMessage">The type of message to handle.</typeparam>
+    // ReSharper disable once TypeParameterCanBeVariant
+    public interface IHandleAsync<TMessage>
+    {
+        Task Handle(TMessage message);
+    }
+
+    /// <summary>
+    /// Implementation of IEventHub
+    /// Performance is slower on publish due to GetType and channel lookup
+    /// </summary>
     public sealed class EventHub : IEventHub
     {
         private readonly ConcurrentDictionary<Type, object> _channels = new ConcurrentDictionary<Type, object>();
@@ -31,7 +69,7 @@ namespace Fibrous
 
             if (!_channels.ContainsKey(type)) return;
 
-            var channel = (IChannel<T>) _channels[type];
+            var channel = (IChannel<T>)_channels[type];
             channel.Publish(msg);
         }
 
@@ -48,13 +86,13 @@ namespace Fibrous
             foreach (var @interface in interfaces)
             {
                 var type = @interface.GetTypeInfo().GenericTypeArguments[0];
-                var method = @interface.GetRuntimeMethod("Handle", new[] {type});
+                var method = @interface.GetRuntimeMethod("Handle", new[] { type });
 
                 if (method == null) continue;
 
                 var sub = GetType().GetTypeInfo().GetDeclaredMethod(subMethod).MakeGenericMethod(type);
 
-                var dispose = sub.Invoke(this, new[] {fiber, handler}) as IDisposable;
+                var dispose = sub.Invoke(this, new[] { fiber, handler }) as IDisposable;
                 disposables.Add(dispose);
             }
 
@@ -65,7 +103,7 @@ namespace Fibrous
         private IDisposable SubscribeToChannel<T>(IFiber fiber, IHandle<T> receive)
         {
             var type = typeof(T);
-            var channel = (IChannel<T>) _channels.GetOrAdd(type, _ => new Channel<T>());
+            var channel = (IChannel<T>)_channels.GetOrAdd(type, _ => new Channel<T>());
             return channel.Subscribe(fiber, receive.Handle);
         }
 
@@ -73,7 +111,7 @@ namespace Fibrous
         private IDisposable AsyncSubscribeToChannel<T>(IAsyncFiber fiber, IHandleAsync<T> receive)
         {
             var type = typeof(T);
-            var channel = (IChannel<T>) _channels.GetOrAdd(type, _ => new Channel<T>());
+            var channel = (IChannel<T>)_channels.GetOrAdd(type, _ => new Channel<T>());
             return channel.Subscribe(fiber, receive.Handle);
         }
 
@@ -83,7 +121,7 @@ namespace Fibrous
 
             if (!_channels.ContainsKey(type)) return false;
 
-            var channel = (Channel<T>) _channels[type];
+            var channel = (Channel<T>)_channels[type];
             return channel.HasSubscriptions;
         }
     }

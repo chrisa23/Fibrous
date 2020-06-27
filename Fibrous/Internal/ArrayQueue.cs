@@ -9,15 +9,13 @@ namespace Fibrous
         internal const int DefaultQueueSize = 1008;
     }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 8)]
     internal sealed class ArrayQueue<T>
     {
-        
         private readonly int _size;
         private T[] _actions;
         private T[] _toPass;
         private int _processCount;
-        private  volatile int _count;
+        private volatile int _count;
 
         public ArrayQueue(int size)
         {
