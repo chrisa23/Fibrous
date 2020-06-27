@@ -32,11 +32,11 @@ namespace Fibrous
 
         public void Dispose()
         {
+            _running = false;
+            _sub?.Dispose();
 #if DEBUG
             Console.WriteLine("Dispose");
 #endif
-            _sub?.Dispose();
-            _running = false;
         }
 
         private Task ScheduleNext()
@@ -46,17 +46,16 @@ namespace Fibrous
             if (next.HasValue)
             {
                 var utc = next.Value.UtcDateTime;
-                //                var isAmbiguous = TimeZoneInfo.Local.IsAmbiguousTime(next);
                 var now = DateTime.UtcNow;
-                //              if (isAmbiguous && utc < now)
-                //utc = utc.AddHours(1);
                 var span = utc - now;
 
                 if (!_running) return Task.CompletedTask;
+
+                _sub = _scheduler.Schedule(_action, span);
+
 #if DEBUG
                 Console.WriteLine(span);
 #endif
-                _sub = _scheduler.Schedule(_action, span);
             }
 
             return Task.CompletedTask;
