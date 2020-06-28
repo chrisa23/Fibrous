@@ -18,7 +18,7 @@ namespace Fibrous.Tests
             var stub = new StubFiber();
             pipeline.Subscribe(stub, s => value = s);
             pipeline.Publish(1.3);
-            Thread.Sleep(10);
+            Thread.Sleep(100);
             Assert.AreEqual("10", value);
             Assert.AreEqual(1, tvalue);
         }
