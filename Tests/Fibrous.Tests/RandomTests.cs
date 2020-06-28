@@ -11,7 +11,7 @@ namespace Fibrous.Tests
     [TestFixture]
     class RandomTests
     {
-        private const int OperationsPerInvoke = 1000000;
+        private const int OperationsPerInvoke = 100000;
         private IChannel<string> _input = new Channel<string>();
         private IChannel<string> _queue = new QueueChannel<string>();
         private IChannel<string> _output = new Channel<string>();
