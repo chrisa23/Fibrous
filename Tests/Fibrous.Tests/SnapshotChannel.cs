@@ -24,12 +24,12 @@ namespace Fibrous.Tests
             
             channel.Subscribe(fiber, update, snap);
             
-            Thread.Sleep(100);
+            Thread.Sleep(500);
             
             channel.Publish("hello");
             channel.Publish("hello2");
             
-            Thread.Sleep(100);
+            Thread.Sleep(500);
             
             Assert.AreEqual("Prime", primeResult[0]);
             Assert.AreEqual("hello2", primeResult[^1]);
@@ -62,12 +62,12 @@ namespace Fibrous.Tests
 
             channel.Subscribe(fiber, Update, Snap);
 
-            Thread.Sleep(100);
+            Thread.Sleep(500);
             
             channel.Publish("hello");
             channel.Publish("hello2");
             
-            Thread.Sleep(100);
+            Thread.Sleep(500);
             
             Assert.AreEqual("Prime", primeResult[0]);
             Assert.AreEqual("hello2", primeResult[^1]);
