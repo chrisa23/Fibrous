@@ -2,9 +2,23 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Title>Fibrous.Proxy</Title>
+    <Version>4.1.0</Version>
+    <Description>High performace concurrency library for the .Net platform.</Description>
+    <Authors>Chris Anderson</Authors>
+    <Company>CA Anderson LLC</Company>
+    <PackageProjectUrl>https://github.com/chrisa23/Fibrous</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/chrisa23/Fibrous</RepositoryUrl>
+    <AssemblyVersion>4.1.0</AssemblyVersion>
+    <FileVersion>4.1.0</FileVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageTags>concurrency actors multi-threading messaging</PackageTags>
+    <LangVersion>latest</LangVersion>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
 
   <ItemGroup>

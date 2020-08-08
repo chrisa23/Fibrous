@@ -12,7 +12,8 @@
     <description>High performance concurrency framework</description>
     <copyright>Copyright ©2020 CA Anderson LLC</copyright>
     <tags>concurrency actors multi-threading messaging</tags>
-
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </metadata>
 
   <dependencies>
