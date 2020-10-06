@@ -65,7 +65,7 @@ namespace Fibrous
         //20 ns for this with no subscribers (now 16ns with changes)
         public void Publish<T>(T msg)
         {
-            var type = msg.GetType();
+            var type = typeof(T);
 
             if (!_channels.ContainsKey(type)) return;
 
