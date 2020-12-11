@@ -4,27 +4,20 @@ using System.Runtime.CompilerServices;
 
 namespace Fibrous.WPF
 {
-    public abstract class AsyncFiberViewModelBase :  INotifyPropertyChanged
+    public abstract class AsyncFiberViewModelBase : INotifyPropertyChanged
     {
+        protected AsyncFiberViewModelBase(IFiberFactory factory = null) =>
+            Fiber = factory?.CreateAsyncFiber(OnError) ?? new AsyncDispatcherFiber(OnError);
+
         protected IAsyncFiber Fiber { get; }
-
-        protected AsyncFiberViewModelBase(IFiberFactory factory = null)
-        {
-            Fiber = factory?.CreateAsync(OnError) ?? new AsyncDispatcherFiber(OnError);
-        }
-
-        protected abstract void OnError(Exception obj);
-
-        public void Dispose()
-        {
-            Fiber?.Dispose();
-        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
+        protected abstract void OnError(Exception obj);
+
+        public void Dispose() => Fiber?.Dispose();
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 }

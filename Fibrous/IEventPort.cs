@@ -15,9 +15,8 @@ namespace Fibrous
     public static class EventPortExtensions
     {
         //throttle
-        public static IDisposable SubscribeThrottled(this IEventPort port, IFiber fiber, Action receive, TimeSpan span)
-        {
-            return new LastEventSubscriber(port, fiber, span, receive);
-        }
+        public static IDisposable
+            SubscribeThrottled(this IEventPort port, IFiber fiber, Action receive, TimeSpan span) =>
+            new LastEventSubscriber(port, fiber, span, receive);
     }
 }

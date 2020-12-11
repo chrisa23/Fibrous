@@ -9,8 +9,8 @@ namespace Fibrous.WPF
     /// </summary>
     public sealed class AsyncDispatcherFiber : AsyncFiberBase
     {
-        private readonly DispatcherPriority _priority;
         private readonly Dispatcher _dispatcher;
+        private readonly DispatcherPriority _priority;
 
         public AsyncDispatcherFiber(IAsyncExecutor executor = null, Dispatcher dispatcher = null,
             DispatcherPriority priority = DispatcherPriority.Normal)
@@ -26,9 +26,6 @@ namespace Fibrous.WPF
         {
         }
 
-        protected override void InternalEnqueue(Func<Task> action)
-        {
-            _dispatcher.InvokeAsync(action, _priority);
-        }
+        protected override void InternalEnqueue(Func<Task> action) => _dispatcher.InvokeAsync(action, _priority);
     }
 }

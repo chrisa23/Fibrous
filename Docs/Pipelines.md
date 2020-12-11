@@ -1,9 +1,0 @@
-Pipelines
-=========
-
-Simple
-------
-
-
-Component Based
----------------

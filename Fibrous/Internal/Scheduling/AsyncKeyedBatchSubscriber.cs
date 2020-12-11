@@ -21,15 +21,15 @@ namespace Fibrous
             _target = target;
         }
 
-        protected override Task OnMessage(T msg)
+        protected override Task OnMessageAsync(T msg)
         {
             lock (BatchLock)
             {
-                var key = _keyResolver(msg);
+                TKey key = _keyResolver(msg);
                 if (_pending == null)
                 {
                     _pending = new Dictionary<TKey, T>();
-                    Fiber.Schedule(Flush, Interval);
+                    Fiber.Schedule(FlushAsync, Interval);
                 }
 
                 _pending[key] = msg;
@@ -38,11 +38,14 @@ namespace Fibrous
             return Task.CompletedTask;
         }
 
-        private Task Flush()
+        private Task FlushAsync()
         {
-            var toReturn = ClearPending();
+            IDictionary<TKey, T> toReturn = ClearPending();
             if (toReturn != null)
+            {
                 Fiber.Enqueue(() => _target(toReturn));
+            }
+
             return Task.CompletedTask;
         }
 

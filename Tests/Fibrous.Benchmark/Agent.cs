@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using Fibrous.Agents;
@@ -19,39 +16,40 @@ namespace Fibrous.Benchmark
         {
             i++;
             if (i == OperationsPerInvoke)
+            {
                 _wait.Set();
+            }
         }
 
         private Task AsyncHandler(int obj)
         {
             i++;
             if (i == OperationsPerInvoke)
+            {
                 _wait.Set();
+            }
+
             return Task.CompletedTask;
         }
-        
+
         public void Run(IAgent<int> agent)
         {
             using (agent)
             {
                 i = 0;
-                for (var j = 0; j < OperationsPerInvoke; j++) agent.Publish(j);
-                WaitHandle.WaitAny(new WaitHandle[] { _wait });
+                for (int j = 0; j < OperationsPerInvoke; j++)
+                {
+                    agent.Publish(j);
+                }
+
+                WaitHandle.WaitAny(new WaitHandle[] {_wait});
             }
         }
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void Agent1()
-        {
-            Run(new Agent<int>(Handler));
-        }
+        public void Agent1() => Run(new Agent<int>(Handler));
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void AsyncAgent()
-        {
-            Run(new AsyncAgent<int>(AsyncHandler, ex => { }));
-        }
-
-
+        public void AsyncAgent() => Run(new AsyncAgent<int>(AsyncHandler, ex => { }));
     }
 }

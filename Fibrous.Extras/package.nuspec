@@ -3,7 +3,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>Fibrous.Extras</id>
-    <version>4.1.0</version>
+    <version>5.0.0</version>
     <authors>Chris Anderson</authors>
     <owners>chrisa23</owners>
     <projectUrl>http://github.com/chrisa23/fibrous</projectUrl>
@@ -17,7 +17,7 @@
   </metadata>
 
   <dependencies>
-    <dependency id="Fibrous" version="4.1.0" />
+    <dependency id="Fibrous" version="5.0.0" />
   </dependencies>
 
   <files>

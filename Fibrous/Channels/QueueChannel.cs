@@ -2,8 +2,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,90 +13,95 @@ namespace Fibrous
     /// <typeparam name="TMsg"></typeparam>
     public sealed class QueueChannel<TMsg> : IChannel<TMsg>
     {
-        private readonly ConcurrentQueue<TMsg> _queue = new ConcurrentQueue<TMsg>();
-        private long _subCount;
-        private IQueueSubscriber[] _subscribers =new IQueueSubscriber[0];
-
-        private long _index =  -1;
-        
         private readonly object _lock = new object();
+        private readonly ConcurrentQueue<TMsg> _queue = new ConcurrentQueue<TMsg>();
+
+        private long _index = -1;
+        private long _subCount;
+        private IQueueSubscriber[] _subscribers = new IQueueSubscriber[0];
+
         public IDisposable Subscribe(IFiber fiber, Action<TMsg> onMessage)
         {
-            var queueConsumer = new QueueConsumer(fiber, onMessage, this);
+            QueueConsumer queueConsumer = new QueueConsumer(fiber, onMessage, this);
             lock (_lock)
             {
                 _subscribers = _subscribers.Append(queueConsumer).ToArray();
                 _subCount++;
             }
-            return new Unsubscriber( queueConsumer, fiber);
+
+            return new Unsubscriber(queueConsumer, fiber);
         }
 
         public IDisposable Subscribe(IAsyncFiber fiber, Func<TMsg, Task> receive)
         {
-            var asyncQueueConsumer = new AsyncQueueConsumer(fiber, receive, this);
+            AsyncQueueConsumer asyncQueueConsumer = new AsyncQueueConsumer(fiber, receive, this);
             lock (_lock)
             {
                 _subscribers = _subscribers.Append(asyncQueueConsumer).ToArray();
                 _subCount++;
             }
-            return new Unsubscriber( asyncQueueConsumer, fiber);
+
+            return new Unsubscriber(asyncQueueConsumer, fiber);
         }
 
-        public IDisposable Subscribe(Action<TMsg> receive)
-        {
-            throw new NotImplementedException();
-        }
+        public IDisposable Subscribe(Action<TMsg> receive) => throw new NotImplementedException();
 
         public void Publish(TMsg message)
         {
-            if (_subCount == 0) return;
+            if (_subCount == 0)
+            {
+                return;
+            }
 
             _queue.Enqueue(message);
             long index = Interlocked.Increment(ref _index) % _subCount;
 
-            var queueSubscriber = _subscribers[index];
-            queueSubscriber.Signal();//
-        }
-
-        internal bool Pop(out TMsg msg)
-        {
-            return _queue.TryDequeue(out msg);
-        }
-        private void RemoveSubscriber(IQueueSubscriber queueConsumer)
-        {
-            lock (_lock)
-            {
-                var queueSubscribers = _subscribers.ToList();
-                bool found = queueSubscribers.Remove(queueConsumer);
-                _subscribers = queueSubscribers.ToArray();
-                if(found)
-                    _subCount--;
-            }
-        }
-        private interface IQueueSubscriber : IDisposable
-        {
-            void Signal();
+            IQueueSubscriber queueSubscriber = _subscribers[index];
+            queueSubscriber.Signal(); 
         }
 
         public void Dispose()
         {
             lock (_lock)
             {
-                foreach (var subscriber in _subscribers)
+                foreach (IQueueSubscriber subscriber in _subscribers)
                 {
                     subscriber.Dispose();
                 }
+
                 _subscribers = new IQueueSubscriber[0];
                 _subCount = 0;
             }
         }
 
+        internal bool Pop(out TMsg msg) => _queue.TryDequeue(out msg);
+
+        private void RemoveSubscriber(IQueueSubscriber queueConsumer)
+        {
+            lock (_lock)
+            {
+                List<IQueueSubscriber> queueSubscribers = _subscribers.ToList();
+                bool found = queueSubscribers.Remove(queueConsumer);
+                _subscribers = queueSubscribers.ToArray();
+                if (found)
+                {
+                    _subCount--;
+                }
+            }
+        }
+
+        private interface IQueueSubscriber : IDisposable
+        {
+            void Signal();
+        }
+
         private sealed class QueueConsumer : IQueueSubscriber
         {
+            private readonly Action _cache;
             private readonly Action<TMsg> _callback;
             private readonly QueueChannel<TMsg> _eventChannel;
             private readonly IFiber _target;
-            private readonly Action _cache;
+
             public QueueConsumer(IFiber target, Action<TMsg> callback, QueueChannel<TMsg> eventChannel)
             {
                 _target = target;
@@ -107,19 +110,13 @@ namespace Fibrous
                 _cache = ConsumeNext;
             }
 
-            public void Dispose()
-            {
-                _eventChannel.RemoveSubscriber(this);
-            }
+            public void Dispose() => _eventChannel.RemoveSubscriber(this);
 
-            public void Signal()
-            {
-                _target.Enqueue(_cache);
-            }
+            public void Signal() => _target.Enqueue(_cache);
 
             private void ConsumeNext()
             {
-                if (_eventChannel.Pop(out var msg))
+                if (_eventChannel.Pop(out TMsg msg))
                 {
                     _callback(msg);
                 }
@@ -128,37 +125,31 @@ namespace Fibrous
 
         private sealed class AsyncQueueConsumer : IQueueSubscriber
         {
+            private readonly Func<Task> _cache;
             private readonly Func<TMsg, Task> _callback;
             private readonly QueueChannel<TMsg> _eventChannel;
             private readonly IAsyncFiber _target;
-            private readonly Func<Task> _cache;
+
             public AsyncQueueConsumer(IAsyncFiber target, Func<TMsg, Task> callback,
                 QueueChannel<TMsg> eventChannel)
             {
                 _target = target;
                 _callback = callback;
                 _eventChannel = eventChannel;
-                _cache = ConsumeNext;
+                _cache = ConsumeNextAsync;
             }
 
-            public void Dispose()
-            {
-                _eventChannel.RemoveSubscriber(this);
-            }
+            public void Dispose() => _eventChannel.RemoveSubscriber(this);
 
-            public void Signal()
-            {
-                _target.Enqueue(_cache);
-            }
+            public void Signal() => _target.Enqueue(_cache);
 
-            private async Task ConsumeNext()
+            private async Task ConsumeNextAsync()
             {
-                if (_eventChannel.Pop(out var msg))
+                if (_eventChannel.Pop(out TMsg msg))
                 {
                     await _callback(msg);
                 }
             }
         }
-
     }
 }

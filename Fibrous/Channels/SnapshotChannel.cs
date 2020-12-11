@@ -18,14 +18,15 @@ namespace Fibrous
         /// <param name="receiveSnapshot"> </param>
         public IDisposable Subscribe(IFiber fiber, Action<T> receive, Action<TSnapshot> receiveSnapshot)
         {
-            var primedSubscribe = new SnapshotRequest(fiber, _updatesChannel, receive, receiveSnapshot);
+            SnapshotRequest primedSubscribe = new SnapshotRequest(fiber, _updatesChannel, receive, receiveSnapshot);
             _requestChannel.SendRequest(null, fiber, x => primedSubscribe.Publish(x));
             return new Unsubscriber(primedSubscribe, fiber);
         }
 
         public IDisposable Subscribe(IAsyncFiber fiber, Func<T, Task> receive, Func<TSnapshot, Task> receiveSnapshot)
         {
-            var primedSubscribe = new AsyncSnapshotRequest(fiber, _updatesChannel, receive, receiveSnapshot);
+            AsyncSnapshotRequest primedSubscribe =
+                new AsyncSnapshotRequest(fiber, _updatesChannel, receive, receiveSnapshot);
             _requestChannel.SendRequest(null, fiber, x =>
             {
                 primedSubscribe.Publish(x);
@@ -34,19 +35,18 @@ namespace Fibrous
             return new Unsubscriber(primedSubscribe, fiber);
         }
 
-        public IDisposable ReplyToPrimingRequest(IFiber fiber, Func<TSnapshot> reply)
-        {
-            return _requestChannel.SetRequestHandler(fiber, x => x.Reply(reply()));
-        }
+        public IDisposable ReplyToPrimingRequest(IFiber fiber, Func<TSnapshot> reply) =>
+            _requestChannel.SetRequestHandler(fiber, x => x.Reply(reply()));
 
-        public IDisposable ReplyToPrimingRequest(IAsyncFiber fiber, Func<Task<TSnapshot>> reply)
-        {
-            return _requestChannel.SetRequestHandler(fiber, async x => x.Reply(await reply()));
-        }
+        public IDisposable ReplyToPrimingRequest(IAsyncFiber fiber, Func<Task<TSnapshot>> reply) =>
+            _requestChannel.SetRequestHandler(fiber, async x => x.Reply(await reply()));
 
-        public void Publish(T msg)
+        public void Publish(T msg) => _updatesChannel.Publish(msg);
+
+        public void Dispose()
         {
-            _updatesChannel.Publish(msg);
+            _requestChannel.Dispose();
+            _updatesChannel.Dispose();
         }
 
         private sealed class SnapshotRequest : IPublisherPort<TSnapshot>, IDisposable
@@ -80,12 +80,16 @@ namespace Fibrous
             public void Publish(TSnapshot msg)
             {
                 if (_disposed)
+                {
                     return;
+                }
+
                 _fiber.Enqueue(() => _receiveSnapshot(msg));
                 //publishing the snapshot subscribes the updates...
                 _sub = _updatesPort.Subscribe(_fiber, _receive);
             }
         }
+
         private sealed class AsyncSnapshotRequest : IPublisherPort<TSnapshot>, IDisposable
         {
             private readonly IAsyncFiber _fiber;
@@ -117,17 +121,14 @@ namespace Fibrous
             public void Publish(TSnapshot msg)
             {
                 if (_disposed)
+                {
                     return;
+                }
+
                 _fiber.Enqueue(() => _receiveSnapshot(msg));
                 //publishing the snapshot subscribes the updates...
                 _sub = _updatesPort.Subscribe(_fiber, _receive);
             }
-        }
-
-        public void Dispose()
-        {
-            _requestChannel.Dispose();
-            _updatesChannel.Dispose();
         }
     }
 }

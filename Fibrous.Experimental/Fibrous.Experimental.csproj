@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Fibrous.Experimental.v3.ncrunchproject" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Fibrous\Fibrous.csproj" />
   </ItemGroup>
 

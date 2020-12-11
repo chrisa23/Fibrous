@@ -24,202 +24,208 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 
-
 namespace Quartz
 {
-
     /// <summary>
-    /// A time source for Quartz.NET that returns the current time.
-    /// Original idea by Ayende Rahien:
-    /// http://ayende.com/Blog/archive/2008/07/07/Dealing-with-time-in-tests.aspx
+    ///     A time source for Quartz.NET that returns the current time.
+    ///     Original idea by Ayende Rahien:
+    ///     http://ayende.com/Blog/archive/2008/07/07/Dealing-with-time-in-tests.aspx
     /// </summary>
     public static class SystemTime
     {
         /// <summary>
-        /// Return current UTC time via <see cref="Func{TResult}" />. Allows easier unit testing.
+        ///     Return current UTC time via <see cref="Func{TResult}" />. Allows easier unit testing.
         /// </summary>
         public static Func<DateTimeOffset> UtcNow = () => DateTimeOffset.UtcNow;
 
         /// <summary>
-        /// Return current time in current time zone via <see cref="Func&lt;T&gt;" />. Allows easier unit testing.
+        ///     Return current time in current time zone via <see cref="Func&lt;T&gt;" />. Allows easier unit testing.
         /// </summary>
         public static Func<DateTimeOffset> Now = () => DateTimeOffset.Now;
     }
+
     /// <summary>
-    /// Provides a parser and evaluator for unix-like cron expressions. Cron
-    /// expressions provide the ability to specify complex time combinations such as
-    /// &quot;At 8:00am every Monday through Friday&quot; or &quot;At 1:30am every
-    /// last Friday of the month&quot;.
+    ///     Provides a parser and evaluator for unix-like cron expressions. Cron
+    ///     expressions provide the ability to specify complex time combinations such as
+    ///     &quot;At 8:00am every Monday through Friday&quot; or &quot;At 1:30am every
+    ///     last Friday of the month&quot;.
     /// </summary>
     /// <remarks>
-    /// <para>
-    /// Cron expressions are comprised of 6 required fields and one optional field
-    /// separated by white space. The fields respectively are described as follows:
-    /// </para>
-    /// <table cellspacing="8">
-    /// <tr>
-    /// <th align="left">Field Name</th>
-    /// <th align="left"> </th>
-    /// <th align="left">Allowed Values</th>
-    /// <th align="left"> </th>
-    /// <th align="left">Allowed Special Characters</th>
-    /// </tr>
-    /// <tr>
-    /// <td align="left">Seconds</td>
-    /// <td align="left"> </td>
-    /// <td align="left">0-59</td>
-    /// <td align="left"> </td>
-    /// <td align="left">, - /// /</td>
-    /// </tr>
-    /// <tr>
-    /// <td align="left">Minutes</td>
-    /// <td align="left"> </td>
-    /// <td align="left">0-59</td>
-    /// <td align="left"> </td>
-    /// <td align="left">, - /// /</td>
-    /// </tr>
-    /// <tr>
-    /// <td align="left">Hours</td>
-    /// <td align="left"> </td>
-    /// <td align="left">0-23</td>
-    /// <td align="left"> </td>
-    /// <td align="left">, - /// /</td>
-    /// </tr>
-    /// <tr>
-    /// <td align="left">Day-of-month</td>
-    /// <td align="left"> </td>
-    /// <td align="left">1-31</td>
-    /// <td align="left"> </td>
-    /// <td align="left">, - /// ? / L W C</td>
-    /// </tr>
-    /// <tr>
-    /// <td align="left">Month</td>
-    /// <td align="left"> </td>
-    /// <td align="left">1-12 or JAN-DEC</td>
-    /// <td align="left"> </td>
-    /// <td align="left">, - /// /</td>
-    /// </tr>
-    /// <tr>
-    /// <td align="left">Day-of-Week</td>
-    /// <td align="left"> </td>
-    /// <td align="left">1-7 or SUN-SAT</td>
-    /// <td align="left"> </td>
-    /// <td align="left">, - /// ? / L #</td>
-    /// </tr>
-    /// <tr>
-    /// <td align="left">Year (Optional)</td>
-    /// <td align="left"> </td>
-    /// <td align="left">empty, 1970-2199</td>
-    /// <td align="left"> </td>
-    /// <td align="left">, - /// /</td>
-    /// </tr>
-    /// </table>
-    /// <para>
-    /// The '*' character is used to specify all values. For example, &quot;*&quot;
-    /// in the minute field means &quot;every minute&quot;.
-    /// </para>
-    /// <para>
-    /// The '?' character is allowed for the day-of-month and day-of-week fields. It
-    /// is used to specify 'no specific value'. This is useful when you need to
-    /// specify something in one of the two fields, but not the other.
-    /// </para>
-    /// <para>
-    /// The '-' character is used to specify ranges For example &quot;10-12&quot; in
-    /// the hour field means &quot;the hours 10, 11 and 12&quot;.
-    /// </para>
-    /// <para>
-    /// The ',' character is used to specify additional values. For example
-    /// &quot;MON,WED,FRI&quot; in the day-of-week field means &quot;the days Monday,
-    /// Wednesday, and Friday&quot;.
-    /// </para>
-    /// <para>
-    /// The '/' character is used to specify increments. For example &quot;0/15&quot;
-    /// in the seconds field means &quot;the seconds 0, 15, 30, and 45&quot;. And
-    /// &quot;5/15&quot; in the seconds field means &quot;the seconds 5, 20, 35, and
-    /// 50&quot;.  Specifying '*' before the  '/' is equivalent to specifying 0 is
-    /// the value to start with. Essentially, for each field in the expression, there
-    /// is a set of numbers that can be turned on or off. For seconds and minutes,
-    /// the numbers range from 0 to 59. For hours 0 to 23, for days of the month 0 to
-    /// 31, and for months 1 to 12. The &quot;/&quot; character simply helps you turn
-    /// on every &quot;nth&quot; value in the given set. Thus &quot;7/6&quot; in the
-    /// month field only turns on month &quot;7&quot;, it does NOT mean every 6th
-    /// month, please note that subtlety.
-    /// </para>
-    /// <para>
-    /// The 'L' character is allowed for the day-of-month and day-of-week fields.
-    /// This character is short-hand for &quot;last&quot;, but it has different
-    /// meaning in each of the two fields. For example, the value &quot;L&quot; in
-    /// the day-of-month field means &quot;the last day of the month&quot; - day 31
-    /// for January, day 28 for February on non-leap years. If used in the
-    /// day-of-week field by itself, it simply means &quot;7&quot; or
-    /// &quot;SAT&quot;. But if used in the day-of-week field after another value, it
-    /// means &quot;the last xxx day of the month&quot; - for example &quot;6L&quot;
-    /// means &quot;the last friday of the month&quot;. You can also specify an offset
-    /// from the last day of the month, such as "L-3" which would mean the third-to-last
-    /// day of the calendar month. <i>When using the 'L' option, it is important not to
-    /// specify lists, or ranges of values, as you'll get confusing/unexpected results.</i>
-    /// </para>
-    /// <para>
-    /// The 'W' character is allowed for the day-of-month field.  This character
-    /// is used to specify the weekday (Monday-Friday) nearest the given day.  As an
-    /// example, if you were to specify &quot;15W&quot; as the value for the
-    /// day-of-month field, the meaning is: &quot;the nearest weekday to the 15th of
-    /// the month&quot;. So if the 15th is a Saturday, the trigger will fire on
-    /// Friday the 14th. If the 15th is a Sunday, the trigger will fire on Monday the
-    /// 16th. If the 15th is a Tuesday, then it will fire on Tuesday the 15th.
-    /// However if you specify &quot;1W&quot; as the value for day-of-month, and the
-    /// 1st is a Saturday, the trigger will fire on Monday the 3rd, as it will not
-    /// 'jump' over the boundary of a month's days.  The 'W' character can only be
-    /// specified when the day-of-month is a single day, not a range or list of days.
-    /// </para>
-    /// <para>
-    /// The 'L' and 'W' characters can also be combined for the day-of-month
-    /// expression to yield 'LW', which translates to &quot;last weekday of the
-    /// month&quot;.
-    /// </para>
-    /// <para>
-    /// The '#' character is allowed for the day-of-week field. This character is
-    /// used to specify &quot;the nth&quot; XXX day of the month. For example, the
-    /// value of &quot;6#3&quot; in the day-of-week field means the third Friday of
-    /// the month (day 6 = Friday and &quot;#3&quot; = the 3rd one in the month).
-    /// Other examples: &quot;2#1&quot; = the first Monday of the month and
-    /// &quot;4#5&quot; = the fifth Wednesday of the month. Note that if you specify
-    /// &quot;#5&quot; and there is not 5 of the given day-of-week in the month, then
-    /// no firing will occur that month. If the '#' character is used, there can
-    /// only be one expression in the day-of-week field (&quot;3#1,6#3&quot; is
-    /// not valid, since there are two expressions).
-    /// </para>
-    /// <para>
-    /// <!--The 'C' character is allowed for the day-of-month and day-of-week fields.
+    ///     <para>
+    ///         Cron expressions are comprised of 6 required fields and one optional field
+    ///         separated by white space. The fields respectively are described as follows:
+    ///     </para>
+    ///     <table cellspacing="8">
+    ///         <tr>
+    ///             <th align="left">Field Name</th>
+    ///             <th align="left"> </th>
+    ///             <th align="left">Allowed Values</th>
+    ///             <th align="left"> </th>
+    ///             <th align="left">Allowed Special Characters</th>
+    ///         </tr>
+    ///         <tr>
+    ///             <td align="left">Seconds</td>
+    ///             <td align="left"> </td>
+    ///             <td align="left">0-59</td>
+    ///             <td align="left"> </td>
+    ///             <td align="left">, - /// /</td>
+    ///         </tr>
+    ///         <tr>
+    ///             <td align="left">Minutes</td>
+    ///             <td align="left"> </td>
+    ///             <td align="left">0-59</td>
+    ///             <td align="left"> </td>
+    ///             <td align="left">, - /// /</td>
+    ///         </tr>
+    ///         <tr>
+    ///             <td align="left">Hours</td>
+    ///             <td align="left"> </td>
+    ///             <td align="left">0-23</td>
+    ///             <td align="left"> </td>
+    ///             <td align="left">, - /// /</td>
+    ///         </tr>
+    ///         <tr>
+    ///             <td align="left">Day-of-month</td>
+    ///             <td align="left"> </td>
+    ///             <td align="left">1-31</td>
+    ///             <td align="left"> </td>
+    ///             <td align="left">, - /// ? / L W C</td>
+    ///         </tr>
+    ///         <tr>
+    ///             <td align="left">Month</td>
+    ///             <td align="left"> </td>
+    ///             <td align="left">1-12 or JAN-DEC</td>
+    ///             <td align="left"> </td>
+    ///             <td align="left">, - /// /</td>
+    ///         </tr>
+    ///         <tr>
+    ///             <td align="left">Day-of-Week</td>
+    ///             <td align="left"> </td>
+    ///             <td align="left">1-7 or SUN-SAT</td>
+    ///             <td align="left"> </td>
+    ///             <td align="left">, - /// ? / L #</td>
+    ///         </tr>
+    ///         <tr>
+    ///             <td align="left">Year (Optional)</td>
+    ///             <td align="left"> </td>
+    ///             <td align="left">empty, 1970-2199</td>
+    ///             <td align="left"> </td>
+    ///             <td align="left">, - /// /</td>
+    ///         </tr>
+    ///     </table>
+    ///     <para>
+    ///         The '*' character is used to specify all values. For example, &quot;*&quot;
+    ///         in the minute field means &quot;every minute&quot;.
+    ///     </para>
+    ///     <para>
+    ///         The '?' character is allowed for the day-of-month and day-of-week fields. It
+    ///         is used to specify 'no specific value'. This is useful when you need to
+    ///         specify something in one of the two fields, but not the other.
+    ///     </para>
+    ///     <para>
+    ///         The '-' character is used to specify ranges For example &quot;10-12&quot; in
+    ///         the hour field means &quot;the hours 10, 11 and 12&quot;.
+    ///     </para>
+    ///     <para>
+    ///         The ',' character is used to specify additional values. For example
+    ///         &quot;MON,WED,FRI&quot; in the day-of-week field means &quot;the days Monday,
+    ///         Wednesday, and Friday&quot;.
+    ///     </para>
+    ///     <para>
+    ///         The '/' character is used to specify increments. For example &quot;0/15&quot;
+    ///         in the seconds field means &quot;the seconds 0, 15, 30, and 45&quot;. And
+    ///         &quot;5/15&quot; in the seconds field means &quot;the seconds 5, 20, 35, and
+    ///         50&quot;.  Specifying '*' before the  '/' is equivalent to specifying 0 is
+    ///         the value to start with. Essentially, for each field in the expression, there
+    ///         is a set of numbers that can be turned on or off. For seconds and minutes,
+    ///         the numbers range from 0 to 59. For hours 0 to 23, for days of the month 0 to
+    ///         31, and for months 1 to 12. The &quot;/&quot; character simply helps you turn
+    ///         on every &quot;nth&quot; value in the given set. Thus &quot;7/6&quot; in the
+    ///         month field only turns on month &quot;7&quot;, it does NOT mean every 6th
+    ///         month, please note that subtlety.
+    ///     </para>
+    ///     <para>
+    ///         The 'L' character is allowed for the day-of-month and day-of-week fields.
+    ///         This character is short-hand for &quot;last&quot;, but it has different
+    ///         meaning in each of the two fields. For example, the value &quot;L&quot; in
+    ///         the day-of-month field means &quot;the last day of the month&quot; - day 31
+    ///         for January, day 28 for February on non-leap years. If used in the
+    ///         day-of-week field by itself, it simply means &quot;7&quot; or
+    ///         &quot;SAT&quot;. But if used in the day-of-week field after another value, it
+    ///         means &quot;the last xxx day of the month&quot; - for example &quot;6L&quot;
+    ///         means &quot;the last friday of the month&quot;. You can also specify an offset
+    ///         from the last day of the month, such as "L-3" which would mean the third-to-last
+    ///         day of the calendar month.
+    ///         <i>
+    ///             When using the 'L' option, it is important not to
+    ///             specify lists, or ranges of values, as you'll get confusing/unexpected results.
+    ///         </i>
+    ///     </para>
+    ///     <para>
+    ///         The 'W' character is allowed for the day-of-month field.  This character
+    ///         is used to specify the weekday (Monday-Friday) nearest the given day.  As an
+    ///         example, if you were to specify &quot;15W&quot; as the value for the
+    ///         day-of-month field, the meaning is: &quot;the nearest weekday to the 15th of
+    ///         the month&quot;. So if the 15th is a Saturday, the trigger will fire on
+    ///         Friday the 14th. If the 15th is a Sunday, the trigger will fire on Monday the
+    ///         16th. If the 15th is a Tuesday, then it will fire on Tuesday the 15th.
+    ///         However if you specify &quot;1W&quot; as the value for day-of-month, and the
+    ///         1st is a Saturday, the trigger will fire on Monday the 3rd, as it will not
+    ///         'jump' over the boundary of a month's days.  The 'W' character can only be
+    ///         specified when the day-of-month is a single day, not a range or list of days.
+    ///     </para>
+    ///     <para>
+    ///         The 'L' and 'W' characters can also be combined for the day-of-month
+    ///         expression to yield 'LW', which translates to &quot;last weekday of the
+    ///         month&quot;.
+    ///     </para>
+    ///     <para>
+    ///         The '#' character is allowed for the day-of-week field. This character is
+    ///         used to specify &quot;the nth&quot; XXX day of the month. For example, the
+    ///         value of &quot;6#3&quot; in the day-of-week field means the third Friday of
+    ///         the month (day 6 = Friday and &quot;#3&quot; = the 3rd one in the month).
+    ///         Other examples: &quot;2#1&quot; = the first Monday of the month and
+    ///         &quot;4#5&quot; = the fifth Wednesday of the month. Note that if you specify
+    ///         &quot;#5&quot; and there is not 5 of the given day-of-week in the month, then
+    ///         no firing will occur that month. If the '#' character is used, there can
+    ///         only be one expression in the day-of-week field (&quot;3#1,6#3&quot; is
+    ///         not valid, since there are two expressions).
+    ///     </para>
+    ///     <para>
+    ///         <!--The 'C' character is allowed for the day-of-month and day-of-week fields.
     /// This character is short-hand for "calendar". This means values are
     /// calculated against the associated calendar, if any. If no calendar is
     /// associated, then it is equivalent to having an all-inclusive calendar. A
     /// value of "5C" in the day-of-month field means "the first day included by the
     /// calendar on or after the 5th". A value of "1C" in the day-of-week field
     /// means "the first day included by the calendar on or after Sunday". -->
-    /// </para>
-    /// <para>
-    /// The legal characters and the names of months and days of the week are not
-    /// case sensitive.
-    /// </para>
-    /// <para>
-    /// <b>NOTES:</b>
-    /// <ul>
-    /// <li>Support for specifying both a day-of-week and a day-of-month value is
-    /// not complete (you'll need to use the '?' character in one of these fields).
-    /// </li>
-    /// <li>Overflowing ranges is supported - that is, having a larger number on
-    /// the left hand side than the right. You might do 22-2 to catch 10 o'clock
-    /// at night until 2 o'clock in the morning, or you might have NOV-FEB. It is
-    /// very important to note that overuse of overflowing ranges creates ranges
-    /// that don't make sense and no effort has been made to determine which
-    /// interpretation CronExpression chooses. An example would be
-    /// "0 0 14-6 ? * FRI-MON". </li>
-    /// </ul>
-    /// </para>
+    ///     </para>
+    ///     <para>
+    ///         The legal characters and the names of months and days of the week are not
+    ///         case sensitive.
+    ///     </para>
+    ///     <para>
+    ///         <b>NOTES:</b>
+    ///         <ul>
+    ///             <li>
+    ///                 Support for specifying both a day-of-week and a day-of-month value is
+    ///                 not complete (you'll need to use the '?' character in one of these fields).
+    ///             </li>
+    ///             <li>
+    ///                 Overflowing ranges is supported - that is, having a larger number on
+    ///                 the left hand side than the right. You might do 22-2 to catch 10 o'clock
+    ///                 at night until 2 o'clock in the morning, or you might have NOV-FEB. It is
+    ///                 very important to note that overuse of overflowing ranges creates ranges
+    ///                 that don't make sense and no effort has been made to determine which
+    ///                 interpretation CronExpression chooses. An example would be
+    ///                 "0 0 14-6 ? * FRI-MON".
+    ///             </li>
+    ///         </ul>
+    ///     </para>
     /// </remarks>
     /// <author>Sharada Jambula</author>
     /// <author>James House</author>
@@ -230,147 +236,147 @@ namespace Quartz
     public class CronExpression : IDeserializationCallback, ISerializable
     {
         /// <summary>
-        /// Field specification for second.
+        ///     Field specification for second.
         /// </summary>
         protected const int Second = 0;
 
         /// <summary>
-        /// Field specification for minute.
+        ///     Field specification for minute.
         /// </summary>
         protected const int Minute = 1;
 
         /// <summary>
-        /// Field specification for hour.
+        ///     Field specification for hour.
         /// </summary>
         protected const int Hour = 2;
 
         /// <summary>
-        /// Field specification for day of month.
+        ///     Field specification for day of month.
         /// </summary>
         protected const int DayOfMonth = 3;
 
         /// <summary>
-        /// Field specification for month.
+        ///     Field specification for month.
         /// </summary>
         protected const int Month = 4;
 
         /// <summary>
-        /// Field specification for day of week.
+        ///     Field specification for day of week.
         /// </summary>
         protected const int DayOfWeek = 5;
 
         /// <summary>
-        /// Field specification for year.
+        ///     Field specification for year.
         /// </summary>
         protected const int Year = 6;
 
         /// <summary>
-        /// Field specification for all wildcard value '*'.
+        ///     Field specification for all wildcard value '*'.
         /// </summary>
         protected const int AllSpecInt = 99; // '*'
 
         /// <summary>
-        /// Field specification for not specified value '?'.
+        ///     Field specification for not specified value '?'.
         /// </summary>
         protected const int NoSpecInt = 98; // '?'
 
         /// <summary>
-        /// Field specification for wildcard '*'.
+        ///     Field specification for wildcard '*'.
         /// </summary>
         protected const int AllSpec = AllSpecInt;
 
         /// <summary>
-        /// Field specification for no specification at all '?'.
+        ///     Field specification for no specification at all '?'.
         /// </summary>
         protected const int NoSpec = NoSpecInt;
 
         private static readonly Dictionary<string, int> monthMap = new Dictionary<string, int>(20);
         private static readonly Dictionary<string, int> dayMap = new Dictionary<string, int>(60);
 
-        private TimeZoneInfo timeZone;
+        public static readonly int MaxYear = DateTime.Now.Year + 100;
+
+        private static readonly char[] splitSeparators = {' ', '\t', '\r', '\n'};
+        private static readonly char[] commaSeparator = {','};
+        private static readonly Regex regex = new Regex("^L-[0-9]*[W]?", RegexOptions.Compiled);
 
         /// <summary>
-        /// Seconds.
-        /// </summary>
-        [NonSerialized] protected SortedSet<int> seconds;
-
-        /// <summary>
-        /// minutes.
-        /// </summary>
-        [NonSerialized] protected SortedSet<int> minutes;
-
-        /// <summary>
-        /// Hours.
-        /// </summary>
-        [NonSerialized] protected SortedSet<int> hours;
-
-        /// <summary>
-        /// Days of month.
-        /// </summary>
-        [NonSerialized] protected SortedSet<int> daysOfMonth;
-
-        /// <summary>
-        /// Months.
-        /// </summary>
-        [NonSerialized] protected SortedSet<int> months;
-
-        /// <summary>
-        /// Days of week.
-        /// </summary>
-        [NonSerialized] protected SortedSet<int> daysOfWeek;
-
-        /// <summary>
-        /// Years.
-        /// </summary>
-        [NonSerialized] protected SortedSet<int> years;
-
-        /// <summary>
-        /// Last day of week.
-        /// </summary>
-        [NonSerialized] protected bool lastdayOfWeek;
-
-        /// <summary>
-        /// N number of weeks.
-        /// </summary>
-        [NonSerialized] protected int everyNthWeek;
-
-        /// <summary>
-        /// Nth day of week.
-        /// </summary>
-        [NonSerialized] protected int nthdayOfWeek;
-
-        /// <summary>
-        /// Last day of month.
-        /// </summary>
-        [NonSerialized] protected bool lastdayOfMonth;
-
-        /// <summary>
-        /// Nearest weekday.
-        /// </summary>
-        [NonSerialized] protected bool nearestWeekday;
-
-        [NonSerialized] protected int lastdayOffset;
-
-        /// <summary>
-        /// Calendar day of week.
-        /// </summary>
-        [NonSerialized] protected bool calendardayOfWeek;
-
-        /// <summary>
-        /// Calendar day of month.
+        ///     Calendar day of month.
         /// </summary>
         [NonSerialized] protected bool calendardayOfMonth;
 
         /// <summary>
-        /// Expression parsed.
+        ///     Calendar day of week.
+        /// </summary>
+        [NonSerialized] protected bool calendardayOfWeek;
+
+        /// <summary>
+        ///     Days of month.
+        /// </summary>
+        [NonSerialized] protected SortedSet<int> daysOfMonth;
+
+        /// <summary>
+        ///     Days of week.
+        /// </summary>
+        [NonSerialized] protected SortedSet<int> daysOfWeek;
+
+        /// <summary>
+        ///     N number of weeks.
+        /// </summary>
+        [NonSerialized] protected int everyNthWeek;
+
+        /// <summary>
+        ///     Expression parsed.
         /// </summary>
         [NonSerialized] protected bool expressionParsed;
 
-        public static readonly int MaxYear = DateTime.Now.Year + 100;
+        /// <summary>
+        ///     Hours.
+        /// </summary>
+        [NonSerialized] protected SortedSet<int> hours;
 
-        private static readonly char[] splitSeparators = { ' ', '\t', '\r', '\n' };
-        private static readonly char[] commaSeparator = { ',' };
-        private static readonly Regex regex = new Regex("^L-[0-9]*[W]?", RegexOptions.Compiled);
+        [NonSerialized] protected int lastdayOffset;
+
+        /// <summary>
+        ///     Last day of month.
+        /// </summary>
+        [NonSerialized] protected bool lastdayOfMonth;
+
+        /// <summary>
+        ///     Last day of week.
+        /// </summary>
+        [NonSerialized] protected bool lastdayOfWeek;
+
+        /// <summary>
+        ///     minutes.
+        /// </summary>
+        [NonSerialized] protected SortedSet<int> minutes;
+
+        /// <summary>
+        ///     Months.
+        /// </summary>
+        [NonSerialized] protected SortedSet<int> months;
+
+        /// <summary>
+        ///     Nearest weekday.
+        /// </summary>
+        [NonSerialized] protected bool nearestWeekday;
+
+        /// <summary>
+        ///     Nth day of week.
+        /// </summary>
+        [NonSerialized] protected int nthdayOfWeek;
+
+        /// <summary>
+        ///     Seconds.
+        /// </summary>
+        [NonSerialized] protected SortedSet<int> seconds;
+
+        private TimeZoneInfo timeZone;
+
+        /// <summary>
+        ///     Years.
+        /// </summary>
+        [NonSerialized] protected SortedSet<int> years;
 
         static CronExpression()
         {
@@ -400,12 +406,12 @@ namespace Quartz
         {
         }
 
-        ///<summary>
-        /// Constructs a new <see cref="CronExpressionString" /> based on the specified
-        /// parameter.
+        /// <summary>
+        ///     Constructs a new <see cref="CronExpressionString" /> based on the specified
+        ///     parameter.
         /// </summary>
         /// <param name="cronExpression">
-        /// String representation of the cron expression the new object should represent
+        ///     String representation of the cron expression the new object should represent
         /// </param>
         /// <see cref="CronExpressionString" />
         public CronExpression(string cronExpression)
@@ -420,7 +426,7 @@ namespace Quartz
         }
 
         /// <summary>
-        /// Serialization constructor.
+        ///     Serialization constructor.
         /// </summary>
         /// <param name="info"></param>
         /// <param name="context"></param>
@@ -444,18 +450,45 @@ namespace Quartz
                     break;
                 case 1:
                     CronExpressionString = (string)info.GetValue("cronExpression", typeof(string));
-                    var timeZoneId = (string)info.GetValue("timeZoneId", typeof(string));
+                    string timeZoneId = (string)info.GetValue("timeZoneId", typeof(string));
                     if (!string.IsNullOrEmpty(timeZoneId))
                     {
                         timeZone = TimeZoneUtil.FindTimeZoneById(timeZoneId);
                     }
+
                     break;
                 default:
                     throw new NotSupportedException("Unknown serialization version");
             }
         }
 
-        [System.Security.SecurityCritical]
+        /// <summary>
+        ///     Sets or gets the time zone for which the <see cref="CronExpression" /> of this
+        ///     <see cref="ICronTrigger" /> will be resolved.
+        /// </summary>
+        public TimeZoneInfo TimeZone
+        {
+            set => timeZone = value;
+            get
+            {
+                if (timeZone == null)
+                {
+                    timeZone = TimeZoneInfo.Local;
+                }
+
+                return timeZone;
+            }
+        }
+
+        /// <summary>
+        ///     Gets the cron expression string.
+        /// </summary>
+        /// <value>The cron expression string.</value>
+        public string CronExpressionString { get; }
+
+        public void OnDeserialization(object sender) => BuildExpression(CronExpressionString);
+
+        [SecurityCritical]
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("version", 1);
@@ -464,17 +497,18 @@ namespace Quartz
         }
 
         /// <summary>
-        /// Indicates whether the given date satisfies the cron expression.
+        ///     Indicates whether the given date satisfies the cron expression.
         /// </summary>
         /// <remarks>
-        /// Note that  milliseconds are ignored, so two Dates falling on different milliseconds
-        /// of the same second will always have the same result here.
+        ///     Note that  milliseconds are ignored, so two Dates falling on different milliseconds
+        ///     of the same second will always have the same result here.
         /// </remarks>
         /// <param name="dateUtc">The date to evaluate.</param>
         /// <returns>a boolean indicating whether the given date satisfies the cron expression</returns>
         public virtual bool IsSatisfiedBy(DateTimeOffset dateUtc)
         {
-            var withoutMilliseconds = new DateTimeOffset(dateUtc.Year, dateUtc.Month, dateUtc.Day, dateUtc.Hour, dateUtc.Minute, dateUtc.Second, dateUtc.Offset);
+            DateTimeOffset withoutMilliseconds = new DateTimeOffset(dateUtc.Year, dateUtc.Month, dateUtc.Day,
+                dateUtc.Hour, dateUtc.Minute, dateUtc.Second, dateUtc.Offset);
             DateTimeOffset test = withoutMilliseconds.AddSeconds(-1);
 
             DateTimeOffset? timeAfter = GetTimeAfter(test);
@@ -489,19 +523,16 @@ namespace Quartz
         }
 
         /// <summary>
-        /// Returns the next date/time <i>after</i> the given date/time which
-        /// satisfies the cron expression.
+        ///     Returns the next date/time <i>after</i> the given date/time which
+        ///     satisfies the cron expression.
         /// </summary>
         /// <param name="date">the date/time at which to begin the search for the next valid date/time</param>
         /// <returns>the next valid date/time</returns>
-        public virtual DateTimeOffset? GetNextValidTimeAfter(DateTimeOffset date)
-        {
-            return GetTimeAfter(date);
-        }
+        public virtual DateTimeOffset? GetNextValidTimeAfter(DateTimeOffset date) => GetTimeAfter(date);
 
         /// <summary>
-        /// Returns the next date/time <i>after</i> the given date/time which does
-        /// <i>not</i> satisfy the expression.
+        ///     Returns the next date/time <i>after</i> the given date/time which does
+        ///     <i>not</i> satisfy the expression.
         /// </summary>
         /// <param name="date">the date/time at which to begin the search for the next invalid date/time</param>
         /// <returns>the next valid date/time</returns>
@@ -511,7 +542,8 @@ namespace Quartz
 
             //move back to the nearest second so differences will be accurate
             DateTimeOffset lastDate =
-                new DateTimeOffset(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Offset).AddSeconds(-1);
+                new DateTimeOffset(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Offset)
+                    .AddSeconds(-1);
 
             //TODO: IMPROVE THIS! The following is a BAD solution to this problem. Performance will be very bad here, depending on the cron expression. It is, however A solution.
 
@@ -539,39 +571,20 @@ namespace Quartz
         }
 
         /// <summary>
-        /// Sets or gets the time zone for which the <see cref="CronExpression" /> of this
-        /// <see cref="ICronTrigger" /> will be resolved.
-        /// </summary>
-        public TimeZoneInfo TimeZone
-        {
-            set => timeZone = value;
-            get
-            {
-                if (timeZone == null)
-                {
-                    timeZone = TimeZoneInfo.Local;
-                }
-
-                return timeZone;
-            }
-        }
-
-        /// <summary>
-        /// Returns the string representation of the <see cref="CronExpression" />
+        ///     Returns the string representation of the <see cref="CronExpression" />
         /// </summary>
         /// <returns>The string representation of the <see cref="CronExpression" /></returns>
-        public override string ToString()
-        {
-            return CronExpressionString;
-        }
+        public override string ToString() => CronExpressionString;
 
         /// <summary>
-        /// Indicates whether the specified cron expression can be parsed into a
-        /// valid cron expression
+        ///     Indicates whether the specified cron expression can be parsed into a
+        ///     valid cron expression
         /// </summary>
         /// <param name="cronExpression">the expression to evaluate</param>
-        /// <returns>a boolean indicating whether the given expression is a valid cron
-        ///         expression</returns>
+        /// <returns>
+        ///     a boolean indicating whether the given expression is a valid cron
+        ///     expression
+        /// </returns>
         public static bool IsValidExpression(string cronExpression)
         {
             try
@@ -586,10 +599,7 @@ namespace Quartz
             return true;
         }
 
-        public static void ValidateExpression(string cronExpression)
-        {
-            new CronExpression(cronExpression);
-        }
+        public static void ValidateExpression(string cronExpression) => new CronExpression(cronExpression);
 
         ////////////////////////////////////////////////////////////////////////////
         //
@@ -598,7 +608,7 @@ namespace Quartz
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Builds the expression.
+        ///     Builds the expression.
         /// </summary>
         /// <param name="expression">The expression.</param>
         protected void BuildExpression(string expression)
@@ -611,26 +621,32 @@ namespace Quartz
                 {
                     seconds = new SortedSet<int>();
                 }
+
                 if (minutes == null)
                 {
                     minutes = new SortedSet<int>();
                 }
+
                 if (hours == null)
                 {
                     hours = new SortedSet<int>();
                 }
+
                 if (daysOfMonth == null)
                 {
                     daysOfMonth = new SortedSet<int>();
                 }
+
                 if (months == null)
                 {
                     months = new SortedSet<int>();
                 }
+
                 if (daysOfWeek == null)
                 {
                     daysOfWeek = new SortedSet<int>();
                 }
+
                 if (years == null)
                 {
                     years = new SortedSet<int>();
@@ -647,22 +663,30 @@ namespace Quartz
                     {
                         continue;
                     }
+
                     if (exprOn > Year)
                     {
                         break;
                     }
 
                     // throw an exception if L is used with other days of the month
-                    if (exprOn == DayOfMonth && expr.IndexOf('L') != -1 && expr.Length > 1 && expr.IndexOf(",", StringComparison.Ordinal) >= 0)
+                    if (exprOn == DayOfMonth && expr.IndexOf('L') != -1 && expr.Length > 1 &&
+                        expr.IndexOf(",", StringComparison.Ordinal) >= 0)
                     {
-                        throw new FormatException("Support for specifying 'L' and 'LW' with other days of the month is not implemented");
+                        throw new FormatException(
+                            "Support for specifying 'L' and 'LW' with other days of the month is not implemented");
                     }
+
                     // throw an exception if L is used with other days of the week
-                    if (exprOn == DayOfWeek && expr.IndexOf('L') != -1 && expr.Length > 1 && expr.IndexOf(",", StringComparison.Ordinal) >= 0)
+                    if (exprOn == DayOfWeek && expr.IndexOf('L') != -1 && expr.Length > 1 &&
+                        expr.IndexOf(",", StringComparison.Ordinal) >= 0)
                     {
-                        throw new FormatException("Support for specifying 'L' with other days of the week is not implemented");
+                        throw new FormatException(
+                            "Support for specifying 'L' with other days of the week is not implemented");
                     }
-                    if (exprOn == DayOfWeek && expr.IndexOf('#') != -1 && expr.IndexOf('#', expr.IndexOf('#') + 1) != -1)
+
+                    if (exprOn == DayOfWeek && expr.IndexOf('#') != -1 &&
+                        expr.IndexOf('#', expr.IndexOf('#') + 1) != -1)
                     {
                         throw new FormatException("Support for specifying multiple \"nth\" days is not implemented.");
                     }
@@ -703,7 +727,8 @@ namespace Quartz
                 }
                 else
                 {
-                    throw new FormatException("Support for specifying both a day-of-week AND a day-of-month parameter is not implemented.");
+                    throw new FormatException(
+                        "Support for specifying both a day-of-week AND a day-of-month parameter is not implemented.");
                 }
             }
             catch (FormatException)
@@ -717,7 +742,7 @@ namespace Quartz
         }
 
         /// <summary>
-        /// Stores the expression values.
+        ///     Stores the expression values.
         /// </summary>
         /// <param name="pos">The position.</param>
         /// <param name="s">The string to traverse.</param>
@@ -731,6 +756,7 @@ namespace Quartz
             {
                 return i;
             }
+
             char c = s[i];
             if (c >= 'A' && c <= 'Z' && !s.Equals("L") && !s.Equals("LW") && !regex.IsMatch(s))
             {
@@ -744,6 +770,7 @@ namespace Quartz
                     {
                         throw new FormatException($"Invalid Month value: '{sub}'");
                     }
+
                     if (s.Length > i + 3)
                     {
                         c = s[i + 3];
@@ -767,6 +794,7 @@ namespace Quartz
                     {
                         throw new FormatException($"Invalid Day-of-Week value: '{sub}'");
                     }
+
                     if (s.Length > i + 3)
                     {
                         c = s[i + 3];
@@ -830,10 +858,12 @@ namespace Quartz
                 {
                     throw new FormatException($"Illegal characters for this position: '{sub}'");
                 }
+
                 if (eval != -1)
                 {
                     incr = 1;
                 }
+
                 AddToSet(sval, eval, incr, type);
                 return i + 3;
             }
@@ -846,11 +876,13 @@ namespace Quartz
                     throw new FormatException("Illegal character after '?': "
                                               + s[i]);
                 }
+
                 if (type != DayOfWeek && type != DayOfMonth)
                 {
                     throw new FormatException(
                         "'?' can only be specified for Day-of-Month or Day-of-Week.");
                 }
+
                 if (type == DayOfWeek && !lastdayOfMonth)
                 {
                     int val = daysOfMonth.LastOrDefault();
@@ -865,7 +897,7 @@ namespace Quartz
                 return i;
             }
 
-            var startsWithAsterisk = c == '*';
+            bool startsWithAsterisk = c == '*';
             if (startsWithAsterisk || c == '/')
             {
                 if (startsWithAsterisk && i + 1 >= s.Length)
@@ -873,14 +905,17 @@ namespace Quartz
                     AddToSet(AllSpecInt, -1, incr, type);
                     return i + 1;
                 }
+
                 if (c == '/' && (i + 1 >= s.Length || s[i + 1] == ' ' || s[i + 1] == '\t'))
                 {
                     throw new FormatException("'/' must be followed by an integer.");
                 }
+
                 if (startsWithAsterisk)
                 {
                     i++;
                 }
+
                 c = s[i];
                 if (c == '/')
                 {
@@ -898,6 +933,7 @@ namespace Quartz
                     {
                         i++;
                     }
+
                     CheckIncrementRange(incr, type);
                 }
                 else
@@ -907,12 +943,14 @@ namespace Quartz
                         // invalid value s
                         throw new FormatException("Illegal characters after asterisk: " + s);
                     }
+
                     incr = 1;
                 }
 
                 AddToSet(AllSpecInt, -1, incr, type);
                 return i;
             }
+
             if (c == 'L')
             {
                 i++;
@@ -920,10 +958,12 @@ namespace Quartz
                 {
                     lastdayOfMonth = true;
                 }
+
                 if (type == DayOfWeek)
                 {
                     AddToSet(7, 7, 0, type);
                 }
+
                 if (type == DayOfMonth && s.Length > i)
                 {
                     c = s[i];
@@ -935,8 +975,10 @@ namespace Quartz
                         {
                             throw new FormatException("Offset from last day must be <= 30");
                         }
+
                         i = vs.pos;
                     }
+
                     if (s.Length > i)
                     {
                         c = s[i];
@@ -947,8 +989,10 @@ namespace Quartz
                         }
                     }
                 }
+
                 return i;
             }
+
             if (c >= '0' && c <= '9')
             {
                 int val = Convert.ToInt32(c.ToString(), CultureInfo.InvariantCulture);
@@ -966,6 +1010,7 @@ namespace Quartz
                         val = vs.theValue;
                         i = vs.pos;
                     }
+
                     i = CheckNext(i, s, val, type);
                     return i;
                 }
@@ -985,18 +1030,22 @@ namespace Quartz
             {
                 throw new FormatException($"Increment > 60 : {incr}");
             }
+
             if (incr > 23 && type == Hour)
             {
                 throw new FormatException($"Increment > 24 : {incr}");
             }
+
             if (incr > 31 && type == DayOfMonth)
             {
                 throw new FormatException($"Increment > 31 : {incr}");
             }
+
             if (incr > 7 && type == DayOfWeek)
             {
                 throw new FormatException($"Increment > 7 : {incr}");
             }
+
             if (incr > 12 && type == Month)
             {
                 throw new FormatException($"Increment > 12 : {incr}");
@@ -1004,7 +1053,7 @@ namespace Quartz
         }
 
         /// <summary>
-        /// Checks the next value.
+        ///     Checks the next value.
         /// </summary>
         /// <param name="pos">The position.</param>
         /// <param name="s">The string to check.</param>
@@ -1032,12 +1081,14 @@ namespace Quartz
                     {
                         throw new FormatException("Day-of-Week values must be between 1 and 7");
                     }
+
                     lastdayOfWeek = true;
                 }
                 else
                 {
                     throw new FormatException($"'L' option is not valid here. (pos={i})");
                 }
+
                 ISet<int> data = GetSet(type);
                 data.Add(val);
                 i++;
@@ -1054,9 +1105,11 @@ namespace Quartz
                 {
                     throw new FormatException($"'W' option is not valid here. (pos={i})");
                 }
+
                 if (val > 31)
                 {
-                    throw new FormatException("The 'W' option does not make sense with values larger than 31 (max number of days in a month)");
+                    throw new FormatException(
+                        "The 'W' option does not make sense with values larger than 31 (max number of days in a month)");
                 }
 
                 ISet<int> data = GetSet(type);
@@ -1072,6 +1125,7 @@ namespace Quartz
                     throw new FormatException(
                         $"'#' option is not valid here. (pos={i})");
                 }
+
                 i++;
                 try
                 {
@@ -1107,6 +1161,7 @@ namespace Quartz
                 {
                     throw new FormatException($"'C' option is not valid here. (pos={i})");
                 }
+
                 ISet<int> data = GetSet(type);
                 data.Add(val);
                 i++;
@@ -1125,6 +1180,7 @@ namespace Quartz
                     AddToSet(val, end, 1, type);
                     return i;
                 }
+
                 c = s[i];
                 if (c >= '0' && c <= '9')
                 {
@@ -1133,6 +1189,7 @@ namespace Quartz
                     end = v1;
                     i = vs.pos;
                 }
+
                 if (i < s.Length && s[i] == '/')
                 {
                     i++;
@@ -1144,6 +1201,7 @@ namespace Quartz
                         AddToSet(val, end, v2, type);
                         return i;
                     }
+
                     c = s[i];
                     if (c >= '0' && c <= '9')
                     {
@@ -1153,9 +1211,11 @@ namespace Quartz
                         i = vs.pos;
                         return i;
                     }
+
                     AddToSet(val, end, v2, type);
                     return i;
                 }
+
                 AddToSet(val, end, 1, type);
                 return i;
             }
@@ -1177,6 +1237,7 @@ namespace Quartz
                     AddToSet(val, end, v2, type);
                     return i;
                 }
+
                 c = s[i];
                 if (c >= '0' && c <= '9')
                 {
@@ -1187,6 +1248,7 @@ namespace Quartz
                     i = vs.pos;
                     return i;
                 }
+
                 throw new FormatException($"Unexpected character '{c}' after '/'");
             }
 
@@ -1196,13 +1258,7 @@ namespace Quartz
         }
 
         /// <summary>
-        /// Gets the cron expression string.
-        /// </summary>
-        /// <value>The cron expression string.</value>
-        public string CronExpressionString { get; }
-
-        /// <summary>
-        /// Gets the expression summary.
+        ///     Gets the expression summary.
         /// </summary>
         /// <returns></returns>
         public virtual string GetExpressionSummary()
@@ -1253,7 +1309,7 @@ namespace Quartz
         }
 
         /// <summary>
-        /// Gets the expression set summary.
+        ///     Gets the expression set summary.
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns></returns>
@@ -1263,6 +1319,7 @@ namespace Quartz
             {
                 return "?";
             }
+
             if (data.Contains(AllSpec))
             {
                 return "*";
@@ -1278,6 +1335,7 @@ namespace Quartz
                 {
                     buf.Append(",");
                 }
+
                 buf.Append(val);
                 first = false;
             }
@@ -1286,7 +1344,7 @@ namespace Quartz
         }
 
         /// <summary>
-        /// Skips the white space.
+        ///     Skips the white space.
         /// </summary>
         /// <param name="i">The i.</param>
         /// <param name="s">The s.</param>
@@ -1301,7 +1359,7 @@ namespace Quartz
         }
 
         /// <summary>
-        /// Finds the next white space.
+        ///     Finds the next white space.
         /// </summary>
         /// <param name="i">The i.</param>
         /// <param name="s">The s.</param>
@@ -1316,7 +1374,7 @@ namespace Quartz
         }
 
         /// <summary>
-        /// Adds to set.
+        ///     Adds to set.
         /// </summary>
         /// <param name="val">The val.</param>
         /// <param name="end">The end.</param>
@@ -1345,7 +1403,7 @@ namespace Quartz
             else if (type == DayOfMonth)
             {
                 if ((val < 1 || val > 31 || end > 31) && val != AllSpecInt
-                    && val != NoSpecInt)
+                                                      && val != NoSpecInt)
                 {
                     throw new FormatException(
                         "Day of month values must be between 1 and 31");
@@ -1362,7 +1420,7 @@ namespace Quartz
             else if (type == DayOfWeek)
             {
                 if ((val == 0 || val > 7 || end > 7) && val != AllSpecInt
-                    && val != NoSpecInt)
+                                                     && val != NoSpecInt)
                 {
                     throw new FormatException(
                         "Day-of-Week values must be between 1 and 7");
@@ -1379,6 +1437,7 @@ namespace Quartz
                 {
                     data.Add(NoSpec);
                 }
+
                 return;
             }
 
@@ -1397,6 +1456,7 @@ namespace Quartz
                 {
                     stopAt = 59;
                 }
+
                 if (startAt == -1 || startAt == AllSpecInt)
                 {
                     startAt = 0;
@@ -1408,6 +1468,7 @@ namespace Quartz
                 {
                     stopAt = 23;
                 }
+
                 if (startAt == -1 || startAt == AllSpecInt)
                 {
                     startAt = 0;
@@ -1419,6 +1480,7 @@ namespace Quartz
                 {
                     stopAt = 31;
                 }
+
                 if (startAt == -1 || startAt == AllSpecInt)
                 {
                     startAt = 1;
@@ -1430,6 +1492,7 @@ namespace Quartz
                 {
                     stopAt = 12;
                 }
+
                 if (startAt == -1 || startAt == AllSpecInt)
                 {
                     startAt = 1;
@@ -1441,6 +1504,7 @@ namespace Quartz
                 {
                     stopAt = 7;
                 }
+
                 if (startAt == -1 || startAt == AllSpecInt)
                 {
                     startAt = 1;
@@ -1452,6 +1516,7 @@ namespace Quartz
                 {
                     stopAt = MaxYear;
                 }
+
                 if (startAt == -1 || startAt == AllSpecInt)
                 {
                     startAt = 1970;
@@ -1487,6 +1552,7 @@ namespace Quartz
                     case Year: throw new ArgumentException("Start year must be less than stop year");
                     default: throw new ArgumentException("Unexpected type encountered");
                 }
+
                 stopAt += max;
             }
 
@@ -1514,7 +1580,7 @@ namespace Quartz
         }
 
         /// <summary>
-        /// Gets the set of given type.
+        ///     Gets the set of given type.
         /// </summary>
         /// <param name="type">The type of set to get.</param>
         /// <returns></returns>
@@ -1542,7 +1608,7 @@ namespace Quartz
         }
 
         /// <summary>
-        /// Gets the value.
+        ///     Gets the value.
         /// </summary>
         /// <param name="v">The v.</param>
         /// <param name="s">The s.</param>
@@ -1560,8 +1626,10 @@ namespace Quartz
                 {
                     break;
                 }
+
                 c = s[i];
             }
+
             ValueSet val = new ValueSet();
             if (i < s.Length)
             {
@@ -1571,12 +1639,13 @@ namespace Quartz
             {
                 val.pos = i + 1;
             }
+
             val.theValue = Convert.ToInt32(s1.ToString(), CultureInfo.InvariantCulture);
             return val;
         }
 
         /// <summary>
-        /// Gets the numeric value from string.
+        ///     Gets the numeric value from string.
         /// </summary>
         /// <param name="s">The string to parse from.</param>
         /// <param name="i">The i.</param>
@@ -1589,7 +1658,7 @@ namespace Quartz
         }
 
         /// <summary>
-        /// Gets the month number.
+        ///     Gets the month number.
         /// </summary>
         /// <param name="s">The string to map with.</param>
         /// <returns></returns>
@@ -1604,7 +1673,7 @@ namespace Quartz
         }
 
         /// <summary>
-        /// Gets the day of week number.
+        ///     Gets the day of week number.
         /// </summary>
         /// <param name="s">The s.</param>
         /// <returns></returns>
@@ -1619,7 +1688,7 @@ namespace Quartz
         }
 
         /// <summary>
-        /// Gets the time from given time parts.
+        ///     Gets the time from given time parts.
         /// </summary>
         /// <param name="sc">The seconds.</param>
         /// <param name="mn">The minutes.</param>
@@ -1635,22 +1704,27 @@ namespace Quartz
                 {
                     sc = 0;
                 }
+
                 if (mn == -1)
                 {
                     mn = 0;
                 }
+
                 if (hr == -1)
                 {
                     hr = 0;
                 }
+
                 if (dayofmn == -1)
                 {
                     dayofmn = 0;
                 }
+
                 if (mon == -1)
                 {
                     mon = 0;
                 }
+
                 return new DateTimeOffset(SystemTime.UtcNow().Year, mon, dayofmn, hr, mn, sc, TimeSpan.Zero);
             }
             catch (Exception)
@@ -1660,7 +1734,7 @@ namespace Quartz
         }
 
         /// <summary>
-        /// Gets the next fire time after the given time.
+        ///     Gets the next fire time after the given time.
         /// </summary>
         /// <param name="afterTimeUtc">The UTC time to start searching from.</param>
         /// <returns></returns>
@@ -1695,6 +1769,7 @@ namespace Quartz
                     sec = seconds.First();
                     d = d.AddMinutes(1);
                 }
+
                 d = new DateTimeOffset(d.Year, d.Month, d.Day, d.Hour, d.Minute, sec, d.Millisecond, d.Offset);
 
                 int min = d.Minute;
@@ -1713,12 +1788,14 @@ namespace Quartz
                     min = minutes.First();
                     hr++;
                 }
+
                 if (min != t)
                 {
                     d = new DateTimeOffset(d.Year, d.Month, d.Day, d.Hour, min, 0, d.Millisecond, d.Offset);
                     d = SetCalendarHour(d, hr);
                     continue;
                 }
+
                 d = new DateTimeOffset(d.Year, d.Month, d.Day, d.Hour, min, d.Second, d.Millisecond, d.Offset);
 
                 hr = d.Hour;
@@ -1737,20 +1814,24 @@ namespace Quartz
                     hr = hours.First();
                     day++;
                 }
+
                 if (hr != t)
                 {
                     int daysInMonth = DateTime.DaysInMonth(d.Year, d.Month);
                     if (day > daysInMonth)
                     {
-                        d = new DateTimeOffset(d.Year, d.Month, daysInMonth, d.Hour, 0, 0, d.Millisecond, d.Offset).AddDays(day - daysInMonth);
+                        d = new DateTimeOffset(d.Year, d.Month, daysInMonth, d.Hour, 0, 0, d.Millisecond, d.Offset)
+                            .AddDays(day - daysInMonth);
                     }
                     else
                     {
                         d = new DateTimeOffset(d.Year, d.Month, day, d.Hour, 0, 0, d.Millisecond, d.Offset);
                     }
+
                     d = SetCalendarHour(d, hr);
                     continue;
                 }
+
                 d = new DateTimeOffset(d.Year, d.Month, d.Day, hr, d.Minute, d.Second, d.Millisecond, d.Offset);
 
                 day = d.Day;
@@ -1783,6 +1864,7 @@ namespace Quartz
                                     tmon = 3333; // ensure test of mon != tmon further below fails
                                     d = d.AddYears(1);
                                 }
+
                                 day = 1;
                             }
                         }
@@ -1814,7 +1896,8 @@ namespace Quartz
                                 day += 1;
                             }
 
-                            DateTimeOffset nTime = new DateTimeOffset(tcal.Year, mon, day, hr, min, sec, d.Millisecond, d.Offset);
+                            DateTimeOffset nTime = new DateTimeOffset(tcal.Year, mon, day, hr, min, sec, d.Millisecond,
+                                d.Offset);
                             if (nTime.ToUniversalTime() < afterTimeUtc)
                             {
                                 day = 1;
@@ -1896,6 +1979,7 @@ namespace Quartz
                                 d = new DateTimeOffset(d.Year, mon, lDay, 0, 0, 0, d.Offset).AddDays(day - lDay);
                             }
                         }
+
                         continue;
                     }
                 }
@@ -1914,6 +1998,7 @@ namespace Quartz
                         {
                             daysToAdd = dow - cDow;
                         }
+
                         if (cDow > dow)
                         {
                             daysToAdd = dow + (7 - cDow);
@@ -1934,6 +2019,7 @@ namespace Quartz
                             {
                                 d = new DateTimeOffset(d.Year, mon + 1, 1, 0, 0, 0, d.Offset);
                             }
+
                             // we are promoting the month
                             continue;
                         }
@@ -1994,6 +2080,7 @@ namespace Quartz
                             // we are promoting the month
                             continue;
                         }
+
                         if (daysToAdd > 0 || dayShifted)
                         {
                             d = new DateTimeOffset(d.Year, mon, day, 0, 0, 0, d.Offset);
@@ -2015,11 +2102,12 @@ namespace Quartz
                         int daysToAdd = 0;
                         if (cDow < dow)
                         {
-                            daysToAdd = (dow - cDow) + (7 * (everyNthWeek - 1));
+                            daysToAdd = dow - cDow + 7 * (everyNthWeek - 1);
                         }
+
                         if (cDow > dow)
                         {
-                            daysToAdd = (dow + (7 - cDow)) + (7 * (everyNthWeek - 1));
+                            daysToAdd = dow + (7 - cDow) + 7 * (everyNthWeek - 1);
                         }
 
                         int lDay = GetLastDayOfMonth(mon, d.Year);
@@ -2064,6 +2152,7 @@ namespace Quartz
                         {
                             daysToAdd = dow - cDow;
                         }
+
                         if (cDow > dow)
                         {
                             daysToAdd = dow + (7 - cDow);
@@ -2084,9 +2173,11 @@ namespace Quartz
                             {
                                 d = new DateTimeOffset(d.Year, mon + 1, 1, 0, 0, 0, d.Offset);
                             }
+
                             // we are promoting the month
                             continue;
                         }
+
                         if (daysToAdd > 0)
                         {
                             // are we switching days?
@@ -2126,11 +2217,13 @@ namespace Quartz
                     mon = months.First();
                     year++;
                 }
+
                 if (mon != t)
                 {
                     d = new DateTimeOffset(year, mon, 1, 0, 0, 0, d.Offset);
                     continue;
                 }
+
                 d = new DateTimeOffset(d.Year, mon, d.Day, d.Hour, d.Minute, d.Second, d.Offset);
                 year = d.Year;
                 t = -1;
@@ -2152,6 +2245,7 @@ namespace Quartz
                     d = new DateTimeOffset(year, 1, 1, 0, 0, 0, d.Offset);
                     continue;
                 }
+
                 d = new DateTimeOffset(year, d.Month, d.Day, d.Hour, d.Minute, d.Second, d.Offset);
 
                 //apply the proper offset for this date
@@ -2164,18 +2258,16 @@ namespace Quartz
         }
 
         /// <summary>
-        /// Creates the date time without milliseconds.
+        ///     Creates the date time without milliseconds.
         /// </summary>
         /// <param name="time">The time.</param>
         /// <returns></returns>
-        protected static DateTimeOffset CreateDateTimeWithoutMillis(DateTimeOffset time)
-        {
-            return new DateTimeOffset(time.Year, time.Month, time.Day, time.Hour, time.Minute, time.Second, time.Offset);
-        }
+        protected static DateTimeOffset CreateDateTimeWithoutMillis(DateTimeOffset time) =>
+            new DateTimeOffset(time.Year, time.Month, time.Day, time.Hour, time.Minute, time.Second, time.Offset);
 
         /// <summary>
-        /// Advance the calendar to the particular hour paying particular attention
-        /// to daylight saving problems.
+        ///     Advance the calendar to the particular hour paying particular attention
+        ///     to daylight saving problems.
         /// </summary>
         /// <param name="date">The date.</param>
         /// <param name="hour">The hour.</param>
@@ -2189,65 +2281,58 @@ namespace Quartz
             {
                 hourToSet = 0;
             }
-            DateTimeOffset d = new DateTimeOffset(date.Year, date.Month, date.Day, hourToSet, date.Minute, date.Second, date.Millisecond, date.Offset);
+
+            DateTimeOffset d = new DateTimeOffset(date.Year, date.Month, date.Day, hourToSet, date.Minute, date.Second,
+                date.Millisecond, date.Offset);
             if (hour == 24)
             {
                 // increment day
                 d = d.AddDays(1);
             }
+
             return d;
         }
 
         /// <summary>
-        /// Gets the time before.
+        ///     Gets the time before.
         /// </summary>
         /// <param name="endTime">The end time.</param>
         /// <returns></returns>
-        public virtual DateTimeOffset? GetTimeBefore(DateTimeOffset? endTime)
-        {
+        public virtual DateTimeOffset? GetTimeBefore(DateTimeOffset? endTime) => throw
             // TODO: implement
-            throw new NotImplementedException();
-        }
+            new NotImplementedException();
 
         /// <summary>
-        /// NOT YET IMPLEMENTED: Returns the final time that the
-        /// <see cref="CronExpression" /> will match.
+        ///     NOT YET IMPLEMENTED: Returns the final time that the
+        ///     <see cref="CronExpression" /> will match.
         /// </summary>
         /// <returns></returns>
-        public virtual DateTimeOffset? GetFinalFireTime()
-        {
+        public virtual DateTimeOffset? GetFinalFireTime() => throw
             // TODO: implement QUARTZ-423
-            throw new NotImplementedException();
-        }
+            new NotImplementedException();
 
         /// <summary>
-        /// Determines whether given year is a leap year.
+        ///     Determines whether given year is a leap year.
         /// </summary>
         /// <param name="year">The year.</param>
         /// <returns>
-        /// 	<c>true</c> if the specified year is a leap year; otherwise, <c>false</c>.
+        ///     <c>true</c> if the specified year is a leap year; otherwise, <c>false</c>.
         /// </returns>
-        protected virtual bool IsLeapYear(int year)
-        {
-            return DateTime.IsLeapYear(year);
-        }
+        protected virtual bool IsLeapYear(int year) => DateTime.IsLeapYear(year);
 
         /// <summary>
-        /// Gets the last day of month.
+        ///     Gets the last day of month.
         /// </summary>
         /// <param name="monthNum">The month num.</param>
         /// <param name="year">The year.</param>
         /// <returns></returns>
-        protected virtual int GetLastDayOfMonth(int monthNum, int year)
-        {
-            return DateTime.DaysInMonth(year, monthNum);
-        }
+        protected virtual int GetLastDayOfMonth(int monthNum, int year) => DateTime.DaysInMonth(year, monthNum);
 
         /// <summary>
-        /// Creates a new object that is a copy of the current instance.
+        ///     Creates a new object that is a copy of the current instance.
         /// </summary>
         /// <returns>
-        /// A new object that is a copy of this instance.
+        ///     A new object that is a copy of this instance.
         /// </returns>
         public object Clone()
         {
@@ -2262,99 +2347,120 @@ namespace Quartz
                 // never happens since the source is valid...
                 throw new Exception("Not Cloneable.", e);
             }
+
             return copy;
         }
 
-        public void OnDeserialization(object sender)
-        {
-            BuildExpression(CronExpressionString);
-        }
-
         /// <summary>
-        /// Determines whether the specified <see cref="CronExpression"/> is equal to the current <see cref="CronExpression"/>.
+        ///     Determines whether the specified <see cref="CronExpression" /> is equal to the current
+        ///     <see cref="CronExpression" />.
         /// </summary>
         /// <returns>
-        /// true if the specified <see cref="CronExpression"/> is equal to the current <see cref="CronExpression"/>; otherwise, false.
+        ///     true if the specified <see cref="CronExpression" /> is equal to the current <see cref="CronExpression" />;
+        ///     otherwise, false.
         /// </returns>
-        /// <param name="other">The <see cref="CronExpression"/> to compare with the current <see cref="CronExpression"/>. </param>
+        /// <param name="other">The <see cref="CronExpression" /> to compare with the current <see cref="CronExpression" />. </param>
         public bool Equals(CronExpression other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
             return Equals(other.CronExpressionString, CronExpressionString) && Equals(other.TimeZone, TimeZone);
         }
 
         /// <summary>
-        /// Determines whether the specified <see cref="T:System.Object"/> is equal to the current <see cref="T:System.Object"/>.
+        ///     Determines whether the specified <see cref="T:System.Object" /> is equal to the current
+        ///     <see cref="T:System.Object" />.
         /// </summary>
         /// <returns>
-        /// true if the specified <see cref="T:System.Object"/> is equal to the current <see cref="T:System.Object"/>; otherwise, false.
+        ///     true if the specified <see cref="T:System.Object" /> is equal to the current <see cref="T:System.Object" />;
+        ///     otherwise, false.
         /// </returns>
-        /// <param name="obj">The <see cref="T:System.Object"/> to compare with the current <see cref="T:System.Object"/>. </param>
+        /// <param name="obj">The <see cref="T:System.Object" /> to compare with the current <see cref="T:System.Object" />. </param>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != typeof(CronExpression)) return false;
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (obj.GetType() != typeof(CronExpression))
+            {
+                return false;
+            }
+
             return Equals((CronExpression)obj);
         }
 
         /// <summary>
-        /// Serves as a hash function for a particular type.
+        ///     Serves as a hash function for a particular type.
         /// </summary>
         /// <returns>
-        /// A hash code for the current <see cref="T:System.Object"/>.
+        ///     A hash code for the current <see cref="T:System.Object" />.
         /// </returns>
         /// <filterpriority>2</filterpriority>
         public override int GetHashCode()
         {
             unchecked
             {
-                return ((CronExpressionString != null ? CronExpressionString.GetHashCode() : 0) * 397) ^ (timeZone != null ? timeZone.GetHashCode() : 0);
+                return ((CronExpressionString != null ? CronExpressionString.GetHashCode() : 0) * 397) ^
+                       (timeZone != null ? timeZone.GetHashCode() : 0);
             }
         }
     }
 
     /// <summary>
-    /// Helper class for cron expression handling.
+    ///     Helper class for cron expression handling.
     /// </summary>
     public class ValueSet
     {
         /// <summary>
-        /// The value.
-        /// </summary>
-        public int theValue;
-
-        /// <summary>
-        /// The position.
+        ///     The position.
         /// </summary>
         public int pos;
+
+        /// <summary>
+        ///     The value.
+        /// </summary>
+        public int theValue;
     }
 
     internal static class SortedSetExtensions
     {
-        internal static SortedSet<int> TailSet(this SortedSet<int> set, int value)
-        {
-            return set.GetViewBetween(value, 9999999);
-        }
+        internal static SortedSet<int> TailSet(this SortedSet<int> set, int value) =>
+            set.GetViewBetween(value, 9999999);
 
         /// <summary>
-        /// Returns the first element of the specified <see cref="SortedSet{TSource}"/>, or a default
-        /// value if no element is found.
+        ///     Returns the first element of the specified <see cref="SortedSet{TSource}" />, or a default
+        ///     value if no element is found.
         /// </summary>
-        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
-        /// <param name="source">The <see cref="SortedSet{TSource}"/> to return the first element of.</param>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">The <see cref="SortedSet{TSource}" /> to return the first element of.</param>
         /// <returns>
-        /// The default value for <typeparamref name="TSource"/> if <paramref name="source"/> is empty;
-        /// otherwise, the first element in <paramref name="source"/>.
+        ///     The default value for <typeparamref name="TSource" /> if <paramref name="source" /> is empty;
+        ///     otherwise, the first element in <paramref name="source" />.
         /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="source" /> is <see langword="null" />.</exception>
         internal static TSource FirstOrDefault<TSource>(this SortedSet<TSource> source)
         {
             if (source == null)
+            {
                 throw new ArgumentNullException(nameof(source));
+            }
 
-            using (var enumerator = source.GetEnumerator())
+            using (SortedSet<TSource>.Enumerator enumerator = source.GetEnumerator())
             {
                 if (!enumerator.MoveNext())
                 {
@@ -2369,6 +2475,8 @@ namespace Quartz
     public static class TimeZoneUtil
     {
         private static readonly Dictionary<string, string> timeZoneIdAliases = new Dictionary<string, string>();
+
+        public static Func<string, TimeZoneInfo> CustomResolver = id => null;
 
         static TimeZoneUtil()
         {
@@ -2412,10 +2520,10 @@ namespace Quartz
             timeZoneIdAliases["Asia/Karachi"] = "Pakistan Standard Time";
         }
 
-        public static Func<string, TimeZoneInfo> CustomResolver = id => null;
+        public static bool IsRunningOnMono { get; } = Type.GetType("Mono.Runtime") != null;
 
         /// <summary>
-        /// TimeZoneInfo.ConvertTime is not supported under mono
+        ///     TimeZoneInfo.ConvertTime is not supported under mono
         /// </summary>
         /// <param name="dateTimeOffset"></param>
         /// <param name="timeZoneInfo"></param>
@@ -2431,7 +2539,7 @@ namespace Quartz
         }
 
         /// <summary>
-        /// TimeZoneInfo.GetUtcOffset(DateTimeOffset) is not supported under mono
+        ///     TimeZoneInfo.GetUtcOffset(DateTimeOffset) is not supported under mono
         /// </summary>
         /// <param name="dateTimeOffset"></param>
         /// <param name="timeZoneInfo"></param>
@@ -2445,7 +2553,6 @@ namespace Quartz
 
             return timeZoneInfo.GetUtcOffset(dateTimeOffset);
         }
-        public static bool IsRunningOnMono { get; } = Type.GetType("Mono.Runtime") != null;
 
         public static TimeSpan GetUtcOffset(DateTime dateTime, TimeZoneInfo timeZoneInfo)
         {
@@ -2461,7 +2568,7 @@ namespace Quartz
         }
 
         /// <summary>
-        /// Tries to find time zone with given id, has ability do some fallbacks when necessary.
+        ///     Tries to find time zone with given id, has ability do some fallbacks when necessary.
         /// </summary>
         /// <param name="id">System id of the time zone.</param>
         /// <returns></returns>
@@ -2474,7 +2581,7 @@ namespace Quartz
             }
             catch (TimeZoneNotFoundException ex)
             {
-                if (timeZoneIdAliases.TryGetValue(id, out var aliasedId))
+                if (timeZoneIdAliases.TryGetValue(id, out string aliasedId))
                 {
                     try
                     {
@@ -2482,7 +2589,6 @@ namespace Quartz
                     }
                     catch
                     {
-                        
                     }
                 }
 

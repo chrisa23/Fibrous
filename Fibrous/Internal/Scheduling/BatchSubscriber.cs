@@ -5,18 +5,16 @@ namespace Fibrous
 {
     internal sealed class BatchSubscriber<T> : BatchSubscriberBase<T>
     {
+        private readonly List<T> _batch = new List<T>();
         private readonly Action<T[]> _receive;
         private bool _pending;
-        private readonly List<T> _batch = new List<T>();
 
         public BatchSubscriber(ISubscriberPort<T> channel,
             IFiber fiber,
             TimeSpan interval,
             Action<T[]> receive)
-            : base(channel, fiber, interval)
-        {
+            : base(channel, fiber, interval) =>
             _receive = receive;
-        }
 
         //This type of batching basically puts a lag on receiving
         //and doesn't maintain a steady batch rate...
@@ -48,7 +46,10 @@ namespace Fibrous
                 }
             }
 
-            if (toFlush != null) Fiber.Enqueue(() => _receive(toFlush));
+            if (toFlush != null)
+            {
+                Fiber.Enqueue(() => _receive(toFlush));
+            }
         }
     }
 }

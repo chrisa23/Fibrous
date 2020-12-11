@@ -24,7 +24,7 @@ namespace Fibrous
         {
             lock (BatchLock)
             {
-                var key = _keyResolver(msg);
+                TKey key = _keyResolver(msg);
                 if (_pending == null)
                 {
                     _pending = new Dictionary<TKey, T>();
@@ -37,8 +37,11 @@ namespace Fibrous
 
         private void Flush()
         {
-            var toReturn = ClearPending();
-            if (toReturn != null) Fiber.Enqueue(() => _target(toReturn));
+            IDictionary<TKey, T> toReturn = ClearPending();
+            if (toReturn != null)
+            {
+                Fiber.Enqueue(() => _target(toReturn));
+            }
         }
 
         private IDictionary<TKey, T> ClearPending()

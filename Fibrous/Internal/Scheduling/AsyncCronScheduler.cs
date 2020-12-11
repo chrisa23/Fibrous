@@ -20,14 +20,14 @@ namespace Fibrous
             _action = async () =>
             {
                 await action();
-                await ScheduleNext();
+                await ScheduleNextAsync();
             };
             //parse cron
             //find next and schedule
             //on next, repeat
             //TODO:  try parse without and then with seconds
             _cronExpression = new CronExpression(cron);
-            ScheduleNext();
+            _ = ScheduleNextAsync();
         }
 
         public void Dispose()
@@ -39,17 +39,24 @@ namespace Fibrous
 #endif
         }
 
-        private Task ScheduleNext()
+        private Task ScheduleNextAsync()
         {
-            if (!_running) return Task.CompletedTask;
-            var next = _cronExpression.GetNextValidTimeAfter(DateTimeOffset.Now);
+            if (!_running)
+            {
+                return Task.CompletedTask;
+            }
+
+            DateTimeOffset? next = _cronExpression.GetNextValidTimeAfter(DateTimeOffset.Now);
             if (next.HasValue)
             {
-                var utc = next.Value.UtcDateTime;
-                var now = DateTime.UtcNow;
-                var span = utc - now;
+                DateTime utc = next.Value.UtcDateTime;
+                DateTime now = DateTime.UtcNow;
+                TimeSpan span = utc - now;
 
-                if (!_running) return Task.CompletedTask;
+                if (!_running)
+                {
+                    return Task.CompletedTask;
+                }
 
                 _sub = _scheduler.Schedule(_action, span);
 

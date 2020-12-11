@@ -26,17 +26,16 @@ using System.Globalization;
 using System.Linq;
 using NUnit.Framework;
 
-
 namespace Quartz.Tests.Unit
 {
     /// <author>Marko Lahma (.NET)</author>
-    [TestFixture()]
+    [TestFixture]
     public class CronExpressionTest
     {
         private static readonly TimeZoneInfo testTimeZone = TimeZoneInfo.Local;
 
         /// <summary>
-        /// Test method for 'CronExpression.IsSatisfiedBy(DateTime)'.
+        ///     Test method for 'CronExpression.IsSatisfiedBy(DateTime)'.
         /// </summary>
         [Test]
         public void TestIsSatisfiedBy()
@@ -86,7 +85,8 @@ namespace Quartz.Tests.Unit
 
             cronExpression = new CronExpression("0 15 10 L-1W * ? 2010");
 
-            cal = new DateTime(2010, 10, 29, 10, 15, 0).ToUniversalTime(); // nearest weekday to last day - 1 (29th is a friday in 2010)
+            cal = new DateTime(2010, 10, 29, 10, 15, 0)
+                .ToUniversalTime(); // nearest weekday to last day - 1 (29th is a friday in 2010)
             Assert.IsTrue(cronExpression.IsSatisfiedBy(cal));
         }
 
@@ -115,7 +115,9 @@ namespace Quartz.Tests.Unit
         {
             CronExpression cronExpression = new CronExpression("0 0 12 ? * MON-FRI");
             int[] arrJuneDaysThatShouldFire =
-                {1, 4, 5, 6, 7, 8, 11, 12, 13, 14, 15, 18, 19, 20, 22, 21, 25, 26, 27, 28, 29};
+            {
+                1, 4, 5, 6, 7, 8, 11, 12, 13, 14, 15, 18, 19, 20, 22, 21, 25, 26, 27, 28, 29
+            };
             List<int> juneDays = new List<int>(arrJuneDaysThatShouldFire);
 
             TestCorrectWeekFireDays(cronExpression, juneDays);
@@ -125,11 +127,10 @@ namespace Quartz.Tests.Unit
         public void TestCronExpressionWeekdaysFriday()
         {
             CronExpression cronExpression = new CronExpression("0 0 12 ? * FRI");
-            var nextRunTime = cronExpression.GetTimeAfter(DateTimeOffset.Now);
-            var nextRunTime2 = cronExpression.GetTimeAfter((DateTimeOffset)nextRunTime);
+            DateTimeOffset? nextRunTime = cronExpression.GetTimeAfter(DateTimeOffset.Now);
+            DateTimeOffset? nextRunTime2 = cronExpression.GetTimeAfter((DateTimeOffset)nextRunTime);
 
-            int[] arrJuneDaysThatShouldFire =
-                {1, 8, 15, 22, 29};
+            int[] arrJuneDaysThatShouldFire = {1, 8, 15, 22, 29};
             List<int> juneDays = new List<int>(arrJuneDaysThatShouldFire);
 
             TestCorrectWeekFireDays(cronExpression, juneDays);
@@ -139,11 +140,10 @@ namespace Quartz.Tests.Unit
         public void TestCronExpressionWeekdaysFridayEveryTwoWeeks()
         {
             CronExpression cronExpression = new CronExpression("0 0 12 ? * FRI/2");
-            var nextRunTime = cronExpression.GetTimeAfter(DateTimeOffset.Now);
-            var nextRunTime2 = cronExpression.GetTimeAfter((DateTimeOffset)nextRunTime);
+            DateTimeOffset? nextRunTime = cronExpression.GetTimeAfter(DateTimeOffset.Now);
+            DateTimeOffset? nextRunTime2 = cronExpression.GetTimeAfter((DateTimeOffset)nextRunTime);
 
-            int[] arrJuneDaysThatShouldFire =
-                {1, 15, 29};
+            int[] arrJuneDaysThatShouldFire = {1, 15, 29};
             List<int> juneDays = new List<int>(arrJuneDaysThatShouldFire);
 
             TestCorrectWeekFireDays(cronExpression, juneDays);
@@ -153,11 +153,10 @@ namespace Quartz.Tests.Unit
         public void TestCronExpressionWeekdaysThirsdayAndFridayEveryTwoWeeks()
         {
             CronExpression cronExpression = new CronExpression("0 0 12 ? * THU,FRI/2");
-            var nextRunTime = cronExpression.GetTimeAfter(DateTimeOffset.Now);
-            var nextRunTime2 = cronExpression.GetTimeAfter((DateTimeOffset)nextRunTime);
+            DateTimeOffset? nextRunTime = cronExpression.GetTimeAfter(DateTimeOffset.Now);
+            DateTimeOffset? nextRunTime2 = cronExpression.GetTimeAfter((DateTimeOffset)nextRunTime);
 
-            int[] arrJuneDaysThatShouldFire =
-                {1, 14, 15, 28, 29};
+            int[] arrJuneDaysThatShouldFire = {1, 14, 15, 28, 29};
             List<int> juneDays = new List<int>(arrJuneDaysThatShouldFire);
 
             TestCorrectWeekFireDays(cronExpression, juneDays);
@@ -167,7 +166,7 @@ namespace Quartz.Tests.Unit
         public void TestCronExpressionLastDayOfMonth()
         {
             CronExpression cronExpression = new CronExpression("0 0 12 L * ?");
-            int[] arrJuneDaysThatShouldFire = { 30 };
+            int[] arrJuneDaysThatShouldFire = {30};
             List<int> juneDays = new List<int>(arrJuneDaysThatShouldFire);
 
             TestCorrectWeekFireDays(cronExpression, juneDays);
@@ -237,11 +236,13 @@ namespace Quartz.Tests.Unit
             for (int i = 0; i < DateTime.DaysInMonth(2007, 6); ++i)
             {
                 nextFireTime = cronExpression.GetTimeAfter((DateTimeOffset)nextFireTime);
-                if (!fireDays.Contains(nextFireTime.Value.Day) && nextFireTime.Value.Month == 6 && nextFireTime.Value.Year == 2007)
+                if (!fireDays.Contains(nextFireTime.Value.Day) && nextFireTime.Value.Month == 6 &&
+                    nextFireTime.Value.Year == 2007)
                 {
                     // next fire day may be monday for several days..
                     fireDays.Add(nextFireTime.Value.Day);
                 }
+
                 //cal = cal.AddDays(1);
             }
 
@@ -254,26 +255,24 @@ namespace Quartz.Tests.Unit
             }
 
             // check that all fired
-            Assert.IsTrue(correctFireDays.Count == 0, $"CronExpression did not evaluate true for all expected days (count: {correctFireDays.Count}).");
+            Assert.IsTrue(correctFireDays.Count == 0,
+                $"CronExpression did not evaluate true for all expected days (count: {correctFireDays.Count}).");
         }
 
         [Test]
-        public void TestFormatExceptionWildCardDayOfMonthAndDayOfWeek()
-        {
-            Assert.Throws<FormatException>(() => new CronExpression("0 0 * * * *"), "Support for specifying both a day-of-week AND a day-of-month parameter is not implemented.");
-        }
+        public void TestFormatExceptionWildCardDayOfMonthAndDayOfWeek() => Assert.Throws<FormatException>(
+            () => new CronExpression("0 0 * * * *"),
+            "Support for specifying both a day-of-week AND a day-of-month parameter is not implemented.");
 
         [Test]
-        public void TestFormatExceptionSpecifiedDayOfMonthAndWildCardDayOfWeek()
-        {
-            Assert.Throws<FormatException>(() => new CronExpression("0 0 * 4 * *"), "Support for specifying both a day-of-week AND a day-of-month parameter is not implemented.");
-        }
+        public void TestFormatExceptionSpecifiedDayOfMonthAndWildCardDayOfWeek() => Assert.Throws<FormatException>(
+            () => new CronExpression("0 0 * 4 * *"),
+            "Support for specifying both a day-of-week AND a day-of-month parameter is not implemented.");
 
         [Test]
-        public void TestFormatExceptionWildCardDayOfMonthAndSpecifiedDayOfWeek()
-        {
-            Assert.Throws<FormatException>(() => new CronExpression("0 0 * * * 4"), "Support for specifying both a day-of-week AND a day-of-month parameter is not implemented.");
-        }
+        public void TestFormatExceptionWildCardDayOfMonthAndSpecifiedDayOfWeek() => Assert.Throws<FormatException>(
+            () => new CronExpression("0 0 * * * 4"),
+            "Support for specifying both a day-of-week AND a day-of-month parameter is not implemented.");
 
         [Test]
         public void TestNthWeekDayPassingMonth()
@@ -304,46 +303,25 @@ namespace Quartz.Tests.Unit
         }
 
         [Test]
-        public void TestSecond()
-        {
-            AssertParsesForField("58-4 5 21 ? * MON-FRI", 0);
-        }
+        public void TestSecond() => AssertParsesForField("58-4 5 21 ? * MON-FRI", 0);
 
         [Test]
-        public void TestMinute()
-        {
-            AssertParsesForField("0 58-4 21 ? * MON-FRI", 1);
-        }
+        public void TestMinute() => AssertParsesForField("0 58-4 21 ? * MON-FRI", 1);
 
         [Test]
-        public void TestHour()
-        {
-            AssertParsesForField("0 0/5 21-3 ? * MON-FRI", 2);
-        }
+        public void TestHour() => AssertParsesForField("0 0/5 21-3 ? * MON-FRI", 2);
 
         [Test]
-        public void TestDayOfWeekNumber()
-        {
-            AssertParsesForField("58 5 21 ? * 6-2", 5);
-        }
+        public void TestDayOfWeekNumber() => AssertParsesForField("58 5 21 ? * 6-2", 5);
 
         [Test]
-        public void TestDayOfWeek()
-        {
-            AssertParsesForField("58 5 21 ? * FRI-TUE", 5);
-        }
+        public void TestDayOfWeek() => AssertParsesForField("58 5 21 ? * FRI-TUE", 5);
 
         [Test]
-        public void TestDayOfMonth()
-        {
-            AssertParsesForField("58 5 21 28-5 1 ?", 3);
-        }
+        public void TestDayOfMonth() => AssertParsesForField("58 5 21 28-5 1 ?", 3);
 
         [Test]
-        public void TestMonth()
-        {
-            AssertParsesForField("58 5 21 ? 11-2 FRI", 4);
-        }
+        public void TestMonth() => AssertParsesForField("58 5 21 ? 11-2 FRI", 4);
 
         [Test]
         public void TestAmbiguous()
@@ -383,7 +361,8 @@ namespace Quartz.Tests.Unit
             catch (FormatException fe)
             {
                 Assert.IsTrue(
-                    fe.Message.StartsWith("Support for specifying 'L' and 'LW' with other days of the month is not implemented"),
+                    fe.Message.StartsWith(
+                        "Support for specifying 'L' and 'LW' with other days of the month is not implemented"),
                     "Incorrect FormatException thrown");
             }
 
@@ -425,7 +404,8 @@ namespace Quartz.Tests.Unit
         public void TestGetTimeAfter_QRTZNET149()
         {
             CronExpression expression = new CronExpression("0 0 0 29 * ?");
-            DateTimeOffset? after = expression.GetNextValidTimeAfter(new DateTime(2009, 1, 30, 0, 0, 0).ToUniversalTime());
+            DateTimeOffset? after =
+                expression.GetNextValidTimeAfter(new DateTime(2009, 1, 30, 0, 0, 0).ToUniversalTime());
             Assert.IsTrue(after.HasValue);
             Assert.AreEqual(new DateTime(2009, 3, 29, 0, 0, 0).ToUniversalTime(), after.Value.DateTime);
 
@@ -440,9 +420,12 @@ namespace Quartz.Tests.Unit
             CronExpression expression = new CronExpression("0 5 13 5W 1-12 ?");
             DateTimeOffset test = new DateTimeOffset(2009, 3, 8, 0, 0, 0, TimeSpan.Zero);
             DateTimeOffset d = expression.GetNextValidTimeAfter(test).Value;
-            Assert.AreEqual(new DateTimeOffset(2009, 4, 6, 13, 5, 0, TimeZoneUtil.GetUtcOffset(d, TimeZoneInfo.Local)).ToUniversalTime(), d);
+            Assert.AreEqual(
+                new DateTimeOffset(2009, 4, 6, 13, 5, 0, TimeZoneUtil.GetUtcOffset(d, TimeZoneInfo.Local))
+                    .ToUniversalTime(), d);
             d = expression.GetNextValidTimeAfter(d).Value;
-            Assert.AreEqual(new DateTimeOffset(2009, 5, 5, 13, 5, 0, TimeZoneUtil.GetUtcOffset(d, TimeZoneInfo.Local)), d);
+            Assert.AreEqual(new DateTimeOffset(2009, 5, 5, 13, 5, 0, TimeZoneUtil.GetUtcOffset(d, TimeZoneInfo.Local)),
+                d);
         }
 
         [Test]
@@ -455,7 +438,8 @@ namespace Quartz.Tests.Unit
             }
             catch (FormatException pe)
             {
-                Assert.IsTrue(pe.Message.StartsWith("The 'W' option does not make sense with values larger than"), "Incorrect ParseException thrown");
+                Assert.IsTrue(pe.Message.StartsWith("The 'W' option does not make sense with values larger than"),
+                    "Incorrect ParseException thrown");
             }
         }
 
@@ -506,8 +490,10 @@ namespace Quartz.Tests.Unit
                 return;
             }
 
-            var daylightChange = GetDaylightChanges(TimeZoneInfo.Local, 2020);
-            DateTimeOffset before = daylightChange.Start.ToUniversalTime().AddMinutes(-5); // keep outside the potentially undefined interval
+            DaylightTime daylightChange = GetDaylightChanges(TimeZoneInfo.Local, 2020);
+            DateTimeOffset
+                before = daylightChange.Start.ToUniversalTime()
+                    .AddMinutes(-5); // keep outside the potentially undefined interval
             DateTimeOffset? after = expression.GetNextValidTimeAfter(before);
             Assert.IsTrue(after.HasValue);
             DateTimeOffset expected = daylightChange.Start.Add(daylightChange.Delta).AddMinutes(15).ToUniversalTime();
@@ -523,6 +509,7 @@ namespace Quartz.Tests.Unit
             {
                 throw new Exception(InTimeZoneInfo.StandardName + " has no adjustment rules");
             }
+
             //Find the correct adjustment rule
             foreach (TimeZoneInfo.AdjustmentRule adjustment in adjustments.OrderByDescending(x => x.DateStart))
             {
@@ -532,6 +519,7 @@ namespace Quartz.Tests.Unit
                     break;
                 }
             }
+
             if (ruleFound == null)
             {
                 throw new Exception("No TimeZoneInfo.AdjustmentRule found for TimeZoneInfo "
@@ -553,30 +541,35 @@ namespace Quartz.Tests.Unit
             {
                 return new DateTime(year, transitionTime.Month, transitionTime.Day);
             }
+
+            // For non-fixed date rules, get local calendar
+            Calendar cal = CultureInfo.CurrentCulture.Calendar;
+            // Get first day of week for transition
+            // For example, the 3rd week starts no earlier than the 15th of the month
+            int startOfWeek = transitionTime.Week * 7 - 6;
+            // What day of the week does the month start on?
+            int firstDayOfWeek = (int)cal.GetDayOfWeek(new DateTime(year, transitionTime.Month, 1));
+            // Determine how much start date has to be adjusted
+            int transitionDay;
+            int changeDayOfWeek = (int)transitionTime.DayOfWeek;
+
+            if (firstDayOfWeek <= changeDayOfWeek)
+            {
+                transitionDay = startOfWeek + (changeDayOfWeek - firstDayOfWeek);
+            }
             else
             {
-                // For non-fixed date rules, get local calendar
-                Calendar cal = CultureInfo.CurrentCulture.Calendar;
-                // Get first day of week for transition
-                // For example, the 3rd week starts no earlier than the 15th of the month
-                int startOfWeek = transitionTime.Week * 7 - 6;
-                // What day of the week does the month start on?
-                int firstDayOfWeek = (int)cal.GetDayOfWeek(new DateTime(year, transitionTime.Month, 1));
-                // Determine how much start date has to be adjusted
-                int transitionDay;
-                int changeDayOfWeek = (int)transitionTime.DayOfWeek;
-
-                if (firstDayOfWeek <= changeDayOfWeek)
-                    transitionDay = startOfWeek + (changeDayOfWeek - firstDayOfWeek);
-                else
-                    transitionDay = startOfWeek + (7 - firstDayOfWeek + changeDayOfWeek);
-
-                // Adjust for months with no fifth week
-                if (transitionDay > cal.GetDaysInMonth(year, transitionTime.Month))
-                    transitionDay -= 7;
-
-                return new DateTime(year, transitionTime.Month, transitionDay, transitionTime.TimeOfDay.Hour, transitionTime.TimeOfDay.Minute, transitionTime.TimeOfDay.Second);
+                transitionDay = startOfWeek + (7 - firstDayOfWeek) + changeDayOfWeek;
             }
+
+            // Adjust for months with no fifth week
+            if (transitionDay > cal.GetDaysInMonth(year, transitionTime.Month))
+            {
+                transitionDay -= 7;
+            }
+
+            return new DateTime(year, transitionTime.Month, transitionDay, transitionTime.TimeOfDay.Hour,
+                transitionTime.TimeOfDay.Minute, transitionTime.TimeOfDay.Second);
         }
 
         [Test]
@@ -588,7 +581,7 @@ namespace Quartz.Tests.Unit
 
             DateTimeOffset startTime = new DateTimeOffset(2012, 11, 4, 0, 0, 0, TimeSpan.Zero);
 
-            var actualTime = expression.GetTimeAfter(startTime);
+            DateTimeOffset? actualTime = expression.GetTimeAfter(startTime);
             DateTimeOffset expected = new DateTimeOffset(2012, 11, 5, 15, 15, 0, TimeSpan.FromHours(-5));
 
             Assert.AreEqual(expected, actualTime.Value);
@@ -604,7 +597,7 @@ namespace Quartz.Tests.Unit
 
             DateTimeOffset startTime = new DateTimeOffset(2012, 11, 4, 0, 0, 0, TimeSpan.Zero);
 
-            var actualTime = expression.GetTimeAfter(startTime);
+            DateTimeOffset? actualTime = expression.GetTimeAfter(startTime);
             DateTimeOffset expected = new DateTimeOffset(2012, 11, 8, 0, 0, 0, TimeSpan.FromHours(-5));
             Assert.AreEqual(expected, actualTime);
         }
@@ -613,19 +606,23 @@ namespace Quartz.Tests.Unit
         public void TestSecRangeIntervalAfterSlash()
         {
             // Test case 1
-            var e = Assert.Throws<FormatException>(() => new CronExpression("/120 0 8-18 ? * 2-6"), "Cron did not validate bad range interval in '_blank/xxx' form");
+            FormatException e = Assert.Throws<FormatException>(() => new CronExpression("/120 0 8-18 ? * 2-6"),
+                "Cron did not validate bad range interval in '_blank/xxx' form");
             Assert.That(e.Message, Is.EqualTo("Increment > 60 : 120"));
 
             // Test case 2
-            e = Assert.Throws<FormatException>(() => new CronExpression("0/120 0 8-18 ? * 2-6"), "Cron did not validate bad range interval in in '0/xxx' form");
+            e = Assert.Throws<FormatException>(() => new CronExpression("0/120 0 8-18 ? * 2-6"),
+                "Cron did not validate bad range interval in in '0/xxx' form");
             Assert.That(e.Message, Is.EqualTo("Increment > 60 : 120"));
 
             // Test case 3
-            e = Assert.Throws<FormatException>(() => new CronExpression("/ 0 8-18 ? * 2-6"), "Cron did not validate bad range interval in '_blank/_blank'");
+            e = Assert.Throws<FormatException>(() => new CronExpression("/ 0 8-18 ? * 2-6"),
+                "Cron did not validate bad range interval in '_blank/_blank'");
             Assert.That(e.Message, Is.EqualTo("'/' must be followed by an integer."));
 
             // Test case 4
-            e = Assert.Throws<FormatException>(() => new CronExpression("0/ 0 8-18 ? * 2-6"), "Cron did not validate bad range interval in '0/_blank'");
+            e = Assert.Throws<FormatException>(() => new CronExpression("0/ 0 8-18 ? * 2-6"),
+                "Cron did not validate bad range interval in '0/_blank'");
             Assert.That(e.Message, Is.EqualTo("'/' must be followed by an integer."));
         }
 
@@ -633,19 +630,23 @@ namespace Quartz.Tests.Unit
         public void TestMinRangeIntervalAfterSlash()
         {
             // Test case 1
-            var e = Assert.Throws<FormatException>(() => new CronExpression("0 /120 8-18 ? * 2-6"), "Cron did not validate bad range interval in '_blank/xxx' form");
+            FormatException e = Assert.Throws<FormatException>(() => new CronExpression("0 /120 8-18 ? * 2-6"),
+                "Cron did not validate bad range interval in '_blank/xxx' form");
             Assert.That(e.Message, Is.EqualTo("Increment > 60 : 120"));
 
             // Test case 2
-            e = Assert.Throws<FormatException>(() => new CronExpression("0 0/120 8-18 ? * 2-6"), "Cron did not validate bad range interval in in '0/xxx' form");
+            e = Assert.Throws<FormatException>(() => new CronExpression("0 0/120 8-18 ? * 2-6"),
+                "Cron did not validate bad range interval in in '0/xxx' form");
             Assert.That(e.Message, Is.EqualTo("Increment > 60 : 120"));
 
             // Test case 3
-            e = Assert.Throws<FormatException>(() => new CronExpression("0 / 8-18 ? * 2-6"), "Cron did not validate bad range interval in '_blank/_blank'");
+            e = Assert.Throws<FormatException>(() => new CronExpression("0 / 8-18 ? * 2-6"),
+                "Cron did not validate bad range interval in '_blank/_blank'");
             Assert.That(e.Message, Is.EqualTo("'/' must be followed by an integer."));
 
             // Test case 4
-            e = Assert.Throws<FormatException>(() => new CronExpression("0 0/ 8-18 ? * 2-6"), "Cron did not validate bad range interval in '0/_blank'");
+            e = Assert.Throws<FormatException>(() => new CronExpression("0 0/ 8-18 ? * 2-6"),
+                "Cron did not validate bad range interval in '0/_blank'");
             Assert.That(e.Message, Is.EqualTo("'/' must be followed by an integer."));
         }
 
@@ -653,19 +654,23 @@ namespace Quartz.Tests.Unit
         public void TestHourRangeIntervalAfterSlash()
         {
             // Test case 1
-            var e = Assert.Throws<FormatException>(() => new CronExpression("0 0 /120 ? * 2-6"), "Cron did not validate bad range interval in '_blank/xxx' form");
+            FormatException e = Assert.Throws<FormatException>(() => new CronExpression("0 0 /120 ? * 2-6"),
+                "Cron did not validate bad range interval in '_blank/xxx' form");
             Assert.That(e.Message, Is.EqualTo("Increment > 24 : 120"));
 
             // Test case 2
-            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0/120 ? * 2-6"), "Cron did not validate bad range interval in in '0/xxx' form");
+            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0/120 ? * 2-6"),
+                "Cron did not validate bad range interval in in '0/xxx' form");
             Assert.That(e.Message, Is.EqualTo("Increment > 24 : 120"));
 
             // Test case 3
-            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 / ? * 2-6"), "Cron did not validate bad range interval in '_blank/_blank'");
+            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 / ? * 2-6"),
+                "Cron did not validate bad range interval in '_blank/_blank'");
             Assert.That(e.Message, Is.EqualTo("'/' must be followed by an integer."));
 
             // Test case 4
-            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0/ ? * 2-6"), "Cron did not validate bad range interval in '0/_blank'");
+            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0/ ? * 2-6"),
+                "Cron did not validate bad range interval in '0/_blank'");
             Assert.That(e.Message, Is.EqualTo("'/' must be followed by an integer."));
         }
 
@@ -673,19 +678,23 @@ namespace Quartz.Tests.Unit
         public void TestDayOfMonthRangeIntervalAfterSlash()
         {
             // Test case 1
-            var e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 /120 * 2-6"), "Cron did not validate bad range interval in '_blank/xxx' form");
+            FormatException e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 /120 * 2-6"),
+                "Cron did not validate bad range interval in '_blank/xxx' form");
             Assert.That(e.Message, Is.EqualTo("Increment > 31 : 120"));
 
             // Test case 2
-            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 0/120 * 2-6"), "Cron did not validate bad range interval in in '0/xxx' form");
+            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 0/120 * 2-6"),
+                "Cron did not validate bad range interval in in '0/xxx' form");
             Assert.That(e.Message, Is.EqualTo("Increment > 31 : 120"));
 
             // Test case 3
-            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 / * 2-6"), "Cron did not validate bad range interval in '_blank/_blank'");
+            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 / * 2-6"),
+                "Cron did not validate bad range interval in '_blank/_blank'");
             Assert.That(e.Message, Is.EqualTo("'/' must be followed by an integer."));
 
             // Test case 4
-            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 0/ * 2-6"), "Cron did not validate bad range interval in '0/_blank'");
+            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 0/ * 2-6"),
+                "Cron did not validate bad range interval in '0/_blank'");
             Assert.That(e.Message, Is.EqualTo("'/' must be followed by an integer."));
         }
 
@@ -693,19 +702,23 @@ namespace Quartz.Tests.Unit
         public void TestMonthRangeIntervalAfterSlash()
         {
             // Test case 1
-            var e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 ? /120 2-6"), "Cron did not validate bad range interval in '_blank/xxx' form");
+            FormatException e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 ? /120 2-6"),
+                "Cron did not validate bad range interval in '_blank/xxx' form");
             Assert.That(e.Message, Is.EqualTo("Increment > 12 : 120"));
 
             // Test case 2
-            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 ? 0/120 2-6"), "Cron did not validate bad range interval in in '0/xxx' form");
+            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 ? 0/120 2-6"),
+                "Cron did not validate bad range interval in in '0/xxx' form");
             Assert.That(e.Message, Is.EqualTo("Increment > 12 : 120"));
 
             // Test case 3
-            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 ? / 2-6"), "Cron did not validate bad range interval in '_blank/_blank'");
+            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 ? / 2-6"),
+                "Cron did not validate bad range interval in '_blank/_blank'");
             Assert.That(e.Message, Is.EqualTo("'/' must be followed by an integer."));
 
             // Test case 4
-            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 ? 0/ 2-6"), "Cron did not validate bad range interval in '0/_blank'");
+            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 ? 0/ 2-6"),
+                "Cron did not validate bad range interval in '0/_blank'");
             Assert.That(e.Message, Is.EqualTo("'/' must be followed by an integer."));
         }
 
@@ -713,19 +726,23 @@ namespace Quartz.Tests.Unit
         public void TestDayOfWeekRangeIntervalAfterSlash()
         {
             // Test case 1
-            var e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 ? * /120"), "Cron did not validate bad range interval in '_blank/xxx' form");
+            FormatException e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 ? * /120"),
+                "Cron did not validate bad range interval in '_blank/xxx' form");
             Assert.That(e.Message, Is.EqualTo("Increment > 7 : 120"));
 
             // Test case 2
-            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 ? * 0/120"), "Cron did not validate bad range interval in in '0/xxx' form");
+            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 ? * 0/120"),
+                "Cron did not validate bad range interval in in '0/xxx' form");
             Assert.That(e.Message, Is.EqualTo("Increment > 7 : 120"));
 
             // Test case 3
-            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 ? * /"), "Cron did not validate bad range interval in '_blank/_blank'");
+            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 ? * /"),
+                "Cron did not validate bad range interval in '_blank/_blank'");
             Assert.That(e.Message, Is.EqualTo("'/' must be followed by an integer."));
 
             // Test case 4
-            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 ? * 0/"), "Cron did not validate bad range interval in '0/_blank'");
+            e = Assert.Throws<FormatException>(() => new CronExpression("0 0 0 ? * 0/"),
+                "Cron did not validate bad range interval in '0/_blank'");
             Assert.That(e.Message, Is.EqualTo("'/' must be followed by an integer."));
         }
 
@@ -744,16 +761,12 @@ namespace Quartz.Tests.Unit
         }
 
         [Test]
-        public void TestExtraCharactersAfterWeekDay()
-        {
+        public void TestExtraCharactersAfterWeekDay() =>
             Assert.That(CronExpression.IsValidExpression("0 0 15 ? * FRI*"), Is.False);
-        }
 
         [Test]
-        public void TestHourRangeAndSlash()
-        {
+        public void TestHourRangeAndSlash() =>
             CronExpression.ValidateExpression("0 0 18-21/1 ? * MON,TUE,WED,THU,FRI,SAT,SUN");
-        }
 
         private class SimpleCronExpression : CronExpression
         {
@@ -762,19 +775,16 @@ namespace Quartz.Tests.Unit
             {
             }
 
-            public ISet<int> GetSetPublic(int constant)
-            {
-                return GetSet(constant);
-            }
+            public ISet<int> GetSetPublic(int constant) => GetSet(constant);
         }
 
         [Test]
         [Explicit]
         public void PerformanceTest()
         {
-            var quartz = new CronExpression("* * * * * ?");
+            CronExpression quartz = new CronExpression("* * * * * ?");
 
-            var sw = new Stopwatch();
+            Stopwatch sw = new Stopwatch();
             sw.Start();
 
             DateTimeOffset? next = new DateTimeOffset(2012, 1, 1, 0, 0, 0, TimeSpan.Zero);
@@ -784,7 +794,9 @@ namespace Quartz.Tests.Unit
                 next = quartz.GetNextValidTimeAfter(next.Value);
 
                 if (next == null)
+                {
                     break;
+                }
             }
 
             Console.WriteLine("{0}ms", sw.ElapsedMilliseconds);

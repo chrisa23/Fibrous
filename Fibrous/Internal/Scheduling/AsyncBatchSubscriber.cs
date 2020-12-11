@@ -13,19 +13,17 @@ namespace Fibrous
             IAsyncFiber fiber,
             TimeSpan interval,
             Func<T[], Task> receive)
-            : base(channel, fiber, interval)
-        {
+            : base(channel, fiber, interval) =>
             _receive = receive;
-        }
 
-        protected override Task OnMessage(T msg)
+        protected override Task OnMessageAsync(T msg)
         {
             lock (BatchLock)
             {
                 if (_pending == null)
                 {
                     _pending = new List<T>();
-                    Fiber.Schedule(Flush, Interval);
+                    Fiber.Schedule(FlushAsync, Interval);
                 }
 
                 _pending.Add(msg);
@@ -34,7 +32,7 @@ namespace Fibrous
             return Task.CompletedTask;
         }
 
-        private Task Flush()
+        private Task FlushAsync()
         {
             T[] toFlush = null;
             lock (BatchLock)
@@ -46,7 +44,10 @@ namespace Fibrous
                 }
             }
 
-            if (toFlush != null) Fiber.Enqueue(() => _receive(toFlush));
+            if (toFlush != null)
+            {
+                Fiber.Enqueue(() => _receive(toFlush));
+            }
 
             return Task.CompletedTask;
         }

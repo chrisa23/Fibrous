@@ -8,72 +8,76 @@ namespace Fibrous.Tests
     public class ReqReplyTests
     {
         [Test]
-        public async Task BasicAsyncRequestReply()
+        public async Task BasicAsyncRequestReplyAsync()
         {
             IRequestChannel<int, int> channel = new RequestChannel<int, int>();
-            var fiber1 = new AsyncFiber();
+            AsyncFiber fiber1 = new AsyncFiber();
             channel.SetRequestHandler(fiber1, request =>
             {
                 request.Reply(request.Request + 1);
                 return Task.CompletedTask;
             });
-            using (var perfTimer = new PerfTimer(1000000))
+            using (PerfTimer perfTimer = new PerfTimer(1000000))
             {
-                for (var i = 0; i < 1000000; i++)
+                for (int i = 0; i < 1000000; i++)
                 {
-                    var reply = await channel.SendRequest(0);
-                   // Assert.AreEqual(1, reply);
+                    int reply = await channel.SendRequestAsync(0);
+                    // Assert.AreEqual(1, reply);
                 }
             }
         }
 
         [Test]
-        public async Task BasicRequestReply()
+        public async Task BasicRequestReplyAsync()
         {
             IRequestChannel<int, int> channel = new RequestChannel<int, int>();
-            var fiber1 = new Fiber();
+            Fiber fiber1 = new Fiber();
             channel.SetRequestHandler(fiber1, request => request.Reply(request.Request + 1));
-            using (var perfTimer = new PerfTimer(1000000))
+            using (PerfTimer perfTimer = new PerfTimer(1000000))
             {
-                for (var i = 0; i < 1000000; i++)
+                for (int i = 0; i < 1000000; i++)
                 {
-                    var reply = await channel.SendRequest(0);
-                   // Assert.AreEqual(1, reply);
+                    int reply = await channel.SendRequestAsync(0);
+                    // Assert.AreEqual(1, reply);
                 }
             }
         }
 
         [Test]
-        public async Task TimeOutRequestReply()
+        public async Task TimeOutRequestReplyAsync()
         {
             IRequestChannel<int, int> channel = new RequestChannel<int, int>();
-            var fiber1 = new AsyncFiber();
+            AsyncFiber fiber1 = new AsyncFiber();
 
             static async Task Reply(IRequest<int, int> request)
             {
                 await Task.Delay(TimeSpan.FromSeconds(3));
                 request.Reply(request.Request + 1);
-            };
+            }
+
+            ;
             channel.SetRequestHandler(fiber1, Reply);
 
-            var reply = await channel.SendRequest(0, TimeSpan.FromSeconds(1));
+            Result<int> reply = await channel.SendRequestAsync(0, TimeSpan.FromSeconds(1));
             Assert.IsFalse(reply.Succeeded);
         }
 
         [Test]
-        public async Task TimeOutRequestReplySuccess()
+        public async Task TimeOutRequestReplySuccessAsync()
         {
             IRequestChannel<int, int> channel = new RequestChannel<int, int>();
-            var fiber1 = new AsyncFiber();
+            AsyncFiber fiber1 = new AsyncFiber();
 
             async Task Reply(IRequest<int, int> request)
             {
                 await Task.Delay(TimeSpan.FromSeconds(1));
                 request.Reply(request.Request + 1);
-            };
+            }
+
+            ;
             channel.SetRequestHandler(fiber1, Reply);
 
-            var reply = await channel.SendRequest(0, TimeSpan.FromSeconds(2));
+            Result<int> reply = await channel.SendRequestAsync(0, TimeSpan.FromSeconds(2));
             Assert.IsTrue(reply.Succeeded);
             Assert.AreEqual(1, reply.Value);
         }
@@ -82,10 +86,10 @@ namespace Fibrous.Tests
         public async Task TimeOutRequestReplyCancel()
         {
             IRequestChannel<int, int> channel = new RequestChannel<int, int>();
-            
+
             //NOTE: either use an Exception Handling Executor or wrap methods using
             //the request's cancel token in a try catch
-            var fiber1 = new AsyncFiber();
+            AsyncFiber fiber1 = new AsyncFiber();
 
             static async Task Reply(IRequest<int, int> request)
             {
@@ -99,19 +103,18 @@ namespace Fibrous.Tests
                     Console.WriteLine("Canceled");
                 }
             }
-            
+
             channel.SetRequestHandler(fiber1, Reply);
 
-            var reply = await channel.SendRequest(0, TimeSpan.FromSeconds(1));
-            
+            Result<int> reply = await channel.SendRequestAsync(0, TimeSpan.FromSeconds(1));
+
             Assert.IsFalse(reply.Succeeded);
 
-            var reply2 = await channel.SendRequest(1, TimeSpan.FromSeconds(5));
+            Result<int> reply2 = await channel.SendRequestAsync(1, TimeSpan.FromSeconds(5));
             Assert.IsTrue(reply2.Succeeded);
             Assert.AreEqual(2, reply2.Value);
 
             await Task.Delay(TimeSpan.FromSeconds(3));
         }
-
     }
 }

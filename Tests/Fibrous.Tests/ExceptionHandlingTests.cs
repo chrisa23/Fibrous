@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -13,8 +11,8 @@ namespace Fibrous.Tests
         [Test]
         public void ExceptionHandlingExecutor()
         {
-            using var reset = new AutoResetEvent(false);
-            var h = new ExceptionHandlingExecutor(x => reset.Set());
+            using AutoResetEvent reset = new AutoResetEvent(false);
+            ExceptionHandlingExecutor h = new ExceptionHandlingExecutor(x => reset.Set());
             h.Execute(() => throw new Exception());
             Assert.IsTrue(reset.WaitOne(100));
         }
@@ -22,10 +20,10 @@ namespace Fibrous.Tests
         [Test]
         public async Task AsyncExceptionHandlingExecutor()
         {
-            using var reset = new AutoResetEvent(false);
+            using AutoResetEvent reset = new AutoResetEvent(false);
 #pragma warning disable 1998
-            var h = new AsyncExceptionHandlingExecutor(async x => reset.Set());
-            await h.Execute(async () => throw new Exception());
+            AsyncExceptionHandlingExecutor h = new AsyncExceptionHandlingExecutor(async x => reset.Set());
+            await h.ExecuteAsync(async () => throw new Exception());
 #pragma warning restore 1998
             Assert.IsTrue(reset.WaitOne(100));
         }

@@ -16,12 +16,16 @@ namespace Fibrous
         {
             if (NextSpinWillYield)
             {
-                var yieldsSoFar = _count >= YieldThreshold ? _count - YieldThreshold : _count;
+                int yieldsSoFar = _count >= YieldThreshold ? _count - YieldThreshold : _count;
 
                 if (yieldsSoFar % Sleep0EveryHowManyTimes == Sleep0EveryHowManyTimes - 1)
+                {
                     Thread.Sleep(0);
+                }
                 else
+                {
                     Thread.Yield();
+                }
             }
             else
             {

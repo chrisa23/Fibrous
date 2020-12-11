@@ -16,7 +16,7 @@ namespace Fibrous
         /// <param name="fiber"></param>
         /// <param name="receive"></param>
         /// <returns></returns>
-       IDisposable Subscribe(IFiber fiber, Action<T> receive);
+        IDisposable Subscribe(IFiber fiber, Action<T> receive);
 
         /// <summary>
         ///     Subscribe to messages on this channel with a fiber and handler.
@@ -27,7 +27,7 @@ namespace Fibrous
         IDisposable Subscribe(IAsyncFiber fiber, Func<T, Task> receive);
 
         /// <summary>
-        ///    Subscribe to messages on this channel with a  handler directly.
+        ///     Subscribe to messages on this channel with a  handler directly.
         /// </summary>
         /// <param name="receive"></param>
         /// <returns></returns>
@@ -47,10 +47,8 @@ namespace Fibrous
         public static IDisposable SubscribeToBatch<T>(this ISubscriberPort<T> port,
             IAsyncFiber fiber,
             Func<T[], Task> receive,
-            TimeSpan interval)
-        {
-            return new AsyncBatchSubscriber<T>(port, fiber, interval, receive);
-        }
+            TimeSpan interval) =>
+            new AsyncBatchSubscriber<T>(port, fiber, interval, receive);
 
         /// <summary>Method that subscribe to a periodic batch. </summary>
         /// <typeparam name="T">    Generic type parameter. </typeparam>
@@ -62,10 +60,8 @@ namespace Fibrous
         public static IDisposable SubscribeToBatch<T>(this ISubscriberPort<T> port,
             IFiber fiber,
             Action<T[]> receive,
-            TimeSpan interval)
-        {
-            return new BatchSubscriber<T>(port, fiber, interval, receive);
-        }
+            TimeSpan interval) =>
+            new BatchSubscriber<T>(port, fiber, interval, receive);
 
         /// <summary>
         ///     Subscribe to a periodic batch, maintaining the last item by key
@@ -82,10 +78,8 @@ namespace Fibrous
             IFiber fiber,
             Converter<T, TKey> keyResolver,
             Action<IDictionary<TKey, T>> receive,
-            TimeSpan interval)
-        {
-            return new KeyedBatchSubscriber<TKey, T>(port, fiber, interval, keyResolver, receive);
-        }
+            TimeSpan interval) =>
+            new KeyedBatchSubscriber<TKey, T>(port, fiber, interval, keyResolver, receive);
 
         /// <summary>
         ///     Subscribe to a periodic batch, maintaining the last item by key
@@ -102,10 +96,8 @@ namespace Fibrous
             IAsyncFiber fiber,
             Converter<T, TKey> keyResolver,
             Func<IDictionary<TKey, T>, Task> receive,
-            TimeSpan interval)
-        {
-            return new AsyncKeyedBatchSubscriber<TKey, T>(port, fiber, interval, keyResolver, receive);
-        }
+            TimeSpan interval) =>
+            new AsyncKeyedBatchSubscriber<TKey, T>(port, fiber, interval, keyResolver, receive);
 
         /// <summary>
         ///     Subscribe to a port but only consume the last msg per interval
@@ -119,10 +111,8 @@ namespace Fibrous
         public static IDisposable SubscribeToLast<T>(this ISubscriberPort<T> port,
             IFiber fiber,
             Action<T> receive,
-            TimeSpan interval)
-        {
-            return new LastSubscriber<T>(port, fiber, interval, receive);
-        }
+            TimeSpan interval) =>
+            new LastSubscriber<T>(port, fiber, interval, receive);
 
         /// <summary>
         ///     Subscribe to a port but only consume the last msg per interval
@@ -136,10 +126,8 @@ namespace Fibrous
         public static IDisposable SubscribeToLast<T>(this ISubscriberPort<T> port,
             IAsyncFiber fiber,
             Func<T, Task> receive,
-            TimeSpan interval)
-        {
-            return new AsyncLastSubscriber<T>(port, fiber, interval, receive);
-        }
+            TimeSpan interval) =>
+            new AsyncLastSubscriber<T>(port, fiber, interval, receive);
 
         /// <summary>
         ///     Subscribe with a message predicate to filter messages
@@ -158,10 +146,12 @@ namespace Fibrous
             void FilteredReceiver(T x)
             {
                 if (filter(x))
+                {
                     fiber.Enqueue(() => receive(x));
+                }
             }
-            
-            var sub = port.Subscribe(FilteredReceiver);
+
+            IDisposable sub = port.Subscribe(FilteredReceiver);
             return new Unsubscriber(sub, fiber);
         }
 
@@ -182,10 +172,12 @@ namespace Fibrous
             void FilteredReceiver(T x)
             {
                 if (filter(x))
+                {
                     fiber.Enqueue(() => receive(x));
+                }
             }
 
-            var sub = port.Subscribe(FilteredReceiver);
+            IDisposable sub = port.Subscribe(FilteredReceiver);
             return new Unsubscriber(sub, fiber);
         }
 
@@ -197,9 +189,7 @@ namespace Fibrous
         /// <param name="receive"></param>
         /// <returns></returns>
         public static IDisposable Connect<T>(this ISubscriberPort<T> port,
-            IPublisherPort<T> receive)
-        {
-            return port.Subscribe(receive.Publish);
-        }
+            IPublisherPort<T> receive) =>
+            port.Subscribe(receive.Publish);
     }
 }

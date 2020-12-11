@@ -4,8 +4,8 @@ namespace Fibrous
 {
     public class StubFiberFactory : IFiberFactory
     {
-        private readonly IFiberScheduler _scheduler;
         private readonly IAsyncFiberScheduler _asyncScheduler;
+        private readonly IFiberScheduler _scheduler;
 
         public StubFiberFactory(IFiberScheduler scheduler = null,
             IAsyncFiberScheduler asyncScheduler = null)
@@ -15,16 +15,12 @@ namespace Fibrous
         }
 
 
-        public IFiber Create(Action<Exception> errorHandler = null)
-        {
-            return errorHandler == null
+        public IFiber CreateFiber(Action<Exception> errorHandler = null) =>
+            errorHandler == null
                 ? new StubFiber(scheduler: _scheduler)
                 : new StubFiber(errorHandler, _scheduler);
-        }
 
-        public IAsyncFiber CreateAsync(Action<Exception> errorHandler)
-        {
-            return new AsyncStubFiber(errorHandler, _asyncScheduler);
-        }
+        public IAsyncFiber CreateAsyncFiber(Action<Exception> errorHandler) =>
+            new AsyncStubFiber(errorHandler, _asyncScheduler);
     }
 }

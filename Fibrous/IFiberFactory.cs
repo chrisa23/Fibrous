@@ -2,9 +2,9 @@
 
 namespace Fibrous
 {
-    public interface IFiberFactory//???:IDisposable
+    public interface IFiberFactory
     {
-        IFiber Create(Action<Exception> errorHandler = null);
-        IAsyncFiber CreateAsync(Action<Exception> errorHandler);
+        IFiber CreateFiber(Action<Exception> errorHandler = null);
+        IAsyncFiber CreateAsyncFiber(Action<Exception> errorHandler);
     }
 }

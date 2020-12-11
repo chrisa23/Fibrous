@@ -16,24 +16,21 @@ namespace Fibrous
             Executor = executor ?? new AsyncExecutor();
         }
 
-        public IDisposable Schedule(Func<Task> action, TimeSpan dueTime)
-        {
-            return _fiberScheduler.Schedule(this, action, dueTime);
-        }
+        public IDisposable Schedule(Func<Task> action, TimeSpan dueTime) =>
+            _fiberScheduler.Schedule(this, action, dueTime);
 
-        public IDisposable Schedule(Func<Task> action, TimeSpan startTime, TimeSpan interval)
-        {
-            return _fiberScheduler.Schedule(this, action, startTime, interval);
-        }
+        public IDisposable Schedule(Func<Task> action, TimeSpan startTime, TimeSpan interval) =>
+            _fiberScheduler.Schedule(this, action, startTime, interval);
 
         public void Enqueue(Func<Task> action)
         {
-            if (_disposed) return;
+            if (_disposed)
+            {
+                return;
+            }
 
             InternalEnqueue(action);
         }
-
-        protected abstract void InternalEnqueue(Func<Task> action);
 
         public void Dispose()
         {
@@ -41,14 +38,10 @@ namespace Fibrous
             _disposables.Dispose();
         }
 
-        public void Add(IDisposable toAdd)
-        {
-            _disposables.Add(toAdd);
-        }
+        public void Add(IDisposable toAdd) => _disposables.Add(toAdd);
 
-        public void Remove(IDisposable toRemove)
-        {
-            _disposables.Remove(toRemove);
-        }
+        public void Remove(IDisposable toRemove) => _disposables.Remove(toRemove);
+
+        protected abstract void InternalEnqueue(Func<Task> action);
     }
 }

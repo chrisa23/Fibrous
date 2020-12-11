@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 
 namespace Fibrous.Benchmark
@@ -12,7 +9,7 @@ namespace Fibrous.Benchmark
         [Benchmark]
         public Task<int> ChannelRequest()
         {
-            var obj = new RequestChannel<int, int>.ChannelRequest(12);
+            RequestChannel<int, int>.ChannelRequest obj = new RequestChannel<int, int>.ChannelRequest(12);
             obj.Reply(2);
             return obj.Resp.Task;
         }

@@ -21,26 +21,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipelineExample", "Examples
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fibrous.Proxy", "Fibrous.Proxy\Fibrous.Proxy.csproj", "{D4A21B90-16CB-46A9-B96A-0AD198EA4715}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{3A0C1AA9-A416-4C28-BAF7-83DE18B3BC0A}"
-	ProjectSection(SolutionItems) = preProject
-		Docs\Agents.md = Docs\Agents.md
-		Docs\AkkaThoughts.md = Docs\AkkaThoughts.md
-		Docs\Channels.md = Docs\Channels.md
-		Docs\Collections.md = Docs\Collections.md
-		Docs\EventBusHub.md = Docs\EventBusHub.md
-		Docs\Fibers.md = Docs\Fibers.md
-		Docs\Pipelines.md = Docs\Pipelines.md
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestsAndBenchmarks", "TestsAndBenchmarks", "{F9CA34DB-8E18-4BEC-9178-D2DDCA9E7341}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fibrous.Benchmark", "Tests\Fibrous.Benchmark\Fibrous.Benchmark.csproj", "{CBA2F56C-51F7-46E3-A81B-541BD8674B74}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fibrous.Tests", "Tests\Fibrous.Tests\Fibrous.Tests.csproj", "{10AF03B1-2702-40B0-B231-CE7292BD6FDB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fibrous.Extras", "Fibrous.Extras\Fibrous.Extras.csproj", "{8C389DE2-B80C-4710-BA17-A3F653A004D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fibrous.Extras", "Fibrous.Extras\Fibrous.Extras.csproj", "{8C389DE2-B80C-4710-BA17-A3F653A004D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fibrous.Experimental", "Fibrous.Experimental\Fibrous.Experimental.csproj", "{8FE941F2-9B31-4FD0-9F7A-E6A0359BB7FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fibrous.Experimental", "Fibrous.Experimental\Fibrous.Experimental.csproj", "{8FE941F2-9B31-4FD0-9F7A-E6A0359BB7FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

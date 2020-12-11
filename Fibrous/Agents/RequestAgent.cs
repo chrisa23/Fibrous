@@ -8,7 +8,7 @@ namespace Fibrous.Agents
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>
     /// <typeparam name="TReply"></typeparam>
-    public class RequestAgent<TRequest, TReply> :IRequestAgent<TRequest, TReply>
+    public class RequestAgent<TRequest, TReply> : IRequestAgent<TRequest, TReply>
     {
         private readonly IRequestPort<TRequest, TReply> _channel;
         protected IFiber Fiber;
@@ -18,34 +18,25 @@ namespace Fibrous.Agents
             Fiber = errorHandler == null ? new Fiber() : new Fiber(errorHandler);
             _channel = Fiber.NewRequestPort(handler);
         }
-        public RequestAgent(IFiberFactory factory, Action<IRequest<TRequest, TReply>> handler, Action<Exception> errorHandler = null)
+
+        public RequestAgent(IFiberFactory factory, Action<IRequest<TRequest, TReply>> handler,
+            Action<Exception> errorHandler = null)
         {
-            Fiber = factory.Create(errorHandler);
+            Fiber = factory.CreateFiber(errorHandler);
             _channel = Fiber.NewRequestPort(handler);
         }
-        public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply)
-        {
-            return _channel.SendRequest(request, fiber, onReply);
-        }
 
-        public IDisposable SendRequest(TRequest request, IAsyncFiber fiber, Func<TReply, Task> onReply)
-        {
-            return _channel.SendRequest(request, fiber, onReply);
-        }
+        public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply) =>
+            _channel.SendRequest(request, fiber, onReply);
 
-        public Task<TReply> SendRequest(TRequest request)
-        {
-            return _channel.SendRequest(request);
-        }
-        
-        public Task<Result<TReply>> SendRequest(TRequest request, TimeSpan timeout)
-        {
-            return _channel.SendRequest(request, timeout);
-        }
+        public IDisposable SendRequest(TRequest request, IAsyncFiber fiber, Func<TReply, Task> onReply) =>
+            _channel.SendRequest(request, fiber, onReply);
 
-        public void Dispose()
-        {
-            Fiber?.Dispose();
-        }
+        public Task<TReply> SendRequestAsync(TRequest request) => _channel.SendRequestAsync(request);
+
+        public Task<Result<TReply>> SendRequestAsync(TRequest request, TimeSpan timeout) =>
+            _channel.SendRequestAsync(request, timeout);
+
+        public void Dispose() => Fiber?.Dispose();
     }
 }

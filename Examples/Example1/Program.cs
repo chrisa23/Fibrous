@@ -7,12 +7,12 @@ namespace Example1
 {
     internal class Program
     {
-        private static void Main()
+        private static async Task Main()
         {
             ExceptionTest();
 
             SimpleExample();
-            MoreComplexExample();
+            await MoreComplexExample();
             AgentExample();
             
         }
@@ -34,7 +34,7 @@ namespace Example1
             Console.ReadKey();
         }
 
-        private static void MoreComplexExample()
+        private static async Task MoreComplexExample()
         {
             using var calculator = new Calculator();
             calculator.Messages.Publish(new Message(3, Operation.Add));
@@ -42,7 +42,7 @@ namespace Example1
             calculator.Messages.Publish(new Message(3, Operation.Divide));
             calculator.Messages.Publish(new Message(1.5, Operation.Multiply));
 
-            var result = calculator.Requests.SendRequest(new object()).Result;
+            var result = await calculator.Requests.SendRequestAsync(new object());
             
             Console.WriteLine(result);
             calculator.Messages.Publish(new Message(0, Operation.Divide));

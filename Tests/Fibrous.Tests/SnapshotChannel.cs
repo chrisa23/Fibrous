@@ -12,25 +12,25 @@ namespace Fibrous.Tests
         [Test]
         public void Snapshot()
         {
-            using var fiber = new Fiber();
-            using var fiber2 = new Fiber();
-            var list = new List<string> {"Prime"};
-            var channel = new SnapshotChannel<string, string[]>();
+            using Fiber fiber = new Fiber();
+            using Fiber fiber2 = new Fiber();
+            List<string> list = new List<string> {"Prime"};
+            SnapshotChannel<string, string[]> channel = new SnapshotChannel<string, string[]>();
             channel.ReplyToPrimingRequest(fiber2, list.ToArray);
-            
-            var primeResult = new List<string>();
+
+            List<string> primeResult = new List<string>();
             Action<string> update = primeResult.Add;
             Action<string[]> snap = primeResult.AddRange;
-            
+
             channel.Subscribe(fiber, update, snap);
-            
+
             Thread.Sleep(500);
-            
+
             channel.Publish("hello");
             channel.Publish("hello2");
-            
+
             Thread.Sleep(500);
-            
+
             Assert.AreEqual("Prime", primeResult[0]);
             Assert.AreEqual("hello2", primeResult[^1]);
         }
@@ -38,15 +38,18 @@ namespace Fibrous.Tests
         [Test]
         public void AsyncSnapshot()
         {
-            using var fiber = new AsyncFiber();
-            using var fiber2 = new AsyncFiber();
-            var list = new List<string> { "Prime" };
-            var channel = new SnapshotChannel<string, string[]>();
+            using AsyncFiber fiber = new AsyncFiber();
+            using AsyncFiber fiber2 = new AsyncFiber();
+            List<string> list = new List<string> {"Prime"};
+            SnapshotChannel<string, string[]> channel = new SnapshotChannel<string, string[]>();
 
-            Task<string[]> Reply() => Task.FromResult(list.ToArray());
+            Task<string[]> Reply()
+            {
+                return Task.FromResult(list.ToArray());
+            }
 
             channel.ReplyToPrimingRequest(fiber2, Reply);
-            var primeResult = new List<string>();
+            List<string> primeResult = new List<string>();
 
             Task Update(string x)
             {
@@ -63,12 +66,12 @@ namespace Fibrous.Tests
             channel.Subscribe(fiber, Update, Snap);
 
             Thread.Sleep(500);
-            
+
             channel.Publish("hello");
             channel.Publish("hello2");
-            
+
             Thread.Sleep(500);
-            
+
             Assert.AreEqual("Prime", primeResult[0]);
             Assert.AreEqual("hello2", primeResult[^1]);
         }

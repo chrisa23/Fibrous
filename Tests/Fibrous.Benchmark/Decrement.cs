@@ -7,7 +7,7 @@ namespace Fibrous.Benchmark
         [Benchmark]
         public int Ref()
         {
-            var i = 1;
+            int i = 1;
             YieldingQueue.ApplyWaitMethod(ref i);
             return i;
         }
@@ -15,7 +15,7 @@ namespace Fibrous.Benchmark
         [Benchmark]
         public int NoRef()
         {
-            var i = 1;
+            int i = 1;
             return YieldingQueue.ApplyWaitMethod2(i);
         }
     }

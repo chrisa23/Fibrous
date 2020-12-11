@@ -15,7 +15,7 @@ namespace Fibrous
 
         public void Enqueue(Action action)
         {
-            var lockTaken = false;
+            bool lockTaken = false;
             try
             {
                 _lock.Enter(ref lockTaken);
@@ -23,14 +23,14 @@ namespace Fibrous
             }
             finally
             {
-                if (lockTaken) _lock.Exit();
+                if (lockTaken)
+                {
+                    _lock.Exit();
+                }
             }
         }
 
-        public List<Action> Drain()
-        {
-            return DequeueAll();
-        }
+        public List<Action> Drain() => DequeueAll();
 
         public void Dispose()
         {
@@ -38,18 +38,25 @@ namespace Fibrous
 
         private List<Action> DequeueAll()
         {
-            var lockTaken = false;
+            bool lockTaken = false;
             try
             {
                 _lock.Enter(ref lockTaken);
-                if (_actions.Count == 0) return Queue.Empty;
+                if (_actions.Count == 0)
+                {
+                    return Queue.Empty;
+                }
+
                 Lists.Swap(ref _actions, ref _toPass);
                 _actions.Clear();
                 return _toPass;
             }
             finally
             {
-                if (lockTaken) _lock.Exit();
+                if (lockTaken)
+                {
+                    _lock.Exit();
+                }
             }
         }
     }

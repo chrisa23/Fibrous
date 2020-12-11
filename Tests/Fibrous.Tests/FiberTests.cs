@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Threading.Tasks;
+using NUnit.Framework;
 
 namespace Fibrous.Tests
 {
@@ -56,11 +57,11 @@ namespace Fibrous.Tests
         }
 
         [Test]
-        public void TestReqReply()
+        public async Task TestReqReplyAsync()
         {
-            FiberTester.TestReqReply1(new Fiber());
-            FiberTester.TestReqReply1(new LockFiber());
-            FiberTester.TestReqReply1(new StubFiber());
+            await FiberTester.TestReqReplyAsync(new Fiber());
+            await FiberTester.TestReqReplyAsync(new LockFiber());
+            await FiberTester.TestReqReplyAsync(new StubFiber());
         }
 
         [Test]

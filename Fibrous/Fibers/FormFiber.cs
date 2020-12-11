@@ -10,15 +10,10 @@ namespace Fibrous
     {
         private readonly ISynchronizeInvoke _invoker;
 
-        public FormFiber( ISynchronizeInvoke invoker, IExecutor executor = null, IFiberScheduler scheduler = null)
-            : base(executor?? new Executor(), scheduler?? new TimerScheduler())
-        {
+        public FormFiber(ISynchronizeInvoke invoker, IExecutor executor = null, IFiberScheduler scheduler = null)
+            : base(executor ?? new Executor(), scheduler ?? new TimerScheduler()) =>
             _invoker = invoker;
-        }
 
-        protected override void InternalEnqueue(Action action)
-        {
-            _invoker.BeginInvoke(action, null);
-        }
+        protected override void InternalEnqueue(Action action) => _invoker.BeginInvoke(action, null);
     }
 }

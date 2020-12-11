@@ -8,9 +8,9 @@ namespace Fibrous.Pipelines
     /// <typeparam name="TOut"></typeparam>
     public sealed class Component<TIn, TOut> : FiberComponent
     {
-        private readonly IProcessor<TIn, TOut> _processor;
-        private readonly IPublisherPort<TOut> _output;
         private readonly IPublisherPort<Exception> _error;
+        private readonly IPublisherPort<TOut> _output;
+        private readonly IProcessor<TIn, TOut> _processor;
 
         public Component(IProcessor<TIn, TOut> processor,
             ISubscriberPort<TIn> input,
@@ -25,6 +25,7 @@ namespace Fibrous.Pipelines
             processor.Initialize(Fiber);
             input.Subscribe(Fiber, processor.Process);
         }
+
         protected override void OnError(Exception obj) => _error.Publish(obj);
 
         public new void Dispose()

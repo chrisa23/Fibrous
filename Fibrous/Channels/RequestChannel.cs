@@ -9,33 +9,29 @@ namespace Fibrous
         private readonly IChannel<IRequest<TRequest, TReply>> _requestChannel =
             new Channel<IRequest<TRequest, TReply>>();
 
-        public IDisposable SetRequestHandler(IFiber fiber, Action<IRequest<TRequest, TReply>> onRequest)
-        {
-            return _requestChannel.Subscribe(fiber, onRequest);
-        }
+        public IDisposable SetRequestHandler(IFiber fiber, Action<IRequest<TRequest, TReply>> onRequest) =>
+            _requestChannel.Subscribe(fiber, onRequest);
 
-        public IDisposable SetRequestHandler(IAsyncFiber fiber, Func<IRequest<TRequest, TReply>, Task> onRequest)
-        {
-            return _requestChannel.Subscribe(fiber, onRequest);
-        }
+        public IDisposable SetRequestHandler(IAsyncFiber fiber, Func<IRequest<TRequest, TReply>, Task> onRequest) =>
+            _requestChannel.Subscribe(fiber, onRequest);
 
         public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply)
         {
-            var channelRequest = new AsyncChannelRequest(fiber, request, onReply);
+            AsyncChannelRequest channelRequest = new AsyncChannelRequest(fiber, request, onReply);
             _requestChannel.Publish(channelRequest);
             return new Unsubscriber(channelRequest, fiber);
         }
 
         public IDisposable SendRequest(TRequest request, IAsyncFiber fiber, Func<TReply, Task> onReply)
         {
-            var channelRequest = new AsyncChannelRequest(fiber, request, onReply);
+            AsyncChannelRequest channelRequest = new AsyncChannelRequest(fiber, request, onReply);
             _requestChannel.Publish(channelRequest);
             return new Unsubscriber(channelRequest, fiber);
         }
 
-        public Task<TReply> SendRequest(TRequest request)
+        public Task<TReply> SendRequestAsync(TRequest request)
         {
-            var channelRequest = new ChannelRequest(request);
+            ChannelRequest channelRequest = new ChannelRequest(request);
             _requestChannel.Publish(channelRequest);
             return channelRequest.Resp.Task;
         }
@@ -46,14 +42,14 @@ namespace Fibrous
         /// <param name="request"></param>
         /// <param name="timeout"></param>
         /// <returns></returns>
-        public async Task<Result<TReply>> SendRequest(TRequest request, TimeSpan timeout)
+        public async Task<Result<TReply>> SendRequestAsync(TRequest request, TimeSpan timeout)
         {
-            using var cts = new CancellationTokenSource(timeout);
-            using var channelRequest = new ChannelRequest(request, cts);
+            using CancellationTokenSource cts = new CancellationTokenSource(timeout);
+            using ChannelRequest channelRequest = new ChannelRequest(request, cts);
             _requestChannel.Publish(channelRequest);
             try
             {
-                var reply = await channelRequest.Resp.Task;
+                TReply reply = await channelRequest.Resp.Task;
                 return Result<TReply>.Ok(reply);
             }
             catch (TaskCanceledException)
@@ -61,26 +57,34 @@ namespace Fibrous
                 return Result<TReply>.Failed;
             }
         }
-        
+
+        public void Dispose() => _requestChannel.Dispose();
+
         public sealed class ChannelRequest : IRequest<TRequest, TReply>, IDisposable
         {
-            private readonly SingleShotGuard _guard = new SingleShotGuard();
             private readonly CancellationTokenSource _cancel;
-           
+            private readonly SingleShotGuard _guard;
+
             public ChannelRequest(TRequest req, CancellationTokenSource cts = null)
             {
                 Request = req;
                 _cancel = cts ?? new CancellationTokenSource();
-                if(cts != null)
+                if (cts != null)
+                {
                     _cancel.Token.Register(Callback);
-            }
-
-            private void Callback()
-            {
-                Resp.TrySetCanceled();
+                }
             }
 
             public TaskCompletionSource<TReply> Resp { get; } = new TaskCompletionSource<TReply>();
+
+            public void Dispose()
+            {
+                if (_guard.Check)
+                {
+                    _cancel.Cancel();
+                }
+            }
+
             public CancellationToken CancellationToken => _cancel.Token;
 
             public TRequest Request { get; }
@@ -93,22 +97,16 @@ namespace Fibrous
                 }
             }
 
-            public void Dispose()
-            {
-                if (_guard.Check)
-                {
-                    _cancel.Cancel();
-                    
-                }
-            }
+            private void Callback() => Resp.TrySetCanceled();
         }
 
         public class AsyncChannelRequest : IRequest<TRequest, TReply>, IDisposable
         {
-            private readonly SingleShotGuard _guard = new SingleShotGuard();
+            private readonly CancellationTokenSource _cancel = new CancellationTokenSource();
+            private readonly SingleShotGuard _guard;
             private readonly IChannel<TReply> _resp = new Channel<TReply>();
             private readonly IDisposable _sub;
-            private readonly CancellationTokenSource _cancel = new CancellationTokenSource();
+
             public AsyncChannelRequest(IFiber fiber, TRequest request, Action<TReply> replier)
             {
                 Request = request;
@@ -141,11 +139,6 @@ namespace Fibrous
             }
 
             public CancellationToken CancellationToken => _cancel.Token;
-        }
-
-        public void Dispose()
-        {
-            _requestChannel.Dispose();
         }
     }
 }

@@ -27,10 +27,7 @@ namespace Fibrous
             _signalled.LazySet(true);
         }
 
-        public List<Action> Drain()
-        {
-            return DequeueAll();
-        }
+        public List<Action> Drain() => DequeueAll();
 
         public void Dispose()
         {
@@ -44,13 +41,15 @@ namespace Fibrous
 
         public void Wait()
         {
-            var spin = new SpinWait();
+            SpinWait spin = new SpinWait();
             _sw.Restart();
             while (!_signalled.Value) // volatile read
             {
                 spin.SpinOnce();
                 if (_sw.Elapsed > _timeout)
+                {
                     break;
+                }
             }
 
             _signalled.Exchange(false);
@@ -61,7 +60,11 @@ namespace Fibrous
             Wait();
             lock (_syncRoot)
             {
-                if (_actions.Count == 0) return Queue.Empty;
+                if (_actions.Count == 0)
+                {
+                    return Queue.Empty;
+                }
+
                 Lists.Swap(ref _actions, ref _toPass);
                 _actions.Clear();
                 return _toPass;

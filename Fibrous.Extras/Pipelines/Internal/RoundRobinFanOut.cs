@@ -7,15 +7,9 @@ namespace Fibrous
         private readonly List<IPublisherPort<T>> _stages = new List<IPublisherPort<T>>();
         private int _index;
 
-        public RoundRobinFanOut(ISubscriberPort<T> port)
-        {
-            port.Subscribe(OnReceive);
-        }
+        public RoundRobinFanOut(ISubscriberPort<T> port) => port.Subscribe(OnReceive);
 
-        public void AddStage(IPublisherPort<T> stage)
-        {
-            _stages.Add(stage);
-        }
+        public void AddStage(IPublisherPort<T> stage) => _stages.Add(stage);
 
         private void OnReceive(T obj)
         {

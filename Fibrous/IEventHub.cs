@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Fibrous
 {
-
     /// <summary>
-    ///   Injectable event hub where classes implementing a combination of
-    ///   IHandle or IHandleAsync can auto wire up to receive events publish on the hub.
+    ///     Injectable event hub where classes implementing a combination of
+    ///     IHandle or IHandleAsync can auto wire up to receive events publish on the hub.
     /// </summary>
     public interface IEventHub
     {
@@ -37,12 +37,12 @@ namespace Fibrous
     // ReSharper disable once TypeParameterCanBeVariant
     public interface IHandleAsync<TMessage>
     {
-        Task Handle(TMessage message);
+        Task HandleAsync(TMessage message);
     }
 
     /// <summary>
-    /// Implementation of IEventHub
-    /// Performance is slower on publish due to GetType and channel lookup
+    ///     Implementation of IEventHub
+    ///     Performance is slower on publish due to GetType and channel lookup
     /// </summary>
     public sealed class EventHub : IEventHub
     {
@@ -50,14 +50,14 @@ namespace Fibrous
 
         public IDisposable Subscribe(IAsyncFiber fiber, object handler)
         {
-            var disposable = SetupHandlers(handler, fiber, false);
+            IDisposable disposable = SetupHandlers(handler, fiber, false);
 
             return new Unsubscriber(disposable, fiber);
         }
 
         public IDisposable Subscribe(IFiber fiber, object handler)
         {
-            var disposable = SetupHandlers(handler, fiber, true);
+            IDisposable disposable = SetupHandlers(handler, fiber, true);
 
             return new Unsubscriber(disposable, fiber);
         }
@@ -65,34 +65,40 @@ namespace Fibrous
         //20 ns for this with no subscribers (now 16ns with changes)
         public void Publish<T>(T msg)
         {
-            var type = typeof(T);
+            Type type = typeof(T);
 
-            if (!_channels.ContainsKey(type)) return;
+            if (!_channels.ContainsKey(type))
+            {
+                return;
+            }
 
-            var channel = (IChannel<T>)_channels[type];
+            IChannel<T> channel = (IChannel<T>)_channels[type];
             channel.Publish(msg);
         }
 
         private IDisposable SetupHandlers(object handler, object fiber, bool regular)
         {
-            var interfaceType = regular ? typeof(IHandle<>) : typeof(IHandleAsync<>);
-            var subMethod = regular ? "SubscribeToChannel" : "AsyncSubscribeToChannel";
-            var interfaces = handler.GetType().GetTypeInfo()
+            Type interfaceType = regular ? typeof(IHandle<>) : typeof(IHandleAsync<>);
+            string subMethod = regular ? "SubscribeToChannel" : "AsyncSubscribeToChannel";
+            IEnumerable<Type> interfaces = handler.GetType().GetTypeInfo()
                 .ImplementedInterfaces.Where(x =>
                     x.GetTypeInfo().IsGenericType && x.GetGenericTypeDefinition() == interfaceType);
 
-            var disposables = new Disposables();
+            Disposables disposables = new Disposables();
 
-            foreach (var @interface in interfaces)
+            foreach (Type @interface in interfaces)
             {
-                var type = @interface.GetTypeInfo().GenericTypeArguments[0];
-                var method = @interface.GetRuntimeMethod("Handle", new[] { type });
+                Type type = @interface.GetTypeInfo().GenericTypeArguments[0];
+                MethodInfo method = @interface.GetRuntimeMethod(regular ? "Handle" : "HandleAsync", new[] {type});
 
-                if (method == null) continue;
+                if (method == null)
+                {
+                    continue;
+                }
 
-                var sub = GetType().GetTypeInfo().GetDeclaredMethod(subMethod).MakeGenericMethod(type);
+                MethodInfo sub = GetType().GetTypeInfo().GetDeclaredMethod(subMethod).MakeGenericMethod(type);
 
-                var dispose = sub.Invoke(this, new[] { fiber, handler }) as IDisposable;
+                IDisposable dispose = sub.Invoke(this, new[] {fiber, handler}) as IDisposable;
                 disposables.Add(dispose);
             }
 
@@ -102,26 +108,29 @@ namespace Fibrous
         // ReSharper disable once UnusedMember.Local
         private IDisposable SubscribeToChannel<T>(IFiber fiber, IHandle<T> receive)
         {
-            var type = typeof(T);
-            var channel = (IChannel<T>)_channels.GetOrAdd(type, _ => new Channel<T>());
+            Type type = typeof(T);
+            IChannel<T> channel = (IChannel<T>)_channels.GetOrAdd(type, _ => new Channel<T>());
             return channel.Subscribe(fiber, receive.Handle);
         }
 
         // ReSharper disable once UnusedMember.Local
         private IDisposable AsyncSubscribeToChannel<T>(IAsyncFiber fiber, IHandleAsync<T> receive)
         {
-            var type = typeof(T);
-            var channel = (IChannel<T>)_channels.GetOrAdd(type, _ => new Channel<T>());
-            return channel.Subscribe(fiber, receive.Handle);
+            Type type = typeof(T);
+            IChannel<T> channel = (IChannel<T>)_channels.GetOrAdd(type, _ => new Channel<T>());
+            return channel.Subscribe(fiber, receive.HandleAsync);
         }
 
         internal bool HasSubscriptions<T>()
         {
-            var type = typeof(T);
+            Type type = typeof(T);
 
-            if (!_channels.ContainsKey(type)) return false;
+            if (!_channels.ContainsKey(type))
+            {
+                return false;
+            }
 
-            var channel = (Channel<T>)_channels[type];
+            Channel<T> channel = (Channel<T>)_channels[type];
             return channel.HasSubscriptions;
         }
     }

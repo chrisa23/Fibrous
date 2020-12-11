@@ -3,6 +3,7 @@
 namespace Fibrous
 {
     [Obsolete]
-    public sealed class PoolFiber:Fiber
-    { }
+    public sealed class PoolFiber : Fiber
+    {
+    }
 }

@@ -24,15 +24,15 @@ namespace Fibrous
         public StateChannel()
         {
         }
-        
+
         public IDisposable Subscribe(IFiber fiber, Action<T> handler)
         {
             lock (_lock)
             {
-                var disposable = _updateChannel.Subscribe(fiber, handler);
+                IDisposable disposable = _updateChannel.Subscribe(fiber, handler);
                 if (_hasValue)
                 {
-                    var item = _last;
+                    T item = _last;
                     fiber.Enqueue(() => handler(item));
                 }
 
@@ -44,10 +44,10 @@ namespace Fibrous
         {
             lock (_lock)
             {
-                var disposable = _updateChannel.Subscribe(fiber, receive);
+                IDisposable disposable = _updateChannel.Subscribe(fiber, receive);
                 if (_hasValue)
                 {
-                    var item = _last;
+                    T item = _last;
                     fiber.Enqueue(() => receive(item));
                 }
 
@@ -59,10 +59,10 @@ namespace Fibrous
         {
             lock (_lock)
             {
-                var disposable = _updateChannel.Subscribe(receive);
+                IDisposable disposable = _updateChannel.Subscribe(receive);
                 if (_hasValue)
                 {
-                    var item = _last;
+                    T item = _last;
                     receive(item);
                 }
 
@@ -80,9 +80,6 @@ namespace Fibrous
             }
         }
 
-        public void Dispose()
-        {
-            _updateChannel.Dispose();
-        }
+        public void Dispose() => _updateChannel.Dispose();
     }
 }

@@ -7,10 +7,7 @@ namespace Fibrous.Pipelines
     {
         private readonly Func<T, Task> _f;
 
-        public AsyncTee(Func<T, Task> f, Action<Exception> errorCallback = null) : base(errorCallback)
-        {
-            _f = f;
-        }
+        public AsyncTee(Func<T, Task> f, Action<Exception> errorCallback = null) : base(errorCallback) => _f = f;
 
         protected override async Task Receive(T @in)
         {

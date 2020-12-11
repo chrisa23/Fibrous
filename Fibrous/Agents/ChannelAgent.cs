@@ -9,21 +9,20 @@ namespace Fibrous.Agents
     public class ChannelAgent<T> : IDisposable
     {
         protected IFiber Fiber;
+
         public ChannelAgent(IChannel<T> channel, Action<T> handler, Action<Exception> errorCallback = null)
         {
             Fiber = errorCallback == null ? new Fiber() : new Fiber(errorCallback);
             channel.Subscribe(Fiber, handler);
         }
 
-        public ChannelAgent(IFiberFactory factory, IChannel<T> channel, Action<T> handler, Action<Exception> errorCallback = null)
+        public ChannelAgent(IFiberFactory factory, IChannel<T> channel, Action<T> handler,
+            Action<Exception> errorCallback = null)
         {
-            Fiber = factory.Create(errorCallback);
+            Fiber = factory.CreateFiber(errorCallback);
             channel.Subscribe(Fiber, handler);
         }
 
-        public void Dispose()
-        {
-            Fiber?.Dispose();
-        }
+        public void Dispose() => Fiber?.Dispose();
     }
 }

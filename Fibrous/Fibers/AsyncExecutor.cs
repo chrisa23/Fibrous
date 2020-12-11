@@ -8,9 +8,6 @@ namespace Fibrous
     /// </summary>
     public sealed class AsyncExecutor : IAsyncExecutor
     {
-        public async Task Execute(Func<Task> toExecute)
-        {
-            await toExecute();
-        }
+        public Task ExecuteAsync(Func<Task> toExecute) => toExecute();
     }
 }

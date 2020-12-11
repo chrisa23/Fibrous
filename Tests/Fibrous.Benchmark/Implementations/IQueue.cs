@@ -40,10 +40,7 @@ namespace Fibrous
             _indexShift = Log2(size);
         }
 
-        public void Enqueue(Action action)
-        {
-            Signal?.Invoke(); //this is for blocking and pool
-        }
+        public void Enqueue(Action action) => Signal?.Invoke(); //this is for blocking and pool
 
         //public ReadOnlySpan<Action> Drain()
         //{
@@ -56,8 +53,12 @@ namespace Fibrous
 
         public static int Log2(int i)
         {
-            var r = 0;
-            while ((i >>= 1) != 0) ++r;
+            int r = 0;
+            while ((i >>= 1) != 0)
+            {
+                ++r;
+            }
+
             return r;
         }
     }

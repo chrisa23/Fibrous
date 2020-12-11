@@ -20,10 +20,8 @@ namespace Fibrous.Experimental
         private List<Action> _toPass = new List<Action>(1024 * 32);
 
         public PoolFiber2(IExecutor config, TaskFactory taskFactory)
-            : base(config)
-        {
+            : base(config) =>
             _taskFactory = taskFactory;
-        }
 
         public PoolFiber2(IExecutor executor)
             : this(executor, new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None))
@@ -42,7 +40,7 @@ namespace Fibrous.Experimental
 
         protected override void InternalEnqueue(Action action)
         {
-            var lockTaken = false;
+            bool lockTaken = false;
             try
             {
                 Monitor.Enter(_lock, ref lockTaken);
@@ -56,39 +54,52 @@ namespace Fibrous.Experimental
             }
             finally
             {
-                if (lockTaken) Monitor.Exit(_lock);
+                if (lockTaken)
+                {
+                    Monitor.Exit(_lock);
+                }
             }
         }
 
         private void Flush()
         {
-            var toExecute = ClearActions();
+            List<Action> toExecute = ClearActions();
             if (toExecute.Count > 0)
             {
-                for (var i = 0; i < toExecute.Count; i++) Executor.Execute(toExecute[i]);
+                for (int i = 0; i < toExecute.Count; i++)
+                {
+                    Executor.Execute(toExecute[i]);
+                }
 
 
-                var lockTaken = false;
+                bool lockTaken = false;
                 try
                 {
                     Monitor.Enter(_lock, ref lockTaken);
 
                     if (_queue.Count > 0)
                         // don't monopolize thread.
+                    {
                         _taskFactory.StartNew(Flush);
+                    }
                     else
+                    {
                         _flushPending = false;
+                    }
                 }
                 finally
                 {
-                    if (lockTaken) Monitor.Exit(_lock);
+                    if (lockTaken)
+                    {
+                        Monitor.Exit(_lock);
+                    }
                 }
             }
         }
 
         private List<Action> ClearActions()
         {
-            var lockTaken = false;
+            bool lockTaken = false;
             try
             {
                 Monitor.Enter(_lock, ref lockTaken);
@@ -104,20 +115,23 @@ namespace Fibrous.Experimental
             }
             finally
             {
-                if (lockTaken) Monitor.Exit(_lock);
+                if (lockTaken)
+                {
+                    Monitor.Exit(_lock);
+                }
             }
         }
 
         public static IFiber StartNew()
         {
-            var pool = new PoolFiber2();
+            PoolFiber2 pool = new PoolFiber2();
             pool.Start();
             return pool;
         }
 
         public static IFiber StartNew(IExecutor exec)
         {
-            var pool = new PoolFiber2(exec);
+            PoolFiber2 pool = new PoolFiber2(exec);
             pool.Start();
             return pool;
         }

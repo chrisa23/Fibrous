@@ -7,9 +7,6 @@ namespace Fibrous
     /// </summary>
     public sealed class Executor : IExecutor
     {
-        public void Execute(Action toExecute)
-        {
-            toExecute();
-        }
+        public void Execute(Action toExecute) => toExecute();
     }
 }

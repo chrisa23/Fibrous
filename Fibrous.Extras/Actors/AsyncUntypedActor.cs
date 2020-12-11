@@ -11,34 +11,25 @@ namespace Fibrous.Actors
 
         protected AsyncUntypedActor(IFiberFactory factory = null)
         {
-            Fiber = factory?.CreateAsync(OnError) ?? new AsyncFiber(OnError);
-            _tellChannel = Fiber.NewChannel<object>(Receive);
-            _askChannel = Fiber.NewRequestPort<object,object>(OnRequest);
+            Fiber = factory?.CreateAsyncFiber(OnError) ?? new AsyncFiber(OnError);
+            _tellChannel = Fiber.NewChannel<object>(ReceiveAsync);
+            _askChannel = Fiber.NewRequestPort<object, object>(OnRequestAsync);
         }
 
-        private Task OnRequest(IRequest<object, object> request)
+        public void Dispose() => Fiber.Dispose();
+
+        private Task OnRequestAsync(IRequest<object, object> request)
         {
             request.Reply(Reply(request.Request));
             return Task.CompletedTask;
         }
 
         protected abstract object Reply(object request);
-        protected abstract Task Receive(object o);
+        protected abstract Task ReceiveAsync(object o);
         protected abstract void OnError(Exception obj);
 
-        public void Tell(object message)
-        {
-            _tellChannel.Publish(message);
-        }
+        public void Tell(object message) => _tellChannel.Publish(message);
 
-        public async Task<object> Ask(object message)
-        {
-            return await _askChannel.SendRequest(message);
-        }
-        
-        public void Dispose()
-        {
-            Fiber.Dispose();
-        }
+        public async Task<object> AskAsync(object message) => await _askChannel.SendRequestAsync(message);
     }
 }

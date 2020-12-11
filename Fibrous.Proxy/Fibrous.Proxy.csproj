@@ -22,12 +22,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Fibrous.Proxy.v3.ncrunchproject" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
 
   <ItemGroup>
-    <PackageReference Include="System.Reflection.DispatchProxy" Version="4.7.0" />
+    <PackageReference Include="System.Reflection.DispatchProxy" Version="4.7.1" />
     <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
   </ItemGroup>
 

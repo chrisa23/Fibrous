@@ -13,10 +13,7 @@ namespace Fibrous.Benchmark
         private FiberBase_old _yield;
 
         [Benchmark]
-        public void Yield()
-        {
-            _yield.Enqueue(_lambda);
-        }
+        public void Yield() => _yield.Enqueue(_lambda);
 
         [IterationSetup(Target = "Yield")]
         public void YieldSetup()
@@ -26,16 +23,10 @@ namespace Fibrous.Benchmark
         }
 
         [IterationCleanup(Target = "Yield")]
-        public void Cleanup()
-        {
-            _yield.Dispose();
-        }
+        public void Cleanup() => _yield.Dispose();
 
         [Benchmark]
-        public void Spin()
-        {
-            _spin.Enqueue(_lambda);
-        }
+        public void Spin() => _spin.Enqueue(_lambda);
 
         [IterationSetup(Target = "Spin")]
         public void SpinSetup()
@@ -45,16 +36,10 @@ namespace Fibrous.Benchmark
         }
 
         [IterationCleanup(Target = "Spin")]
-        public void SpinCleanup()
-        {
-            _spin.Dispose();
-        }
+        public void SpinCleanup() => _spin.Dispose();
 
         [Benchmark]
-        public void Sleep()
-        {
-            _sleep.Enqueue(_lambda);
-        }
+        public void Sleep() => _sleep.Enqueue(_lambda);
 
         [IterationSetup(Target = "Sleep")]
         public void SleepSetup()
@@ -64,16 +49,10 @@ namespace Fibrous.Benchmark
         }
 
         [IterationCleanup(Target = "Sleep")]
-        public void SleepCleanup()
-        {
-            _sleep.Dispose();
-        }
+        public void SleepCleanup() => _sleep.Dispose();
 
         [Benchmark]
-        public void BusyWait()
-        {
-            _busyWait.Enqueue(_lambda);
-        }
+        public void BusyWait() => _busyWait.Enqueue(_lambda);
 
         [IterationSetup(Target = "BusyWait")]
         public void BusyWaitSetup()
@@ -83,9 +62,6 @@ namespace Fibrous.Benchmark
         }
 
         [IterationCleanup(Target = "BusyWait")]
-        public void BusyWaitCleanup()
-        {
-            _busyWait.Dispose();
-        }
+        public void BusyWaitCleanup() => _busyWait.Dispose();
     }
 }

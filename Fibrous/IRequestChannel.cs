@@ -35,12 +35,12 @@ namespace Fibrous
         /// </summary>
         TRequest Request { get; }
 
+        CancellationToken CancellationToken { get; }
+
         /// <summary>
         ///     Reply to the request
         /// </summary>
         /// <param name="reply"></param>
         void Reply(TReply reply);
-
-        CancellationToken CancellationToken { get; }
     }
 }

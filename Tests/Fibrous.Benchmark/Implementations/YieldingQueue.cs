@@ -26,38 +26,44 @@ namespace Fibrous
             _signalled.LazySet(true);
         }
 
-        public List<Action> Drain()
-        {
-            return DequeueAll();
-        }
+        public List<Action> Drain() => DequeueAll();
 
-        public void Dispose()
-        {
-            _signalled.Exchange(true);
-        }
+        public void Dispose() => _signalled.Exchange(true);
 
         private void Wait()
         {
-            var counter = SpinTries;
+            int counter = SpinTries;
             while (!_signalled.Value) // volatile read
+            {
                 ApplyWaitMethod(ref counter);
+            }
+
             _signalled.Exchange(false);
         }
 
         internal static void ApplyWaitMethod(ref int counter)
         {
             if (counter == 0)
+            {
                 Thread.Sleep(0);
+            }
             else
+            {
                 --counter;
+            }
         }
 
         internal static int ApplyWaitMethod2(int counter)
         {
             if (counter == 0)
+            {
                 Thread.Sleep(0);
+            }
             else
+            {
                 --counter;
+            }
+
             return counter;
         }
 
@@ -66,7 +72,11 @@ namespace Fibrous
             Wait();
             lock (_syncRoot)
             {
-                if (_actions.Count == 0) return Queue.Empty;
+                if (_actions.Count == 0)
+                {
+                    return Queue.Empty;
+                }
+
                 Lists.Swap(ref _actions, ref _toPass);
                 _actions.Clear();
                 return _toPass;

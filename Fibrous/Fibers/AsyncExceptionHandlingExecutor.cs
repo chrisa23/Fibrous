@@ -10,12 +10,9 @@ namespace Fibrous
     {
         private readonly Action<Exception> _callback;
 
-        public AsyncExceptionHandlingExecutor(Action<Exception> callback = null)
-        {
-            _callback = callback;
-        }
-        
-        public async Task Execute(Func<Task> toExecute)
+        public AsyncExceptionHandlingExecutor(Action<Exception> callback = null) => _callback = callback;
+
+        public async Task ExecuteAsync(Func<Task> toExecute)
         {
             try
             {

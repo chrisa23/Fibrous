@@ -15,33 +15,30 @@ namespace Fibrous.Benchmark
         {
             i++;
             if (i == 1000000)
+            {
                 _wait.Set();
+            }
         }
 
         public void Run(IFiber fiber)
         {
             i = 0;
-            for (var j = 0; j < 1000000; j++) fiber.Enqueue(Handler);
+            for (int j = 0; j < 1000000; j++)
+            {
+                fiber.Enqueue(Handler);
+            }
+
             WaitHandle.WaitAny(new WaitHandle[] {_wait});
         }
 
         [Benchmark(OperationsPerInvoke = 1000000)]
-        public void Sleeping()
-        {
-            Run(_sleep);
-        }
+        public void Sleeping() => Run(_sleep);
 
         [Benchmark(OperationsPerInvoke = 1000000)]
-        public void Yielding()
-        {
-            Run(_yield);
-        }
+        public void Yielding() => Run(_yield);
 
         [Benchmark(OperationsPerInvoke = 1000000)]
-        public void SpinLock()
-        {
-            Run(_spin);
-        }
+        public void SpinLock() => Run(_spin);
 
         [GlobalSetup]
         public void Setup()

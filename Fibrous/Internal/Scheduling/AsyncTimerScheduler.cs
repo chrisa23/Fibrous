@@ -9,17 +9,15 @@ namespace Fibrous
         {
             if (dueTime.TotalMilliseconds <= 0)
             {
-                var pending = new AsyncPendingAction(action);
-                fiber.Enqueue(pending.Execute);
+                AsyncPendingAction pending = new AsyncPendingAction(action);
+                fiber.Enqueue(pending.ExecuteAsync);
                 return pending;
             }
 
             return new AsyncTimerAction(fiber, action, dueTime);
         }
 
-        public IDisposable Schedule(IAsyncFiber fiber, Func<Task> action, TimeSpan dueTime, TimeSpan interval)
-        {
-            return new AsyncTimerAction(fiber, action, dueTime, interval);
-        }
+        public IDisposable Schedule(IAsyncFiber fiber, Func<Task> action, TimeSpan dueTime, TimeSpan interval) =>
+            new AsyncTimerAction(fiber, action, dueTime, interval);
     }
 }
