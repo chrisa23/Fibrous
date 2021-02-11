@@ -122,10 +122,14 @@ A separate Fibrous.Extras library provides simple Actors, an IObserver wrapper, 
 ```csharp
 using var pipeline = 
     Pipeline
-        .StartStage<string, string>(Directory.EnumerateFiles) //A stage can take single input and generate an IEnumerable output
-        .SelectOrdered(x => (x, new FileInfo(x).Length), 4) //Ordered fanning out 
-        .Tap(info => Console.WriteLine($"**{info.x} is {info.Length} in length")) // equivalent to Select(x => {f(x); return x;})
-        .Where(x => x.Length > 1000000)  //Filtering
+        //A stage can take single input and generate an IEnumerable output
+        .StartStage<string, string>(Directory.EnumerateFiles) 
+        //Ordered fanning out 
+        .SelectOrdered(x => (x, new FileInfo(x).Length), 4) 
+        // equivalent to Select(x => {f(x); return x;})
+        .Tap(info => Console.WriteLine($"**{info.x} is {info.Length} in length")) 
+        //Filtering
+        .Where(x => x.Length > 1000000)  
         .Tap(info => Console.WriteLine($"{info.x} is {info.Length} in length"));
 // the resulting pipeline is still an IStage, and can be composed into another pipeline
 
@@ -140,7 +144,8 @@ Proxy
 You can generate a proxy wrapper to a class instance that will take a non-thread safe object and make it thread-safe.
 
 ```csharp
-    //An interface with only void (regular Fiber) or Task (AsyncFiber proxy) returning methods, implementing IDisposable
+    //An interface with only void (regular Fiber) or Task (AsyncFiber proxy) returning methods,
+    //and implementing IDisposable
     public interface ITest:IDisposable
     {
         void Init();
