@@ -105,7 +105,7 @@ namespace Fibrous.Tests
         {
             int msgCount = 1000;
 
-            IFiber Factory()
+            static IFiber Factory()
             {
                 return new Fiber();
             }

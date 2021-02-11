@@ -22,7 +22,7 @@ namespace Fibrous.Benchmark
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public int TryTake()
         {
-            while (_queue.TryDequeue(out int m))
+            while (_queue.TryDequeue(out int _))
             {
             }
 

@@ -560,8 +560,10 @@ namespace System.Reflection
                 _tb = tb;
                 _proxyBaseType = proxyBaseType;
 
-                _fields = new List<FieldBuilder>();
-                _fields.Add(tb.DefineField("_handler", typeof(DispatchProxyHandler), FieldAttributes.Private));
+                _fields = new List<FieldBuilder>
+                {
+                    tb.DefineField("_handler", typeof(DispatchProxyHandler), FieldAttributes.Private)
+                };
             }
 
             private static bool IsGenericTask(Type type)

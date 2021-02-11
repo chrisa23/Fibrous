@@ -68,7 +68,7 @@ namespace Fibrous.Tests
             IRequestChannel<int, int> channel = new RequestChannel<int, int>();
             AsyncFiber fiber1 = new AsyncFiber();
 
-            async Task Reply(IRequest<int, int> request)
+            static async Task Reply(IRequest<int, int> request)
             {
                 await Task.Delay(TimeSpan.FromSeconds(1));
                 request.Reply(request.Request + 1);

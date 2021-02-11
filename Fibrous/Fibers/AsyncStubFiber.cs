@@ -18,6 +18,8 @@ namespace Fibrous
         {
         }
 
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
         protected override void InternalEnqueue(Func<Task> action) => Executor.ExecuteAsync(action).Wait();
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
     }
 }

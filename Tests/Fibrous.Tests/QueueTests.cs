@@ -10,7 +10,7 @@ namespace Fibrous.Tests
         [Test]
         public void EnqueueDrain()
         {
-            void Noop()
+            static void Noop()
             {
             }
 

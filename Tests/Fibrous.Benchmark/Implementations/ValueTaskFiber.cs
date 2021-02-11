@@ -75,7 +75,7 @@ namespace Fibrous.Benchmark.Implementations
 
         protected override void InternalEnqueue(Func<ValueTask> action)
         {
-            AggressiveSpinWait spinWait = default(AggressiveSpinWait);
+            AggressiveSpinWait spinWait = default;
             while (_queue.IsFull)
             {
                 spinWait.SpinOnce();
