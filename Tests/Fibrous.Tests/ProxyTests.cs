@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Fibrous.Proxy;
 using NUnit.Framework;
@@ -13,8 +11,8 @@ namespace Fibrous.Tests
         [Test]
         public async Task ProxyWorks()
         {
-            var t = new Test();
-            var tp = FiberProxy<ITest>.Create(t);
+            Test t = new Test();
+            ITest tp = FiberProxy<ITest>.Create(t);
             tp.Init();
             tp.Add(1);
             tp.Subtract(2);
@@ -27,10 +25,10 @@ namespace Fibrous.Tests
 
             t.Trigger();
             await Task.Delay(100);
-            
+
             Assert.AreEqual(1, result);
 
-            tp.Dispose(); 
+            tp.Dispose();
             Assert.IsTrue(t.Inited);
             Assert.AreEqual(-1, t.Count);
             Assert.IsTrue(t.Disposed);
@@ -39,8 +37,8 @@ namespace Fibrous.Tests
         [Test]
         public async Task AsyncProxyWorks()
         {
-            var t = new AsyncTest();
-            var tp = AsyncFiberProxy<IAsyncTest>.Create(t);
+            AsyncTest t = new AsyncTest();
+            IAsyncTest tp = AsyncFiberProxy<IAsyncTest>.Create(t);
             await tp.Init();
             await tp.Add(1);
             await tp.Subtract(2);
@@ -63,58 +61,45 @@ namespace Fibrous.Tests
         }
     }
 
-    public interface ITest:IDisposable
+    public interface ITest : IDisposable
     {
         void Init();
         void Add(int i);
         void Subtract(int i);
+
         event Action<int> Event1;
-      // int DO();
+        // int DO();
     }
+
     public interface IAsyncTest : IDisposable
     {
         Task Init();
         Task Add(int i);
         Task Subtract(int i);
+
         event Action<int> Event1;
         // int DO();
     }
+
     public class Test : ITest
     {
         public bool Inited { get; set; }
         public bool Disposed { get; set; }
         public int Count { get; set; }
-        public void Init()
-        {
-            Inited = true;
-        }
 
-        public void Add(int i)
-        {
-            Count += i;
-        }
+        public void Init() => Inited = true;
 
-        public void Subtract(int i)
-        {
-            Count -= i;
-        }
+        public void Add(int i) => Count += i;
 
-        public int DO()
-        {
-            throw new NotImplementedException();
-        }
+        public void Subtract(int i) => Count -= i;
 
         public event Action<int> Event1;
 
-        public void Dispose()
-        {
-            Disposed = true;
-        }
+        public void Dispose() => Disposed = true;
 
-        public void Trigger()
-        {
-            Event1?.Invoke(1);
-        }
+        public int DO() => throw new NotImplementedException();
+
+        public void Trigger() => Event1?.Invoke(1);
     }
 
     public class AsyncTest : IAsyncTest
@@ -122,6 +107,7 @@ namespace Fibrous.Tests
         public bool Inited { get; set; }
         public bool Disposed { get; set; }
         public int Count { get; set; }
+
         public Task Init()
         {
             Inited = true;
@@ -140,21 +126,12 @@ namespace Fibrous.Tests
             return Task.CompletedTask;
         }
 
-        public int DO()
-        {
-            throw new NotImplementedException();
-        }
-
         public event Action<int> Event1;
 
-        public void Dispose()
-        {
-            Disposed = true;
-        }
+        public void Dispose() => Disposed = true;
 
-        public void Trigger()
-        {
-            Event1?.Invoke(1);
-        }
+        public int DO() => throw new NotImplementedException();
+
+        public void Trigger() => Event1?.Invoke(1);
     }
 }

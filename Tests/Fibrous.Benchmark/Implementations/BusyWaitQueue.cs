@@ -43,7 +43,7 @@ namespace Fibrous
 
         public List<Action> Drain()
         {
-            var spins = 0;
+            int spins = 0;
             _stopwatch.Restart();
             while (true)
             {
@@ -53,12 +53,19 @@ namespace Fibrous
                     {
                     }
 
-                    var toReturn = TryDequeue();
-                    if (toReturn != null) return toReturn;
+                    List<Action> toReturn = TryDequeue();
+                    if (toReturn != null)
+                    {
+                        return toReturn;
+                    }
+
                     if (TryBlockingWait(_stopwatch, ref spins))
                     {
                         toReturn = TryDequeue();
-                        if (toReturn != null) return toReturn;
+                        if (toReturn != null)
+                        {
+                            return toReturn;
+                        }
                     }
                 }
                 finally
@@ -78,7 +85,10 @@ namespace Fibrous
         private bool TryBlockingWait(Stopwatch stopwatch, ref int spins)
         {
             if (spins++ < _spinsBeforeTimeCheck)
+            {
                 return false;
+            }
+
             spins = 0;
             if (stopwatch.ElapsedMilliseconds > _msBeforeBlockingWait)
             {

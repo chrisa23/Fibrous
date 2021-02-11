@@ -22,84 +22,51 @@ namespace Fibrous.Collections
             _request.SetRequestHandler(_fiber, OnRequest);
         }
 
-        public void Dispose()
-        {
-            _fiber.Dispose();
-        }
+        public void Dispose() => _fiber.Dispose();
 
-        public IDisposable SendRequest(Func<T, bool> request, IFiber fiber, Action<T[]> onReply)
-        {
-            return _request.SendRequest(request, fiber, onReply);
-        }
+        public IDisposable SendRequest(Func<T, bool> request, IFiber fiber, Action<T[]> onReply) =>
+            _request.SendRequest(request, fiber, onReply);
 
-        public IDisposable SendRequest(Func<T, bool> request, IAsyncFiber fiber, Func<T[], Task> onReply)
-        {
-            return _request.SendRequest(request, fiber, onReply);
-        }
+        public IDisposable SendRequest(Func<T, bool> request, IAsyncFiber fiber, Func<T[], Task> onReply) =>
+            _request.SendRequest(request, fiber, onReply);
 
-        public Task<T[]> SendRequest(Func<T, bool> request)
-        {
-            return _request.SendRequest(request);
-        }
+        public Task<T[]> SendRequestAsync(Func<T, bool> request) => _request.SendRequestAsync(request);
 
-        public Task<Result<T[]>> SendRequest(Func<T, bool> request, TimeSpan timeout)
-        {
-            return _request.SendRequest(request, timeout);
-        }
+        public Task<Result<T[]>> SendRequestAsync(Func<T, bool> request, TimeSpan timeout) =>
+            _request.SendRequestAsync(request, timeout);
 
-        public IDisposable Subscribe(IFiber fiber, Action<ItemAction<T>> receive, Action<T[]> receiveSnapshot)
-        {
-            return _channel.Subscribe(fiber, receive, receiveSnapshot);
-        }
+        public IDisposable Subscribe(IFiber fiber, Action<ItemAction<T>> receive, Action<T[]> receiveSnapshot) =>
+            _channel.Subscribe(fiber, receive, receiveSnapshot);
 
-        public IDisposable Subscribe(IAsyncFiber fiber, Func<ItemAction<T>, Task> receive, Func<T[], Task> receiveSnapshot)
-        {
-            return _channel.Subscribe(fiber, receive, receiveSnapshot);
-        }
+        public IDisposable Subscribe(IAsyncFiber fiber, Func<ItemAction<T>, Task> receive,
+            Func<T[], Task> receiveSnapshot) => _channel.Subscribe(fiber, receive, receiveSnapshot);
 
-        public void Add(T item)
-        {
-            _fiber.Enqueue(() => AddItem(item));
-        }
+        public void Add(T item) => _fiber.Enqueue(() => AddItem(item));
 
-        public void Remove(T item)
-        {
-            _fiber.Enqueue(() => RemoveItem(item));
-        }
+        public void Remove(T item) => _fiber.Enqueue(() => RemoveItem(item));
 
-        public T[] GetItems(Func<T, bool> request)
-        {
-            return _request.SendRequest(request).Result;
-        }
-        public async Task<T[]> GetItemsAsync(Func<T, bool> request)
-        {
-            return await _request.SendRequest(request);
-        }
+        public async Task<T[]> GetItemsAsync(Func<T, bool> request) => await _request.SendRequestAsync(request);
 
-        private void OnRequest(IRequest<Func<T, bool>, T[]> request)
-        {
+        private void OnRequest(IRequest<Func<T, bool>, T[]> request) =>
             request.Reply(_items.Values.Where(request.Request).ToArray());
-        }
 
         private void RemoveItem(T obj)
         {
-            var removed = _items.Remove(_keyGen(obj));
+            bool removed = _items.Remove(_keyGen(obj));
             if (removed)
-                _channel.Publish(new ItemAction<T>(ActionType.Remove, new []{ obj}));
+            {
+                _channel.Publish(new ItemAction<T>(ActionType.Remove, new[] {obj}));
+            }
         }
 
         private void AddItem(T obj)
         {
-            var key = _keyGen(obj);
-            var exists = _items.ContainsKey(key);
+            TKey key = _keyGen(obj);
+            bool exists = _items.ContainsKey(key);
             _items[key] = obj;
-            _channel.Publish(new ItemAction<T>(exists ? ActionType.Update : ActionType.Add, new[] { obj }));
+            _channel.Publish(new ItemAction<T>(exists ? ActionType.Update : ActionType.Add, new[] {obj}));
         }
 
-        private T[] Reply()
-        {
-            return _items.Values.ToArray();
-        }
-
+        private T[] Reply() => _items.Values.ToArray();
     }
 }

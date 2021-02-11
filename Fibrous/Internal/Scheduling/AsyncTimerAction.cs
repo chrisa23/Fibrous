@@ -42,13 +42,18 @@ namespace Fibrous
             }
 
             if (!_cancelled)
-                fiber.Enqueue(Execute);
+            {
+                fiber.Enqueue(ExecuteAsync);
+            }
         }
 
-        private Task Execute()
+        private Task ExecuteAsync()
         {
             if (_cancelled)
+            {
                 return Task.CompletedTask;
+            }
+
             return _action();
         }
 

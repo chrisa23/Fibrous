@@ -66,9 +66,17 @@ namespace Fibrous
         {
             while (_maxDepth > 0 && _actions.Count + toAdd > _maxDepth)
             {
-                if (_maxWaitTime <= 0) throw new QueueFullException(_actions.Count);
+                if (_maxWaitTime <= 0)
+                {
+                    throw new QueueFullException(_actions.Count);
+                }
+
                 Monitor.Wait(_lock, _maxWaitTime);
-                if (_maxDepth > 0 && _actions.Count + toAdd > _maxDepth) throw new QueueFullException(_actions.Count);
+                if (_maxDepth > 0 && _actions.Count + toAdd > _maxDepth)
+                {
+                    throw new QueueFullException(_actions.Count);
+                }
+
                 Thread.Sleep(0);
             }
 
@@ -78,7 +86,10 @@ namespace Fibrous
         private bool ReadyToDequeue()
         {
             while (_actions.Count == 0)
+            {
                 Monitor.Wait(_lock);
+            }
+
             return true;
         }
     }

@@ -10,10 +10,7 @@ namespace Fibrous.Benchmark
         private IFiber _fiber;
 
         [Benchmark]
-        public void Publish()
-        {
-            _channel.Publish(_msg);
-        }
+        public void Publish() => _channel.Publish(_msg);
 
         [GlobalSetup]
         public void Setup()
@@ -23,9 +20,6 @@ namespace Fibrous.Benchmark
         }
 
         [GlobalCleanup]
-        public void Cleanup()
-        {
-            _fiber.Dispose();
-        }
+        public void Cleanup() => _fiber.Dispose();
     }
 }

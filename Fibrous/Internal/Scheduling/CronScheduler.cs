@@ -36,16 +36,22 @@ namespace Fibrous
 
         private void ScheduleNext()
         {
-            if (!_running) return;
+            if (!_running)
+            {
+                return;
+            }
 
-            var next = _cronExpression.GetNextValidTimeAfter(DateTimeOffset.Now);
+            DateTimeOffset? next = _cronExpression.GetNextValidTimeAfter(DateTimeOffset.Now);
             if (next.HasValue)
             {
-                var utc = next.Value.UtcDateTime;
-                var now = DateTime.UtcNow;
-                var span = utc - now;
+                DateTime utc = next.Value.UtcDateTime;
+                DateTime now = DateTime.UtcNow;
+                TimeSpan span = utc - now;
 
-                if (!_running) return;
+                if (!_running)
+                {
+                    return;
+                }
 #if DEBUG
                 Console.WriteLine(span);
 #endif

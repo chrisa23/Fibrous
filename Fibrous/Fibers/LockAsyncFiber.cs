@@ -6,63 +6,71 @@ namespace Fibrous
 {
     public class LockAsyncFiber : AsyncFiberBase
     {
+        private readonly Func<Task> _flushCache;
+        private readonly object _lock = new object();
         private readonly ArrayQueue<Func<Task>> _queue;
         private readonly TaskFactory _taskFactory;
-        private readonly Func<Task> _flushCache;
         private bool _flushPending;
-        private readonly object _lock = new object();
 
-        public LockAsyncFiber(IAsyncExecutor executor = null, int size = QueueSize.DefaultQueueSize, TaskFactory taskFactory = null, IAsyncFiberScheduler scheduler = null)
+        public LockAsyncFiber(IAsyncExecutor executor = null, int size = QueueSize.DefaultQueueSize,
+            TaskFactory taskFactory = null, IAsyncFiberScheduler scheduler = null)
             : base(executor, scheduler)
         {
-
             _queue = new ArrayQueue<Func<Task>>(size);
-            _taskFactory = taskFactory ?? new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None);
-            _flushCache = Flush;
+            _taskFactory = taskFactory ??
+                           new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None);
+            _flushCache = FlushAsync;
         }
 
-        public LockAsyncFiber(Action<Exception> errorCallback, int size = QueueSize.DefaultQueueSize, TaskFactory taskFactory = null, IAsyncFiberScheduler scheduler = null)
+        public LockAsyncFiber(Action<Exception> errorCallback, int size = QueueSize.DefaultQueueSize,
+            TaskFactory taskFactory = null, IAsyncFiberScheduler scheduler = null)
             : this(new AsyncExceptionHandlingExecutor(errorCallback), size, taskFactory, scheduler)
         {
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void InternalEnqueue(Func<Task> action)
         {
-            var spinWait = default(AggressiveSpinWait);
-            while (_queue.IsFull) spinWait.SpinOnce();
-            lock (_lock) { 
-                _queue.Enqueue(action);
-
-                if (_flushPending) return;
-
-                _flushPending = true;
-                _taskFactory.StartNew(_flushCache);
-            }
-           
-        }
-
-        private async Task Flush()
-        {
-            var (count, actions) = Drain();
-
-            for (var i = 0; i < count; i++)
+            AggressiveSpinWait spinWait = default(AggressiveSpinWait);
+            while (_queue.IsFull)
             {
-                var action = actions[i];
-                await Executor.Execute(action);
+                spinWait.SpinOnce();
             }
 
             lock (_lock)
             {
+                _queue.Enqueue(action);
 
-                if (_queue.Count > 0)
-                    //don't monopolize thread.
-#pragma warning disable 4014
-                    _taskFactory.StartNew(_flushCache);
-#pragma warning restore 4014
-                else
-                    _flushPending = false;
+                if (_flushPending)
+                {
+                    return;
+                }
+
+                _flushPending = true;
+                _ = _taskFactory.StartNew(_flushCache);
             }
-            
+        }
+
+        private async Task FlushAsync()
+        {
+            (int count, Func<Task>[] actions) = Drain();
+
+            for (int i = 0; i < count; i++)
+            {
+                Func<Task> action = actions[i];
+                await Executor.ExecuteAsync(action);
+            }
+
+            lock (_lock)
+            {
+                if (_queue.Count > 0)
+                {
+                    _ = _taskFactory.StartNew(_flushCache);
+                }
+                else
+                {
+                    _flushPending = false;
+                }
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

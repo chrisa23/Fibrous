@@ -7,7 +7,7 @@ namespace Fibrous
     /// </summary>
     public sealed class StubFiber : FiberBase
     {
-        public StubFiber(IExecutor executor = null, IFiberScheduler scheduler =  null)
+        public StubFiber(IExecutor executor = null, IFiberScheduler scheduler = null)
             : base(executor, scheduler)
         {
         }
@@ -16,11 +16,10 @@ namespace Fibrous
             : this(new ExceptionHandlingExecutor(errorCallback), scheduler)
         {
         }
-        protected override void InternalEnqueue(Action action)
-        {
+
+        protected override void InternalEnqueue(Action action) =>
             //There is no lock here to force sequentiality, since that will cause deadlocks in some
             //situations.  Stub fibers are not thread safe.  
             Executor.Execute(action);
-        }
     }
 }

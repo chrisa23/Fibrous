@@ -13,14 +13,14 @@ namespace Fibrous
         /// <param name="b">List b</param>
         public static void Swap(ref List<Action> a, ref List<Action> b)
         {
-            var tmp = a;
+            List<Action> tmp = a;
             a = b;
             b = tmp;
         }
 
         public static void Swap2(ref List<Action> a, ref List<Action> b)
         {
-            var tmp = Interlocked.Exchange(ref a, b);
+            List<Action> tmp = Interlocked.Exchange(ref a, b);
             Interlocked.Exchange(ref b, tmp);
         }
     }

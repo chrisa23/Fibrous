@@ -1,26 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
 
 namespace Fibrous.Benchmark
 {
     [MemoryDiagnoser]
     public class CastVsAs
     {
-        private readonly object channel = new Channel<int>();
+        private readonly object _channel = new Channel<int>();
 
 
         [Benchmark]
-        public IChannel<int> Cast()
-        {
-            return (IChannel<int>) channel;
-        }
+        public IChannel<int> Cast() => (IChannel<int>)_channel;
 
         [Benchmark]
-        public IChannel<int> As()
-        {
-            return channel as IChannel<int>;
-        }
+        public IChannel<int> As() => _channel as IChannel<int>;
     }
 }

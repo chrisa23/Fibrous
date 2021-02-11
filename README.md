@@ -15,9 +15,9 @@ Some of the library benefits:
  - Batching support
  - Scheduling support (Cron, DateTime and TimeSpan based)
  
- Fibrous is great for multi-threading when you don't need extreme low latency or distributed actors but want an easy to reason about messaging based model.  Fibrous is also fast.
-
- If you need distributed concurrency, look into Akka.net or Proto.Actor.  If you need extreme performance and super low latency, look into Disruptor.net.
+ Fibrous is great for multi-threading when you don't need extreme low latency or distributed actors but want an easy to reason about and extremely flexible messaging based model.  Fibrous is also fast.  It's in production use in multiple trading systems, both server side and front end.
+  
+ If you need distributed concurrency, look into Akka.net or Proto.Actor and if you need extreme performance and super low latency, look into Disruptor.net.
 
 Fibers
 ------
@@ -30,7 +30,7 @@ Fibers subscribe to channels to receive messages which queue actions based on th
 
 Fibers are a repository of IDisposable objects and will dispose of all children upon the Fibers disposal.  This is used to clean up subscriptions and scheduling for any fiber.  This is also useful for dealing with children used in the Fiber's context that implement IDisposable.
 
-There are specialised Fibers for Windows Forms and WPF, which automatically handle invoking actions on the UI/Dispatcher thread.  There is a StubFiber, which is used for testing and in special cases, and immediately executes actions on the calling thread.
+There are specialised Fibers for Windows Forms and WPF, which automatically handle invoking actions on the UI/Dispatcher thread.  There is a StubFiber, which is used for testing and special cases, and immediately executes actions on the calling thread.
 
 ```csharp
 //Representations of the IFiber and IAsyncFiber interface.
@@ -56,7 +56,7 @@ public interface IAsyncFiber : IDisposable
 
 ```csharp
 //Work is done on the thread pool, but in a sequential fashion 
-IFiber fiber = new Fiber();  //this is v4 syntax where Start/Stop is no longer part of the API
+IFiber fiber = new Fiber();  
 	 
 //You can enqueue methods
 fiber.Enqueue(SomeParameterlessMethod);
@@ -90,7 +90,7 @@ There are a variety of subscription methods, including filtered, batched, keyed 
 Examples:
 
 ```csharp
-IFiber fiber = new Fiber();  //this is v4 syntax where Start/Stop is no longer part of the API
+IFiber fiber = new Fiber();  
 	 
 //Create a channel and subscribe to messages
 IChannel<string> channel = new Channel<string>();
@@ -114,11 +114,10 @@ var agent = new Agent<string>(s => Console.WriteLine(s.ToUpper()));
 agent.Publish("the message");
 ```
 
-Pipelines
+Extras
 ---------
 
-*** Experimental
-
+A separate Fibrous.Extras library provides simple Actors, an IObserver wrapper, subscribable collections and composable pipelines 
 
 ```csharp
 using var pipeline = 
@@ -173,14 +172,6 @@ You can generate a proxy wrapper to a class instance that will take a non-thread
 
 ```
 
-Usage patterns
---------------
 
----
-
-Extras
-------
-
-There are a variety of extra features like Fiber backed collections, Pipelines, Agents and Actors.
 
 	

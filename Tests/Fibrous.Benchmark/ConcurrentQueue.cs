@@ -1,17 +1,15 @@
-﻿using BenchmarkDotNet.Attributes;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using BenchmarkDotNet.Attributes;
 
 namespace Fibrous.Benchmark
 {
     [MemoryDiagnoser]
     public class ConcurrentQueue
     {
-        private ConcurrentQueue<int> _queue = new ConcurrentQueue<int>();
         private const int OperationsPerInvoke = 1000000;
+        private readonly ConcurrentQueue<int> _queue = new ConcurrentQueue<int>();
+
         [IterationSetup]
         public void Setup()
         {
@@ -24,25 +22,27 @@ namespace Fibrous.Benchmark
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public int TryTake()
         {
-            while(_queue.TryDequeue(out var m))
+            while (_queue.TryDequeue(out int m))
             {
-
             }
+
             return 0;
         }
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public async Task TryTake2()
         {
-            var a1 = Task.Run(() =>
+            Task a1 = Task.Run(() =>
             {
-                while (_queue.TryDequeue(out var m))
+                while (_queue.TryDequeue(out int m))
                 {
                 }
             });
-            var a2 = Task.Run(() =>
+            Task a2 = Task.Run(() =>
             {
-                while (_queue.TryDequeue(out var m)) { }
+                while (_queue.TryDequeue(out int m))
+                {
+                }
             });
             await a1;
             await a2;

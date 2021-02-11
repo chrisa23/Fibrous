@@ -14,14 +14,16 @@ namespace Fibrous.Tests
             {
             }
 
-            var queue = new ArrayQueue<Action>(16);
-            for (var i = 0; i < 16; i++) 
+            ArrayQueue<Action> queue = new ArrayQueue<Action>(16);
+            for (int i = 0; i < 16; i++)
+            {
                 queue.Enqueue(Noop);
+            }
 
             Assert.IsTrue(queue.IsFull);
 
-            var (count, actions ) = queue.Drain();
-            
+            (int count, Action[] actions) = queue.Drain();
+
             Assert.AreEqual(16, count);
             Assert.IsTrue(actions.Take(count).All(x => x != null));
         }

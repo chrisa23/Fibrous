@@ -23,19 +23,13 @@ namespace Fibrous.Util
         ///     Create a new <see cref="PaddedBoolean" /> with the given initial value.
         /// </summary>
         /// <param name="value">Initial value</param>
-        public PaddedBoolean(bool value)
-        {
-            _value = value ? True : False;
-        }
+        public PaddedBoolean(bool value) => _value = value ? True : False;
 
         /// <summary>
         ///     Read the value without applying any fence
         /// </summary>
         /// <returns>The current value</returns>
-        public bool ReadUnfenced()
-        {
-            return ToBool(_value);
-        }
+        public bool ReadUnfenced() => ToBool(_value);
 
         /// <summary>
         ///     Read the value applying acquire fence semantic
@@ -43,7 +37,7 @@ namespace Fibrous.Util
         /// <returns>The current value</returns>
         public bool ReadAcquireFence()
         {
-            var value = ToBool(_value);
+            bool value = ToBool(_value);
             Thread.MemoryBarrier();
             return value;
         }
@@ -54,7 +48,7 @@ namespace Fibrous.Util
         /// <returns>The current value</returns>
         public bool ReadFullFence()
         {
-            var value = ToBool(_value);
+            bool value = ToBool(_value);
             Thread.MemoryBarrier();
             return value;
         }
@@ -64,10 +58,7 @@ namespace Fibrous.Util
         /// </summary>
         /// <returns>The current value</returns>
         [MethodImpl(MethodImplOptions.NoOptimization)]
-        public bool ReadCompilerOnlyFence()
-        {
-            return ToBool(_value);
-        }
+        public bool ReadCompilerOnlyFence() => ToBool(_value);
 
         /// <summary>
         ///     Write the value applying release fence semantic
@@ -75,7 +66,7 @@ namespace Fibrous.Util
         /// <param name="newValue">The new value</param>
         public void WriteReleaseFence(bool newValue)
         {
-            var newValueInt = ToInt(newValue);
+            int newValueInt = ToInt(newValue);
             Thread.MemoryBarrier();
             _value = newValueInt;
         }
@@ -86,7 +77,7 @@ namespace Fibrous.Util
         /// <param name="newValue">The new value</param>
         public void WriteFullFence(bool newValue)
         {
-            var newValueInt = ToInt(newValue);
+            int newValueInt = ToInt(newValue);
             Thread.MemoryBarrier();
             _value = newValueInt;
         }
@@ -96,19 +87,13 @@ namespace Fibrous.Util
         /// </summary>
         /// <param name="newValue">The new value</param>
         [MethodImpl(MethodImplOptions.NoOptimization)]
-        public void WriteCompilerOnlyFence(bool newValue)
-        {
-            _value = ToInt(newValue);
-        }
+        public void WriteCompilerOnlyFence(bool newValue) => _value = ToInt(newValue);
 
         /// <summary>
         ///     Write without applying any fence
         /// </summary>
         /// <param name="newValue">The new value</param>
-        public void WriteUnfenced(bool newValue)
-        {
-            _value = ToInt(newValue);
-        }
+        public void WriteUnfenced(bool newValue) => _value = ToInt(newValue);
 
         /// <summary>
         ///     Atomically set the value to the given updated value if the current value equals the comparand
@@ -118,15 +103,12 @@ namespace Fibrous.Util
         /// <returns></returns>
         public bool CompareExchange(bool newValue, bool comparand)
         {
-            var newValueInt = ToInt(newValue);
-            var comparandInt = ToInt(comparand);
+            int newValueInt = ToInt(newValue);
+            int comparandInt = ToInt(comparand);
             return Interlocked.CompareExchange(ref _value, newValueInt, comparandInt) == comparandInt;
         }
 
-        public void LazySet(bool value)
-        {
-            WriteCompilerOnlyFence(value);
-        }
+        public void LazySet(bool value) => WriteCompilerOnlyFence(value);
 
         /// <summary>
         ///     Atomically set the value to the given updated value
@@ -135,8 +117,8 @@ namespace Fibrous.Util
         /// <returns>The original value</returns>
         public bool Exchange(bool newValue)
         {
-            var newValueInt = ToInt(newValue);
-            var originalValue = Interlocked.Exchange(ref _value, newValueInt);
+            int newValueInt = ToInt(newValue);
+            int originalValue = Interlocked.Exchange(ref _value, newValueInt);
             return ToBool(originalValue);
         }
 
@@ -146,7 +128,7 @@ namespace Fibrous.Util
         /// <returns>the string representation of the current value.</returns>
         public override string ToString()
         {
-            var value = ReadFullFence();
+            bool value = ReadFullFence();
             return value.ToString();
         }
 
@@ -159,13 +141,13 @@ namespace Fibrous.Util
         private static bool ToBool(int value)
         {
             if (value != False && value != True)
+            {
                 throw new ArgumentOutOfRangeException("value");
+            }
+
             return value == True;
         }
 
-        private static int ToInt(bool value)
-        {
-            return value ? True : False;
-        }
+        private static int ToInt(bool value) => value ? True : False;
     }
 }

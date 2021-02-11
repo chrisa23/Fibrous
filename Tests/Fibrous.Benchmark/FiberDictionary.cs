@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using Fibrous.Collections;
@@ -13,10 +11,7 @@ namespace Fibrous.Benchmark
         private FiberDictionary<string, string> _dictionary;
 
         [Benchmark]
-        public async Task<KeyValuePair<string, string>[]> Stub()
-        {
-            return await _dictionary.GetItemsAsync(x => true);
-        }
+        public async Task<KeyValuePair<string, string>[]> Stub() => await _dictionary.GetItemsAsync(x => true);
 
         [GlobalSetup]
         public void Setup()
@@ -27,9 +22,6 @@ namespace Fibrous.Benchmark
         }
 
         [GlobalCleanup]
-        public void Cleanup()
-        {
-            _dictionary.Dispose();
-        }
+        public void Cleanup() => _dictionary.Dispose();
     }
 }

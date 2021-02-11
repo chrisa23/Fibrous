@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Fibrous
 {
@@ -7,9 +8,7 @@ namespace Fibrous
     /// </summary>
     public sealed class Executor : IExecutor
     {
-        public void Execute(Action toExecute)
-        {
-            toExecute();
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Execute(Action toExecute) => toExecute();
     }
 }

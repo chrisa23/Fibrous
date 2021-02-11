@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -29,7 +27,6 @@ namespace Fibrous.Benchmark.Implementations
 
     public interface IAsyncScheduler
     {
-
         /// <summary>
         ///     Schedule an action to be executed once
         /// </summary>
@@ -50,13 +47,13 @@ namespace Fibrous.Benchmark.Implementations
 
 
     /// <summary>
-    /// It is suggested to always use an Exception callback with the IAsyncFiber
+    ///     It is suggested to always use an Exception callback with the IAsyncFiber
     /// </summary>
     public class ValueAsyncFiber : ValueAsyncFiberBase
     {
+        private readonly Func<ValueTask> _flushCache;
         private readonly ArrayQueue<Func<ValueTask>> _queue;
         private readonly TaskFactory _taskFactory;
-        private readonly Func<ValueTask> _flushCache;
         private bool _flushPending;
         private SpinLock _spinLock = new SpinLock(false);
 
@@ -64,7 +61,6 @@ namespace Fibrous.Benchmark.Implementations
             TaskFactory taskFactory = null, IValueAsyncFiberScheduler scheduler = null)
             : base(executor, scheduler)
         {
-
             _queue = new ArrayQueue<Func<ValueTask>>(size);
             _taskFactory = taskFactory ??
                            new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None);
@@ -79,37 +75,46 @@ namespace Fibrous.Benchmark.Implementations
 
         protected override void InternalEnqueue(Func<ValueTask> action)
         {
-            var spinWait = default(AggressiveSpinWait);
-            while (_queue.IsFull) spinWait.SpinOnce();
+            AggressiveSpinWait spinWait = default(AggressiveSpinWait);
+            while (_queue.IsFull)
+            {
+                spinWait.SpinOnce();
+            }
 
-            var lockTaken = false;
+            bool lockTaken = false;
             try
             {
                 _spinLock.Enter(ref lockTaken);
 
                 _queue.Enqueue(action);
 
-                if (_flushPending) return;
+                if (_flushPending)
+                {
+                    return;
+                }
 
                 _flushPending = true;
                 _taskFactory.StartNew(_flushCache);
             }
             finally
             {
-                if (lockTaken) _spinLock.Exit(false);
+                if (lockTaken)
+                {
+                    _spinLock.Exit(false);
+                }
             }
         }
 
         private async ValueTask Flush()
         {
-            var (count, actions) = Drain();
+            (int count, Func<ValueTask>[] actions) = Drain();
 
-            for (var i = 0; i < count; i++)
+            for (int i = 0; i < count; i++)
             {
                 await Executor.Execute(actions[i]);
             }
 
-            var lockTaken = false;
+            bool lockTaken = false;
             try
             {
                 _spinLock.Enter(ref lockTaken);
@@ -117,21 +122,28 @@ namespace Fibrous.Benchmark.Implementations
                 if (_queue.Count > 0)
                     //don't monopolize thread.
 #pragma warning disable 4014
+                {
                     _taskFactory.StartNew(_flushCache);
+                }
 #pragma warning restore 4014
                 else
+                {
                     _flushPending = false;
+                }
             }
             finally
             {
-                if (lockTaken) _spinLock.Exit(false);
+                if (lockTaken)
+                {
+                    _spinLock.Exit(false);
+                }
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private (int, Func<ValueTask>[]) Drain()
         {
-            var lockTaken = false;
+            bool lockTaken = false;
             try
             {
                 _spinLock.Enter(ref lockTaken);
@@ -140,7 +152,10 @@ namespace Fibrous.Benchmark.Implementations
             }
             finally
             {
-                if (lockTaken) _spinLock.Exit(false);
+                if (lockTaken)
+                {
+                    _spinLock.Exit(false);
+                }
             }
         }
     }
@@ -158,30 +173,29 @@ namespace Fibrous.Benchmark.Implementations
             Executor = executor ?? new ValueAsyncExecutor();
         }
 
-        public IDisposable Schedule(Func<ValueTask> action, TimeSpan dueTime)
-        {
-            return _fiberScheduler.Schedule(this, action, dueTime);
-        }
+        public IDisposable Schedule(Func<ValueTask> action, TimeSpan dueTime) =>
+            _fiberScheduler.Schedule(this, action, dueTime);
 
-        public IDisposable Schedule(Func<ValueTask> action, TimeSpan startTime, TimeSpan interval)
-        {
-            return _fiberScheduler.Schedule(this, action, startTime, interval);
-        }
+        public IDisposable Schedule(Func<ValueTask> action, TimeSpan startTime, TimeSpan interval) =>
+            _fiberScheduler.Schedule(this, action, startTime, interval);
 
         public void Enqueue(Func<ValueTask> action)
         {
-            if (_disposed) return;
+            if (_disposed)
+            {
+                return;
+            }
 
             InternalEnqueue(action);
         }
-
-        protected abstract void InternalEnqueue(Func<ValueTask> action);
 
         public override void Dispose()
         {
             _disposed = true;
             base.Dispose();
         }
+
+        protected abstract void InternalEnqueue(Func<ValueTask> action);
     }
 
     public interface IValueAsyncExecutor
@@ -191,10 +205,7 @@ namespace Fibrous.Benchmark.Implementations
 
     public sealed class ValueAsyncExecutor : IValueAsyncExecutor
     {
-        public async ValueTask Execute(Func<ValueTask> toExecute)
-        {
-            await toExecute();
-        }
+        public async ValueTask Execute(Func<ValueTask> toExecute) => await toExecute();
     }
 
 
@@ -204,7 +215,7 @@ namespace Fibrous.Benchmark.Implementations
         {
             if (dueTime.TotalMilliseconds <= 0)
             {
-                var pending = new ValueAsyncPendingAction(action);
+                ValueAsyncPendingAction pending = new ValueAsyncPendingAction(action);
                 fiber.Enqueue(pending.Execute);
                 return pending;
             }
@@ -212,10 +223,9 @@ namespace Fibrous.Benchmark.Implementations
             return new ValueAsyncTimerAction(fiber, action, dueTime);
         }
 
-        public IDisposable Schedule(IValueAsyncFiber fiber, Func<ValueTask> action, TimeSpan dueTime, TimeSpan interval)
-        {
-            return new ValueAsyncTimerAction(fiber, action, dueTime, interval);
-        }
+        public IDisposable
+            Schedule(IValueAsyncFiber fiber, Func<ValueTask> action, TimeSpan dueTime, TimeSpan interval) =>
+            new ValueAsyncTimerAction(fiber, action, dueTime, interval);
     }
 
     public interface IValueAsyncFiberScheduler
@@ -229,20 +239,16 @@ namespace Fibrous.Benchmark.Implementations
         private readonly Func<ValueTask> _action;
         private bool _cancelled;
 
-        public ValueAsyncPendingAction(Func<ValueTask> action)
-        {
-            _action = action;
-        }
+        public ValueAsyncPendingAction(Func<ValueTask> action) => _action = action;
 
-        public void Dispose()
-        {
-            _cancelled = true;
-        }
+        public void Dispose() => _cancelled = true;
 
         public ValueTask Execute()
         {
             if (_cancelled)
+            {
                 return new ValueTask();
+            }
 
             return _action();
         }
@@ -287,13 +293,18 @@ namespace Fibrous.Benchmark.Implementations
             }
 
             if (!_cancelled)
+            {
                 fiber.Enqueue(Execute);
+            }
         }
 
         private ValueTask Execute()
         {
             if (_cancelled)
+            {
                 return new ValueTask();
+            }
+
             return _action();
         }
 
@@ -308,10 +319,7 @@ namespace Fibrous.Benchmark.Implementations
     {
         private readonly Action<Exception> _callback;
 
-        public ValueAsyncExceptionHandlingExecutor(Action<Exception> callback = null)
-        {
-            _callback = callback;
-        }
+        public ValueAsyncExceptionHandlingExecutor(Action<Exception> callback = null) => _callback = callback;
 
         public async ValueTask Execute(Func<ValueTask> toExecute)
         {

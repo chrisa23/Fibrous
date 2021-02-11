@@ -10,7 +10,8 @@ namespace Fibrous
         private readonly int _size;
         private readonly TaskFactory _taskFactory;
 
-        public LockFiberFactory(int size = QueueSize.DefaultQueueSize, TaskFactory taskFactory = null, IFiberScheduler scheduler = null,
+        public LockFiberFactory(int size = QueueSize.DefaultQueueSize, TaskFactory taskFactory = null,
+            IFiberScheduler scheduler = null,
             IAsyncFiberScheduler asyncScheduler = null)
         {
             _size = size;
@@ -20,16 +21,12 @@ namespace Fibrous
         }
 
 
-        public IFiber Create(Action<Exception> errorHandler = null)
-        {
-            return errorHandler == null
+        public IFiber CreateFiber(Action<Exception> errorHandler = null) =>
+            errorHandler == null
                 ? new LockFiber(size: _size, taskFactory: _taskFactory, scheduler: _scheduler)
                 : new LockFiber(errorHandler, _size, _taskFactory, _scheduler);
-        }
 
-        public IAsyncFiber CreateAsync(Action<Exception> errorHandler)
-        {
-            return new LockAsyncFiber(errorHandler, _size, _taskFactory, _asyncScheduler);
-        }
+        public IAsyncFiber CreateAsyncFiber(Action<Exception> errorHandler) =>
+            new LockAsyncFiber(errorHandler, _size, _taskFactory, _asyncScheduler);
     }
 }

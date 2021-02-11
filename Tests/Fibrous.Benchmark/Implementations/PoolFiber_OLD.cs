@@ -19,10 +19,8 @@ namespace Fibrous
         private List<Action> _toPass = new List<Action>(1024 * 4);
 
         public PoolFiber_OLD(IExecutor config, TaskFactory taskFactory)
-            : base(config)
-        {
+            : base(config) =>
             _taskFactory = taskFactory;
-        }
 
         public PoolFiber_OLD(IExecutor executor)
             : this(executor, Task.Factory)
@@ -54,18 +52,25 @@ namespace Fibrous
 
         private void Flush()
         {
-            var toExecute = ClearActions();
+            List<Action> toExecute = ClearActions();
             if (toExecute.Count > 0)
             {
-                for (var i = 0; i < toExecute.Count; i++) Executor.Execute(toExecute[i]);
+                for (int i = 0; i < toExecute.Count; i++)
+                {
+                    Executor.Execute(toExecute[i]);
+                }
 
                 lock (_lock)
                 {
                     if (_queue.Count > 0)
                         // don't monopolize thread.
+                    {
                         _taskFactory.StartNew(Flush);
+                    }
                     else
+                    {
                         _flushPending = false;
+                    }
                 }
             }
         }
@@ -88,14 +93,14 @@ namespace Fibrous
 
         public static IFiber StartNew()
         {
-            var f = new PoolFiber_OLD();
+            PoolFiber_OLD f = new PoolFiber_OLD();
             f.Start();
             return f;
         }
 
         public static IFiber StartNew(IExecutor exec)
         {
-            var f = new PoolFiber_OLD(exec);
+            PoolFiber_OLD f = new PoolFiber_OLD(exec);
             f.Start();
             return f;
         }

@@ -11,11 +11,11 @@ namespace Fibrous.Tests
         public void PipelineTest1()
         {
             string value = null;
-            var tvalue = 0;
-            var pipeline = new Stage<double, int>(d => (int) d)
+            int tvalue = 0;
+            IStage<double, string> pipeline = new Stage<double, int>(d => (int)d)
                 .Tap(i => tvalue = i)
                 .Select(i => (i * 10).ToString());
-            var stub = new StubFiber();
+            StubFiber stub = new StubFiber();
             pipeline.Subscribe(stub, s => value = s);
             pipeline.Publish(1.3);
             Thread.Sleep(100);

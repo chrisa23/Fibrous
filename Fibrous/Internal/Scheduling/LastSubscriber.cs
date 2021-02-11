@@ -12,10 +12,8 @@ namespace Fibrous
             IFiber fiber,
             TimeSpan interval,
             Action<T> target)
-            : base(channel, fiber, interval)
-        {
+            : base(channel, fiber, interval) =>
             _target = target;
-        }
 
         protected override void OnMessage(T msg)
         {
@@ -33,7 +31,7 @@ namespace Fibrous
 
         private void Flush()
         {
-            var toReturn = ClearPending();
+            T toReturn = ClearPending();
             Fiber.Enqueue(() => _target(toReturn));
         }
 

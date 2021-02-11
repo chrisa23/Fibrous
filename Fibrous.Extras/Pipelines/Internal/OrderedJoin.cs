@@ -3,22 +3,19 @@ using System.Collections.Generic;
 
 namespace Fibrous.Pipelines
 {
-    internal sealed class OrderedJoin<T>: IDisposable
+    internal sealed class OrderedJoin<T> : IDisposable
     {
         private readonly Disposables _disposables = new Disposables();
-        public IChannel<T> Output { get; set; }
-        private long _index;
         private readonly Dictionary<long, T> _output = new Dictionary<long, T>();
+        private long _index;
 
-        public OrderedJoin(IChannel<T> output)
-        {
-            Output = output;
-        }
+        public OrderedJoin(IChannel<T> output) => Output = output;
 
-        public void Subscribe(ISubscriberPort<Ordered<T>> port)
-        {
-            _disposables.Add(port.Subscribe(Receive));
-        }
+        public IChannel<T> Output { get; set; }
+
+        public void Dispose() => _disposables?.Dispose();
+
+        public void Subscribe(ISubscriberPort<Ordered<T>> port) => _disposables.Add(port.Subscribe(Receive));
 
         private void Receive(Ordered<T> obj)
         {
@@ -41,11 +38,6 @@ namespace Fibrous.Pipelines
 
                 _output[obj.Index] = obj.Item;
             }
-        }
-
-        public void Dispose()
-        {
-            _disposables?.Dispose();
         }
     }
 }

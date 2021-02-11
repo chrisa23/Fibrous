@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace Fibrous
@@ -55,29 +56,30 @@ namespace Fibrous
             bool isBackground = true,
             ThreadPriority priority = ThreadPriority.Normal) : base(executor, fiberScheduler)
         {
-            if (threadName == null) threadName = "ThreadFiber-" + GetNextThreadId();
+            if (threadName == null)
+            {
+                threadName = "ThreadFiber-" + GetNextThreadId();
+            }
+
             _queue = queue;
             _thread = new Thread(RunThread) {Name = threadName, IsBackground = isBackground, Priority = priority};
         }
 
-        private static int GetNextThreadId()
-        {
-            return Interlocked.Increment(ref threadCount);
-        }
+        private static int GetNextThreadId() => Interlocked.Increment(ref threadCount);
 
         private void RunThread()
         {
             while (_running)
             {
-                var list = _queue.Drain();
-                for (var i = 0; i < list.Count; i++) Executor.Execute(list[i]);
+                List<Action> list = _queue.Drain();
+                for (int i = 0; i < list.Count; i++)
+                {
+                    Executor.Execute(list[i]);
+                }
             }
         }
 
-        protected override void InternalEnqueue(Action action)
-        {
-            _queue.Enqueue(action);
-        }
+        protected override void InternalEnqueue(Action action) => _queue.Enqueue(action);
 
         protected override void InternalStart()
         {
@@ -95,21 +97,21 @@ namespace Fibrous
 
         public static IFiber StartNew()
         {
-            var pool = new ThreadFiber();
+            ThreadFiber pool = new ThreadFiber();
             pool.Start();
             return pool;
         }
 
         public static IFiber StartNew(IExecutor executor)
         {
-            var pool = new ThreadFiber(executor);
+            ThreadFiber pool = new ThreadFiber(executor);
             pool.Start();
             return pool;
         }
 
         public static IFiber StartNew(string name)
         {
-            var fiber = new ThreadFiber(name);
+            ThreadFiber fiber = new ThreadFiber(name);
             fiber.Start();
             return fiber;
         }

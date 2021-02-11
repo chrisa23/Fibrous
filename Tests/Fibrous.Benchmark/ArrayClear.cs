@@ -1,21 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using BenchmarkDotNet.Attributes;
 
 namespace Fibrous.Benchmark
 {
     public class ArrayClearBenchmark
     {
-        [Params(16, 32, 64, 128, 1024,2 *1024)] public int N;
+        private readonly Action _noop = () => { };
         private Action[] _data;
-        private readonly Action _noop = () => {};
+
+        [Params(16, 32, 64, 128, 1024, 2 * 1024)]
+        public int N;
 
         [Benchmark]
-        public void ArrayClear()
-        {
-            Array.Clear(_data, 0, N);
-        }
+        public void ArrayClear() => Array.Clear(_data, 0, N);
 
         [Benchmark]
         public void Iterate()
@@ -25,6 +22,7 @@ namespace Fibrous.Benchmark
                 _data[i] = _noop;
             }
         }
+
         [GlobalSetup]
         public void Setup()
         {
@@ -34,6 +32,5 @@ namespace Fibrous.Benchmark
                 _data[i] = _noop;
             }
         }
-
     }
 }

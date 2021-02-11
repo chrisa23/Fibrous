@@ -6,13 +6,15 @@ namespace Fibrous
     ///     Simple subscribe event with Dispose() for unsubscribe.
     /// </summary>
     /// <typeparam name="TEvent"></typeparam>
-    public interface IEvent<TEvent> : IPublisherPort<TEvent>, IDisposable
+    public interface IEvent<TEvent> : IPublisherPort<TEvent>, IDisposable, IObservable<TEvent>
     {
         IDisposable Subscribe(Action<TEvent> receive);
     }
 
     public sealed class Event<TEvent> : IEvent<TEvent>
     {
+        internal bool HasSubscriptions => InternalEvent != null;
+
         public IDisposable Subscribe(Action<TEvent> receive)
         {
             InternalEvent += receive;
@@ -21,18 +23,18 @@ namespace Fibrous
 
         public void Publish(TEvent msg)
         {
-            var internalEvent = InternalEvent;
+            Action<TEvent> internalEvent = InternalEvent;
             internalEvent?.Invoke(msg);
         }
 
-        public void Dispose()
-        {
-            InternalEvent = null;
-        }
+        public void Dispose() => InternalEvent = null;
 
         private event Action<TEvent> InternalEvent;
 
-        internal bool HasSubscriptions => InternalEvent != null;
-        
+        public IDisposable Subscribe(IObserver<TEvent> observer)
+        {
+            InternalEvent += observer.OnNext;
+            return new DisposeAction(() => InternalEvent -= observer.OnNext);
+        }
     }
 }

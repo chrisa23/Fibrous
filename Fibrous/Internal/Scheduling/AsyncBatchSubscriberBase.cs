@@ -12,16 +12,13 @@ namespace Fibrous
 
         protected AsyncBatchSubscriberBase(ISubscriberPort<T> channel, IAsyncFiber fiber, TimeSpan interval)
         {
-            _sub = channel.Subscribe(fiber, OnMessage);
+            _sub = channel.Subscribe(fiber, OnMessageAsync);
             Fiber = fiber;
             Interval = interval;
         }
 
-        public void Dispose()
-        {
-            _sub.Dispose();
-        }
+        public void Dispose() => _sub.Dispose();
 
-        protected abstract Task OnMessage(T msg);
+        protected abstract Task OnMessageAsync(T msg);
     }
 }

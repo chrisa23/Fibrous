@@ -28,38 +28,13 @@ namespace Fibrous
         {
         }
 
-        public IFiber Start()
-        {
-            if (_started == ExecutionState.Running) return this;
-            InternalStart();
-            lock (_preQueue)
-            {
-                _started = ExecutionState.Running;
-                if (_preQueue.Count > 0)
-                {
-                    for (var i = 0; i < _preQueue.Count; i++)
-                    {
-                        InternalEnqueue(_preQueue[i]);
-                    }
-                }
-            }
-
-            return this;
-        }
-
-        public void Stop()
-        {
-            if (_started != ExecutionState.Running) return;
-            lock (_preQueue)
-            {
-                _started = ExecutionState.Created;
-            }
-        }
-
         public void Enqueue(Action action)
         {
             if (_started == ExecutionState.Stopped)
+            {
                 return;
+            }
+
             if (_started == ExecutionState.Created)
             {
                 lock (_preQueue)
@@ -75,15 +50,10 @@ namespace Fibrous
             InternalEnqueue(action);
         }
 
-        public IDisposable Schedule(Action action, TimeSpan dueTime)
-        {
-            return _fiberScheduler.Schedule(this, action, dueTime);
-        }
+        public IDisposable Schedule(Action action, TimeSpan dueTime) => _fiberScheduler.Schedule(this, action, dueTime);
 
-        public IDisposable Schedule(Action action, TimeSpan startTime, TimeSpan interval)
-        {
-            return _fiberScheduler.Schedule(this, action, startTime, interval);
-        }
+        public IDisposable Schedule(Action action, TimeSpan startTime, TimeSpan interval) =>
+            _fiberScheduler.Schedule(this, action, startTime, interval);
 
         public override void Dispose()
         {
@@ -91,14 +61,49 @@ namespace Fibrous
             base.Dispose();
         }
 
+        public IFiber Start()
+        {
+            if (_started == ExecutionState.Running)
+            {
+                return this;
+            }
+
+            InternalStart();
+            lock (_preQueue)
+            {
+                _started = ExecutionState.Running;
+                if (_preQueue.Count > 0)
+                {
+                    for (int i = 0; i < _preQueue.Count; i++)
+                    {
+                        InternalEnqueue(_preQueue[i]);
+                    }
+                }
+            }
+
+            return this;
+        }
+
+        public void Stop()
+        {
+            if (_started != ExecutionState.Running)
+            {
+                return;
+            }
+
+            lock (_preQueue)
+            {
+                _started = ExecutionState.Created;
+            }
+        }
+
         protected virtual void InternalStart()
         {
         }
 
         protected abstract void InternalEnqueue(Action action);
-
-
     }
+
     internal enum ExecutionState
     {
         Created,

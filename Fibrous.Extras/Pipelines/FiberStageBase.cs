@@ -11,7 +11,7 @@ namespace Fibrous.Pipelines
         }
 
         protected IFiber Fiber { get; }
-        
+
         public override void Dispose() => Fiber.Dispose();
 
         protected abstract void Receive(TIn @in);

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -13,18 +11,19 @@ namespace Fibrous.Tests
         [Test]
         public void StateChannel()
         {
-            using var fiber = new Fiber();
+            using Fiber fiber = new Fiber();
             string result = null;
-            var reset = new AutoResetEvent(false);
+            AutoResetEvent reset = new AutoResetEvent(false);
+
             void Handle(string s)
             {
                 result = s;
                 reset.Set();
             }
 
-            var channel = new StateChannel<string>("none");
-            var fromSeconds = TimeSpan.FromSeconds(1);
-            using (var sub = channel.Subscribe(fiber, Handle))
+            StateChannel<string> channel = new StateChannel<string>("none");
+            TimeSpan fromSeconds = TimeSpan.FromSeconds(1);
+            using (IDisposable sub = channel.Subscribe(fiber, Handle))
             {
                 Assert.IsTrue(reset.WaitOne(fromSeconds));
                 Assert.AreEqual("none", result);
@@ -32,11 +31,12 @@ namespace Fibrous.Tests
                 Assert.IsTrue(reset.WaitOne(fromSeconds));
                 Assert.AreEqual("one", result);
             }
+
             result = null;
             channel.Publish("two");
             Thread.Sleep(100);
             Assert.IsNull(result);
-            using (var sub = channel.Subscribe(fiber, Handle))
+            using (IDisposable sub = channel.Subscribe(fiber, Handle))
             {
                 Assert.IsTrue(reset.WaitOne(fromSeconds));
                 Assert.AreEqual("two", result);
@@ -49,18 +49,19 @@ namespace Fibrous.Tests
         [Test]
         public void StateChannelNoInit()
         {
-            using var fiber = new Fiber();
+            using Fiber fiber = new Fiber();
             string result = null;
-            var reset = new AutoResetEvent(false);
+            AutoResetEvent reset = new AutoResetEvent(false);
+
             void Handle(string s)
             {
                 result = s;
                 reset.Set();
             }
 
-            var channel = new StateChannel<string>();
-            var fromSeconds = TimeSpan.FromSeconds(0.1);
-            using (var sub = channel.Subscribe(fiber, Handle))
+            StateChannel<string> channel = new StateChannel<string>();
+            TimeSpan fromSeconds = TimeSpan.FromSeconds(0.1);
+            using (IDisposable sub = channel.Subscribe(fiber, Handle))
             {
                 Assert.IsFalse(reset.WaitOne(fromSeconds));
                 Assert.IsNull(result);
@@ -68,11 +69,12 @@ namespace Fibrous.Tests
                 Assert.IsTrue(reset.WaitOne(fromSeconds));
                 Assert.AreEqual("one", result);
             }
+
             result = null;
             channel.Publish("two");
             Thread.Sleep(100);
             Assert.IsNull(result);
-            using (var sub = channel.Subscribe(fiber, Handle))
+            using (IDisposable sub = channel.Subscribe(fiber, Handle))
             {
                 Assert.IsTrue(reset.WaitOne(fromSeconds));
                 Assert.AreEqual("two", result);
@@ -85,9 +87,10 @@ namespace Fibrous.Tests
         [Test]
         public void AsyncStateChannel()
         {
-            using var fiber = new AsyncFiber();
+            using AsyncFiber fiber = new AsyncFiber();
             string result = null;
-            var reset = new AutoResetEvent(false);
+            AutoResetEvent reset = new AutoResetEvent(false);
+
             Task Handle(string s)
             {
                 result = s;
@@ -95,9 +98,9 @@ namespace Fibrous.Tests
                 return Task.CompletedTask;
             }
 
-            var channel = new StateChannel<string>("none");
-            var fromSeconds = TimeSpan.FromSeconds(1);
-            using (var sub = channel.Subscribe(fiber, Handle))
+            StateChannel<string> channel = new StateChannel<string>("none");
+            TimeSpan fromSeconds = TimeSpan.FromSeconds(1);
+            using (IDisposable sub = channel.Subscribe(fiber, Handle))
             {
                 Assert.IsTrue(reset.WaitOne(fromSeconds));
                 Assert.AreEqual("none", result);
@@ -105,11 +108,12 @@ namespace Fibrous.Tests
                 Assert.IsTrue(reset.WaitOne(fromSeconds));
                 Assert.AreEqual("one", result);
             }
+
             result = null;
             channel.Publish("two");
             Thread.Sleep(100);
             Assert.IsNull(result);
-            using (var sub = channel.Subscribe(fiber, Handle))
+            using (IDisposable sub = channel.Subscribe(fiber, Handle))
             {
                 Assert.IsTrue(reset.WaitOne(fromSeconds));
                 Assert.AreEqual("two", result);
@@ -122,9 +126,10 @@ namespace Fibrous.Tests
         [Test]
         public void AsyncStateChannelNoInit()
         {
-            using var fiber = new AsyncFiber();
+            using AsyncFiber fiber = new AsyncFiber();
             string result = null;
-            var reset = new AutoResetEvent(false);
+            AutoResetEvent reset = new AutoResetEvent(false);
+
             Task Handle(string s)
             {
                 result = s;
@@ -132,9 +137,9 @@ namespace Fibrous.Tests
                 return Task.CompletedTask;
             }
 
-            var channel = new StateChannel<string>();
-            var fromSeconds = TimeSpan.FromSeconds(0.1);
-            using (var sub = channel.Subscribe(fiber, Handle))
+            StateChannel<string> channel = new StateChannel<string>();
+            TimeSpan fromSeconds = TimeSpan.FromSeconds(0.1);
+            using (IDisposable sub = channel.Subscribe(fiber, Handle))
             {
                 Assert.IsFalse(reset.WaitOne(fromSeconds));
                 Assert.IsNull(result);
@@ -142,11 +147,12 @@ namespace Fibrous.Tests
                 Assert.IsTrue(reset.WaitOne(fromSeconds));
                 Assert.AreEqual("one", result);
             }
+
             result = null;
             channel.Publish("two");
             Thread.Sleep(100);
             Assert.IsNull(result);
-            using (var sub = channel.Subscribe(fiber, Handle))
+            using (IDisposable sub = channel.Subscribe(fiber, Handle))
             {
                 Assert.IsTrue(reset.WaitOne(fromSeconds));
                 Assert.AreEqual("two", result);

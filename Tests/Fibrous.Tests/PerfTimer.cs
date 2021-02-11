@@ -17,7 +17,7 @@ namespace Fibrous.Tests
         public void Dispose()
         {
             _stopWatch.Stop();
-            var elapsed = _stopWatch.ElapsedMilliseconds;
+            long elapsed = _stopWatch.ElapsedMilliseconds;
             Console.WriteLine("Elapsed: " + elapsed + " Actions: " + _count);
             Console.WriteLine("actions/ms: " + _count / elapsed);
         }

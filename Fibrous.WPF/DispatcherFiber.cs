@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Security.Principal;
 using System.Windows.Threading;
+
 namespace Fibrous.WPF
 {
     /// <summary>
@@ -25,9 +25,6 @@ namespace Fibrous.WPF
         {
         }
 
-        protected override void InternalEnqueue(Action action)
-        {
-            _dispatcher.BeginInvoke(action, _priority);
-        }
+        protected override void InternalEnqueue(Action action) => _dispatcher.BeginInvoke(action, _priority);
     }
 }

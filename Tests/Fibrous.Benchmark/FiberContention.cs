@@ -1,7 +1,7 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
-using Fibrous.Experimental;
 
 namespace Fibrous.Benchmark
 {
@@ -17,14 +17,19 @@ namespace Fibrous.Benchmark
         {
             i++;
             if (i == OperationsPerInvoke)
+            {
                 _wait.Set();
+            }
         }
 
         private Task AsyncHandler(object obj)
         {
             i++;
             if (i == OperationsPerInvoke)
+            {
                 _wait.Set();
+            }
+
             return Task.CompletedTask;
         }
 
@@ -32,7 +37,7 @@ namespace Fibrous.Benchmark
         {
             using (fiber)
             {
-                using var sub = _channel.Subscribe(fiber, Handler);
+                using IDisposable sub = _channel.Subscribe(fiber, Handler);
                 i = 0;
                 Task.Run(Iterate);
                 Task.Run(Iterate);
@@ -43,15 +48,18 @@ namespace Fibrous.Benchmark
 
         private void Iterate()
         {
-            var count = OperationsPerInvoke / 2;
-            for (var j = 0; j < count; j++) _channel.Publish(null);
+            int count = OperationsPerInvoke / 2;
+            for (int j = 0; j < count; j++)
+            {
+                _channel.Publish(null);
+            }
         }
 
         public void Run(IAsyncFiber fiber)
         {
             using (fiber)
             {
-                using var sub = _channel.Subscribe(fiber, AsyncHandler);
+                using IDisposable sub = _channel.Subscribe(fiber, AsyncHandler);
                 i = 0;
                 Task.Run(Iterate);
                 Task.Run(Iterate);
@@ -61,34 +69,22 @@ namespace Fibrous.Benchmark
         }
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void Pool1()
-        {
-            Run(PoolFiber_OLD.StartNew());
-        }
+        public void Fiber2() => Run(new Fiber2());
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void Fiber()
-        {
-            Run(new Fiber());
-        }
+        public void Pool1() => Run(PoolFiber_OLD.StartNew());
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void LockFiber()
-        {
-            Run(new LockFiber());
-        }
+        public void Fiber() => Run(new Fiber());
+
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        public void LockFiber() => Run(new LockFiber());
 
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void Async()
-        {
-            Run(new AsyncFiber());
-        }
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void AsyncLock()
-        {
-            Run(new LockAsyncFiber());
-        }
+        public void Async() => Run(new AsyncFiber());
 
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        public void AsyncLock() => Run(new LockAsyncFiber());
     }
 }

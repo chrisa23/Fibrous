@@ -5,10 +5,10 @@ namespace Fibrous
 {
     internal class LastEventSubscriber : IDisposable
     {
-        private readonly IDisposable _sub;
+        private readonly Action _callback;
         private readonly IFiber _fiber;
         private readonly TimeSpan _interval;
-        private readonly Action _callback;
+        private readonly IDisposable _sub;
         private int _flushPending;
 
         public LastEventSubscriber(IEventPort channel, IFiber fiber, TimeSpan interval, Action callback)
@@ -19,15 +19,15 @@ namespace Fibrous
             _callback = callback;
         }
 
-        public void Dispose()
-        {
-            _sub.Dispose();
-        }
-        
+        public void Dispose() => _sub.Dispose();
+
         private void OnEvent()
         {
-            if (Interlocked.CompareExchange(ref _flushPending, 1, 0) == 1) return;
-            
+            if (Interlocked.CompareExchange(ref _flushPending, 1, 0) == 1)
+            {
+                return;
+            }
+
             _fiber.Schedule(Flush, _interval);
         }
 

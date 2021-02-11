@@ -1,6 +1,5 @@
 using System;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace Fibrous
 {
@@ -11,11 +10,12 @@ namespace Fibrous
 
     internal sealed class ArrayQueue<T>
     {
+        public static readonly (int, T[]) Empty = (0, new T[0]);
         private readonly int _size;
         private T[] _actions;
-        private T[] _toPass;
+        private int _count;
         private int _processCount;
-        private volatile int _count;
+        private T[] _toPass;
 
         public ArrayQueue(int size)
         {
@@ -28,18 +28,26 @@ namespace Fibrous
 
         public bool IsFull => Count >= _size;
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Enqueue(T a)
         {
-            var index0 = _count++;
+            int index0 = _count++;
             _actions[index0] = a;
         }
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public (int count, T[] actions) Drain()
         {
             int processCount = Count;
-            if (processCount == 0) return Empty;
+            if (processCount == 0)
+            {
+                return Empty;
+            }
+
             Swap(ref _actions, ref _toPass);
-            var old = _processCount;
+            int old = _processCount;
             _processCount = processCount;
             Array.Clear(_actions, 0, old);
             _count = 0;
@@ -49,12 +57,9 @@ namespace Fibrous
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Swap(ref T[] a, ref T[] b)
         {
-            var tmp = a;
+            T[] tmp = a;
             a = b;
             b = tmp;
         }
-        
-        public static readonly (int, T[]) Empty = (0, new T[0]);
-
     }
 }

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
@@ -10,33 +8,34 @@ namespace Fibrous.Tests
     public class EventHubTests
     {
         private readonly EventHub _eventHub = new EventHub();
+
         [Test]
         public async Task NonAsync()
         {
-            using var test = new Tester();
-            using var sub = _eventHub.Subscribe(test.Fiber, test);
-            
+            using Tester test = new Tester();
+            using IDisposable sub = _eventHub.Subscribe(test.Fiber, test);
+
             _eventHub.Publish(3);
             _eventHub.Publish(2);
             _eventHub.Publish("test");
-            
+
             await Task.Delay(100);
-            
+
             Assert.AreEqual(6, test.Count);
         }
 
         [Test]
         public async Task Async()
         {
-            using var test = new AsyncTester();
-            using var sub = _eventHub.Subscribe(test.Fiber, test);
-            
+            using AsyncTester test = new AsyncTester();
+            using IDisposable sub = _eventHub.Subscribe(test.Fiber, test);
+
             _eventHub.Publish(3);
             _eventHub.Publish(2);
             _eventHub.Publish("test");
-            
+
             await Task.Delay(100);
-            
+
             Assert.AreEqual(6, test.Count);
         }
 
@@ -44,8 +43,8 @@ namespace Fibrous.Tests
         [Test]
         public Task AsyncUnsubscribeCheck()
         {
-            using var test = new AsyncTester();
-            var sub = _eventHub.Subscribe(test.Fiber, test);
+            using AsyncTester test = new AsyncTester();
+            IDisposable sub = _eventHub.Subscribe(test.Fiber, test);
 
             _eventHub.Publish(3);
 
@@ -57,8 +56,8 @@ namespace Fibrous.Tests
         [Test]
         public void UnsubscribeCheck()
         {
-            using var test = new Tester();
-            var sub = _eventHub.Subscribe(test.Fiber, test);
+            using Tester test = new Tester();
+            IDisposable sub = _eventHub.Subscribe(test.Fiber, test);
 
             _eventHub.Publish(3);
 
@@ -69,23 +68,14 @@ namespace Fibrous.Tests
         public class Tester : IHandle<string>, IHandle<int>, IDisposable
         {
             public IFiber Fiber { get; } = new Fiber();
-            
+
             public int Count { get; private set; }
 
-            public void Handle(int message)
-            {
-                Count += message;
-            }
+            public void Dispose() => Fiber?.Dispose();
 
-            public void Handle(string message)
-            {
-                Count += 1;
-            }
+            public void Handle(int message) => Count += message;
 
-            public void Dispose()
-            {
-                Fiber?.Dispose();
-            }
+            public void Handle(string message) => Count += 1;
         }
 
         public class AsyncTester : IHandleAsync<string>, IHandleAsync<int>, IDisposable
@@ -94,21 +84,18 @@ namespace Fibrous.Tests
 
             public int Count { get; private set; }
 
-            public Task Handle(int message)
+            public void Dispose() => Fiber?.Dispose();
+
+            public Task HandleAsync(int message)
             {
                 Count += message;
                 return Task.CompletedTask;
             }
 
-            public Task Handle(string message)
+            public Task HandleAsync(string message)
             {
                 Count += 1;
                 return Task.CompletedTask;
-            }
-
-            public void Dispose()
-            {
-                Fiber?.Dispose();
             }
         }
     }

@@ -16,10 +16,7 @@ namespace Fibrous
             Interval = interval;
         }
 
-        public void Dispose()
-        {
-            _sub.Dispose();
-        }
+        public void Dispose() => _sub.Dispose();
 
         protected abstract void OnMessage(T msg);
     }

@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using Fibrous.Agents;
 using NUnit.Framework;
 
 namespace Fibrous.Tests
 {
-    class FanOutIn
+    internal class FanOutIn
     {
         [Test]
         public void Run()
@@ -19,31 +17,34 @@ namespace Fibrous.Tests
             using IChannel<string> _queue = new QueueChannel<string>();
             using IChannel<string> _output = new Channel<string>();
             int count = 0;
-            using var reset = new AutoResetEvent(false);
+            using AutoResetEvent reset = new AutoResetEvent(false);
 
             void Handler1(string x)
             {
-                var u = x.ToUpper();
+                string u = x.ToUpper();
                 _queue.Publish(u);
             }
 
             void Handler(string x)
             {
-                var l = x.ToLower();
+                string l = x.ToLower();
                 _output.Publish(l);
             }
 
             void Action(string x)
             {
                 int c = Interlocked.Increment(ref count);
-                if (c >= OperationsPerInvoke) reset.Set();
+                if (c >= OperationsPerInvoke)
+                {
+                    reset.Set();
+                }
             }
 
 
-            using var fiber = new ChannelAgent<string>(factory, _input, Handler1);
+            using ChannelAgent<string> fiber = new ChannelAgent<string>(factory, _input, Handler1);
             IDisposable[] middle = Enumerable.Range(0, 10)
                 .Select(x => new ChannelAgent<string>(factory, _queue, Handler)).ToArray();
-            using var fiberOut = new ChannelAgent<string>(factory, _output, Action);
+            using ChannelAgent<string> fiberOut = new ChannelAgent<string>(factory, _output, Action);
 
             for (int i = 0; i < OperationsPerInvoke; i++)
             {
@@ -51,7 +52,7 @@ namespace Fibrous.Tests
             }
 
             reset.WaitOne(TimeSpan.FromSeconds(20));
-            foreach (var t in middle)
+            foreach (IDisposable t in middle)
             {
                 t.Dispose();
             }

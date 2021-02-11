@@ -24,7 +24,7 @@ namespace Fibrous
 
     public class Disposables : IDisposableRegistry
     {
-        private readonly SingleShotGuard _guard = new SingleShotGuard();
+        private readonly SingleShotGuard _guard;
         private readonly List<IDisposable> _items = new List<IDisposable>();
         private readonly object _lock = new object();
 
@@ -32,10 +32,7 @@ namespace Fibrous
         {
         }
 
-        public Disposables(IEnumerable<IDisposable> initial)
-        {
-            _items.AddRange(initial);
-        }
+        public Disposables(IEnumerable<IDisposable> initial) => _items.AddRange(initial);
 
         public void Add(IDisposable toAdd)
         {
@@ -71,8 +68,10 @@ namespace Fibrous
                 _items.Clear();
             }
 
-            foreach (var victim in disposables)
+            foreach (IDisposable victim in disposables)
+            {
                 victim.Dispose();
+            }
         }
     }
 }

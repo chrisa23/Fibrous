@@ -9,10 +9,7 @@ namespace Fibrous
     {
         private readonly Action<Exception> _callback;
 
-        public ExceptionHandlingExecutor(Action<Exception> callback = null)
-        {
-            _callback = callback;
-        }
+        public ExceptionHandlingExecutor(Action<Exception> callback = null) => _callback = callback;
 
         public void Execute(Action toExecute)
         {

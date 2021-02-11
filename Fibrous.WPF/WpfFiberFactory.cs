@@ -15,16 +15,12 @@ namespace Fibrous.WPF
             _priority = priority;
         }
 
-        public IFiber Create(Action<Exception> errorHandler = null)
-        {
-            return errorHandler == null
+        public IFiber CreateFiber(Action<Exception> errorHandler = null) =>
+            errorHandler == null
                 ? new DispatcherFiber(dispatcher: _dispatcher, priority: _priority)
                 : new DispatcherFiber(errorHandler, _dispatcher, _priority);
-        }
 
-        public IAsyncFiber CreateAsync(Action<Exception> errorHandler)
-        {
-            return new AsyncDispatcherFiber(errorHandler, _dispatcher, _priority);
-        }
+        public IAsyncFiber CreateAsyncFiber(Action<Exception> errorHandler) =>
+            new AsyncDispatcherFiber(errorHandler, _dispatcher, _priority);
     }
 }

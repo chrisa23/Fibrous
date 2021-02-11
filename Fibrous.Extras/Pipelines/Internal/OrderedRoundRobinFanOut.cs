@@ -7,17 +7,12 @@ namespace Fibrous
     {
         private readonly IFiber _fiber = new Fiber();
         private readonly List<IPublisherPort<Ordered<T>>> _stages = new List<IPublisherPort<Ordered<T>>>();
-        private int _index;
         private long _count;
-        public void AddStage(IPublisherPort<Ordered<T>> stage)
-        {
-            _stages.Add(stage);
-        }
+        private int _index;
 
-        public void SetUpSubscribe(ISubscriberPort<T> port)
-        {
-            port.Subscribe(_fiber, OnReceive);
-        }
+        public void AddStage(IPublisherPort<Ordered<T>> stage) => _stages.Add(stage);
+
+        public void SetUpSubscribe(ISubscriberPort<T> port) => port.Subscribe(_fiber, OnReceive);
 
         private void OnReceive(T obj)
         {
@@ -26,6 +21,7 @@ namespace Fibrous
             _index++;
             _index %= _stages.Count;
         }
+
         public override void Dispose()
         {
             _fiber.Dispose();

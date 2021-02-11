@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
@@ -14,21 +12,29 @@ namespace Fibrous.Tests
         {
             int msWait = 1000 - DateTime.Now.TimeOfDay.Milliseconds - 200;
             if (msWait < 0)
+            {
                 msWait = msWait + 1000;
+            }
 
             await Task.Delay(msWait);
 
             int count = 0;
-            void Action() => count++;
-            using var fiber = new Fiber();
-            using (var sub = fiber.CronSchedule(Action, "0/2 * * 1/1 * ? *"))
+
+            void Action()
+            {
+                count++;
+            }
+
+            using Fiber fiber = new Fiber();
+            using (IDisposable sub = fiber.CronSchedule(Action, "0/2 * * 1/1 * ? *"))
+            {
                 await Task.Delay(TimeSpan.FromSeconds(4.1));
-            
+            }
+
             Assert.IsTrue(count >= 2);
 
             await Task.Delay(TimeSpan.FromSeconds(8));
             Assert.IsTrue(count <= 3);
-
         }
 
         [Test]
@@ -36,7 +42,9 @@ namespace Fibrous.Tests
         {
             int msWait = 1000 - DateTime.Now.TimeOfDay.Milliseconds - 200;
             if (msWait < 0)
+            {
                 msWait = msWait + 1000;
+            }
 
             await Task.Delay(msWait);
 
@@ -48,15 +56,16 @@ namespace Fibrous.Tests
                 return Task.CompletedTask;
             }
 
-            using var fiber = new AsyncFiber();
-            using (var sub = fiber.CronSchedule(Action, "0/2 * * 1/1 * ? *"))
+            using AsyncFiber fiber = new AsyncFiber();
+            using (IDisposable sub = fiber.CronSchedule(Action, "0/2 * * 1/1 * ? *"))
+            {
                 await Task.Delay(TimeSpan.FromSeconds(4.1));
+            }
 
             Assert.IsTrue(count >= 2);
 
             await Task.Delay(TimeSpan.FromSeconds(8));
             Assert.IsTrue(count <= 3);
-
         }
     }
 }

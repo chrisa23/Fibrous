@@ -5,9 +5,9 @@ namespace Fibrous.Pipelines
 {
     internal sealed class CompositeStage<TIn, TOut> : IStage<TIn, TOut>
     {
+        private readonly IDisposable _disposables;
         private readonly IPublisherPort<TIn> _input;
         private readonly ISubscriberPort<TOut> _output;
-        private readonly IDisposable _disposables;
 
         public CompositeStage(IPublisherPort<TIn> input, ISubscriberPort<TOut> output, IDisposable disposables)
         {
@@ -20,14 +20,10 @@ namespace Fibrous.Pipelines
 
         public IDisposable Subscribe(IFiber fiber, Action<TOut> receive) => _output.Subscribe(fiber, receive);
 
-        public IDisposable Subscribe(IAsyncFiber fiber, Func<TOut, Task> receive) =>_output.Subscribe(fiber, receive);
+        public IDisposable Subscribe(IAsyncFiber fiber, Func<TOut, Task> receive) => _output.Subscribe(fiber, receive);
 
         public IDisposable Subscribe(Action<TOut> receive) => _output.Subscribe(receive);
 
-        public void Dispose()
-        {
-            _disposables.Dispose();
-        }
-
+        public void Dispose() => _disposables.Dispose();
     }
 }

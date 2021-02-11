@@ -10,16 +10,16 @@ namespace Fibrous.Tests
         [Test]
         public void CallbackFromIntervalTimerWithCancel()
         {
-            var executionCount = 0;
+            int executionCount = 0;
 
             void Action()
             {
                 executionCount++;
             }
 
-            using (var stubFiber = new StubFiber())
+            using (StubFiber stubFiber = new StubFiber())
             {
-                var timer = new TimerAction(stubFiber,
+                TimerAction timer = new TimerAction(stubFiber,
                     Action,
                     TimeSpan.FromMilliseconds(2),
                     TimeSpan.FromMilliseconds(150));
@@ -34,14 +34,14 @@ namespace Fibrous.Tests
         [Test]
         public void Cancel()
         {
-            var executionCount = 0;
+            int executionCount = 0;
 
             void Action()
             {
                 executionCount++;
             }
 
-            var timer = new TimerAction(new StubFiber(), Action, TimeSpan.FromMilliseconds(2));
+            TimerAction timer = new TimerAction(new StubFiber(), Action, TimeSpan.FromMilliseconds(2));
             Thread.Sleep(100);
             Assert.AreEqual(1, executionCount);
             timer.Dispose();

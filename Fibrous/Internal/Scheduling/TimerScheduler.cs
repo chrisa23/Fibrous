@@ -8,7 +8,7 @@ namespace Fibrous
         {
             if (dueTime.TotalMilliseconds <= 0)
             {
-                var pending = new PendingAction(action);
+                PendingAction pending = new PendingAction(action);
                 fiber.Enqueue(pending.Execute);
                 return pending;
             }
@@ -16,9 +16,7 @@ namespace Fibrous
             return new TimerAction(fiber, action, dueTime);
         }
 
-        public IDisposable Schedule(IFiber fiber, Action action, TimeSpan dueTime, TimeSpan interval)
-        {
-            return new TimerAction(fiber, action, dueTime, interval);
-        }
+        public IDisposable Schedule(IFiber fiber, Action action, TimeSpan dueTime, TimeSpan interval) =>
+            new TimerAction(fiber, action, dueTime, interval);
     }
 }

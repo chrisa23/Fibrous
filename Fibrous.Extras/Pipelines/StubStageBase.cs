@@ -6,6 +6,7 @@ namespace Fibrous.Pipelines
     {
         private readonly Action<Exception> _errorCallback;
         protected Disposables Disposables = new Disposables();
+
         protected StubStageBase(Action<Exception> errorCallback = null)
         {
             _errorCallback = errorCallback;
@@ -25,10 +26,7 @@ namespace Fibrous.Pipelines
             }
         }
 
-        public override void Dispose()
-        {
-            Disposables.Dispose();
-        }
+        public override void Dispose() => Disposables.Dispose();
 
         protected abstract void Receive(TIn @in);
     }

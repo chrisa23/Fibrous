@@ -41,13 +41,17 @@ namespace Fibrous
             }
 
             if (!_cancelled)
+            {
                 fiber.Enqueue(Execute);
+            }
         }
 
         private void Execute()
         {
             if (!_cancelled)
+            {
                 _action();
+            }
         }
 
         private void DisposeTimer()

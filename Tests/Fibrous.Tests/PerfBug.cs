@@ -8,39 +8,21 @@ namespace Fibrous.Tests
     {
         private readonly Action<T> _on;
 
-        public ActionFactory(Action<T> onMsg)
-        {
-            _on = onMsg;
-        }
+        public ActionFactory(Action<T> onMsg) => _on = onMsg;
 
-        public Action Create(T msg)
-        {
-            return () => _on(msg);
-        }
+        public Action Create(T msg) => () => _on(msg);
 
-        public Action CreateObject(object obj)
-        {
-            return () => _on((T) obj);
-        }
+        public Action CreateObject(object obj) => () => _on((T)obj);
 
-        public static Action Create(T msg, Action<T> target)
-        {
-            return () => target(msg);
-        }
+        public static Action Create(T msg, Action<T> target) => () => target(msg);
     }
 
     [TestFixture]
     public class PerfBug
     {
-        public static Action CreateString(string msg, Action<string> target)
-        {
-            return () => target(msg);
-        }
+        public static Action CreateString(string msg, Action<string> target) => () => target(msg);
 
-        public static Action CreateGeneric<T>(T msg, Action<T> target)
-        {
-            return () => target(msg);
-        }
+        public static Action CreateGeneric<T>(T msg, Action<T> target) => () => target(msg);
 
         [Test]
         public void PerfTestWithInt()
@@ -49,10 +31,13 @@ namespace Fibrous.Tests
             {
             }
 
-            var fact = new ActionFactory<int>(OnMsg);
-            var watch = Stopwatch.StartNew();
-            for (var i = 0; i < 5000000; i++)
+            ActionFactory<int> fact = new ActionFactory<int>(OnMsg);
+            Stopwatch watch = Stopwatch.StartNew();
+            for (int i = 0; i < 5000000; i++)
+            {
                 fact.Create(1);
+            }
+
             watch.Stop();
             Console.WriteLine("Elapsed: " + watch.ElapsedMilliseconds);
         }
@@ -63,14 +48,16 @@ namespace Fibrous.Tests
             void OnMsg(string x)
             {
                 if (x == "end")
+                {
                     Console.WriteLine(x);
+                }
             }
 
-            var fact = new ActionFactory<string>(OnMsg);
-            var watch = Stopwatch.StartNew();
-            for (var i = 0; i < 5000000; i++)
+            ActionFactory<string> fact = new ActionFactory<string>(OnMsg);
+            Stopwatch watch = Stopwatch.StartNew();
+            for (int i = 0; i < 5000000; i++)
             {
-                var act = fact.CreateObject("s");
+                Action act = fact.CreateObject("s");
                 act();
             }
 
@@ -85,14 +72,16 @@ namespace Fibrous.Tests
             void OnMsg(string x)
             {
                 if (x == "end")
+                {
                     Console.WriteLine(x);
+                }
             }
 
-            var fact = new ActionFactory<string>(OnMsg);
-            var watch = Stopwatch.StartNew();
-            for (var i = 0; i < 5000000; i++)
+            ActionFactory<string> fact = new ActionFactory<string>(OnMsg);
+            Stopwatch watch = Stopwatch.StartNew();
+            for (int i = 0; i < 5000000; i++)
             {
-                var act = fact.Create("s");
+                Action act = fact.Create("s");
                 act();
             }
 
@@ -108,10 +97,10 @@ namespace Fibrous.Tests
             {
             }
 
-            var watch = Stopwatch.StartNew();
-            for (var i = 0; i < 5000000; i++)
+            Stopwatch watch = Stopwatch.StartNew();
+            for (int i = 0; i < 5000000; i++)
             {
-                var act = CreateGeneric("", OnMsg);
+                Action act = CreateGeneric("", OnMsg);
                 act();
             }
 
@@ -125,11 +114,13 @@ namespace Fibrous.Tests
             void OnMsg(string x)
             {
                 if (x == "end")
+                {
                     Console.WriteLine(x);
+                }
             }
 
-            var watch = Stopwatch.StartNew();
-            for (var i = 0; i < 5000000; i++)
+            Stopwatch watch = Stopwatch.StartNew();
+            for (int i = 0; i < 5000000; i++)
             {
                 void Act()
                 {
@@ -156,10 +147,10 @@ namespace Fibrous.Tests
             {
             }
 
-            var watch = Stopwatch.StartNew();
-            for (var i = 0; i < 5000000; i++)
+            Stopwatch watch = Stopwatch.StartNew();
+            for (int i = 0; i < 5000000; i++)
             {
-                var act = CreateString("", OnMsg);
+                Action act = CreateString("", OnMsg);
                 act();
             }
 

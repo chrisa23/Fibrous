@@ -16,14 +16,14 @@ namespace Fibrous
         /// <param name="request"></param>
         /// <param name="timeout"></param>
         /// <returns></returns>
-        Task<Result<TReply>> SendRequest(TRequest request, TimeSpan timeout);
-        
+        Task<Result<TReply>> SendRequestAsync(TRequest request, TimeSpan timeout);
+
         /// <summary>
         ///     Send an asynchronous request and get a reply object for handling the response in the same code block.
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        Task<TReply> SendRequest(TRequest request);
+        Task<TReply> SendRequestAsync(TRequest request);
 
         /// <summary>
         ///     Send an asynchronous request, and let the reply be delivered to the fiber when ready

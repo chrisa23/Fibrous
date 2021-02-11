@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Fibrous
@@ -8,9 +9,7 @@ namespace Fibrous
     /// </summary>
     public sealed class AsyncExecutor : IAsyncExecutor
     {
-        public async Task Execute(Func<Task> toExecute)
-        {
-            await toExecute();
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task ExecuteAsync(Func<Task> toExecute) => toExecute();
     }
 }

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using BenchmarkDotNet.Attributes;
 
 namespace Fibrous.Benchmark
@@ -11,18 +9,12 @@ namespace Fibrous.Benchmark
         private readonly MyType _msg = new MyType();
 
         [Benchmark]
-        public Type TypeOf()
-        {
-            return typeof(MyType);
-        }
+        public Type TypeOf() => typeof(MyType);
 
         [Benchmark]
-        public Type GetTypeCall()
-        {
-            return _msg.GetType();
-        }
+        public Type GetTypeCall() => _msg.GetType();
 
- 
+
         private class MyType
         {
             public int Prop1 { get; set; }
@@ -30,7 +22,6 @@ namespace Fibrous.Benchmark
 
             public void Method()
             {
-
             }
         }
     }

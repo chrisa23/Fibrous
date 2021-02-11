@@ -3,7 +3,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>Fibrous.Proxy</id>
-    <version>4.1.0</version>
+    <version>5.0.0</version>
     <authors>Chris Anderson</authors>
     <owners>chrisa23</owners>
     <projectUrl>http://github.com/chrisa23/fibrous</projectUrl>
@@ -13,13 +13,13 @@
     <tags>concurrency actors multi-threading messaging</tags>
 
     <dependencies>
-      <dependency id="Fibrous" version="4.1.0" />
+      <dependency id="Fibrous" version="5.0.0" />
       <dependency id="System.Reflection.DispatchProxy" version="4.6.0" />
       <dependency id="System.Reflection.Emit" version="4.6.0" />
     </dependencies>
   </metadata>
   <files>
-    <file src=".\bin\Release\netstandard2.0\Fibrous.Proxy.dll"  target="lib/netstandard2.0" />
-    <file src=".\bin\Release\netstandard2.0\Fibrous.Proxy.pdb"  target="lib/netstandard2.0" />
+    <file src=".\bin\Release\netstandard2.0\Fibrous.Proxy.dll" target="lib/netstandard2.0" />
+    <file src=".\bin\Release\netstandard2.0\Fibrous.Proxy.pdb" target="lib/netstandard2.0" />
   </files>
 </package>

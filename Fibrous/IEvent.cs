@@ -12,24 +12,22 @@ namespace Fibrous
 
     public sealed class Event : IEvent
     {
+        public bool HasSubscriptions => InternalEvent != null;
+
         public IDisposable Subscribe(Action receive)
         {
             InternalEvent += receive;
             return new DisposeAction(() => InternalEvent -= receive);
         }
-        
+
         public void Trigger()
         {
-            var internalEvent = InternalEvent;
+            Action internalEvent = InternalEvent;
             internalEvent?.Invoke();
         }
 
-        public void Dispose()
-        {
-            InternalEvent = null;
-        }
+        public void Dispose() => InternalEvent = null;
 
         internal event Action InternalEvent;
-        public bool HasSubscriptions => InternalEvent != null;
     }
 }

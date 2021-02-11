@@ -50,7 +50,7 @@ namespace Fibrous
     }
 
     public static class FiberExtensions
-    { 
+    {
         /// <summary>
         ///     Schedule an action at a DateTime
         /// </summary>
@@ -58,10 +58,8 @@ namespace Fibrous
         /// <param name="action"></param>
         /// <param name="when"></param>
         /// <returns></returns>
-        public static IDisposable Schedule(this IScheduler scheduler, Action action, DateTime when)
-        {
-            return scheduler.Schedule(action, when - DateTime.Now);
-        }
+        public static IDisposable Schedule(this IScheduler scheduler, Action action, DateTime when) =>
+            scheduler.Schedule(action, when - DateTime.Now);
 
         /// <summary>
         ///     Schedule an action at a DateTime with an interval
@@ -71,15 +69,12 @@ namespace Fibrous
         /// <param name="when"></param>
         /// <param name="interval"></param>
         /// <returns></returns>
-        public static IDisposable Schedule(this IScheduler scheduler, Action action, DateTime when, TimeSpan interval)
-        {
-            return scheduler.Schedule(action, when - DateTime.Now, interval);
-        }
+        public static IDisposable
+            Schedule(this IScheduler scheduler, Action action, DateTime when, TimeSpan interval) =>
+            scheduler.Schedule(action, when - DateTime.Now, interval);
 
-        public static IDisposable CronSchedule(this IScheduler scheduler, Action action, string cron)
-        {
-            return new CronScheduler(scheduler, action, cron);
-        }
+        public static IDisposable CronSchedule(this IScheduler scheduler, Action action, string cron) =>
+            new CronScheduler(scheduler, action, cron);
 
         /// <summary>
         ///     Subscribe to a channel from the fiber.
@@ -89,10 +84,8 @@ namespace Fibrous
         /// <param name="channel"></param>
         /// <param name="handler"></param>
         /// <returns></returns>
-        public static IDisposable Subscribe<T>(this IFiber fiber, ISubscriberPort<T> channel, Action<T> handler)
-        {
-            return channel.Subscribe(fiber, handler);
-        }
+        public static IDisposable Subscribe<T>(this IFiber fiber, ISubscriberPort<T> channel, Action<T> handler) =>
+            channel.Subscribe(fiber, handler);
 
         /// <summary>
         ///     Subscribe to a channel from the fiber.
@@ -102,10 +95,9 @@ namespace Fibrous
         /// <param name="channel"></param>
         /// <param name="handler"></param>
         /// <returns></returns>
-        public static IDisposable Subscribe(this IFiber fiber, IEventPort channel, Action handler)
-        {
-            return channel.Subscribe(fiber, handler);
-        }
+        public static IDisposable Subscribe(this IFiber fiber, IEventPort channel, Action handler) =>
+            channel.Subscribe(fiber, handler);
+
         /// <summary>
         ///     Subscribe to a channel from the fiber.
         /// </summary>
@@ -116,10 +108,9 @@ namespace Fibrous
         /// <param name="handler"></param>
         /// <param name="snapshot"></param>
         /// <returns></returns>
-        public static IDisposable Subscribe<T, TSnapshot>(this IFiber fiber, ISnapshotSubscriberPort<T, TSnapshot> channel, Action<T> handler, Action<TSnapshot> snapshot)
-        {
-            return channel.Subscribe(fiber, handler, snapshot);
-        }
+        public static IDisposable Subscribe<T, TSnapshot>(this IFiber fiber,
+            ISnapshotSubscriberPort<T, TSnapshot> channel, Action<T> handler, Action<TSnapshot> snapshot) =>
+            channel.Subscribe(fiber, handler, snapshot);
 
         /// <summary>Method that subscribe to a periodic batch. </summary>
         /// <typeparam name="T">    Generic type parameter. </typeparam>
@@ -131,10 +122,8 @@ namespace Fibrous
         public static IDisposable SubscribeToBatch<T>(this IFiber fiber,
             ISubscriberPort<T> port,
             Action<T[]> receive,
-            TimeSpan interval)
-        {
-            return new BatchSubscriber<T>(port, fiber, interval, receive);
-        }
+            TimeSpan interval) =>
+            new BatchSubscriber<T>(port, fiber, interval, receive);
 
         /// <summary>
         ///     Subscribe to a periodic batch, maintaining the last item by key
@@ -151,10 +140,8 @@ namespace Fibrous
             ISubscriberPort<T> port,
             Converter<T, TKey> keyResolver,
             Action<IDictionary<TKey, T>> receive,
-            TimeSpan interval)
-        {
-            return new KeyedBatchSubscriber<TKey, T>(port, fiber, interval, keyResolver, receive);
-        }
+            TimeSpan interval) =>
+            new KeyedBatchSubscriber<TKey, T>(port, fiber, interval, keyResolver, receive);
 
         /// <summary>
         ///     Subscribe to a port but only consume the last msg per interval
@@ -168,10 +155,8 @@ namespace Fibrous
         public static IDisposable SubscribeToLast<T>(this IFiber fiber,
             ISubscriberPort<T> port,
             Action<T> receive,
-            TimeSpan interval)
-        {
-            return new LastSubscriber<T>(port, fiber, interval, receive);
-        }
+            TimeSpan interval) =>
+            new LastSubscriber<T>(port, fiber, interval, receive);
 
         /// <summary>
         ///     Subscribe with a message predicate to filter messages
@@ -190,16 +175,18 @@ namespace Fibrous
             void FilteredReceiver(T x)
             {
                 if (filter(x))
+                {
                     fiber.Enqueue(() => receive(x));
+                }
             }
 
-            var sub = port.Subscribe(FilteredReceiver);
+            IDisposable sub = port.Subscribe(FilteredReceiver);
             return new Unsubscriber(sub, fiber);
         }
 
         public static IChannel<T> NewChannel<T>(this IFiber fiber, Action<T> onEvent)
         {
-            var channel = new Channel<T>();
+            Channel<T> channel = new Channel<T>();
             channel.Subscribe(fiber, onEvent);
             return channel;
         }
@@ -207,10 +194,9 @@ namespace Fibrous
         public static IRequestPort<TRq, TRp> NewRequestPort<TRq, TRp>(this IFiber fiber,
             Action<IRequest<TRq, TRp>> onEvent)
         {
-            var channel = new RequestChannel<TRq, TRp>();
+            RequestChannel<TRq, TRp> channel = new RequestChannel<TRq, TRp>();
             channel.SetRequestHandler(fiber, onEvent);
             return channel;
         }
     }
-
 }

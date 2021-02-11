@@ -51,7 +51,11 @@ namespace Fibrous
 
         private bool ReadyToDequeue()
         {
-            while (_actions.Count == 0) Monitor.Wait(_lock);
+            while (_actions.Count == 0)
+            {
+                Monitor.Wait(_lock);
+            }
+
             return true;
         }
     }
