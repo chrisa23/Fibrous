@@ -144,36 +144,36 @@ Proxy
 You can generate a proxy wrapper to a class instance that will take a non-thread safe object and make it thread-safe.
 
 ```csharp
-    //An interface with only void (regular Fiber) or Task (AsyncFiber proxy) returning methods,
-    //and implementing IDisposable
-    public interface ITest:IDisposable
-    {
-        void Init();
-        void Add(int i);
-        void Subtract(int i);
-        event Action<int> Event1;
-    }
+//An interface with only void (regular Fiber) or Task (AsyncFiber proxy) returning methods,
+//and implementing IDisposable
+public interface ITest:IDisposable
+{
+    void Init();
+    void Add(int i);
+    void Subtract(int i);
+    event Action<int> Event1;
+}
 
-    //An implementation
-    public class Test : ITest
-    {
+//An implementation
+public class Test : ITest
+{
 ...
-    }
+}
 
-    //create a conrete instance
-    var t = new Test();
+//create a conrete instance
+var t = new Test();
 
-    //Generate a Fiber based proxy (AsyncFiberProxy also available)
-    var proxy = FiberProxy<ITest>.Create(t);
+//Generate a Fiber based proxy (AsyncFiberProxy also available)
+var proxy = FiberProxy<ITest>.Create(t);
 
-    //proxy is now an ITest but wrapped with a Fiber around a concrete ITest instance
-    //all methods are wrapped and events are exposed directly.
+//proxy is now an ITest but wrapped with a Fiber around a concrete ITest instance
+//all methods are wrapped and events are exposed directly.
     
-    proxy.Event1 += i => Console.WriteLine(i);
+proxy.Event1 += i => Console.WriteLine(i);
 
-    proxy.Init();
-    proxy.Add(1);
-    proxy.Subtract(2);
+proxy.Init();
+proxy.Add(1);
+proxy.Subtract(2);
 
 ```
 
