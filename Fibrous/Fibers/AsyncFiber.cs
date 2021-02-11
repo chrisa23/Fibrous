@@ -31,10 +31,11 @@ namespace Fibrous
             : this(new AsyncExceptionHandlingExecutor(errorCallback), size, taskFactory, scheduler)
         {
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void InternalEnqueue(Func<Task> action)
         {
             AggressiveSpinWait spinWait = default(AggressiveSpinWait);
+            //SpinWait spinWait = new SpinWait();
             while (_queue.IsFull)
             {
                 spinWait.SpinOnce();

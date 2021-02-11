@@ -28,6 +28,7 @@ namespace Fibrous
         {
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void InternalEnqueue(Action action)
         {
             AggressiveSpinWait spinWait = default(AggressiveSpinWait);

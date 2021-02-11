@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Fibrous
 {
@@ -15,6 +16,7 @@ namespace Fibrous
             Executor = executor ?? new Executor();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Enqueue(Action action)
         {
             if (_disposed)

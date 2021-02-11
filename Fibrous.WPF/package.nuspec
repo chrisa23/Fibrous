@@ -16,8 +16,8 @@
     </dependencies>
   </metadata>
   <files>
-    <file src=".\bin\Release\Fibrous.WPF.dll" target="lib/net461" />
-    <file src=".\bin\Release\Fibrous.WPF.pdb" target="lib/net461" />
+    <file src=".\bin\Release\net462\Fibrous.WPF.dll" target="lib/net462" />
+    <file src=".\bin\Release\net462\Fibrous.WPF.pdb" target="lib/net462" />
     <file src=".\bin\Release\netcoreapp3.1\Fibrous.WPF.dll" target="lib/netcoreapp3.1" />
     <file src=".\bin\Release\netcoreapp3.1\Fibrous.WPF.pdb" target="lib/netcoreapp3.1" />
     <file src=".\bin\Release\net50\Fibrous.WPF.dll" target="lib/net50" />

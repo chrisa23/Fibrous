@@ -11,6 +11,10 @@ namespace Fibrous.Extras
         private readonly ArrayQueue<T> _queue;
         private readonly TaskFactory _taskFactory;
         private bool _flushPending;
+        private bool _completed;
+        private bool _stopped;
+        private bool _errored;
+        private Exception _error;
 
         public AsyncObserver(int size = QueueSize.DefaultQueueSize, TaskFactory taskFactory = null)
         {
@@ -20,8 +24,37 @@ namespace Fibrous.Extras
             _flushCache = Flush;
         }
 
-        public abstract void OnCompleted();
-        public abstract void OnError(Exception error);
+        public void OnCompleted()
+        {
+            lock (_lock)
+            {
+                _completed = true;
+                if (!_flushPending)
+                {
+                    _stopped = true;
+                    HandleCompleted();
+                }
+            }
+        }
+
+        public void OnError(Exception error)
+        {
+            
+            lock (_lock)
+            {
+                _errored = true;
+                
+                if (!_flushPending)
+                {
+                    _stopped = true;
+                    HandleError(error);
+                }
+                else
+                {
+                    _error = error;
+                }
+            }
+        }
 
         public void OnNext(T item)
         {
@@ -33,6 +66,9 @@ namespace Fibrous.Extras
 
             lock (_lock)
             {
+                if (_stopped)
+                    return;
+
                 _queue.Enqueue(item);
 
                 if (_flushPending)
@@ -46,6 +82,8 @@ namespace Fibrous.Extras
         }
 
         protected abstract void Handle(T value);
+        protected abstract void HandleCompleted();
+        protected abstract void HandleError(Exception exception);
 
         private void Flush()
         {
@@ -66,6 +104,18 @@ namespace Fibrous.Extras
                 else
                 {
                     _flushPending = false;
+
+                    if (_errored)
+                    {
+                        _stopped = true;
+                        HandleError(_error);
+                        return;
+                    }
+                    if (_completed)
+                    {
+                        _stopped = true;
+                        HandleCompleted();
+                    }
                 }
             }
         }
@@ -81,15 +131,16 @@ namespace Fibrous.Extras
         }
     }
 
+
     public sealed class AsyncObserverWrapper<T> : AsyncObserver<T>
     {
         private readonly IObserver<T> _wrapped;
 
         public AsyncObserverWrapper(IObserver<T> wrapped) => _wrapped = wrapped;
 
-        public override void OnCompleted() => _wrapped.OnCompleted();
+        protected override void HandleCompleted() => _wrapped.OnCompleted();
 
-        public override void OnError(Exception error) => _wrapped.OnError(error);
+        protected override void HandleError(Exception error) => _wrapped.OnError(error);
 
         protected override void Handle(T value) => _wrapped.OnNext(value);
     }

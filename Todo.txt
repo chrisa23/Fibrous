@@ -1,5 +1,3 @@
-- Increase test coverage
-
 - Create detailed documentation covering functionality
 	- Fibers
 		- Basic functionality

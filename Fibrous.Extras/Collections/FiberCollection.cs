@@ -76,9 +76,7 @@ namespace Fibrous.Collections
                 }
             });
 
-        public T[] GetItems(Func<T, bool> request) //, TimeSpan timeout = TimeSpan.MaxValue)
-            =>
-                _request.SendRequestAsync(request).Result;
+        public Task<T[]> GetItemsAsync(Func<T, bool> request) => _request.SendRequestAsync(request);
 
         private void OnRequest(IRequest<Func<T, bool>, T[]> request) =>
             request.Reply(_items.Where(request.Request).ToArray());

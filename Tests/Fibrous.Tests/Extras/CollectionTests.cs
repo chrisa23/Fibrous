@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Fibrous.Collections;
 using NUnit.Framework;
 
@@ -9,7 +10,7 @@ namespace Fibrous.Tests
     public class CollectionTests
     {
         [Test]
-        public void FiberCollectionTest1()
+        public async Task FiberCollectionTest1()
         {
             int[] snapshot = null;
             List<int> list = new List<int>();
@@ -55,12 +56,12 @@ namespace Fibrous.Tests
 
             Assert.AreEqual(0, list.Count);
 
-            int[] items = collection.GetItems(x => true);
+            int[] items = await collection.GetItemsAsync(x => true);
             Assert.AreEqual(2, items.Length);
         }
 
         [Test]
-        public void KeyCollectionTest1()
+        public async Task KeyCollectionTest1()
         {
             int[] snapshot = null;
             List<int> list = new List<int>();
@@ -106,12 +107,12 @@ namespace Fibrous.Tests
 
             Assert.AreEqual(0, list.Count);
 
-            int[] items = collection.GetItems(x => true);
+            int[] items = await collection.GetItemsAsync(x => true);
             Assert.AreEqual(2, items.Length);
         }
 
         [Test]
-        public void DictionaryCollectionTest1()
+        public async Task DictionaryCollectionTest1()
         {
             KeyValuePair<int, int>[] snapshot = null;
             List<KeyValuePair<int, int>> list = new List<KeyValuePair<int, int>>();
@@ -157,16 +158,16 @@ namespace Fibrous.Tests
 
             Assert.AreEqual(0, list.Count);
 
-            KeyValuePair<int, int>[] items = collection.GetItems(x => true);
+            KeyValuePair<int, int>[] items = await collection.GetItemsAsync(x => true);
             Assert.AreEqual(2, items.Length);
             collection.Clear();
 
-            items = collection.GetItems(x => true);
+            items = await collection.GetItemsAsync(x => true);
             Assert.AreEqual(0, items.Length);
         }
 
         [Test]
-        public void DictionaryCollectionTest2()
+        public async Task DictionaryCollectionTest2()
         {
             using FiberDictionary<int, int> collection = new FiberDictionary<int, int>();
             collection.Add(1, 1);
@@ -197,12 +198,12 @@ namespace Fibrous.Tests
             Assert.AreEqual(2, local.Count);
 
             //GetItems
-            KeyValuePair<int, int>[] items = collection.GetItems(x => true);
+            KeyValuePair<int, int>[] items = await collection.GetItemsAsync(x => true);
             Assert.AreEqual(2, items.Length);
 
             //Clear
             collection.Clear();
-            items = collection.GetItems(x => true);
+            items = await collection.GetItemsAsync(x => true);
             Assert.AreEqual(0, items.Length);
         }
     }

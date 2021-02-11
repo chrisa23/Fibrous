@@ -27,6 +27,41 @@ namespace Fibrous.Benchmark
 
             reset.WaitOne(TimeSpan.FromSeconds(10));
         }
+
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        public void Wrapper()
+        {
+            using AutoResetEvent reset = new AutoResetEvent(false);
+            using IFiber fiber = new Fiber();
+            var observer = new WrappedObserver(reset, OperationsPerInvoke);
+            var subject = new Subject<long>();
+            using IDisposable dispose = subject.Subscribe(fiber, observer);
+
+            for (int i = 0; i < OperationsPerInvoke; i++)
+            {
+                subject.OnNext(i + 1);
+            }
+
+            reset.WaitOne(TimeSpan.FromSeconds(10));
+        }
+
+
+        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
+        public void WrapperLock()
+        {
+            using AutoResetEvent reset = new AutoResetEvent(false);
+            using IFiber fiber = new LockFiber();
+            var observer = new WrappedObserver(reset, OperationsPerInvoke);
+            var subject = new Subject<long>();
+            using IDisposable dispose = subject.Subscribe(fiber, observer);
+
+            for (int i = 0; i < OperationsPerInvoke; i++)
+            {
+                subject.OnNext(i + 1);
+            }
+
+            reset.WaitOne(TimeSpan.FromSeconds(10));
+        }
     }
 
 
@@ -49,12 +84,35 @@ namespace Fibrous.Benchmark
             }
         }
 
-        public override void OnCompleted()
+        protected override void HandleCompleted() { }
+
+        protected override void HandleError(Exception exception)
         {
         }
+    }
 
-        public override void OnError(Exception error)
+
+    public class WrappedObserver : IObserver<long>
+    {
+        private readonly int _count;
+        private readonly AutoResetEvent _evt;
+
+        public WrappedObserver(AutoResetEvent evt, int count)
         {
+            _evt = evt;
+            _count = count;
+        }
+
+        public void OnCompleted(){}
+
+        public void OnError(Exception error)  { }
+
+        public void OnNext(long value)
+        {
+            if (value >= _count)
+            {
+                _evt.Set();
+            }
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Fibrous
         public static readonly (int, T[]) Empty = (0, new T[0]);
         private readonly int _size;
         private T[] _actions;
-        private volatile int _count;
+        private int _count;
         private int _processCount;
         private T[] _toPass;
 
@@ -28,12 +28,16 @@ namespace Fibrous
 
         public bool IsFull => Count >= _size;
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Enqueue(T a)
         {
             int index0 = _count++;
             _actions[index0] = a;
         }
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public (int count, T[] actions) Drain()
         {
             int processCount = Count;

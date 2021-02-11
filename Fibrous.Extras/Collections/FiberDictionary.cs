@@ -95,8 +95,6 @@ namespace Fibrous.Collections
             });
 
 
-        public KeyValuePair<TKey, T>[] GetItems(Func<TKey, bool> request) => _request.SendRequestAsync(request).Result;
-
         public async Task<KeyValuePair<TKey, T>[]> GetItemsAsync(Func<TKey, bool> request) =>
             await _request.SendRequestAsync(request);
 

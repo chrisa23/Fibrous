@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Fibrous
@@ -22,6 +23,7 @@ namespace Fibrous
         public IDisposable Schedule(Func<Task> action, TimeSpan startTime, TimeSpan interval) =>
             _fiberScheduler.Schedule(this, action, startTime, interval);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Enqueue(Func<Task> action)
         {
             if (_disposed)

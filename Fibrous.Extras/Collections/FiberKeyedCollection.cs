@@ -45,8 +45,6 @@ namespace Fibrous.Collections
 
         public void Remove(T item) => _fiber.Enqueue(() => RemoveItem(item));
 
-        public T[] GetItems(Func<T, bool> request) => _request.SendRequestAsync(request).Result;
-
         public async Task<T[]> GetItemsAsync(Func<T, bool> request) => await _request.SendRequestAsync(request);
 
         private void OnRequest(IRequest<Func<T, bool>, T[]> request) =>
