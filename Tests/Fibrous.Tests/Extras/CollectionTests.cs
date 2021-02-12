@@ -141,7 +141,7 @@ namespace Fibrous.Tests
                     reset.Set();
                 });
 
-            Assert.IsTrue(reset.WaitOne(1000));
+            Assert.IsTrue(reset.WaitOne(2000));
 
             Assert.AreEqual(2, snapshot.Length);
             Assert.AreEqual(1, snapshot[0].Key);

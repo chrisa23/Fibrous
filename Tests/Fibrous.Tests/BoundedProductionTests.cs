@@ -30,7 +30,7 @@ namespace Fibrous.Tests
             Channel<int> channel = new Channel<int>();
             channel.Subscribe(fiber1, Action);
             fiber2.Schedule(() => channel.Publish(0), TimeSpan.FromMilliseconds(10), TimeSpan.FromMilliseconds(20));
-            Assert.IsTrue(reset.WaitOne(TimeSpan.FromSeconds(2)));
+            Assert.IsTrue(reset.WaitOne(TimeSpan.FromSeconds(5)));
         }
 
         [Test]

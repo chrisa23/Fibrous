@@ -7,7 +7,7 @@ namespace Fibrous.Tests
     [TestFixture]
     public class CronSchedulingTests
     {
-        [Test]
+        [Test, Explicit]
         public async Task BasicTest()
         {
             int msWait = 1000 - DateTime.Now.TimeOfDay.Milliseconds - 200;
