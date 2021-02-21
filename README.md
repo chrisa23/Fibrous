@@ -1,5 +1,5 @@
+![Banner](Images/Icon.png)
 # Fibrous
-
 [![NuGet](https://img.shields.io/nuget/v/Fibrous.svg)](https://www.nuget.org/packages/Fibrous/)
 
 High performance concurrency library for the .Net platform.  Fibrous is a fork of Retlang [http://code.google.com/p/retlang/]. 
