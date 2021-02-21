@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="https://github.com/chrisa23/Fibrous/blob/master/Images/Banner.png" />
-</p>
+![Banner](Images/Banner.png)
 
 # Fibrous
 [![NuGet](https://img.shields.io/nuget/v/Fibrous.svg)](https://www.nuget.org/packages/Fibrous/)
