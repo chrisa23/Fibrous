@@ -1,11 +1,17 @@
 namespace Fibrous
 {
-    public struct Result<T>
+    public readonly struct Result<T>
     {
-        public T Value { get; private set; }
-        public bool Succeeded { get; private set; }
+        public readonly T Value;
+        public readonly bool Succeeded;
+ 
+        private Result(T value)
+        {
+            Succeeded = true;
+            Value = value;
+        }
 
-        public static Result<T> Ok(T value) => new Result<T> {Succeeded = true, Value = value};
-        public static readonly Result<T> Failed = new Result<T> {Succeeded = false};
+        public static Result<T> Ok(T value) => new Result<T>(value);
+        public static readonly Result<T> Failed = default;
     }
 }

@@ -28,5 +28,6 @@ _ReSharper.*
 *.dotCover
 *.ncrunchproject
 *.ncrunchsolution
+*.DotSettings
 *.Cache
 .vs/
