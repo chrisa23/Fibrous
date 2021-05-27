@@ -17,7 +17,7 @@ namespace Fibrous.Tests
         public void FanOutIn()
         {
             int count = 0;
-            using AutoResetEvent reset = new AutoResetEvent(false);
+            using AutoResetEvent reset = new(false);
 
             void Handler1(string x)
             {
@@ -40,14 +40,14 @@ namespace Fibrous.Tests
                 }
             }
 
-            using Disposables d = new Disposables();
-            using ChannelAgent<string> fiber = new ChannelAgent<string>(_input, Handler1);
+            using Disposables d = new();
+            using ChannelAgent<string> fiber = new(_input, Handler1);
             for (int i = 0; i < 10; i++)
             {
                 d.Add(new ChannelAgent<string>(_queue, Handler));
             }
 
-            using ChannelAgent<string> fiberOut = new ChannelAgent<string>(_output, Action);
+            using ChannelAgent<string> fiberOut = new(_output, Action);
 
             for (int i = 0; i < OperationsPerInvoke; i++)
             {
@@ -60,7 +60,7 @@ namespace Fibrous.Tests
         [Test]
         public void GuardTest()
         {
-            SingleShotGuard singleShot = new SingleShotGuard();
+            SingleShotGuard singleShot = new();
             Assert.IsTrue(singleShot.Check);
             Assert.IsFalse(singleShot.Check);
         }

@@ -10,7 +10,7 @@ namespace Fibrous
     /// <typeparam name="T"></typeparam>
     public static class EventBus<T>
     {
-        internal static readonly Channel<T> Channel = new Channel<T>();
+        internal static readonly Channel<T> Channel = new();
 
         public static void Publish(T msg) => Channel.Publish(msg);
 

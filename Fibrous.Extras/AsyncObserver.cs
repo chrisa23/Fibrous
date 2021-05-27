@@ -7,7 +7,7 @@ namespace Fibrous.Extras
     public abstract class AsyncObserver<T> : IObserver<T>
     {
         private readonly Action _flushCache;
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
         private readonly ArrayQueue<T> _queue;
         private readonly TaskFactory _taskFactory;
         private bool _flushPending;

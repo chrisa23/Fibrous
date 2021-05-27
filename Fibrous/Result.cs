@@ -11,7 +11,7 @@ namespace Fibrous
             Value = value;
         }
 
-        public static Result<T> Ok(T value) => new Result<T>(value);
+        public static Result<T> Ok(T value) => new(value);
         public static readonly Result<T> Failed = default;
     }
 }

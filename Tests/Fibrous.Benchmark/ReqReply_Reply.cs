@@ -9,7 +9,7 @@ namespace Fibrous.Benchmark
         [Benchmark]
         public Task<int> ChannelRequest()
         {
-            RequestChannel<int, int>.ChannelRequest obj = new RequestChannel<int, int>.ChannelRequest(12);
+            RequestChannel<int, int>.ChannelRequest obj = new(12);
             obj.Reply(2);
             return obj.Resp.Task;
         }

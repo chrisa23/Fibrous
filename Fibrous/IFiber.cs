@@ -172,7 +172,7 @@ namespace Fibrous
 
         public static IChannel<T> NewChannel<T>(this IFiber fiber, Action<T> onEvent)
         {
-            Channel<T> channel = new Channel<T>();
+            Channel<T> channel = new();
             channel.Subscribe(fiber, onEvent);
             return channel;
         }
@@ -180,7 +180,7 @@ namespace Fibrous
         public static IRequestPort<TRq, TRp> NewRequestPort<TRq, TRp>(this IFiber fiber,
             Action<IRequest<TRq, TRp>> onEvent)
         {
-            RequestChannel<TRq, TRp> channel = new RequestChannel<TRq, TRp>();
+            RequestChannel<TRq, TRp> channel = new();
             channel.SetRequestHandler(fiber, onEvent);
             return channel;
         }

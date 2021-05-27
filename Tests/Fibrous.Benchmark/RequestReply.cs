@@ -13,21 +13,21 @@ namespace Fibrous.Benchmark
         private IFiber _fiber;
         private IFiber _fiberReply;
 
-        private readonly TimeSpan oneSecond = TimeSpan.FromSeconds(1);
+        private readonly TimeSpan _oneSecond = TimeSpan.FromSeconds(1);
 
         [Benchmark]
         public async Task<int> FiberReqRep() => await _requestChannel.SendRequestAsync(0);
 
         [Benchmark]
         public async Task<Result<int>> FiberReqRepTimeout() =>
-            await _requestChannel.SendRequestAsync(0, oneSecond);
+            await _requestChannel.SendRequestAsync(0, _oneSecond);
 
         [Benchmark]
         public async Task<int> AsyncFiberReqRep() => await _asyncRequestChannel.SendRequestAsync(0);
 
         [Benchmark]
         public async Task<Result<int>> AsyncFiberReqRepTimeout() =>
-            await _asyncRequestChannel.SendRequestAsync(0, oneSecond);
+            await _asyncRequestChannel.SendRequestAsync(0, _oneSecond);
 
 
         [GlobalSetup]

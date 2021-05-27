@@ -20,7 +20,7 @@ namespace PipelineExample
             // - use 4 parallel workers to fan out and handle getting the file length
             // - print out the file length
 
-            using var pipeline =
+            using IStage<string, (string x, long Length)[]> pipeline =
                 Pipeline
                     .Start<string, string>(Directory.EnumerateFiles)
                     .SelectOrdered(x => (x, new FileInfo(x).Length), 4)

@@ -42,7 +42,7 @@ namespace Example1
             calculator.Messages.Publish(new Message(3, Operation.Divide));
             calculator.Messages.Publish(new Message(1.5, Operation.Multiply));
 
-            var result = await calculator.Requests.SendRequestAsync(new object());
+            double result = await calculator.Requests.SendRequestAsync(new object());
             
             Console.WriteLine(result);
             calculator.Messages.Publish(new Message(0, Operation.Divide));
@@ -53,7 +53,7 @@ namespace Example1
         private static void SimpleExample()
         {
             using var fiber = new Fiber();
-            var channel = fiber.NewChannel<string>(Console.WriteLine);
+            IChannel<string> channel = fiber.NewChannel<string>(Console.WriteLine);
 
             channel.Publish("Test message");
 
