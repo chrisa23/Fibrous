@@ -2,114 +2,113 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Fibrous
+namespace Fibrous;
+
+public static class EventExtensions
 {
-    public static class EventExtensions
+    /// <summary>
+    ///     Subscribe a fiber to an Action based event.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="fiber"></param>
+    /// <param name="obj"></param>
+    /// <param name="eventName"></param>
+    /// <param name="receive"></param>
+    /// <returns></returns>
+    public static IDisposable SubscribeToEvent<T>(this IFiber fiber, object obj, string eventName,
+        Action<T> receive)
     {
-        /// <summary>
-        ///     Subscribe a fiber to an Action based event.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="fiber"></param>
-        /// <param name="obj"></param>
-        /// <param name="eventName"></param>
-        /// <param name="receive"></param>
-        /// <returns></returns>
-        public static IDisposable SubscribeToEvent<T>(this IFiber fiber, object obj, string eventName,
-            Action<T> receive)
+        EventInfo evt = obj.GetType().GetEvent(eventName);
+        MethodInfo add = evt.GetAddMethod();
+        MethodInfo remove = evt.GetRemoveMethod();
+
+        void Action(T msg)
         {
-            EventInfo evt = obj.GetType().GetEvent(eventName);
-            MethodInfo add = evt.GetAddMethod();
-            MethodInfo remove = evt.GetRemoveMethod();
-
-            void Action(T msg)
-            {
-                fiber.Enqueue(() => receive(msg));
-            }
-
-            object[] addHandlerArgs = {(Action<T>)Action};
-            add.Invoke(obj, addHandlerArgs);
-
-            return new Unsubscriber(new DisposeAction(() => remove.Invoke(obj, addHandlerArgs)), fiber);
+            fiber.Enqueue(() => receive(msg));
         }
 
-        /// <summary>
-        ///     Subscribe an AsyncFiber to an Action based event
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="fiber"></param>
-        /// <param name="obj"></param>
-        /// <param name="eventName"></param>
-        /// <param name="receive"></param>
-        /// <returns></returns>
-        public static IDisposable SubscribeToEvent<T>(this IAsyncFiber fiber, object obj, string eventName,
-            Func<T, Task> receive)
+        object[] addHandlerArgs = {(Action<T>)Action};
+        add.Invoke(obj, addHandlerArgs);
+
+        return new Unsubscriber(new DisposeAction(() => remove.Invoke(obj, addHandlerArgs)), fiber);
+    }
+
+    /// <summary>
+    ///     Subscribe an AsyncFiber to an Action based event
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="fiber"></param>
+    /// <param name="obj"></param>
+    /// <param name="eventName"></param>
+    /// <param name="receive"></param>
+    /// <returns></returns>
+    public static IDisposable SubscribeToEvent<T>(this IAsyncFiber fiber, object obj, string eventName,
+        Func<T, Task> receive)
+    {
+        EventInfo evt = obj.GetType().GetEvent(eventName);
+        MethodInfo add = evt.GetAddMethod();
+        MethodInfo remove = evt.GetRemoveMethod();
+
+        void Action(T msg)
         {
-            EventInfo evt = obj.GetType().GetEvent(eventName);
-            MethodInfo add = evt.GetAddMethod();
-            MethodInfo remove = evt.GetRemoveMethod();
-
-            void Action(T msg)
-            {
-                fiber.Enqueue(() => receive(msg));
-            }
-
-            object[] addHandlerArgs = {(Action<T>)Action};
-            add.Invoke(obj, addHandlerArgs);
-
-            return new Unsubscriber(new DisposeAction(() => remove.Invoke(obj, addHandlerArgs)), fiber);
+            fiber.Enqueue(() => receive(msg));
         }
 
-        /// <summary>
-        ///     Subscribe a fiber to an Action based event.
-        /// </summary>
-        /// <param name="fiber"></param>
-        /// <param name="obj"></param>
-        /// <param name="eventName"></param>
-        /// <param name="receive"></param>
-        /// <returns></returns>
-        public static IDisposable SubscribeToEvent(this IFiber fiber, object obj, string eventName,
-            Action receive)
+        object[] addHandlerArgs = {(Action<T>)Action};
+        add.Invoke(obj, addHandlerArgs);
+
+        return new Unsubscriber(new DisposeAction(() => remove.Invoke(obj, addHandlerArgs)), fiber);
+    }
+
+    /// <summary>
+    ///     Subscribe a fiber to an Action based event.
+    /// </summary>
+    /// <param name="fiber"></param>
+    /// <param name="obj"></param>
+    /// <param name="eventName"></param>
+    /// <param name="receive"></param>
+    /// <returns></returns>
+    public static IDisposable SubscribeToEvent(this IFiber fiber, object obj, string eventName,
+        Action receive)
+    {
+        EventInfo evt = obj.GetType().GetEvent(eventName);
+        MethodInfo add = evt.GetAddMethod();
+        MethodInfo remove = evt.GetRemoveMethod();
+
+        void Action()
         {
-            EventInfo evt = obj.GetType().GetEvent(eventName);
-            MethodInfo add = evt.GetAddMethod();
-            MethodInfo remove = evt.GetRemoveMethod();
-
-            void Action()
-            {
-                fiber.Enqueue(receive);
-            }
-
-            object[] addHandlerArgs = {(Action)Action};
-            add.Invoke(obj, addHandlerArgs);
-
-            return new Unsubscriber(new DisposeAction(() => remove.Invoke(obj, addHandlerArgs)), fiber);
+            fiber.Enqueue(receive);
         }
 
-        /// <summary>
-        ///     Subscribe an AsyncFiber to an Action based event
-        /// </summary>
-        /// <param name="fiber"></param>
-        /// <param name="obj"></param>
-        /// <param name="eventName"></param>
-        /// <param name="receive"></param>
-        /// <returns></returns>
-        public static IDisposable SubscribeToEvent(this IAsyncFiber fiber, object obj, string eventName,
-            Func<Task> receive)
+        object[] addHandlerArgs = {(Action)Action};
+        add.Invoke(obj, addHandlerArgs);
+
+        return new Unsubscriber(new DisposeAction(() => remove.Invoke(obj, addHandlerArgs)), fiber);
+    }
+
+    /// <summary>
+    ///     Subscribe an AsyncFiber to an Action based event
+    /// </summary>
+    /// <param name="fiber"></param>
+    /// <param name="obj"></param>
+    /// <param name="eventName"></param>
+    /// <param name="receive"></param>
+    /// <returns></returns>
+    public static IDisposable SubscribeToEvent(this IAsyncFiber fiber, object obj, string eventName,
+        Func<Task> receive)
+    {
+        EventInfo evt = obj.GetType().GetEvent(eventName);
+        MethodInfo add = evt.GetAddMethod();
+        MethodInfo remove = evt.GetRemoveMethod();
+
+        void Action()
         {
-            EventInfo evt = obj.GetType().GetEvent(eventName);
-            MethodInfo add = evt.GetAddMethod();
-            MethodInfo remove = evt.GetRemoveMethod();
-
-            void Action()
-            {
-                fiber.Enqueue(receive);
-            }
-
-            object[] addHandlerArgs = {(Action)Action};
-            add.Invoke(obj, addHandlerArgs);
-
-            return new Unsubscriber(new DisposeAction(() => remove.Invoke(obj, addHandlerArgs)), fiber);
+            fiber.Enqueue(receive);
         }
+
+        object[] addHandlerArgs = {(Action)Action};
+        add.Invoke(obj, addHandlerArgs);
+
+        return new Unsubscriber(new DisposeAction(() => remove.Invoke(obj, addHandlerArgs)), fiber);
     }
 }

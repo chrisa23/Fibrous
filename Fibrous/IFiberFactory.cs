@@ -1,10 +1,9 @@
 ﻿using System;
 
-namespace Fibrous
+namespace Fibrous;
+
+public interface IFiberFactory
 {
-    public interface IFiberFactory
-    {
-        IFiber CreateFiber(Action<Exception> errorHandler = null);
-        IAsyncFiber CreateAsyncFiber(Action<Exception> errorHandler);
-    }
+    IFiber CreateFiber(Action<Exception> errorHandler = null);
+    IAsyncFiber CreateAsyncFiber(Action<Exception> errorHandler);
 }

@@ -97,21 +97,21 @@ namespace Fibrous
 
         public static IFiber StartNew()
         {
-            ThreadFiber pool = new ThreadFiber();
+            ThreadFiber pool = new();
             pool.Start();
             return pool;
         }
 
         public static IFiber StartNew(IExecutor executor)
         {
-            ThreadFiber pool = new ThreadFiber(executor);
+            ThreadFiber pool = new(executor);
             pool.Start();
             return pool;
         }
 
         public static IFiber StartNew(string name)
         {
-            ThreadFiber fiber = new ThreadFiber(name);
+            ThreadFiber fiber = new(name);
             fiber.Start();
             return fiber;
         }

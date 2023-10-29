@@ -1,16 +1,15 @@
 ﻿using System;
 
-namespace Fibrous
+namespace Fibrous;
+
+public abstract class FiberComponent : IDisposable
 {
-    public abstract class FiberComponent : IDisposable
-    {
-        protected FiberComponent(IFiberFactory factory = null) =>
-            Fiber = factory?.CreateFiber(OnError) ?? new Fiber(OnError);
+    protected FiberComponent(IFiberFactory factory = null) =>
+        Fiber = factory?.CreateFiber(OnError) ?? new Fiber(OnError);
 
-        protected IFiber Fiber { get; }
+    protected IFiber Fiber { get; }
 
-        public void Dispose() => Fiber?.Dispose();
+    public void Dispose() => Fiber?.Dispose();
 
-        protected abstract void OnError(Exception obj);
-    }
+    protected abstract void OnError(Exception obj);
 }

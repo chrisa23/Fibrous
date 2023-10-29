@@ -12,7 +12,7 @@ namespace Fibrous.Benchmark
         private readonly Func<Task> _task = () => Task.CompletedTask;
 
         private readonly TaskFactory _taskFactory =
-            new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None);
+            new(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None);
 
         public void Action1()
         {

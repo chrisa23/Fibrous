@@ -6,7 +6,7 @@ namespace Fibrous
     public abstract class FiberBase_old : Disposables, IFiber
     {
         private readonly IFiberScheduler _fiberScheduler;
-        private readonly List<Action> _preQueue = new List<Action>();
+        private readonly List<Action> _preQueue = new();
 
         protected readonly IExecutor Executor;
         private ExecutionState _started = ExecutionState.Created;

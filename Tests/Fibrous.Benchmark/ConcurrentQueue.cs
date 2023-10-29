@@ -8,7 +8,7 @@ namespace Fibrous.Benchmark
     public class ConcurrentQueue
     {
         private const int OperationsPerInvoke = 1000000;
-        private readonly ConcurrentQueue<int> _queue = new ConcurrentQueue<int>();
+        private readonly ConcurrentQueue<int> _queue = new();
 
         [IterationSetup]
         public void Setup()

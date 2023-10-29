@@ -10,12 +10,12 @@ namespace Fibrous.Benchmark
     {
         private const int OperationsPerInvoke = 1000000;
         private readonly IEventHub _hub = new EventHub();
-        private readonly AutoResetEvent _wait = new AutoResetEvent(false);
+        private readonly AutoResetEvent _wait = new(false);
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void Fiber()
         {
-            using FiberConsumer consumer = new FiberConsumer(_hub, _wait);
+            using FiberConsumer consumer = new(_hub, _wait);
 
             for (int j = 0; j < OperationsPerInvoke; j++)
             {
@@ -28,7 +28,7 @@ namespace Fibrous.Benchmark
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void AsyncFiber()
         {
-            using AsyncFiberConsumer consumer = new AsyncFiberConsumer(_hub, _wait);
+            using AsyncFiberConsumer consumer = new(_hub, _wait);
 
             for (int j = 0; j < OperationsPerInvoke; j++)
             {

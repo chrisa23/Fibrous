@@ -14,14 +14,14 @@ namespace Example1
             SimpleExample();
             await MoreComplexExample();
             AgentExample();
-            
+            PipelineExample.Run();
         }
 
         private static void ExceptionTest()
         {
-            //Exceptions get lost with AsyncFiber, so use an 
+            //Exceptions get lost with AsyncFiber, so use an
             //exception callback
-            var h = new AsyncFiber();
+            AsyncFiber h = new AsyncFiber();
             for (int i = 0; i < 10; i++)
             {
                 h.Enqueue(() =>
@@ -36,14 +36,14 @@ namespace Example1
 
         private static async Task MoreComplexExample()
         {
-            using var calculator = new Calculator();
+            using Calculator calculator = new Calculator();
             calculator.Messages.Publish(new Message(3, Operation.Add));
             calculator.Messages.Publish(new Message(24, Operation.Add));
             calculator.Messages.Publish(new Message(3, Operation.Divide));
             calculator.Messages.Publish(new Message(1.5, Operation.Multiply));
 
             double result = await calculator.Requests.SendRequestAsync(new object());
-            
+
             Console.WriteLine(result);
             calculator.Messages.Publish(new Message(0, Operation.Divide));
 
@@ -52,12 +52,12 @@ namespace Example1
 
         private static void SimpleExample()
         {
-            using var fiber = new Fiber();
+            using Fiber fiber = new Fiber();
             IChannel<string> channel = fiber.NewChannel<string>(Console.WriteLine);
 
             channel.Publish("Test message");
 
-            var oneSec = TimeSpan.FromSeconds(1);
+            TimeSpan oneSec = TimeSpan.FromSeconds(1);
             fiber.Schedule(() => Console.WriteLine("this was scheduled"), oneSec, oneSec);
 
             Console.ReadKey();
@@ -67,7 +67,7 @@ namespace Example1
         {
             //agents provide thread safety to individual functions.
             //in this case, we want one point for storing to the database that can be shared
-            using var dataAccess = new AsyncAgent<object>(StoreToDatabase, x => { });
+            using AsyncAgent<object> dataAccess = new AsyncAgent<object>(StoreToDatabase, x => { });
 
             object latestData = new object();
 
@@ -87,12 +87,9 @@ namespace Example1
 
     public class Calculator : IDisposable
     {
-        double _current;
-        
-        readonly IFiber _fiber;
-        public IPublisherPort<Message> Messages { get; }
-        public IRequestPort<object, double> Requests { get; }
-        
+        private readonly IFiber _fiber;
+        private double _current;
+
         public Calculator()
         {
             _fiber = new Fiber(OnError);
@@ -100,10 +97,12 @@ namespace Example1
             Requests = _fiber.NewRequestPort<object, double>(OnRequest);
         }
 
-        private void OnRequest(IRequest<object, double> obj)
-        {
-            obj.Reply(_current);
-        }
+        public IPublisherPort<Message> Messages { get; }
+        public IRequestPort<object, double> Requests { get; }
+
+        public void Dispose() => _fiber?.Dispose();
+
+        private void OnRequest(IRequest<object, double> obj) => obj.Reply(_current);
 
         private void OnMessage(Message obj)
         {
@@ -126,27 +125,19 @@ namespace Example1
             }
         }
 
-        private void OnError(Exception obj)
-        {
-            Console.WriteLine(obj);
-        }
-
-        public void Dispose()
-        {
-            _fiber?.Dispose();
-        }
+        private void OnError(Exception obj) => Console.WriteLine(obj);
     }
 
     public class Message
     {
-        public double Value { get; set; }
-        public Operation Operation { get; set; }
-
         public Message(double value, Operation operation)
         {
             Value = value;
             Operation = operation;
         }
+
+        public double Value { get; set; }
+        public Operation Operation { get; set; }
     }
 
     public enum Operation

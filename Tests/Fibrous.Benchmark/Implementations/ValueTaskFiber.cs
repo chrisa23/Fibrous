@@ -55,7 +55,7 @@ namespace Fibrous.Benchmark.Implementations
         private readonly ArrayQueue<Func<ValueTask>> _queue;
         private readonly TaskFactory _taskFactory;
         private bool _flushPending;
-        private SpinLock _spinLock = new SpinLock(false);
+        private SpinLock _spinLock = new(false);
 
         public ValueAsyncFiber(IValueAsyncExecutor executor = null, int size = QueueSize.DefaultQueueSize,
             TaskFactory taskFactory = null, IValueAsyncFiberScheduler scheduler = null)
@@ -215,7 +215,7 @@ namespace Fibrous.Benchmark.Implementations
         {
             if (dueTime.TotalMilliseconds <= 0)
             {
-                ValueAsyncPendingAction pending = new ValueAsyncPendingAction(action);
+                ValueAsyncPendingAction pending = new(action);
                 fiber.Enqueue(pending.Execute);
                 return pending;
             }

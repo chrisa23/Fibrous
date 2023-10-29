@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Fibrous
+namespace Fibrous;
+
+/// <summary>
+///     Abstraction of handling execution.  Allows insertion of exception handling, profiling,
+///     etc.
+/// </summary>
+public interface IAsyncExecutor
 {
-    /// <summary>
-    ///     Abstraction of handling execution.  Allows insertion of exception handling, profiling,
-    ///     etc.
-    /// </summary>
-    public interface IAsyncExecutor
-    {
-        Task ExecuteAsync(Func<Task> toExecute);
-    }
+    Task ExecuteAsync(Func<Task> toExecute);
 }

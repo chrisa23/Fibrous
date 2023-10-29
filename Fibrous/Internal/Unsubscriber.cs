@@ -1,29 +1,28 @@
 using System;
 
-namespace Fibrous
+namespace Fibrous;
+
+internal sealed class Unsubscriber : IDisposable
 {
-    internal sealed class Unsubscriber : IDisposable
+    private readonly IDisposable _disposable;
+    private readonly IDisposableRegistry _disposables;
+    private readonly SingleShotGuard _guard;
+
+    public Unsubscriber(IDisposable disposable, IDisposableRegistry disposables)
     {
-        private readonly IDisposable _disposable;
-        private readonly IDisposableRegistry _disposables;
-        private readonly SingleShotGuard _guard;
+        _disposable = disposable;
+        _disposables = disposables;
+        disposables.Add(_disposable);
+    }
 
-        public Unsubscriber(IDisposable disposable, IDisposableRegistry disposables)
+    public void Dispose()
+    {
+        if (!_guard.Check)
         {
-            _disposable = disposable;
-            _disposables = disposables;
-            disposables.Add(_disposable);
+            return;
         }
 
-        public void Dispose()
-        {
-            if (!_guard.Check)
-            {
-                return;
-            }
-
-            _disposables.Remove(_disposable);
-            _disposable.Dispose();
-        }
+        _disposables.Remove(_disposable);
+        _disposable.Dispose();
     }
 }

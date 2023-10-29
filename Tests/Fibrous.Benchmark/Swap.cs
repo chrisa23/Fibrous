@@ -6,8 +6,8 @@ namespace Fibrous.Benchmark
 {
     public class Swap
     {
-        private List<Action> list1 = new List<Action>();
-        private List<Action> list2 = new List<Action>();
+        private List<Action> list1 = new();
+        private List<Action> list2 = new();
 
         [Benchmark]
         public List<Action> Swap1()

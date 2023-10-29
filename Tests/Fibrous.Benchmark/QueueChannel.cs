@@ -13,7 +13,7 @@ namespace Fibrous.Benchmark
     {
         private const int OperationsPerInvoke = 1_000_000;
         private static readonly Stopwatch _sw = Stopwatch.StartNew();
-        private readonly Random _rnd = new Random();
+        private readonly Random _rnd = new();
         [Params(2, 3, 4, 5)] public int N;
         [Params(0, 1)] public int Wait;
 
@@ -28,7 +28,7 @@ namespace Fibrous.Benchmark
 
         private void RunMult(IFiberFactory factory, Func<IChannel<int>> queueFactory, int count, int wait1)
         {
-            using AutoResetEvent wait = new AutoResetEvent(false);
+            using AutoResetEvent wait = new(false);
             int hCount = 0;
 
             void Handler(int s)
@@ -59,7 +59,7 @@ namespace Fibrous.Benchmark
 
         public void RunMultAsync(IFiberFactory factory, Func<IChannel<int>> queueFactory, int count, int wait1)
         {
-            using AutoResetEvent wait = new AutoResetEvent(false);
+            using AutoResetEvent wait = new(false);
             int hCount = 0;
 
             Task AsyncHandler(int s)

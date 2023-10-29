@@ -1,26 +1,25 @@
 using System;
 
-namespace Fibrous
+namespace Fibrous;
+
+/// <summary>
+///     IExecutor that handles any exceptions thrown with an optional exception callback
+/// </summary>
+public sealed class ExceptionHandlingExecutor : IExecutor
 {
-    /// <summary>
-    ///     IExecutor that handles any exceptions thrown with an optional exception callback
-    /// </summary>
-    public sealed class ExceptionHandlingExecutor : IExecutor
+    private readonly Action<Exception> _callback;
+
+    public ExceptionHandlingExecutor(Action<Exception> callback = null) => _callback = callback;
+
+    public void Execute(Action toExecute)
     {
-        private readonly Action<Exception> _callback;
-
-        public ExceptionHandlingExecutor(Action<Exception> callback = null) => _callback = callback;
-
-        public void Execute(Action toExecute)
+        try
         {
-            try
-            {
-                toExecute();
-            }
-            catch (Exception e)
-            {
-                _callback?.Invoke(e);
-            }
+            toExecute();
+        }
+        catch (Exception e)
+        {
+            _callback?.Invoke(e);
         }
     }
 }

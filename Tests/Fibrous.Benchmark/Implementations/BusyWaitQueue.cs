@@ -10,12 +10,12 @@ namespace Fibrous
     /// </summary>
     public sealed class BusyWaitQueue : IQueue
     {
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
         private readonly int _msBeforeBlockingWait;
         private readonly int _spinsBeforeTimeCheck;
         private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
-        private List<Action> _actions = new List<Action>(1024 * 32);
-        private List<Action> _toPass = new List<Action>(1024 * 32);
+        private List<Action> _actions = new(1024 * 32);
+        private List<Action> _toPass = new(1024 * 32);
 
         /// <summary>
         ///     BusyWaitQueue with custom executor.

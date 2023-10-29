@@ -1,55 +1,54 @@
 using System;
 using System.Collections.Generic;
 
-namespace Fibrous
+namespace Fibrous;
+
+internal sealed class BatchSubscriber<T> : BatchSubscriberBase<T>
 {
-    internal sealed class BatchSubscriber<T> : BatchSubscriberBase<T>
+    private readonly List<T> _batch = new();
+    private readonly Action<T[]> _receive;
+    private bool _pending;
+
+    public BatchSubscriber(ISubscriberPort<T> channel,
+        IFiber fiber,
+        TimeSpan interval,
+        Action<T[]> receive)
+        : base(channel, fiber, interval) =>
+        _receive = receive;
+
+    //This type of batching basically puts a lag on receiving
+    //and doesn't maintain a steady batch rate...
+    //
+    protected override void OnMessage(T msg)
     {
-        private readonly List<T> _batch = new List<T>();
-        private readonly Action<T[]> _receive;
-        private bool _pending;
-
-        public BatchSubscriber(ISubscriberPort<T> channel,
-            IFiber fiber,
-            TimeSpan interval,
-            Action<T[]> receive)
-            : base(channel, fiber, interval) =>
-            _receive = receive;
-
-        //This type of batching basically puts a lag on receiving
-        //and doesn't maintain a steady batch rate...
-        //
-        protected override void OnMessage(T msg)
+        lock (BatchLock)
         {
-            lock (BatchLock)
+            if (!_pending)
             {
-                if (!_pending)
-                {
-                    _pending = true;
-                    Fiber.Schedule(Flush, Interval);
-                }
+                _pending = true;
+                Fiber.Schedule(Flush, Interval);
+            }
 
-                _batch.Add(msg);
+            _batch.Add(msg);
+        }
+    }
+
+    private void Flush()
+    {
+        T[] toFlush = null;
+        lock (BatchLock)
+        {
+            if (_pending)
+            {
+                toFlush = _batch.ToArray();
+                _batch.Clear();
+                _pending = false;
             }
         }
 
-        private void Flush()
+        if (toFlush != null)
         {
-            T[] toFlush = null;
-            lock (BatchLock)
-            {
-                if (_pending)
-                {
-                    toFlush = _batch.ToArray();
-                    _batch.Clear();
-                    _pending = false;
-                }
-            }
-
-            if (toFlush != null)
-            {
-                Fiber.Enqueue(() => _receive(toFlush));
-            }
+            Fiber.Enqueue(() => _receive(toFlush));
         }
     }
 }

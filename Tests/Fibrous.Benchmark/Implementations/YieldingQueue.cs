@@ -9,10 +9,10 @@ namespace Fibrous
     {
         private const int SpinTries = 100;
 
-        private readonly object _syncRoot = new object();
-        private List<Action> _actions = new List<Action>(1024 * 32);
-        private PaddedBoolean _signalled = new PaddedBoolean(false);
-        private List<Action> _toPass = new List<Action>(1024 * 32);
+        private readonly object _syncRoot = new();
+        private List<Action> _actions = new(1024 * 32);
+        private PaddedBoolean _signalled = new(false);
+        private List<Action> _toPass = new(1024 * 32);
 
         public int Count => _actions.Count;
 

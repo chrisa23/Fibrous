@@ -5,7 +5,7 @@ namespace Fibrous
 {
     public static class Queue
     {
-        public static readonly List<Action> Empty = new List<Action>();
+        public static readonly List<Action> Empty = new();
     }
 
 

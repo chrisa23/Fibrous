@@ -10,14 +10,14 @@ namespace Fibrous.Experimental
     /// </summary>
     public sealed class PoolFiber2 : FiberBase_old
     {
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
         private readonly TaskFactory _taskFactory;
 
         private bool _flushPending;
 
         //TODO: make initial list size adjustable...
-        private List<Action> _queue = new List<Action>(1024 * 32);
-        private List<Action> _toPass = new List<Action>(1024 * 32);
+        private List<Action> _queue = new(1024 * 32);
+        private List<Action> _toPass = new(1024 * 32);
 
         public PoolFiber2(IExecutor config, TaskFactory taskFactory)
             : base(config) =>
@@ -124,14 +124,14 @@ namespace Fibrous.Experimental
 
         public static IFiber StartNew()
         {
-            PoolFiber2 pool = new PoolFiber2();
+            PoolFiber2 pool = new();
             pool.Start();
             return pool;
         }
 
         public static IFiber StartNew(IExecutor exec)
         {
-            PoolFiber2 pool = new PoolFiber2(exec);
+            PoolFiber2 pool = new(exec);
             pool.Start();
             return pool;
         }

@@ -2,67 +2,66 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Fibrous
+namespace Fibrous;
+
+internal sealed class AsyncKeyedBatchSubscriber<TKey, T> : AsyncBatchSubscriberBase<T>
 {
-    internal sealed class AsyncKeyedBatchSubscriber<TKey, T> : AsyncBatchSubscriberBase<T>
+    private readonly Converter<T, TKey> _keyResolver;
+    private readonly Func<IDictionary<TKey, T>, Task> _target;
+    private Dictionary<TKey, T> _pending;
+
+    public AsyncKeyedBatchSubscriber(ISubscriberPort<T> channel,
+        IAsyncFiber fiber,
+        TimeSpan interval,
+        Converter<T, TKey> keyResolver,
+        Func<IDictionary<TKey, T>, Task> target)
+        : base(channel, fiber, interval)
     {
-        private readonly Converter<T, TKey> _keyResolver;
-        private readonly Func<IDictionary<TKey, T>, Task> _target;
-        private Dictionary<TKey, T> _pending;
+        _keyResolver = keyResolver;
+        _target = target;
+    }
 
-        public AsyncKeyedBatchSubscriber(ISubscriberPort<T> channel,
-            IAsyncFiber fiber,
-            TimeSpan interval,
-            Converter<T, TKey> keyResolver,
-            Func<IDictionary<TKey, T>, Task> target)
-            : base(channel, fiber, interval)
+    protected override Task OnMessageAsync(T msg)
+    {
+        lock (BatchLock)
         {
-            _keyResolver = keyResolver;
-            _target = target;
-        }
-
-        protected override Task OnMessageAsync(T msg)
-        {
-            lock (BatchLock)
+            TKey key = _keyResolver(msg);
+            if (_pending == null)
             {
-                TKey key = _keyResolver(msg);
-                if (_pending == null)
-                {
-                    _pending = new Dictionary<TKey, T>();
-                    Fiber.Schedule(FlushAsync, Interval);
-                }
-
-                _pending[key] = msg;
+                _pending = new Dictionary<TKey, T>();
+                Fiber.Schedule(FlushAsync, Interval);
             }
 
-            return Task.CompletedTask;
+            _pending[key] = msg;
         }
 
-        private Task FlushAsync()
-        {
-            IDictionary<TKey, T> toReturn = ClearPending();
-            if (toReturn != null)
-            {
-                Fiber.Enqueue(() => _target(toReturn));
-            }
+        return Task.CompletedTask;
+    }
 
-            return Task.CompletedTask;
+    private Task FlushAsync()
+    {
+        IDictionary<TKey, T> toReturn = ClearPending();
+        if (toReturn != null)
+        {
+            Fiber.Enqueue(() => _target(toReturn));
         }
 
-        private IDictionary<TKey, T> ClearPending()
-        {
-            lock (BatchLock)
-            {
-                if (_pending == null || _pending.Count == 0)
-                {
-                    _pending = null;
-                    return null;
-                }
+        return Task.CompletedTask;
+    }
 
-                IDictionary<TKey, T> toReturn = _pending;
+    private IDictionary<TKey, T> ClearPending()
+    {
+        lock (BatchLock)
+        {
+            if (_pending == null || _pending.Count == 0)
+            {
                 _pending = null;
-                return toReturn;
+                return null;
             }
+
+            IDictionary<TKey, T> toReturn = _pending;
+            _pending = null;
+            return toReturn;
         }
     }
 }

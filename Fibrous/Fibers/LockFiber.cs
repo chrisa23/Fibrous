@@ -2,84 +2,83 @@
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace Fibrous
+namespace Fibrous;
+
+public class LockFiber : FiberBase
 {
-    public class LockFiber : FiberBase
+    private readonly Action _flushCache;
+    private readonly object _lock = new();
+    private readonly ArrayQueue<Action> _queue;
+    private readonly TaskFactory _taskFactory;
+    private bool _flushPending;
+
+    public LockFiber(IExecutor executor = null, int size = QueueSize.DefaultQueueSize,
+        TaskFactory taskFactory = null, IFiberScheduler scheduler = null)
+        : base(executor, scheduler)
     {
-        private readonly Action _flushCache;
-        private readonly object _lock = new object();
-        private readonly ArrayQueue<Action> _queue;
-        private readonly TaskFactory _taskFactory;
-        private bool _flushPending;
+        _queue = new ArrayQueue<Action>(size);
+        _taskFactory = taskFactory ??
+                       new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None);
+        _flushCache = Flush;
+    }
 
-        public LockFiber(IExecutor executor = null, int size = QueueSize.DefaultQueueSize,
-            TaskFactory taskFactory = null, IFiberScheduler scheduler = null)
-            : base(executor, scheduler)
+    public LockFiber(Action<Exception> errorCallback, int size = QueueSize.DefaultQueueSize,
+        TaskFactory taskFactory = null, IFiberScheduler scheduler = null)
+        : this(new ExceptionHandlingExecutor(errorCallback), size, taskFactory, scheduler)
+    {
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected override void InternalEnqueue(Action action)
+    {
+        AggressiveSpinWait spinWait = default;
+        while (_queue.IsFull)
         {
-            _queue = new ArrayQueue<Action>(size);
-            _taskFactory = taskFactory ??
-                           new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None);
-            _flushCache = Flush;
+            spinWait.SpinOnce();
         }
 
-        public LockFiber(Action<Exception> errorCallback, int size = QueueSize.DefaultQueueSize,
-            TaskFactory taskFactory = null, IFiberScheduler scheduler = null)
-            : this(new ExceptionHandlingExecutor(errorCallback), size, taskFactory, scheduler)
+        lock (_lock)
         {
-        }
+            _queue.Enqueue(action);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override void InternalEnqueue(Action action)
-        {
-            AggressiveSpinWait spinWait = default;
-            while (_queue.IsFull)
+            if (_flushPending)
             {
-                spinWait.SpinOnce();
+                return;
             }
 
-            lock (_lock)
+            _flushPending = true;
+            _ = _taskFactory.StartNew(_flushCache);
+        }
+    }
+
+    private void Flush()
+    {
+        (int count, Action[] actions) = Drain();
+
+        for (int i = 0; i < count; i++)
+        {
+            Executor.Execute(actions[i]);
+        }
+
+        lock (_lock)
+        {
+            if (_queue.Count > 0)
             {
-                _queue.Enqueue(action);
-
-                if (_flushPending)
-                {
-                    return;
-                }
-
-                _flushPending = true;
                 _ = _taskFactory.StartNew(_flushCache);
             }
-        }
-
-        private void Flush()
-        {
-            (int count, Action[] actions) = Drain();
-
-            for (int i = 0; i < count; i++)
+            else
             {
-                Executor.Execute(actions[i]);
-            }
-
-            lock (_lock)
-            {
-                if (_queue.Count > 0)
-                {
-                    _ = _taskFactory.StartNew(_flushCache);
-                }
-                else
-                {
-                    _flushPending = false;
-                }
+                _flushPending = false;
             }
         }
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private (int, Action[]) Drain()
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private (int, Action[]) Drain()
+    {
+        lock (_lock)
         {
-            lock (_lock)
-            {
-                return _queue.Drain();
-            }
+            return _queue.Drain();
         }
     }
 }

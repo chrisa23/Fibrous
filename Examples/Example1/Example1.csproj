@@ -2,17 +2,18 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>default</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Properties\**" />
-    <EmbeddedResource Remove="Properties\**" />
-    <None Remove="Properties\**" />
+    <Compile Remove="Properties\**"/>
+    <EmbeddedResource Remove="Properties\**"/>
+    <None Remove="Properties\**"/>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Fibrous\Fibrous.csproj" />
+    <ProjectReference Include="..\..\Fibrous\Fibrous.csproj"/>
   </ItemGroup>
 
 </Project>

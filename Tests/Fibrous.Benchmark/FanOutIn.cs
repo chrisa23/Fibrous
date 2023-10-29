@@ -19,7 +19,7 @@ namespace Fibrous.Benchmark
             using IChannel<string> _queue = new QueueChannel<string>();
             using IChannel<string> _output = new Channel<string>();
             int count = 0;
-            using AutoResetEvent reset = new AutoResetEvent(false);
+            using AutoResetEvent reset = new(false);
 
             void Handler1(string x)
             {
@@ -43,10 +43,10 @@ namespace Fibrous.Benchmark
             }
 
 
-            using ChannelAgent<string> fiber = new ChannelAgent<string>(factory, _input, Handler1);
+            using ChannelAgent<string> fiber = new(factory, _input, Handler1);
             IDisposable[] middle = Enumerable.Range(0, 4)
                 .Select(x => new ChannelAgent<string>(factory, _queue, Handler)).ToArray();
-            using ChannelAgent<string> fiberOut = new ChannelAgent<string>(factory, _output, Action);
+            using ChannelAgent<string> fiberOut = new(factory, _output, Action);
 
             for (int i = 0; i < OperationsPerInvoke; i++)
             {
@@ -66,7 +66,7 @@ namespace Fibrous.Benchmark
             using IChannel<string> _queue = new QueueChannel<string>();
             using IChannel<string> _output = new Channel<string>();
             int count = 0;
-            using AutoResetEvent reset = new AutoResetEvent(false);
+            using AutoResetEvent reset = new(false);
 
             Task Handler1(string x)
             {
@@ -97,10 +97,10 @@ namespace Fibrous.Benchmark
             {
             }
 
-            using AsyncChannelAgent<string> fiber = new AsyncChannelAgent<string>(factory, _input, Handler1, Error);
+            using AsyncChannelAgent<string> fiber = new(factory, _input, Handler1, Error);
             IDisposable[] middle = Enumerable.Range(0, 4)
                 .Select(x => new AsyncChannelAgent<string>(factory, _queue, Handler, Error)).ToArray();
-            using AsyncChannelAgent<string> fiberOut = new AsyncChannelAgent<string>(factory, _output, Action, Error);
+            using AsyncChannelAgent<string> fiberOut = new(factory, _output, Action, Error);
 
             for (int i = 0; i < OperationsPerInvoke; i++)
             {

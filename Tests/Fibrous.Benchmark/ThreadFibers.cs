@@ -5,7 +5,7 @@ namespace Fibrous.Benchmark
 {
     public class ThreadFibers
     {
-        private readonly AutoResetEvent _wait = new AutoResetEvent(false);
+        private readonly AutoResetEvent _wait = new(false);
         private FiberBase_old _sleep;
         private FiberBase_old _spin;
         private FiberBase_old _yield;

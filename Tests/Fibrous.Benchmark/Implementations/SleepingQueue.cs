@@ -9,11 +9,11 @@ namespace Fibrous
     public sealed class SleepingQueue : IQueue
     {
         private readonly Stopwatch _sw = Stopwatch.StartNew();
-        private readonly object _syncRoot = new object();
+        private readonly object _syncRoot = new();
         private readonly TimeSpan _timeout = TimeSpan.FromMilliseconds(100);
-        private List<Action> _actions = new List<Action>(1024 * 32);
-        private PaddedBoolean _signalled = new PaddedBoolean(false);
-        private List<Action> _toPass = new List<Action>(1024 * 32);
+        private List<Action> _actions = new(1024 * 32);
+        private PaddedBoolean _signalled = new(false);
+        private List<Action> _toPass = new(1024 * 32);
 
         public int Count => _actions.Count;
 
@@ -41,7 +41,7 @@ namespace Fibrous
 
         public void Wait()
         {
-            SpinWait spin = new SpinWait();
+            SpinWait spin = new();
             _sw.Restart();
             while (!_signalled.Value) // volatile read
             {

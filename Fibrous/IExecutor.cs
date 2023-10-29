@@ -1,13 +1,12 @@
 using System;
 
-namespace Fibrous
+namespace Fibrous;
+
+/// <summary>
+///     Abstraction of handling execution.  Allows insertion of exception handling, profiling,
+///     etc.
+/// </summary>
+public interface IExecutor
 {
-    /// <summary>
-    ///     Abstraction of handling execution.  Allows insertion of exception handling, profiling,
-    ///     etc.
-    /// </summary>
-    public interface IExecutor
-    {
-        void Execute(Action toExecute);
-    }
+    void Execute(Action toExecute);
 }

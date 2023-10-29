@@ -15,9 +15,9 @@ namespace Fibrous.Benchmark
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void Lock()
         {
-            using AutoResetEvent reset = new AutoResetEvent(false);
-            var observer = new TestObserver(reset, OperationsPerInvoke);
-            var subject = new Subject<long>();
+            using AutoResetEvent reset = new(false);
+            TestObserver observer = new TestObserver(reset, OperationsPerInvoke);
+            Subject<long> subject = new Subject<long>();
             using IDisposable dispose = subject.Subscribe(observer);
 
             for (int i = 0; i < OperationsPerInvoke; i++)
@@ -31,10 +31,10 @@ namespace Fibrous.Benchmark
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void Wrapper()
         {
-            using AutoResetEvent reset = new AutoResetEvent(false);
+            using AutoResetEvent reset = new(false);
             using IFiber fiber = new Fiber();
-            var observer = new WrappedObserver(reset, OperationsPerInvoke);
-            var subject = new Subject<long>();
+            WrappedObserver observer = new WrappedObserver(reset, OperationsPerInvoke);
+            Subject<long> subject = new Subject<long>();
             using IDisposable dispose = subject.Subscribe(fiber, observer);
 
             for (int i = 0; i < OperationsPerInvoke; i++)
@@ -49,10 +49,10 @@ namespace Fibrous.Benchmark
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void WrapperLock()
         {
-            using AutoResetEvent reset = new AutoResetEvent(false);
+            using AutoResetEvent reset = new(false);
             using IFiber fiber = new LockFiber();
-            var observer = new WrappedObserver(reset, OperationsPerInvoke);
-            var subject = new Subject<long>();
+            WrappedObserver observer = new WrappedObserver(reset, OperationsPerInvoke);
+            Subject<long> subject = new Subject<long>();
             using IDisposable dispose = subject.Subscribe(fiber, observer);
 
             for (int i = 0; i < OperationsPerInvoke; i++)
@@ -84,7 +84,9 @@ namespace Fibrous.Benchmark
             }
         }
 
-        protected override void HandleCompleted() { }
+        protected override void HandleCompleted()
+        {
+        }
 
         protected override void HandleError(Exception exception)
         {
@@ -103,9 +105,13 @@ namespace Fibrous.Benchmark
             _count = count;
         }
 
-        public void OnCompleted(){}
+        public void OnCompleted()
+        {
+        }
 
-        public void OnError(Exception error)  { }
+        public void OnError(Exception error)
+        {
+        }
 
         public void OnNext(long value)
         {

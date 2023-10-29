@@ -1,51 +1,50 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Fibrous
+namespace Fibrous;
+
+internal sealed class AsyncLastSubscriber<T> : AsyncBatchSubscriberBase<T>
 {
-    internal sealed class AsyncLastSubscriber<T> : AsyncBatchSubscriberBase<T>
+    private readonly Func<T, Task> _target;
+    private bool _flushPending;
+    private T _pending;
+
+    public AsyncLastSubscriber(ISubscriberPort<T> channel,
+        IAsyncFiber fiber,
+        TimeSpan interval,
+        Func<T, Task> target)
+        : base(channel, fiber, interval) =>
+        _target = target;
+
+    protected override Task OnMessageAsync(T msg)
     {
-        private readonly Func<T, Task> _target;
-        private bool _flushPending;
-        private T _pending;
-
-        public AsyncLastSubscriber(ISubscriberPort<T> channel,
-            IAsyncFiber fiber,
-            TimeSpan interval,
-            Func<T, Task> target)
-            : base(channel, fiber, interval) =>
-            _target = target;
-
-        protected override Task OnMessageAsync(T msg)
+        lock (BatchLock)
         {
-            lock (BatchLock)
+            if (!_flushPending)
             {
-                if (!_flushPending)
-                {
-                    Fiber.Schedule(FlushAsync, Interval);
-                    _flushPending = true;
-                }
-
-                _pending = msg;
+                Fiber.Schedule(FlushAsync, Interval);
+                _flushPending = true;
             }
 
-            return Task.CompletedTask;
+            _pending = msg;
         }
 
-        private Task FlushAsync()
-        {
-            T toReturn = ClearPending();
-            Fiber.Enqueue(() => _target(toReturn));
-            return Task.CompletedTask;
-        }
+        return Task.CompletedTask;
+    }
 
-        private T ClearPending()
+    private Task FlushAsync()
+    {
+        T toReturn = ClearPending();
+        Fiber.Enqueue(() => _target(toReturn));
+        return Task.CompletedTask;
+    }
+
+    private T ClearPending()
+    {
+        lock (BatchLock)
         {
-            lock (BatchLock)
-            {
-                _flushPending = false;
-                return _pending;
-            }
+            _flushPending = false;
+            return _pending;
         }
     }
 }

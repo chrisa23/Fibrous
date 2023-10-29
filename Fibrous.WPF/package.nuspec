@@ -12,15 +12,15 @@
     <copyright>Copyright ©2021 CA Anderson LLC</copyright>
     <tags>concurrency actors multi-threading messaging WPF</tags>
     <dependencies>
-      <dependency id="Fibrous" version="5.0.0" />
+      <dependency id="Fibrous" version="5.0.0"/>
     </dependencies>
   </metadata>
   <files>
-    <file src=".\bin\Release\net462\Fibrous.WPF.dll" target="lib/net462" />
-    <file src=".\bin\Release\net462\Fibrous.WPF.pdb" target="lib/net462" />
-    <file src=".\bin\Release\netcoreapp3.1\Fibrous.WPF.dll" target="lib/netcoreapp3.1" />
-    <file src=".\bin\Release\netcoreapp3.1\Fibrous.WPF.pdb" target="lib/netcoreapp3.1" />
-    <file src=".\bin\Release\net5.0-windows\Fibrous.WPF.dll" target="lib/net5.0" />
-    <file src=".\bin\Release\net5.0-windows\Fibrous.WPF.pdb" target="lib/net5.0" />
+    <file src=".\bin\Release\net462\Fibrous.WPF.dll" target="lib/net462"/>
+    <file src=".\bin\Release\net462\Fibrous.WPF.pdb" target="lib/net462"/>
+    <file src=".\bin\Release\netcoreapp3.1\Fibrous.WPF.dll" target="lib/netcoreapp3.1"/>
+    <file src=".\bin\Release\netcoreapp3.1\Fibrous.WPF.pdb" target="lib/netcoreapp3.1"/>
+    <file src=".\bin\Release\net5.0-windows\Fibrous.WPF.dll" target="lib/net5.0"/>
+    <file src=".\bin\Release\net5.0-windows\Fibrous.WPF.pdb" target="lib/net5.0"/>
   </files>
 </package>

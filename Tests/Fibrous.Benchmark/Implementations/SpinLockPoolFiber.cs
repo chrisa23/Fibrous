@@ -9,9 +9,9 @@ namespace Fibrous.Experimental
     {
         private readonly TaskFactory _taskFactory;
         private bool _flushPending;
-        private List<Action> _queue = new List<Action>(1024 * 32);
-        private SpinLock _spinLock = new SpinLock(false);
-        private List<Action> _toPass = new List<Action>(1024 * 32);
+        private List<Action> _queue = new(1024 * 32);
+        private SpinLock _spinLock = new(false);
+        private List<Action> _toPass = new(1024 * 32);
 
         public SpinLockPoolFiber(IExecutor config, TaskFactory taskFactory)
             : base(config) =>

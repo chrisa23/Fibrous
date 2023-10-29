@@ -1,23 +1,22 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Fibrous
-{
-    internal sealed class AsyncTimerScheduler : IAsyncFiberScheduler
-    {
-        public IDisposable Schedule(IAsyncFiber fiber, Func<Task> action, TimeSpan dueTime)
-        {
-            if (dueTime.TotalMilliseconds <= 0)
-            {
-                AsyncPendingAction pending = new AsyncPendingAction(action);
-                fiber.Enqueue(pending.ExecuteAsync);
-                return pending;
-            }
+namespace Fibrous;
 
-            return new AsyncTimerAction(fiber, action, dueTime);
+internal sealed class AsyncTimerScheduler : IAsyncFiberScheduler
+{
+    public IDisposable Schedule(IAsyncFiber fiber, Func<Task> action, TimeSpan dueTime)
+    {
+        if (dueTime.TotalMilliseconds <= 0)
+        {
+            AsyncPendingAction pending = new(action);
+            fiber.Enqueue(pending.ExecuteAsync);
+            return pending;
         }
 
-        public IDisposable Schedule(IAsyncFiber fiber, Func<Task> action, TimeSpan dueTime, TimeSpan interval) =>
-            new AsyncTimerAction(fiber, action, dueTime, interval);
+        return new AsyncTimerAction(fiber, action, dueTime);
     }
+
+    public IDisposable Schedule(IAsyncFiber fiber, Func<Task> action, TimeSpan dueTime, TimeSpan interval) =>
+        new AsyncTimerAction(fiber, action, dueTime, interval);
 }

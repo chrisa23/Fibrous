@@ -10,7 +10,7 @@ namespace Fibrous.Benchmark
     {
         private const int OperationsPerInvoke = 1000000;
         private readonly IChannel<object> _channel = new Channel<object>();
-        private readonly AutoResetEvent _wait = new AutoResetEvent(false);
+        private readonly AutoResetEvent _wait = new(false);
         private int i;
 
         private void Handler(object obj)

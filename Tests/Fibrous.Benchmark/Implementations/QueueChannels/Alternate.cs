@@ -13,17 +13,17 @@ namespace Fibrous.Benchmark.Implementations.QueueChannels
     /// <typeparam name="TMsg"></typeparam>
     public sealed class QueueChannel2<TMsg> : IChannel<TMsg>
     {
-        private readonly ConcurrentQueue<TMsg> _queue = new ConcurrentQueue<TMsg>();
+        private readonly ConcurrentQueue<TMsg> _queue = new();
 
         public IDisposable Subscribe(IFiber fiber, Action<TMsg> onMessage)
         {
-            QueueConsumer queueConsumer = new QueueConsumer(fiber, onMessage, this);
+            QueueConsumer queueConsumer = new(fiber, onMessage, this);
             return new Unsubscriber(queueConsumer, fiber);
         }
 
         public IDisposable Subscribe(IAsyncFiber fiber, Func<TMsg, Task> receive)
         {
-            AsyncQueueConsumer asyncQueueConsumer = new AsyncQueueConsumer(fiber, receive, this);
+            AsyncQueueConsumer asyncQueueConsumer = new(fiber, receive, this);
             return new Unsubscriber(asyncQueueConsumer, fiber);
         }
 
@@ -136,14 +136,14 @@ namespace Fibrous.Benchmark.Implementations.QueueChannels
 
     public sealed class QueueChannelRR<TMsg> : IChannel<TMsg>
     {
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
         private long _index = -1;
         private long _subCount;
         private IQueueSubscriber[] _subscribers = new IQueueSubscriber[0];
 
         public IDisposable Subscribe(IFiber fiber, Action<TMsg> onMessage)
         {
-            QueueConsumer queueConsumer = new QueueConsumer(fiber, onMessage, this);
+            QueueConsumer queueConsumer = new(fiber, onMessage, this);
             lock (_lock)
             {
                 _subscribers = _subscribers.Append(queueConsumer).ToArray();
@@ -155,7 +155,7 @@ namespace Fibrous.Benchmark.Implementations.QueueChannels
 
         public IDisposable Subscribe(IAsyncFiber fiber, Func<TMsg, Task> receive)
         {
-            AsyncQueueConsumer asyncQueueConsumer = new AsyncQueueConsumer(fiber, receive, this);
+            AsyncQueueConsumer asyncQueueConsumer = new(fiber, receive, this);
             lock (_lock)
             {
                 _subscribers = _subscribers.Append(asyncQueueConsumer).ToArray();
@@ -253,15 +253,15 @@ namespace Fibrous.Benchmark.Implementations.QueueChannels
 
     public sealed class QueueChannelRR2<TMsg> : IChannel<TMsg>
     {
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
+        private readonly ConcurrentQueue<TMsg> _queue = new();
         private long _index = -1;
-        private readonly ConcurrentQueue<TMsg> _queue = new ConcurrentQueue<TMsg>();
         private long _subCount;
         private IQueueSubscriber[] _subscribers = new IQueueSubscriber[0];
 
         public IDisposable Subscribe(IFiber fiber, Action<TMsg> onMessage)
         {
-            QueueConsumer queueConsumer = new QueueConsumer(fiber, onMessage, this);
+            QueueConsumer queueConsumer = new(fiber, onMessage, this);
             lock (_lock)
             {
                 _subscribers = _subscribers.Append(queueConsumer).ToArray();
@@ -273,7 +273,7 @@ namespace Fibrous.Benchmark.Implementations.QueueChannels
 
         public IDisposable Subscribe(IAsyncFiber fiber, Func<TMsg, Task> receive)
         {
-            AsyncQueueConsumer asyncQueueConsumer = new AsyncQueueConsumer(fiber, receive, this);
+            AsyncQueueConsumer asyncQueueConsumer = new(fiber, receive, this);
             lock (_lock)
             {
                 _subscribers = _subscribers.Append(asyncQueueConsumer).ToArray();
@@ -422,9 +422,9 @@ namespace Fibrous.Benchmark.Implementations.QueueChannels
 
     public sealed class QueueChannelRR3<TMsg> : IChannel<TMsg>
     {
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
+        private readonly ConcurrentQueue<TMsg> _queue = new();
         private long _index = -1;
-        private readonly ConcurrentQueue<TMsg> _queue = new ConcurrentQueue<TMsg>();
         private long _subCount;
         private IQueueSubscriber[] _subscribers = new IQueueSubscriber[0];
 
@@ -432,7 +432,7 @@ namespace Fibrous.Benchmark.Implementations.QueueChannels
 
         public IDisposable Subscribe(IFiber fiber, Action<TMsg> onMessage)
         {
-            QueueConsumer queueConsumer = new QueueConsumer(fiber, onMessage, this);
+            QueueConsumer queueConsumer = new(fiber, onMessage, this);
             lock (_lock)
             {
                 _subscribers = _subscribers.Append(queueConsumer).ToArray();
@@ -444,7 +444,7 @@ namespace Fibrous.Benchmark.Implementations.QueueChannels
 
         public IDisposable Subscribe(IAsyncFiber fiber, Func<TMsg, Task> receive)
         {
-            AsyncQueueConsumer asyncQueueConsumer = new AsyncQueueConsumer(fiber, receive, this);
+            AsyncQueueConsumer asyncQueueConsumer = new(fiber, receive, this);
             lock (_lock)
             {
                 _subscribers = _subscribers.Append(asyncQueueConsumer).ToArray();
@@ -608,8 +608,8 @@ namespace Fibrous.Benchmark.Implementations.QueueChannels
     /// <typeparam name="TMsg"></typeparam>
     public sealed class QueueChannel3<TMsg> : IChannel<TMsg>
     {
-        private readonly object _lock = new object();
-        private readonly ConcurrentQueue<TMsg> _queue = new ConcurrentQueue<TMsg>();
+        private readonly object _lock = new();
+        private readonly ConcurrentQueue<TMsg> _queue = new();
 
         private long _index = -1;
         private long _subCount;
@@ -617,7 +617,7 @@ namespace Fibrous.Benchmark.Implementations.QueueChannels
 
         public IDisposable Subscribe(IFiber fiber, Action<TMsg> onMessage)
         {
-            QueueConsumer queueConsumer = new QueueConsumer(fiber, onMessage, this);
+            QueueConsumer queueConsumer = new(fiber, onMessage, this);
             lock (_lock)
             {
                 _subscribers = _subscribers.Append(queueConsumer).ToArray();
@@ -629,7 +629,7 @@ namespace Fibrous.Benchmark.Implementations.QueueChannels
 
         public IDisposable Subscribe(IAsyncFiber fiber, Func<TMsg, Task> receive)
         {
-            AsyncQueueConsumer asyncQueueConsumer = new AsyncQueueConsumer(fiber, receive, this);
+            AsyncQueueConsumer asyncQueueConsumer = new(fiber, receive, this);
             lock (_lock)
             {
                 _subscribers = _subscribers.Append(asyncQueueConsumer).ToArray();

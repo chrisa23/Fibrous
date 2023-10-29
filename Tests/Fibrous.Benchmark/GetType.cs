@@ -6,7 +6,7 @@ namespace Fibrous.Benchmark
     [MemoryDiagnoser]
     public class GetType
     {
-        private readonly MyType _msg = new MyType();
+        private readonly MyType _msg = new();
 
         [Benchmark]
         public Type TypeOf() => typeof(MyType);

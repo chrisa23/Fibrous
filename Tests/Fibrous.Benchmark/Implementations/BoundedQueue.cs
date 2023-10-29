@@ -10,11 +10,11 @@ namespace Fibrous
     /// </summary>
     public sealed class BoundedQueue : IQueue
     {
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
         private readonly int _maxDepth;
         private readonly int _maxWaitTime;
-        private List<Action> _actions = new List<Action>(1024);
-        private List<Action> _toPass = new List<Action>(1024);
+        private List<Action> _actions = new(1024);
+        private List<Action> _toPass = new(1024);
 
         public BoundedQueue(int depth, int maxWaitTime = int.MaxValue)
         {

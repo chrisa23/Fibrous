@@ -9,9 +9,9 @@ namespace Fibrous
     /// </summary>
     public class BlockingQueue : IQueue
     {
-        private readonly object _lock = new object();
-        private List<Action> _actions = new List<Action>(1024);
-        private List<Action> _toPass = new List<Action>(1024);
+        private readonly object _lock = new();
+        private List<Action> _actions = new(1024);
+        private List<Action> _toPass = new(1024);
 
         /// <summary>
         ///     Enqueue action.

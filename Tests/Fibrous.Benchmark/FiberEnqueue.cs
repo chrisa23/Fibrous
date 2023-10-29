@@ -13,7 +13,7 @@ namespace Fibrous.Benchmark
 
         public void Run(IFiber fiber)
         {
-            using AutoResetEvent wait = new AutoResetEvent(false);
+            using AutoResetEvent wait = new(false);
             using (fiber)
             {
                 int i = 0;
@@ -38,7 +38,7 @@ namespace Fibrous.Benchmark
 
         public void Run(IAsyncFiber fiber)
         {
-            using AutoResetEvent wait = new AutoResetEvent(false);
+            using AutoResetEvent wait = new(false);
             using (fiber)
             {
                 int i = 0;
@@ -65,7 +65,7 @@ namespace Fibrous.Benchmark
 
         public void Run(IValueAsyncFiber fiber)
         {
-            using AutoResetEvent wait = new AutoResetEvent(false);
+            using AutoResetEvent wait = new(false);
             using (fiber)
             {
                 int i = 0;
@@ -93,7 +93,7 @@ namespace Fibrous.Benchmark
         //0 allocations when caching the handler to Action
         public void Run2(IFiber fiber)
         {
-            using AutoResetEvent wait = new AutoResetEvent(false);
+            using AutoResetEvent wait = new(false);
             using (fiber)
             {
                 int i = 0;
@@ -117,7 +117,7 @@ namespace Fibrous.Benchmark
         //0 allocations when caching the handler to Action
         public void Run2(IAsyncFiber fiber)
         {
-            using AutoResetEvent wait = new AutoResetEvent(false);
+            using AutoResetEvent wait = new(false);
             using (fiber)
             {
                 int i = 0;

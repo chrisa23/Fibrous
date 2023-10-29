@@ -4,207 +4,206 @@ using System.Threading.Tasks;
 using Fibrous.Collections;
 using NUnit.Framework;
 
-namespace Fibrous.Tests
+namespace Fibrous.Tests;
+
+[TestFixture]
+public class CollectionTests
 {
-    [TestFixture]
-    public class CollectionTests
+    [Test]
+    public async Task FiberCollectionTest1()
     {
-        [Test]
-        public async Task FiberCollectionTest1()
-        {
-            int[] snapshot = null;
-            List<int> list = new List<int>();
-            using FiberCollection<int> collection = new FiberCollection<int>();
-            using AutoResetEvent reset = new AutoResetEvent(false);
-            using Fiber receive = new Fiber();
-            collection.Add(1);
-            collection.Add(2);
-            collection.Subscribe(receive,
-                action =>
+        int[] snapshot = null;
+        List<int> list = new();
+        using FiberCollection<int> collection = new();
+        using AutoResetEvent reset = new(false);
+        using Fiber receive = new();
+        collection.Add(1);
+        collection.Add(2);
+        collection.Subscribe(receive,
+            action =>
+            {
+                if (action.ActionType == ActionType.Add)
                 {
-                    if (action.ActionType == ActionType.Add)
-                    {
-                        list.Add(action.Items[0]);
-                    }
-                    else
-                    {
-                        list.Remove(action.Items[0]);
-                    }
-
-                    reset.Set();
-                },
-                ints =>
+                    list.Add(action.Items[0]);
+                }
+                else
                 {
-                    snapshot = ints;
-                    reset.Set();
-                });
+                    list.Remove(action.Items[0]);
+                }
 
-            Assert.IsTrue(reset.WaitOne(1000));
+                reset.Set();
+            },
+            ints =>
+            {
+                snapshot = ints;
+                reset.Set();
+            });
 
-            Assert.AreEqual(2, snapshot.Length);
-            Assert.AreEqual(1, snapshot[0]);
-            Assert.AreEqual(2, snapshot[1]);
-            Assert.AreEqual(0, list.Count);
+        Assert.IsTrue(reset.WaitOne(1000));
 
-            collection.Add(3);
-            Assert.IsTrue(reset.WaitOne(1000));
+        Assert.AreEqual(2, snapshot.Length);
+        Assert.AreEqual(1, snapshot[0]);
+        Assert.AreEqual(2, snapshot[1]);
+        Assert.AreEqual(0, list.Count);
 
-            Assert.AreEqual(1, list.Count);
+        collection.Add(3);
+        Assert.IsTrue(reset.WaitOne(1000));
 
-            collection.Remove(3);
-            Assert.IsTrue(reset.WaitOne(1000));
+        Assert.AreEqual(1, list.Count);
 
-            Assert.AreEqual(0, list.Count);
+        collection.Remove(3);
+        Assert.IsTrue(reset.WaitOne(1000));
 
-            int[] items = await collection.GetItemsAsync(x => true);
-            Assert.AreEqual(2, items.Length);
-        }
+        Assert.AreEqual(0, list.Count);
 
-        [Test]
-        public async Task KeyCollectionTest1()
-        {
-            int[] snapshot = null;
-            List<int> list = new List<int>();
-            using FiberKeyedCollection<int, int> collection = new FiberKeyedCollection<int, int>(x => x);
-            using AutoResetEvent reset = new AutoResetEvent(false);
-            using Fiber receive = new Fiber();
-            collection.Add(1);
-            collection.Add(2);
-            collection.Subscribe(receive,
-                action =>
+        int[] items = await collection.GetItemsAsync(x => true);
+        Assert.AreEqual(2, items.Length);
+    }
+
+    [Test]
+    public async Task KeyCollectionTest1()
+    {
+        int[] snapshot = null;
+        List<int> list = new();
+        using FiberKeyedCollection<int, int> collection = new(x => x);
+        using AutoResetEvent reset = new(false);
+        using Fiber receive = new();
+        collection.Add(1);
+        collection.Add(2);
+        collection.Subscribe(receive,
+            action =>
+            {
+                if (action.ActionType == ActionType.Add)
                 {
-                    if (action.ActionType == ActionType.Add)
-                    {
-                        list.Add(action.Items[0]);
-                    }
-                    else
-                    {
-                        list.Remove(action.Items[0]);
-                    }
-
-                    reset.Set();
-                },
-                ints =>
+                    list.Add(action.Items[0]);
+                }
+                else
                 {
-                    snapshot = ints;
-                    reset.Set();
-                });
+                    list.Remove(action.Items[0]);
+                }
 
-            Assert.IsTrue(reset.WaitOne(1000));
+                reset.Set();
+            },
+            ints =>
+            {
+                snapshot = ints;
+                reset.Set();
+            });
 
-            Assert.AreEqual(2, snapshot.Length);
-            Assert.AreEqual(1, snapshot[0]);
-            Assert.AreEqual(2, snapshot[1]);
-            Assert.AreEqual(0, list.Count);
+        Assert.IsTrue(reset.WaitOne(1000));
 
-            collection.Add(3);
-            Assert.IsTrue(reset.WaitOne(1000));
+        Assert.AreEqual(2, snapshot.Length);
+        Assert.AreEqual(1, snapshot[0]);
+        Assert.AreEqual(2, snapshot[1]);
+        Assert.AreEqual(0, list.Count);
 
-            Assert.AreEqual(1, list.Count);
+        collection.Add(3);
+        Assert.IsTrue(reset.WaitOne(1000));
 
-            collection.Remove(3);
-            Assert.IsTrue(reset.WaitOne(1000));
+        Assert.AreEqual(1, list.Count);
 
-            Assert.AreEqual(0, list.Count);
+        collection.Remove(3);
+        Assert.IsTrue(reset.WaitOne(1000));
 
-            int[] items = await collection.GetItemsAsync(x => true);
-            Assert.AreEqual(2, items.Length);
-        }
+        Assert.AreEqual(0, list.Count);
 
-        [Test]
-        public async Task DictionaryCollectionTest1()
-        {
-            KeyValuePair<int, int>[] snapshot = null;
-            List<KeyValuePair<int, int>> list = new List<KeyValuePair<int, int>>();
-            using FiberDictionary<int, int> collection = new FiberDictionary<int, int>();
-            using AutoResetEvent reset = new AutoResetEvent(false);
-            using Fiber receive = new Fiber();
-            collection.Add(1, 1);
-            collection.Add(2, 2);
-            collection.Subscribe(receive,
-                action =>
+        int[] items = await collection.GetItemsAsync(x => true);
+        Assert.AreEqual(2, items.Length);
+    }
+
+    [Test]
+    public async Task DictionaryCollectionTest1()
+    {
+        KeyValuePair<int, int>[] snapshot = null;
+        List<KeyValuePair<int, int>> list = new();
+        using FiberDictionary<int, int> collection = new();
+        using AutoResetEvent reset = new(false);
+        using Fiber receive = new();
+        collection.Add(1, 1);
+        collection.Add(2, 2);
+        collection.Subscribe(receive,
+            action =>
+            {
+                if (action.ActionType == ActionType.Add)
                 {
-                    if (action.ActionType == ActionType.Add)
-                    {
-                        list.Add(action.Items[0]);
-                    }
-                    else
-                    {
-                        list.Remove(action.Items[0]);
-                    }
-
-                    reset.Set();
-                },
-                ints =>
+                    list.Add(action.Items[0]);
+                }
+                else
                 {
-                    snapshot = ints;
-                    reset.Set();
-                });
+                    list.Remove(action.Items[0]);
+                }
 
-            Assert.IsTrue(reset.WaitOne(2000));
+                reset.Set();
+            },
+            ints =>
+            {
+                snapshot = ints;
+                reset.Set();
+            });
 
-            Assert.AreEqual(2, snapshot.Length);
-            Assert.AreEqual(1, snapshot[0].Key);
-            Assert.AreEqual(2, snapshot[1].Key);
-            Assert.AreEqual(0, list.Count);
+        Assert.IsTrue(reset.WaitOne(2000));
 
-            collection.Add(3, 3);
-            Assert.IsTrue(reset.WaitOne(1000));
+        Assert.AreEqual(2, snapshot.Length);
+        Assert.AreEqual(1, snapshot[0].Key);
+        Assert.AreEqual(2, snapshot[1].Key);
+        Assert.AreEqual(0, list.Count);
 
-            Assert.AreEqual(1, list.Count);
+        collection.Add(3, 3);
+        Assert.IsTrue(reset.WaitOne(1000));
 
-            collection.Remove(3);
-            Assert.IsTrue(reset.WaitOne(1000));
+        Assert.AreEqual(1, list.Count);
 
-            Assert.AreEqual(0, list.Count);
+        collection.Remove(3);
+        Assert.IsTrue(reset.WaitOne(1000));
 
-            KeyValuePair<int, int>[] items = await collection.GetItemsAsync(x => true);
-            Assert.AreEqual(2, items.Length);
-            collection.Clear();
+        Assert.AreEqual(0, list.Count);
 
-            items = await collection.GetItemsAsync(x => true);
-            Assert.AreEqual(0, items.Length);
-        }
+        KeyValuePair<int, int>[] items = await collection.GetItemsAsync(x => true);
+        Assert.AreEqual(2, items.Length);
+        collection.Clear();
 
-        [Test]
-        public async Task DictionaryCollectionTest2()
-        {
-            using FiberDictionary<int, int> collection = new FiberDictionary<int, int>();
-            collection.Add(1, 1);
-            collection.Add(2, 2);
+        items = await collection.GetItemsAsync(x => true);
+        Assert.AreEqual(0, items.Length);
+    }
 
-            Dictionary<int, int> local = new Dictionary<int, int>();
+    [Test]
+    public async Task DictionaryCollectionTest2()
+    {
+        using FiberDictionary<int, int> collection = new();
+        collection.Add(1, 1);
+        collection.Add(2, 2);
 
-            using AutoResetEvent reset = new AutoResetEvent(false);
-            using Fiber fiber = new Fiber();
+        Dictionary<int, int> local = new();
 
-            //Snapshot after subscribe local copy
-            collection.SubscribeLocalCopy(fiber, local, () => reset.Set());
+        using AutoResetEvent reset = new(false);
+        using Fiber fiber = new();
 
-            Assert.IsTrue(reset.WaitOne(1000));
+        //Snapshot after subscribe local copy
+        collection.SubscribeLocalCopy(fiber, local, () => reset.Set());
 
-            Assert.AreEqual(2, local.Count);
-            Assert.AreEqual(1, local[1]);
-            Assert.AreEqual(2, local[2]);
+        Assert.IsTrue(reset.WaitOne(1000));
 
-            //Add
-            collection.Add(3, 3);
-            Assert.IsTrue(reset.WaitOne(1000));
-            Assert.AreEqual(3, local.Count);
+        Assert.AreEqual(2, local.Count);
+        Assert.AreEqual(1, local[1]);
+        Assert.AreEqual(2, local[2]);
 
-            //Remove
-            collection.Remove(3);
-            Assert.IsTrue(reset.WaitOne(1000));
-            Assert.AreEqual(2, local.Count);
+        //Add
+        collection.Add(3, 3);
+        Assert.IsTrue(reset.WaitOne(1000));
+        Assert.AreEqual(3, local.Count);
 
-            //GetItems
-            KeyValuePair<int, int>[] items = await collection.GetItemsAsync(x => true);
-            Assert.AreEqual(2, items.Length);
+        //Remove
+        collection.Remove(3);
+        Assert.IsTrue(reset.WaitOne(1000));
+        Assert.AreEqual(2, local.Count);
 
-            //Clear
-            collection.Clear();
-            items = await collection.GetItemsAsync(x => true);
-            Assert.AreEqual(0, items.Length);
-        }
+        //GetItems
+        KeyValuePair<int, int>[] items = await collection.GetItemsAsync(x => true);
+        Assert.AreEqual(2, items.Length);
+
+        //Clear
+        collection.Clear();
+        items = await collection.GetItemsAsync(x => true);
+        Assert.AreEqual(0, items.Length);
     }
 }

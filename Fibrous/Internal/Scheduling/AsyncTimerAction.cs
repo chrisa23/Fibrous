@@ -2,65 +2,64 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Fibrous
+namespace Fibrous;
+
+internal sealed class AsyncTimerAction : IDisposable
 {
-    internal sealed class AsyncTimerAction : IDisposable
+    private readonly Func<Task> _action;
+    private readonly TimeSpan _interval;
+    private bool _cancelled;
+    private Timer _timer;
+
+    public AsyncTimerAction(IAsyncFiber fiber, Func<Task> action, TimeSpan dueTime)
     {
-        private readonly Func<Task> _action;
-        private readonly TimeSpan _interval;
-        private bool _cancelled;
-        private Timer _timer;
+        _action = action;
+        _interval = TimeSpan.FromMilliseconds(-1);
+        _timer = new Timer(x => ExecuteOnTimerThread(fiber), null, dueTime, _interval);
+        fiber.Add(this);
+    }
 
-        public AsyncTimerAction(IAsyncFiber fiber, Func<Task> action, TimeSpan dueTime)
-        {
-            _action = action;
-            _interval = TimeSpan.FromMilliseconds(-1);
-            _timer = new Timer(x => ExecuteOnTimerThread(fiber), null, dueTime, _interval);
-            fiber.Add(this);
-        }
+    public AsyncTimerAction(IAsyncFiber fiber, Func<Task> action, TimeSpan dueTime, TimeSpan interval)
+    {
+        _action = action;
+        _interval = interval;
+        _timer = new Timer(x => ExecuteOnTimerThread(fiber), null, dueTime, interval);
+        fiber.Add(this);
+    }
 
-        public AsyncTimerAction(IAsyncFiber fiber, Func<Task> action, TimeSpan dueTime, TimeSpan interval)
-        {
-            _action = action;
-            _interval = interval;
-            _timer = new Timer(x => ExecuteOnTimerThread(fiber), null, dueTime, interval);
-            fiber.Add(this);
-        }
+    public void Dispose()
+    {
+        _cancelled = true;
+        DisposeTimer();
+    }
 
-        public void Dispose()
+    private void ExecuteOnTimerThread(IAsyncFiber fiber)
+    {
+        if (_interval.Ticks == TimeSpan.FromMilliseconds(-1).Ticks || _cancelled)
         {
-            _cancelled = true;
+            fiber.Remove(this);
             DisposeTimer();
         }
 
-        private void ExecuteOnTimerThread(IAsyncFiber fiber)
+        if (!_cancelled)
         {
-            if (_interval.Ticks == TimeSpan.FromMilliseconds(-1).Ticks || _cancelled)
-            {
-                fiber.Remove(this);
-                DisposeTimer();
-            }
+            fiber.Enqueue(ExecuteAsync);
+        }
+    }
 
-            if (!_cancelled)
-            {
-                fiber.Enqueue(ExecuteAsync);
-            }
+    private Task ExecuteAsync()
+    {
+        if (_cancelled)
+        {
+            return Task.CompletedTask;
         }
 
-        private Task ExecuteAsync()
-        {
-            if (_cancelled)
-            {
-                return Task.CompletedTask;
-            }
+        return _action();
+    }
 
-            return _action();
-        }
-
-        private void DisposeTimer()
-        {
-            _timer?.Dispose();
-            _timer = null;
-        }
+    private void DisposeTimer()
+    {
+        _timer?.Dispose();
+        _timer = null;
     }
 }

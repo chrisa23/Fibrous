@@ -9,7 +9,7 @@ namespace Fibrous.Benchmark
     public class Agent
     {
         private const int OperationsPerInvoke = 10000000;
-        private readonly AutoResetEvent _wait = new AutoResetEvent(false);
+        private readonly AutoResetEvent _wait = new(false);
         private int i;
 
         private void Handler(int obj)

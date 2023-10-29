@@ -6,7 +6,7 @@ namespace Fibrous.Benchmark
     public class GC_Action
     {
         private readonly IChannel<object> _channel = new Channel<object>();
-        private readonly object _msg = new object();
+        private readonly object _msg = new();
         private IFiber _fiber;
 
         [Benchmark]

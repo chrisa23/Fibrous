@@ -1,63 +1,62 @@
 using System;
 using System.Collections.Generic;
 
-namespace Fibrous
+namespace Fibrous;
+
+internal sealed class KeyedBatchSubscriber<TKey, T> : BatchSubscriberBase<T>
 {
-    internal sealed class KeyedBatchSubscriber<TKey, T> : BatchSubscriberBase<T>
+    private readonly Converter<T, TKey> _keyResolver;
+    private readonly Action<IDictionary<TKey, T>> _target;
+    private Dictionary<TKey, T> _pending;
+
+    public KeyedBatchSubscriber(ISubscriberPort<T> channel,
+        IFiber fiber,
+        TimeSpan interval,
+        Converter<T, TKey> keyResolver,
+        Action<IDictionary<TKey, T>> target)
+        : base(channel, fiber, interval)
     {
-        private readonly Converter<T, TKey> _keyResolver;
-        private readonly Action<IDictionary<TKey, T>> _target;
-        private Dictionary<TKey, T> _pending;
+        _keyResolver = keyResolver;
+        _target = target;
+    }
 
-        public KeyedBatchSubscriber(ISubscriberPort<T> channel,
-            IFiber fiber,
-            TimeSpan interval,
-            Converter<T, TKey> keyResolver,
-            Action<IDictionary<TKey, T>> target)
-            : base(channel, fiber, interval)
+    protected override void OnMessage(T msg)
+    {
+        lock (BatchLock)
         {
-            _keyResolver = keyResolver;
-            _target = target;
-        }
-
-        protected override void OnMessage(T msg)
-        {
-            lock (BatchLock)
+            TKey key = _keyResolver(msg);
+            if (_pending == null)
             {
-                TKey key = _keyResolver(msg);
-                if (_pending == null)
-                {
-                    _pending = new Dictionary<TKey, T>();
-                    Fiber.Schedule(Flush, Interval);
-                }
-
-                _pending[key] = msg;
+                _pending = new Dictionary<TKey, T>();
+                Fiber.Schedule(Flush, Interval);
             }
+
+            _pending[key] = msg;
         }
+    }
 
-        private void Flush()
+    private void Flush()
+    {
+        IDictionary<TKey, T> toReturn = ClearPending();
+        if (toReturn != null)
         {
-            IDictionary<TKey, T> toReturn = ClearPending();
-            if (toReturn != null)
-            {
-                Fiber.Enqueue(() => _target(toReturn));
-            }
+            Fiber.Enqueue(() => _target(toReturn));
         }
+    }
 
-        private IDictionary<TKey, T> ClearPending()
+    private IDictionary<TKey, T> ClearPending()
+    {
+        lock (BatchLock)
         {
-            lock (BatchLock)
+            if (_pending == null || _pending.Count == 0)
             {
-                if (_pending == null || _pending.Count == 0)
-                {
-                    _pending = null;
-                    return null;
-                }
-
-                IDictionary<TKey, T> toReturn = _pending;
                 _pending = null;
-                return toReturn;
+                return null;
             }
+
+            IDictionary<TKey, T> toReturn = _pending;
+            _pending = null;
+            return toReturn;
         }
     }
 }

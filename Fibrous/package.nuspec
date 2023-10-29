@@ -3,20 +3,20 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>Fibrous</id>
-    <version>5.0.0</version>
+    <version>5.1.0</version>
     <authors>Chris Anderson</authors>
     <owners>chrisa23</owners>
     <projectUrl>http://github.com/chrisa23/fibrous</projectUrl>
-    <repository type="git" url="https://github.com/chrisa23/fibrous" />
+    <repository type="git" url="https://github.com/chrisa23/fibrous"/>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>High performance concurrency framework</description>
-    <copyright>Copyright ©2021 CA Anderson LLC</copyright>
+    <copyright>Copyright ©2023 CA Anderson LLC</copyright>
     <tags>concurrency actors multi-threading messaging</tags>
   </metadata>
 
 
   <files>
-    <file src=".\bin\Release\netstandard2.0\Fibrous.dll" target="lib/netstandard2.0" />
-    <file src=".\bin\Release\netstandard2.0\Fibrous.pdb" target="lib/netstandard2.0" />
+    <file src=".\bin\Release\netstandard2.0\Fibrous.dll" target="lib/netstandard2.0"/>
+    <file src=".\bin\Release\netstandard2.0\Fibrous.pdb" target="lib/netstandard2.0"/>
   </files>
 </package>

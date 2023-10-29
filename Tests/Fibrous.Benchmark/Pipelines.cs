@@ -14,7 +14,7 @@ namespace Fibrous.Benchmark
         public void Simple()
         {
             long index = 0;
-            using AutoResetEvent reset = new AutoResetEvent(false);
+            using AutoResetEvent reset = new(false);
             using IStage<int, int> pipe = new Stage<int, int>(x => x)
                 .Select(x => x)
                 .Select(x => x)
@@ -40,7 +40,7 @@ namespace Fibrous.Benchmark
         public void Complex1()
         {
             long index = 0;
-            using AutoResetEvent reset = new AutoResetEvent(false);
+            using AutoResetEvent reset = new(false);
             using IStage<int, int> pipe = new Stage<int, int>(x => x)
                 .SelectOrdered(x => x, 4)
                 .Where(x => x % 2 == 0)
