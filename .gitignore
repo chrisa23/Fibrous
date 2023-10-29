@@ -5,6 +5,7 @@ build/
 publish/
 perf/
 
+
 # Native libraries
 #lib
 #lib-*
@@ -31,3 +32,4 @@ _ReSharper.*
 *.DotSettings
 *.Cache
 .vs/
+.idea/
