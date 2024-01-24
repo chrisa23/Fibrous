@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using Example1.CompnentBased;
+using Example1.ComponentBased;
 using Fibrous;
 using Fibrous.Pipelines;
 

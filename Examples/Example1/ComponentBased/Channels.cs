@@ -1,7 +1,7 @@
 ﻿using System;
 using Fibrous;
 
-namespace Example1.CompnentBased
+namespace Example1.ComponentBased
 {
     public class Channels
     {

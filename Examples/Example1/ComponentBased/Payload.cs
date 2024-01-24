@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Example1.CompnentBased
+namespace Example1.ComponentBased
 {
     public class Payload
     {

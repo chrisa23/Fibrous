@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Example1.CompnentBased
+namespace Example1.ComponentBased
 {
     public interface ISomeDataAccess
     {

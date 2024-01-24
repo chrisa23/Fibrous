@@ -2,7 +2,7 @@
 using Fibrous;
 using Fibrous.Pipelines;
 
-namespace Example1.CompnentBased
+namespace Example1.ComponentBased
 {
     public class Stage1 : IProcessor<Payload, Payload>
     {
