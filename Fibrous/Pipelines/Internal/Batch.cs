@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Fibrous.Pipelines;
 
 //Should this use a stub fiber?
 //this should probably not start immediately...
-internal class Batch<T> : FiberStageBase<T, T[]>
+internal class Batch<T> : AsyncFiberStageBase<T, T[]>
 {
     private readonly List<T> _batch = new();
     private readonly TimeSpan _time;
@@ -23,7 +24,7 @@ internal class Batch<T> : FiberStageBase<T, T[]>
         }
     }
 
-    protected override void Receive(T @in)
+    protected override Task Receive(T @in)
     {
         if (_sub == null)
         {
@@ -31,5 +32,6 @@ internal class Batch<T> : FiberStageBase<T, T[]>
         }
 
         _batch.Add(@in);
+        return Task.CompletedTask;
     }
 }

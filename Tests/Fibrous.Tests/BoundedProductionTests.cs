@@ -11,12 +11,12 @@ public class BoundedProductionTests
     [Test]
     public void SlowerConsumer()
     {
-        using Fiber fiber1 = new(size: 4);
-        using Fiber fiber2 = new();
-        int count = 0;
-        AutoResetEvent reset = new(false);
+        using AsyncFiber fiber1 = new(size: 4);
+        using AsyncFiber fiber2 = new();
+        int              count  = 0;
+        AutoResetEvent   reset  = new(false);
 
-        void Action(int o)
+        Task Action(int o)
         {
             count++;
             Thread.Sleep(100);
@@ -24,6 +24,7 @@ public class BoundedProductionTests
             {
                 reset.Set();
             }
+            return Task.CompletedTask;
         }
 
 
@@ -33,7 +34,7 @@ public class BoundedProductionTests
         Assert.IsTrue(reset.WaitOne(TimeSpan.FromSeconds(5)));
     }
 
-    [Test]
+    /*[Test]
     public void AsyncSlowerConsumer()
     {
         using AsyncFiber fiber1 = new(size: 4);
@@ -58,5 +59,5 @@ public class BoundedProductionTests
         fiber2.Schedule(() => channel.Publish(0), TimeSpan.FromMilliseconds(10), TimeSpan.FromMilliseconds(20));
 
         Assert.IsTrue(reset.WaitOne(TimeSpan.FromSeconds(4)));
-    }
+    }*/
 }

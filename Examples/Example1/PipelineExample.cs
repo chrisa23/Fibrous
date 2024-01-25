@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Example1.ComponentBased;
 using Fibrous;
 using Fibrous.Pipelines;
@@ -45,13 +46,21 @@ namespace Example1
             var channels = new Channels();
             var processor1 = new Stage1(new SomeService());
             var processor2 = new Stage2(new SomeDataAccess());
-            using var stage1 = new Component<Payload, Payload>(processor1, channels.Input, channels.Stage1To2, channels.Errors);
-            using var stage2 = new Component<Payload, Payload>(processor2, channels.Stage1To2, channels.Output, channels.Errors);
-            using var stub = new StubFiber();
-            using var timer = new Fiber();
+            using var stage1 = new AsyncComponent<Payload, Payload>(processor1, channels.Input, channels.Stage1To2, channels.Errors);
+            using var stage2 = new AsyncComponent<Payload, Payload>(processor2, channels.Stage1To2, channels.Output, channels.Errors);
+            using var stub = new AsyncStubFiber();
+            using var timer = new AsyncFiber();
 
-            channels.Output.Subscribe(stub, payload => Console.WriteLine("Got output"));
-            channels.Stage1To2.Subscribe(stub, payload => Console.WriteLine("Monitoring Stage1to2 channel saw a message"));
+            channels.Output.Subscribe(stub, payload =>
+            {
+                Console.WriteLine("Got output");
+                return Task.CompletedTask;
+            });
+            channels.Stage1To2.Subscribe(stub, payload =>
+            {
+                Console.WriteLine("Monitoring Stage1to2 channel saw a message");
+                return Task.CompletedTask;
+            });
 
             var twoSecs = TimeSpan.FromSeconds(2);
 

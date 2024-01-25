@@ -26,37 +26,6 @@ namespace Fibrous.Benchmark
             }
         }
 
-        private void RunMult(IFiberFactory factory, Func<IChannel<int>> queueFactory, int count, int wait1)
-        {
-            using AutoResetEvent wait = new(false);
-            int hCount = 0;
-
-            void Handler(int s)
-            {
-                int c = Interlocked.Increment(ref hCount);
-                if (c == OperationsPerInvoke)
-                {
-                    wait.Set();
-                }
-
-                NOP(wait1 / 1000.0);
-            }
-
-            using IChannel<int> queue = queueFactory();
-            using IDisposable fibers = new Disposables(Enumerable.Range(0, count).Select(x =>
-            {
-                IFiber fiber = factory.CreateFiber();
-                IDisposable sub = queue.Subscribe(fiber, Handler);
-                return fiber;
-            }));
-            for (int j = 1; j <= OperationsPerInvoke; j++)
-            {
-                queue.Publish(j);
-            }
-
-            WaitHandle.WaitAny(new WaitHandle[] {wait});
-        }
-
         public void RunMultAsync(IFiberFactory factory, Func<IChannel<int>> queueFactory, int count, int wait1)
         {
             using AutoResetEvent wait = new(false);
@@ -89,8 +58,10 @@ namespace Fibrous.Benchmark
             WaitHandle.WaitAny(new WaitHandle[] {wait});
         }
 
+        /*
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void Fiber() => RunMult(new FiberFactory(), () => new QueueChannel<int>(), N, Wait);
+        */
 
         //[Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         //public void Fiber3()

@@ -11,23 +11,20 @@ namespace Fibrous.Agents;
 public class RequestAgent<TRequest, TReply> : IRequestAgent<TRequest, TReply>
 {
     private readonly IRequestPort<TRequest, TReply> _channel;
-    protected IFiber Fiber;
+    protected IAsyncFiber Fiber;
 
-    public RequestAgent(Action<IRequest<TRequest, TReply>> handler, Action<Exception> errorHandler = null)
+    public RequestAgent(Func<IRequest<TRequest, TReply>, Task> handler, Action<Exception> callback)
     {
-        Fiber = errorHandler == null ? new Fiber() : new Fiber(errorHandler);
+        Fiber = new AsyncFiber(callback);
         _channel = Fiber.NewRequestPort(handler);
     }
 
-    public RequestAgent(IFiberFactory factory, Action<IRequest<TRequest, TReply>> handler,
-        Action<Exception> errorHandler = null)
+    public RequestAgent(IFiberFactory factory, Func<IRequest<TRequest, TReply>, Task> handler,
+        Action<Exception> callback)
     {
-        Fiber = factory.CreateFiber(errorHandler);
+        Fiber = factory.CreateAsyncFiber(callback);
         _channel = Fiber.NewRequestPort(handler);
     }
-
-    public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply) =>
-        _channel.SendRequest(request, fiber, onReply);
 
     public IDisposable SendRequest(TRequest request, IAsyncFiber fiber, Func<TReply, Task> onReply) =>
         _channel.SendRequest(request, fiber, onReply);

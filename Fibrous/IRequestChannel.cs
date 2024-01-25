@@ -12,14 +12,6 @@ public interface IRequestChannel<TRequest, TReply> : IRequestPort<TRequest, TRep
     /// <param name="fiber"></param>
     /// <param name="onRequest"></param>
     /// <returns></returns>
-    IDisposable SetRequestHandler(IFiber fiber, Action<IRequest<TRequest, TReply>> onRequest);
-
-    /// <summary>
-    ///     Set the fiber and handler for responding to requests.
-    /// </summary>
-    /// <param name="fiber"></param>
-    /// <param name="onRequest"></param>
-    /// <returns></returns>
     IDisposable SetRequestHandler(IAsyncFiber fiber, Func<IRequest<TRequest, TReply>, Task> onRequest);
 }
 
@@ -44,15 +36,6 @@ public interface IRequestPort<in TRequest, TReply>
     /// <param name="request"></param>
     /// <returns></returns>
     Task<TReply> SendRequestAsync(TRequest request);
-
-    /// <summary>
-    ///     Send an asynchronous request, and let the reply be delivered to the fiber when ready
-    /// </summary>
-    /// <param name="request"></param>
-    /// <param name="fiber"></param>
-    /// <param name="onReply"></param>
-    /// <returns></returns>
-    IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply);
 
     /// <summary>
     ///     Send an asynchronous request, and let the reply be delivered to the fiber when ready

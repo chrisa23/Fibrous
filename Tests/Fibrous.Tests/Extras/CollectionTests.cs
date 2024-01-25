@@ -16,11 +16,11 @@ public class CollectionTests
         List<int> list = new();
         using FiberCollection<int> collection = new();
         using AutoResetEvent reset = new(false);
-        using Fiber receive = new();
+        using AsyncFiber receive = new();
         collection.Add(1);
         collection.Add(2);
         collection.Subscribe(receive,
-            action =>
+            async action =>
             {
                 if (action.ActionType == ActionType.Add)
                 {
@@ -33,7 +33,7 @@ public class CollectionTests
 
                 reset.Set();
             },
-            ints =>
+            async ints =>
             {
                 snapshot = ints;
                 reset.Set();
@@ -67,11 +67,11 @@ public class CollectionTests
         List<int> list = new();
         using FiberKeyedCollection<int, int> collection = new(x => x);
         using AutoResetEvent reset = new(false);
-        using Fiber receive = new();
+        using AsyncFiber receive = new();
         collection.Add(1);
         collection.Add(2);
         collection.Subscribe(receive,
-            action =>
+            async action =>
             {
                 if (action.ActionType == ActionType.Add)
                 {
@@ -84,7 +84,7 @@ public class CollectionTests
 
                 reset.Set();
             },
-            ints =>
+            async ints =>
             {
                 snapshot = ints;
                 reset.Set();
@@ -118,11 +118,11 @@ public class CollectionTests
         List<KeyValuePair<int, int>> list = new();
         using FiberDictionary<int, int> collection = new();
         using AutoResetEvent reset = new(false);
-        using Fiber receive = new();
+        using AsyncFiber receive = new();
         collection.Add(1, 1);
         collection.Add(2, 2);
         collection.Subscribe(receive,
-            action =>
+            async action =>
             {
                 if (action.ActionType == ActionType.Add)
                 {
@@ -135,7 +135,7 @@ public class CollectionTests
 
                 reset.Set();
             },
-            ints =>
+            async ints =>
             {
                 snapshot = ints;
                 reset.Set();
@@ -176,7 +176,7 @@ public class CollectionTests
         Dictionary<int, int> local = new();
 
         using AutoResetEvent reset = new(false);
-        using Fiber fiber = new();
+        using AsyncFiber fiber = new();
 
         //Snapshot after subscribe local copy
         collection.SubscribeLocalCopy(fiber, local, () => reset.Set());

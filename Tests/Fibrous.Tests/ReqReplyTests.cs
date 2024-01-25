@@ -27,7 +27,7 @@ public class ReqReplyTests
         }
     }
 
-    [Test]
+    /*[Test]
     public async Task BasicRequestReplyAsync()
     {
         IRequestChannel<int, int> channel = new RequestChannel<int, int>();
@@ -41,7 +41,7 @@ public class ReqReplyTests
                 // Assert.AreEqual(1, reply);
             }
         }
-    }
+    }*/
 
     [Test]
     public async Task TimeOutRequestReplyAsync()

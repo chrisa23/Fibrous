@@ -11,17 +11,6 @@ public sealed class Channel<T> : IChannel<T>
 
     public void Publish(T msg) => _internalEvent.Publish(msg);
 
-    public IDisposable Subscribe(IFiber fiber, Action<T> receive)
-    {
-        void Receive(T msg)
-        {
-            fiber.Enqueue(() => receive(msg));
-        }
-
-        IDisposable disposable = _internalEvent.Subscribe(Receive);
-        return new Unsubscriber(disposable, fiber);
-    }
-
     public IDisposable Subscribe(IAsyncFiber fiber, Func<T, Task> receive)
     {
         void Receive(T msg)

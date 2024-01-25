@@ -12,11 +12,11 @@ public class PipelineTests
     {
         string value = null;
         int tvalue = 0;
-        IStage<double, string> pipeline = new Stage<double, int>(d => (int)d)
+        IStage<double, string> pipeline = new AsyncStage<double, int>(async d => (int)d)
             .Tap(i => tvalue = i)
-            .Select(i => (i * 10).ToString());
-        StubFiber stub = new();
-        pipeline.Subscribe(stub, s => value = s);
+            .Select(async i => (i * 10).ToString());
+        AsyncStubFiber stub = new();
+        pipeline.Subscribe(stub, async s => value = s);
         pipeline.Publish(1.3);
         Thread.Sleep(100);
         Assert.AreEqual("10", value);

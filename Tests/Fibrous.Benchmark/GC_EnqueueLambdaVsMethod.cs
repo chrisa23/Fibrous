@@ -5,7 +5,7 @@ namespace Fibrous.Benchmark
     [MemoryDiagnoser]
     public class GC_EnqueueLambdaVsMethod
     {
-        private IFiber _fiber;
+        private IAsyncFiber _fiber;
 
         [Benchmark]
         public void Lambda() => _fiber.Enqueue(() => { });
@@ -19,7 +19,7 @@ namespace Fibrous.Benchmark
         }
 
         [GlobalSetup]
-        public void Setup() => _fiber = PoolFiber_OLD.StartNew();
+        public void Setup() => _fiber = new AsyncFiber();
 
         [GlobalCleanup]
         public void Cleanup() => _fiber.Dispose();

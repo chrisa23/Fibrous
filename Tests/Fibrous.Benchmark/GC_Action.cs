@@ -7,7 +7,7 @@ namespace Fibrous.Benchmark
     {
         private readonly IChannel<object> _channel = new Channel<object>();
         private readonly object _msg = new();
-        private IFiber _fiber;
+        private IAsyncFiber _fiber;
 
         [Benchmark]
         public void Publish() => _channel.Publish(_msg);
@@ -15,8 +15,8 @@ namespace Fibrous.Benchmark
         [GlobalSetup]
         public void Setup()
         {
-            _fiber = new Fiber();
-            _channel.Subscribe(_fiber, o => { });
+            _fiber = new AsyncFiber();
+            _channel.Subscribe(_fiber, async o => { });
         }
 
         [GlobalCleanup]

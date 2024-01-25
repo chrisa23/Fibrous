@@ -9,45 +9,6 @@ namespace Fibrous.Tests;
 public class CleanupTests
 {
     [Test]
-    public void ChannelSubscription()
-    {
-        RunTest(new StubFiber(), new Channel<int>(), (f, c) => f.Subscribe(c, Receive));
-        RunTest(new Fiber(), new Channel<int>(), (f, c) => f.Subscribe(c, Receive));
-        RunTest(new StubFiber(), new Channel<int>(), (f, c) => f.Subscribe(c, Receive, _true));
-        RunTest(new Fiber(), new Channel<int>(), (f, c) => f.Subscribe(c, Receive, _true));
-        RunTest(new StubFiber(), new Channel<int>(), (f, c) => f.SubscribeToBatch(c, Receive, _oneSecond));
-        RunTest(new Fiber(), new Channel<int>(), (f, c) => f.SubscribeToBatch(c, Receive, _oneSecond));
-        RunTest(new StubFiber(), new Channel<int>(), (f, c) => f.SubscribeToLast(c, Receive, _oneSecond));
-        RunTest(new Fiber(), new Channel<int>(), (f, c) => f.SubscribeToLast(c, Receive, _oneSecond));
-        RunTest(new StubFiber(), new Channel<int>(),
-            (f, c) => f.SubscribeToKeyedBatch(c, x => x, Receive, _oneSecond));
-        RunTest(new Fiber(), new Channel<int>(), (f, c) => f.SubscribeToKeyedBatch(c, x => x, Receive, _oneSecond));
-    }
-
-    [Test]
-    public void EventChannelSubscription()
-    {
-        RunTest(new StubFiber(), new EventChannel(), (f, c) => c.Subscribe(f, () => { }));
-        RunTest(new Fiber(), new EventChannel(), (f, c) => c.Subscribe(f, () => { }));
-    }
-
-    [Test]
-    public void EventBusSubscription()
-    {
-        RunTest(new StubFiber(), f => EventBus<int>.Subscribe(f, Receive));
-        RunTest(new Fiber(), f => EventBus<int>.Subscribe(f, Receive));
-        RunTest(new StubFiber(), f => EventBus<int>.Subscribe(f, Receive, _true));
-        RunTest(new Fiber(), f => EventBus<int>.Subscribe(f, Receive, _true));
-        RunTest(new StubFiber(), f => EventBus<int>.SubscribeToBatch(f, Receive, _oneSecond));
-        RunTest(new Fiber(), f => EventBus<int>.SubscribeToBatch(f, Receive, _oneSecond));
-        RunTest(new StubFiber(), f => EventBus<int>.SubscribeToLast(f, Receive, _oneSecond));
-        RunTest(new Fiber(), f => EventBus<int>.SubscribeToLast(f, Receive, _oneSecond));
-        RunTest(new StubFiber(), f => EventBus<int>.SubscribeToKeyedBatch(f, x => x, Receive, _oneSecond));
-        RunTest(new Fiber(), f => EventBus<int>.SubscribeToKeyedBatch(f, x => x, Receive, _oneSecond));
-    }
-
-
-    [Test]
     public void AsyncChannelSubscription()
     {
         RunTest(new AsyncStubFiber(), new Channel<int>(), (f, c) => f.Subscribe(c, ReceiveAsync));
@@ -106,16 +67,6 @@ public class CleanupTests
     private static Task ReceiveAsync(int i) => Task.CompletedTask;
     private static Task ReceiveAsync(int[] i) => Task.CompletedTask;
     private static Task ReceiveAsync(IDictionary<int, int> i) => Task.CompletedTask;
-
-    public static void RunTest(IFiber fiber, Channel<int> channel, Func<IFiber, Channel<int>, IDisposable> f) =>
-        RunTest(fiber, () => f(fiber, channel), () => channel.HasSubscriptions);
-
-    public static void RunTest(IFiber fiber, EventChannel channel, Func<IFiber, EventChannel, IDisposable> f) =>
-        RunTest(fiber, () => f(fiber, channel), () => channel.HasSubscriptions);
-
-    public static void RunTest(IFiber fiber, Func<IFiber, IDisposable> f) =>
-        RunTest(fiber, () => f(fiber), () => EventBus<int>.Channel.HasSubscriptions);
-
     public static void RunTest(IAsyncFiber fiber, Channel<int> channel,
         Func<IAsyncFiber, Channel<int>, IDisposable> f) =>
         RunTest(fiber, () => f(fiber, channel), () => channel.HasSubscriptions);

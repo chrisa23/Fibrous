@@ -14,21 +14,18 @@ public class FiberCollection<T> : ISnapshotSubscriberPort<ItemAction<T>, T[]>, I
     IDisposable
 {
     private readonly ISnapshotChannel<ItemAction<T>, T[]> _channel = new SnapshotChannel<ItemAction<T>, T[]>();
-    private readonly IFiber _fiber;
+    private readonly IAsyncFiber _fiber;
     private readonly List<T> _items = new();
     private readonly IRequestChannel<Func<T, bool>, T[]> _request = new RequestChannel<Func<T, bool>, T[]>();
 
-    public FiberCollection(IExecutor executor = null)
+    public FiberCollection(IAsyncExecutor executor = null)
     {
-        _fiber = new Fiber(executor);
+        _fiber = new AsyncFiber(executor);
         _channel.ReplyToPrimingRequest(_fiber, Reply);
         _request.SetRequestHandler(_fiber, OnRequest);
     }
 
     public void Dispose() => _fiber.Dispose();
-
-    public IDisposable SendRequest(Func<T, bool> request, IFiber fiber, Action<T[]> onReply) =>
-        _request.SendRequest(request, fiber, onReply);
 
     public IDisposable SendRequest(Func<T, bool> request, IAsyncFiber fiber, Func<T[], Task> onReply) =>
         _request.SendRequest(request, fiber, onReply);
@@ -38,8 +35,7 @@ public class FiberCollection<T> : ISnapshotSubscriberPort<ItemAction<T>, T[]>, I
     public Task<Reply<T[]>> SendRequestAsync(Func<T, bool> request, TimeSpan timeout) =>
         _request.SendRequestAsync(request, timeout);
 
-    public IDisposable Subscribe(IFiber fiber, Action<ItemAction<T>> receive, Action<T[]> receiveSnapshot) =>
-        _channel.Subscribe(fiber, receive, receiveSnapshot);
+
 
     public IDisposable Subscribe(IAsyncFiber fiber, Func<ItemAction<T>, Task> receive,
         Func<T[], Task> receiveSnapshot) => _channel.Subscribe(fiber, receive, receiveSnapshot);
@@ -78,36 +74,15 @@ public class FiberCollection<T> : ISnapshotSubscriberPort<ItemAction<T>, T[]>, I
 
     public Task<T[]> GetItemsAsync(Func<T, bool> request) => _request.SendRequestAsync(request);
 
-    private void OnRequest(IRequest<Func<T, bool>, T[]> request) =>
+    private async Task  OnRequest(IRequest<Func<T, bool>, T[]> request) =>
         request.Reply(_items.Where(request.Request).ToArray());
 
-    private T[] Reply() => _items.ToArray();
-
-    //Helper functions to create handlers for maintaining a local collection based on a FiberDictionary
-    public IDisposable SubscribeLocalCopy(IFiber fiber, List<T> local, Action updateCallback) => Subscribe(fiber,
-        CreateReceive(local, updateCallback), CreateSnapshot(local, updateCallback));
+    private async Task<T[]> Reply() => _items.ToArray();
 
     public IDisposable SubscribeLocalCopy(IAsyncFiber fiber, List<T> local, Action updateCallback) =>
-        Subscribe(fiber, CreateReceiveAsync(local, updateCallback), CreateSnapshotAsync(local, updateCallback));
+        Subscribe(fiber, CreateReceive(local, updateCallback), CreateSnapshot(local, updateCallback));
 
-    public static Action<ItemAction<T>> CreateReceive(List<T> local, Action updateCallback) =>
-        x =>
-        {
-            Update(local, x);
-
-            updateCallback();
-        };
-
-    private static Action<T[]> CreateSnapshot(List<T> local,
-        Action updateCallback) =>
-        x =>
-        {
-            local.AddRange(x);
-
-            updateCallback();
-        };
-
-    private static Func<T[], Task> CreateSnapshotAsync(List<T> local,
+    private static Func<T[], Task> CreateSnapshot(List<T> local,
         Action updateCallback) =>
         x =>
         {
@@ -117,7 +92,7 @@ public class FiberCollection<T> : ISnapshotSubscriberPort<ItemAction<T>, T[]>, I
             return Task.CompletedTask;
         };
 
-    private static Func<ItemAction<T>, Task> CreateReceiveAsync(List<T> local,
+    private static Func<ItemAction<T>, Task> CreateReceive(List<T> local,
         Action updateCallback) =>
         x =>
         {

@@ -12,9 +12,9 @@ public class FiberSubscriptionTests
     public async Task FilteredSubscribe()
     {
         List<int> result = new List<int>();
-        using Fiber fiber = new Fiber();
+        using AsyncFiber fiber = new ();
         using Channel<int> channel = new Channel<int>();
-        using IDisposable sub = channel.Subscribe(fiber, result.Add, x => x > 10);
+        using IDisposable sub = channel.Subscribe(fiber, async x =>  result.Add(x), x => x > 10);
         for (int i = 0; i < 20; i++)
         {
             channel.Publish(i);

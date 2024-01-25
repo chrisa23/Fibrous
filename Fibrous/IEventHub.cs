@@ -14,7 +14,6 @@ namespace Fibrous;
 public interface IEventHub
 {
     IDisposable Subscribe(IAsyncFiber fiber, object handler);
-    IDisposable Subscribe(IFiber fiber, object handler);
     void Publish<T>(T msg);
 }
 
@@ -51,13 +50,6 @@ public sealed class EventHub : IEventHub
     public IDisposable Subscribe(IAsyncFiber fiber, object handler)
     {
         IDisposable disposable = SetupHandlers(handler, fiber, false);
-
-        return new Unsubscriber(disposable, fiber);
-    }
-
-    public IDisposable Subscribe(IFiber fiber, object handler)
-    {
-        IDisposable disposable = SetupHandlers(handler, fiber, true);
 
         return new Unsubscriber(disposable, fiber);
     }
@@ -105,13 +97,6 @@ public sealed class EventHub : IEventHub
         return disposables;
     }
 
-    // ReSharper disable once UnusedMember.Local
-    private IDisposable SubscribeToChannel<T>(IFiber fiber, IHandle<T> receive)
-    {
-        Type type = typeof(T);
-        IChannel<T> channel = (IChannel<T>)_channels.GetOrAdd(type, _ => new Channel<T>());
-        return channel.Subscribe(fiber, receive.Handle);
-    }
 
     // ReSharper disable once UnusedMember.Local
     private IDisposable AsyncSubscribeToChannel<T>(IAsyncFiber fiber, IHandleAsync<T> receive)

@@ -23,6 +23,22 @@ public abstract class AsyncFiberBase : IAsyncFiber
     public IDisposable Schedule(Func<Task> action, TimeSpan startTime, TimeSpan interval) =>
         _fiberScheduler.Schedule(this, action, startTime, interval);
 
+    public IDisposable Schedule(Action action, TimeSpan dueTime) =>
+        Schedule(new ActionConverter(action).InvokeAsync, dueTime);
+
+    public IDisposable Schedule(Action action, TimeSpan startTime, TimeSpan interval) =>
+        Schedule(new ActionConverter(action).InvokeAsync, startTime, interval);
+
+    public void Enqueue(Action action)
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        InternalEnqueue(new ActionConverter(action).InvokeAsync);
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Enqueue(Func<Task> action)
     {
@@ -46,3 +62,18 @@ public abstract class AsyncFiberBase : IAsyncFiber
 
     protected abstract void InternalEnqueue(Func<Task> action);
 }
+
+internal readonly struct ActionConverter
+{
+    public ActionConverter(Action action)
+    {
+        _action = action;
+    }
+    readonly Action _action;
+    public Task InvokeAsync()
+    {
+        _action.Invoke();
+        return Task.CompletedTask;
+    }
+}
+

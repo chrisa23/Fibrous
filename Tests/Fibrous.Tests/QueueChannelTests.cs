@@ -20,7 +20,7 @@ public class QueueChannelTests
         }
     }
 
-    private void QueueChannelTest(int fibers, Func<IFiber> factory, int messageCount,
+    private void QueueChannelTest(int fibers, Func<IAsyncFiber> factory, int messageCount,
         Func<IChannel<int>> channelFactory)
     {
         using Disposables queues = new();
@@ -28,7 +28,7 @@ public class QueueChannelTests
         using IChannel<int> channel = channelFactory();
         int count = 0;
 
-        void OnReceive(int obj)
+        async Task OnReceive(int obj)
         {
             int c = Interlocked.Increment(ref count);
             if (c == messageCount)
@@ -41,7 +41,7 @@ public class QueueChannelTests
 
         for (int i = 0; i < fibers; i++)
         {
-            IFiber fiber = factory();
+            IAsyncFiber fiber = factory();
             queues.Add(fiber);
             channel.Subscribe(fiber, OnReceive);
         }
@@ -64,12 +64,12 @@ public class QueueChannelTests
     public void Multiple()
     {
         const int MessageCount = 100;
-        List<IFiber> queues = new();
+        List<IAsyncFiber> queues = new();
         int receiveCount = 0;
         using AutoResetEvent reset = new(false);
         object updateLock = new();
 
-        void OnReceive(int obj)
+        async Task OnReceive(int obj)
         {
             Thread.Sleep(15);
             lock (updateLock)
@@ -86,7 +86,7 @@ public class QueueChannelTests
 
         for (int i = 0; i < 5; i++)
         {
-            Fiber fiber = new();
+            AsyncFiber fiber = new();
             queues.Add(fiber);
             channel.Subscribe(fiber, OnReceive);
         }
@@ -105,9 +105,9 @@ public class QueueChannelTests
     {
         int msgCount = 1000;
 
-        static IFiber Factory()
+        static IAsyncFiber Factory()
         {
-            return new Fiber();
+            return new AsyncFiber();
         }
 
         Console.WriteLine("First");
@@ -122,11 +122,11 @@ public class QueueChannelTests
     public void SingleConsumer()
     {
         int oneConsumed = 0;
-        using Fiber one = new();
+        using AsyncFiber one = new();
         using AutoResetEvent reset = new(false);
         QueueChannel<int> channel = new();
 
-        void OnMsg(int obj)
+        async Task OnMsg(int obj)
         {
             Interlocked.Increment(ref oneConsumed);
             if (oneConsumed == 20)
@@ -149,7 +149,7 @@ public class QueueChannelTests
     {
         using AutoResetEvent reset = new(false);
 
-        void OnMsg(int num)
+        async Task OnMsg(int num)
         {
             if (num == 0)
             {
@@ -160,8 +160,8 @@ public class QueueChannelTests
         }
 
         List<Exception> failed = new();
-        ExceptionHandlingExecutor exec = new(failed.Add);
-        using Fiber one = new(exec);
+        AsyncExceptionHandlingExecutor exec = new(async x => failed.Add(x));
+        using AsyncFiber one = new(exec);
         QueueChannel<int> channel = new();
         channel.Subscribe(one, OnMsg);
         channel.Publish(0);
@@ -176,7 +176,7 @@ public class QueueChannelTests
         using AutoResetEvent reset = new(false);
         int count = 0;
 
-        void OnMessage(int i)
+        async Task OnMessage(int i)
         {
             int c = Interlocked.Increment(ref count);
             Thread.Sleep(100);
@@ -186,8 +186,8 @@ public class QueueChannelTests
             }
         }
 
-        using Fiber fiber = new();
-        using Fiber fiber2 = new();
+        using AsyncFiber fiber = new();
+        using AsyncFiber fiber2 = new();
         using QueueChannel<int> queue = new();
         queue.Subscribe(fiber, OnMessage);
         queue.Subscribe(fiber2, OnMessage);
@@ -207,7 +207,7 @@ public class QueueChannelTests
         using AutoResetEvent reset = new(false);
         int count = 0;
 
-        void OnMessage(int i)
+        async Task OnMessage(int i)
         {
             int c = Interlocked.Increment(ref count);
             if (c == Max)
@@ -216,8 +216,8 @@ public class QueueChannelTests
             }
         }
 
-        using Fiber fiber = new();
-        using Fiber fiber2 = new();
+        using AsyncFiber fiber = new();
+        using AsyncFiber fiber2 = new();
         using QueueChannel<int> queue = new();
         queue.Subscribe(fiber, OnMessage);
         queue.Subscribe(fiber2, OnMessage);
@@ -264,20 +264,20 @@ public class QueueChannelTests
         int count = 0;
         int count2 = 0;
 
-        void OnMessage(int i)
+        async Task OnMessage(int i)
         {
             count++;
             Thread.Sleep(100);
         }
 
-        void OnMessage2(int i)
+        async Task OnMessage2(int i)
         {
             count2++;
             Thread.Sleep(100);
         }
 
-        using Fiber fiber = new();
-        using Fiber fiber2 = new();
+        using AsyncFiber fiber = new();
+        using AsyncFiber fiber2 = new();
         using QueueChannel<int> queue = new();
         queue.Subscribe(fiber, OnMessage);
         queue.Subscribe(fiber2, OnMessage2);

@@ -52,7 +52,7 @@ namespace Example1
 
         private static void SimpleExample()
         {
-            using Fiber fiber = new Fiber();
+            using AsyncFiber fiber   = new AsyncFiber();
             IChannel<string> channel = fiber.NewChannel<string>(Console.WriteLine);
 
             channel.Publish("Test message");
@@ -67,7 +67,7 @@ namespace Example1
         {
             //agents provide thread safety to individual functions.
             //in this case, we want one point for storing to the database that can be shared
-            using AsyncAgent<object> dataAccess = new AsyncAgent<object>(StoreToDatabase, x => { });
+            using Agent<object> dataAccess = new Agent<object>(StoreToDatabase, x => { });
 
             object latestData = new object();
 
@@ -87,12 +87,12 @@ namespace Example1
 
     public class Calculator : IDisposable
     {
-        private readonly IFiber _fiber;
+        private readonly IAsyncFiber _fiber;
         private double _current;
 
         public Calculator()
         {
-            _fiber = new Fiber(OnError);
+            _fiber = new AsyncFiber(OnError);
             Messages = _fiber.NewChannel<Message>(OnMessage);
             Requests = _fiber.NewRequestPort<object, double>(OnRequest);
         }
@@ -102,7 +102,7 @@ namespace Example1
 
         public void Dispose() => _fiber?.Dispose();
 
-        private void OnRequest(IRequest<object, double> obj) => obj.Reply(_current);
+        private async Task OnRequest(IRequest<object, double> obj) => obj.Reply(_current);
 
         private void OnMessage(Message obj)
         {

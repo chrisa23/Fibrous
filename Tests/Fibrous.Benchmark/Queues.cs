@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using BenchmarkDotNet.Attributes;
 
 namespace Fibrous.Benchmark
@@ -54,14 +55,15 @@ namespace Fibrous.Benchmark
         [Benchmark]
         public void BusyWait() => _busyWait.Enqueue(_lambda);
 
-        [IterationSetup(Target = "BusyWait")]
+        /*[IterationSetup(Target = "BusyWait")]
         public void BusyWaitSetup()
         {
             _busyWait = new ThreadFiber(new Executor(), new BusyWaitQueue(1000, 100));
             _busyWait.Start();
-        }
+        }#1#
 
         [IterationCleanup(Target = "BusyWait")]
         public void BusyWaitCleanup() => _busyWait.Dispose();
     }
 }
+*/

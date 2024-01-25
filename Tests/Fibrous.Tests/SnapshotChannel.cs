@@ -10,32 +10,6 @@ namespace Fibrous.Tests;
 internal class SnapshotChannel
 {
     [Test]
-    public void Snapshot()
-    {
-        using Fiber fiber = new();
-        using Fiber fiber2 = new();
-        List<string> list = new() {"Prime"};
-        SnapshotChannel<string, string[]> channel = new();
-        channel.ReplyToPrimingRequest(fiber2, list.ToArray);
-
-        List<string> primeResult = new();
-        Action<string> update = primeResult.Add;
-        Action<string[]> snap = primeResult.AddRange;
-
-        channel.Subscribe(fiber, update, snap);
-
-        Thread.Sleep(500);
-
-        channel.Publish("hello");
-        channel.Publish("hello2");
-
-        Thread.Sleep(500);
-
-        Assert.AreEqual("Prime", primeResult[0]);
-        Assert.AreEqual("hello2", primeResult[^1]);
-    }
-
-    [Test]
     public void AsyncSnapshot()
     {
         using AsyncFiber fiber = new();

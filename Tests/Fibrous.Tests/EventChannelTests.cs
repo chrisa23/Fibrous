@@ -14,12 +14,12 @@ public class EventChannelTests
         IEventChannel eventChannel = new EventChannel();
         using AutoResetEvent reset = new(false);
 
-        void Receive()
+        async Task Receive()
         {
             reset.Set();
         }
 
-        using Fiber fiber = new();
+        using AsyncFiber fiber = new();
 
         eventChannel.Subscribe(fiber, Receive);
 
@@ -44,7 +44,7 @@ public class EventChannelTests
             }
         }
 
-        using Fiber fiber = new();
+        using AsyncFiber fiber = new();
 
         eventChannel.SubscribeThrottled(fiber, Receive, TimeSpan.FromSeconds(.5));
         for (int j = 0; j < 10; j++)
