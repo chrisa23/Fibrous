@@ -19,7 +19,7 @@ internal sealed class CompositeStage<TIn, TOut> : IStage<TIn, TOut>
     public void Publish(TIn msg) => _input.Publish(msg);
 
 
-    public IDisposable Subscribe(IAsyncFiber fiber, Func<TOut, Task> receive) => _output.Subscribe(fiber, receive);
+    public IDisposable Subscribe(IFiber fiber, Func<TOut, Task> receive) => _output.Subscribe(fiber, receive);
 
     public IDisposable Subscribe(Action<TOut> receive) => _output.Subscribe(receive);
 

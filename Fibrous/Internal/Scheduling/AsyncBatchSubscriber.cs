@@ -10,7 +10,7 @@ internal sealed class AsyncBatchSubscriber<T> : AsyncBatchSubscriberBase<T>
     private List<T> _pending;
 
     public AsyncBatchSubscriber(ISubscriberPort<T> channel,
-        IAsyncFiber fiber,
+        IFiber fiber,
         TimeSpan interval,
         Func<T[], Task> receive)
         : base(channel, fiber, interval) =>

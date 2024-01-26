@@ -24,5 +24,5 @@ public interface IProcessor<in TIn, out TOut>
     ///     Allows for any needed initialization, including timer based scheduling to be initialized
     /// </summary>
     /// <param name="scheduler"></param>
-    void Initialize(IAsyncScheduler scheduler);
+    void Initialize(IScheduler scheduler);
 }

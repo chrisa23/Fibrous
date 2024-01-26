@@ -15,7 +15,7 @@ public class PipelineTests
         IStage<double, string> pipeline = new AsyncStage<double, int>(async d => (int)d)
             .Tap(i => tvalue = i)
             .Select(async i => (i * 10).ToString());
-        AsyncStubFiber stub = new();
+        StubFiber stub = new();
         pipeline.Subscribe(stub, async s => value = s);
         pipeline.Publish(1.3);
         Thread.Sleep(100);

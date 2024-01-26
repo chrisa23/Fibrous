@@ -12,7 +12,7 @@ public interface IRequestChannel<TRequest, TReply> : IRequestPort<TRequest, TRep
     /// <param name="fiber"></param>
     /// <param name="onRequest"></param>
     /// <returns></returns>
-    IDisposable SetRequestHandler(IAsyncFiber fiber, Func<IRequest<TRequest, TReply>, Task> onRequest);
+    IDisposable SetRequestHandler(IFiber fiber, Func<IRequest<TRequest, TReply>, Task> onRequest);
 }
 
 /// <summary>
@@ -44,7 +44,7 @@ public interface IRequestPort<in TRequest, TReply>
     /// <param name="fiber"></param>
     /// <param name="onReply"></param>
     /// <returns></returns>
-    IDisposable SendRequest(TRequest request, IAsyncFiber fiber, Func<TReply, Task> onReply);
+    IDisposable SendRequest(TRequest request, IFiber fiber, Func<TReply, Task> onReply);
 }
 
 /// <summary>

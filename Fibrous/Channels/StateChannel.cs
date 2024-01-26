@@ -25,7 +25,7 @@ public sealed class StateChannel<T> : IChannel<T>
     {
     }
 
-    public IDisposable Subscribe(IAsyncFiber fiber, Func<T, Task> receive)
+    public IDisposable Subscribe(IFiber fiber, Func<T, Task> receive)
     {
         lock (_lock)
         {

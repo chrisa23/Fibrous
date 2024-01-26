@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 
 namespace Fibrous;
 
@@ -11,11 +12,11 @@ public sealed class ExceptionHandlingExecutor : IExecutor
 
     public ExceptionHandlingExecutor(Action<Exception> callback = null) => _callback = callback;
 
-    public void Execute(Action toExecute)
+    public async Task ExecuteAsync(Func<Task> toExecute)
     {
         try
         {
-            toExecute();
+            await toExecute();
         }
         catch (Exception e)
         {

@@ -11,6 +11,6 @@ public class StubFiberFactory : IFiberFactory
         _asyncScheduler = asyncScheduler;
     }
 
-    public IAsyncFiber CreateAsyncFiber(Action<Exception> errorHandler) =>
-        new AsyncStubFiber(errorHandler, _asyncScheduler);
+    public IFiber CreateAsyncFiber(Action<Exception> errorHandler) =>
+        new StubFiber(errorHandler, _asyncScheduler);
 }

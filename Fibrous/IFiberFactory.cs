@@ -4,5 +4,5 @@ namespace Fibrous;
 
 public interface IFiberFactory
 {
-    IAsyncFiber CreateAsyncFiber(Action<Exception> errorHandler);
+    IFiber CreateAsyncFiber(Action<Exception> errorHandler);
 }

@@ -44,7 +44,7 @@ public class EventHubTests
 
     public class AsyncTester : IHandleAsync<string>, IHandleAsync<int>, IDisposable
     {
-        public IAsyncFiber Fiber { get; } = new AsyncFiber();
+        public IFiber Fiber { get; } = new Fiber();
 
         public int Count { get; private set; }
 

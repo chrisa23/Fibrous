@@ -9,22 +9,22 @@ public class FiberKeyedCollection<TKey, T> : ISnapshotSubscriberPort<ItemAction<
     IRequestPort<Func<T, bool>, T[]>, IDisposable
 {
     private readonly ISnapshotChannel<ItemAction<T>, T[]> _channel = new SnapshotChannel<ItemAction<T>, T[]>();
-    private readonly IAsyncFiber _fiber;
+    private readonly IFiber _fiber;
     private readonly Dictionary<TKey, T> _items = new();
     private readonly Func<T, TKey> _keyGen;
     private readonly IRequestChannel<Func<T, bool>, T[]> _request = new RequestChannel<Func<T, bool>, T[]>();
 
-    public FiberKeyedCollection(Func<T, TKey> keyGen, IAsyncExecutor executor = null)
+    public FiberKeyedCollection(Func<T, TKey> keyGen, IExecutor executor = null)
     {
         _keyGen = keyGen;
-        _fiber = new AsyncFiber(executor);
+        _fiber = new Fiber(executor);
         _channel.ReplyToPrimingRequest(_fiber, Reply);
         _request.SetRequestHandler(_fiber, OnRequest);
     }
 
     public void Dispose() => _fiber.Dispose();
 
-    public IDisposable SendRequest(Func<T, bool> request, IAsyncFiber fiber, Func<T[], Task> onReply) =>
+    public IDisposable SendRequest(Func<T, bool> request, IFiber fiber, Func<T[], Task> onReply) =>
         _request.SendRequest(request, fiber, onReply);
 
     public Task<T[]> SendRequestAsync(Func<T, bool> request) => _request.SendRequestAsync(request);
@@ -32,7 +32,7 @@ public class FiberKeyedCollection<TKey, T> : ISnapshotSubscriberPort<ItemAction<
     public Task<Reply<T[]>> SendRequestAsync(Func<T, bool> request, TimeSpan timeout) =>
         _request.SendRequestAsync(request, timeout);
 
-    public IDisposable Subscribe(IAsyncFiber fiber, Func<ItemAction<T>, Task> receive,
+    public IDisposable Subscribe(IFiber fiber, Func<ItemAction<T>, Task> receive,
         Func<T[], Task> receiveSnapshot) => _channel.Subscribe(fiber, receive, receiveSnapshot);
 
     public void Add(T item) => _fiber.Enqueue(() => AddItem(item));

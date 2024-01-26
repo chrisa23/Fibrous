@@ -17,6 +17,6 @@ public class LockFiberFactory : IFiberFactory
         _asyncScheduler = asyncScheduler;
     }
 
-    public IAsyncFiber CreateAsyncFiber(Action<Exception> errorHandler) =>
-        new LockAsyncFiber(errorHandler, _size, _taskFactory, _asyncScheduler);
+    public IFiber CreateAsyncFiber(Action<Exception> errorHandler) =>
+        new LockFiber(errorHandler, _size, _taskFactory, _asyncScheduler);
 }

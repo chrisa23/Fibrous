@@ -11,7 +11,7 @@ internal sealed class AsyncTimerAction : IDisposable
     private bool _cancelled;
     private Timer _timer;
 
-    public AsyncTimerAction(IAsyncFiber fiber, Func<Task> action, TimeSpan dueTime)
+    public AsyncTimerAction(IFiber fiber, Func<Task> action, TimeSpan dueTime)
     {
         _action = action;
         _interval = TimeSpan.FromMilliseconds(-1);
@@ -19,7 +19,7 @@ internal sealed class AsyncTimerAction : IDisposable
         fiber.Add(this);
     }
 
-    public AsyncTimerAction(IAsyncFiber fiber, Func<Task> action, TimeSpan dueTime, TimeSpan interval)
+    public AsyncTimerAction(IFiber fiber, Func<Task> action, TimeSpan dueTime, TimeSpan interval)
     {
         _action = action;
         _interval = interval;
@@ -33,7 +33,7 @@ internal sealed class AsyncTimerAction : IDisposable
         DisposeTimer();
     }
 
-    private void ExecuteOnTimerThread(IAsyncFiber fiber)
+    private void ExecuteOnTimerThread(IFiber fiber)
     {
         if (_interval.Ticks == TimeSpan.FromMilliseconds(-1).Ticks || _cancelled)
         {

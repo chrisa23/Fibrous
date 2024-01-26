@@ -27,7 +27,7 @@ public class CronSchedulingTests
             return Task.CompletedTask;
         }
 
-        using AsyncFiber fiber = new();
+        using Fiber fiber = new();
         using (IDisposable sub = fiber.CronSchedule(Action, "0/2 * * 1/1 * ? *"))
         {
             await Task.Delay(TimeSpan.FromSeconds(4.1));

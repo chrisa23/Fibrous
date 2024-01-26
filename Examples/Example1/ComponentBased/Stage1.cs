@@ -27,7 +27,7 @@ namespace Example1.ComponentBased
             return Task.CompletedTask;
         }
 
-        public void Initialize(IAsyncScheduler scheduler)
+        public void Initialize(IScheduler scheduler)
         {
             //We can schedule multiple actions that are all on the same fiber as processing
             //For example, if we have a mapping stage and we need to periodically check for

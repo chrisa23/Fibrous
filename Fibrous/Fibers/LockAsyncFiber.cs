@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Fibrous;
 
-public class LockAsyncFiber : AsyncFiberBase
+public class LockFiber : FiberBase
 {
     private readonly Func<Task> _flushCache;
     private readonly object _lock = new();
@@ -12,7 +12,7 @@ public class LockAsyncFiber : AsyncFiberBase
     private readonly TaskFactory _taskFactory;
     private bool _flushPending;
 
-    public LockAsyncFiber(IAsyncExecutor executor = null, int size = QueueSize.DefaultQueueSize,
+    public LockFiber(IExecutor executor = null, int size = QueueSize.DefaultQueueSize,
         TaskFactory taskFactory = null, IAsyncFiberScheduler scheduler = null)
         : base(executor, scheduler)
     {
@@ -22,9 +22,9 @@ public class LockAsyncFiber : AsyncFiberBase
         _flushCache = FlushAsync;
     }
 
-    public LockAsyncFiber(Action<Exception> errorCallback, int size = QueueSize.DefaultQueueSize,
+    public LockFiber(Action<Exception> errorCallback, int size = QueueSize.DefaultQueueSize,
         TaskFactory taskFactory = null, IAsyncFiberScheduler scheduler = null)
-        : this(new AsyncExceptionHandlingExecutor(errorCallback), size, taskFactory, scheduler)
+        : this(new ExceptionHandlingExecutor(errorCallback), size, taskFactory, scheduler)
     {
     }
 

@@ -25,7 +25,7 @@ public class Stage2 : IAsyncProcessor<Payload, Payload>
         return Task.CompletedTask;
     }
 
-    public void Initialize(IAsyncScheduler scheduler)
+    public void Initialize(IScheduler scheduler)
     {
         //If we don't need scheduling for this stage, leave empty
     }

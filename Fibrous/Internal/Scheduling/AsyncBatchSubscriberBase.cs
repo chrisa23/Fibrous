@@ -7,10 +7,10 @@ internal abstract class AsyncBatchSubscriberBase<T> : IDisposable
 {
     private readonly IDisposable _sub;
     protected readonly object BatchLock = new();
-    protected readonly IAsyncFiber Fiber;
+    protected readonly IFiber Fiber;
     protected readonly TimeSpan Interval;
 
-    protected AsyncBatchSubscriberBase(ISubscriberPort<T> channel, IAsyncFiber fiber, TimeSpan interval)
+    protected AsyncBatchSubscriberBase(ISubscriberPort<T> channel, IFiber fiber, TimeSpan interval)
     {
         _sub = channel.Subscribe(fiber, OnMessageAsync);
         Fiber = fiber;

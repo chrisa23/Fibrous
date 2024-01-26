@@ -10,7 +10,7 @@ internal sealed class AsyncLastSubscriber<T> : AsyncBatchSubscriberBase<T>
     private T _pending;
 
     public AsyncLastSubscriber(ISubscriberPort<T> channel,
-        IAsyncFiber fiber,
+        IFiber fiber,
         TimeSpan interval,
         Func<T, Task> target)
         : base(channel, fiber, interval) =>
@@ -57,10 +57,10 @@ internal sealed class AsyncLastEventSubscriber : IDisposable
     private            bool        _pending;
     private readonly   IDisposable _sub;
     protected readonly object      BatchLock = new();
-    protected readonly IAsyncFiber Fiber;
+    protected readonly IFiber Fiber;
     protected readonly TimeSpan    Interval;
     public AsyncLastEventSubscriber(IEventPort channel,
-        IAsyncFiber fiber,
+        IFiber fiber,
         TimeSpan interval,
         Action target)
     {

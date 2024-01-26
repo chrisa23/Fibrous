@@ -5,7 +5,7 @@ namespace Fibrous;
 
 internal sealed class AsyncTimerScheduler : IAsyncFiberScheduler
 {
-    public IDisposable Schedule(IAsyncFiber fiber, Func<Task> action, TimeSpan dueTime)
+    public IDisposable Schedule(IFiber fiber, Func<Task> action, TimeSpan dueTime)
     {
         if (dueTime.TotalMilliseconds <= 0)
         {
@@ -17,6 +17,6 @@ internal sealed class AsyncTimerScheduler : IAsyncFiberScheduler
         return new AsyncTimerAction(fiber, action, dueTime);
     }
 
-    public IDisposable Schedule(IAsyncFiber fiber, Func<Task> action, TimeSpan dueTime, TimeSpan interval) =>
+    public IDisposable Schedule(IFiber fiber, Func<Task> action, TimeSpan dueTime, TimeSpan interval) =>
         new AsyncTimerAction(fiber, action, dueTime, interval);
 }

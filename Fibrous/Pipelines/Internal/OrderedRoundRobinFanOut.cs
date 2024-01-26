@@ -7,7 +7,7 @@ namespace Fibrous;
 
 internal sealed class OrderedRoundRobinFanOut<T> : Disposables
 {
-    private readonly IAsyncFiber                      _fiber = new AsyncFiber(OnException);
+    private readonly IFiber                      _fiber = new Fiber(OnException);
 
     private static void OnException(Exception obj)
     {

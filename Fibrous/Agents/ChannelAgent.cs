@@ -9,11 +9,11 @@ namespace Fibrous.Agents;
 /// <typeparam name="T"></typeparam>
 public class ChannelAgent<T> : IDisposable
 {
-    protected IAsyncFiber Fiber;
+    protected IFiber Fiber;
 
     public ChannelAgent(IChannel<T> channel, Func<T, Task> handler, Action<Exception> errorCallback)
     {
-        Fiber = new AsyncFiber(errorCallback);
+        Fiber = new Fiber(errorCallback);
         channel.Subscribe(Fiber, handler);
     }
 

@@ -8,13 +8,13 @@ internal class AsyncCronScheduler : IDisposable
 {
     private readonly Func<Task> _action;
     private readonly CronExpression _cronExpression;
-    private readonly IAsyncScheduler _scheduler;
+    private readonly IScheduler _scheduler;
     private bool _running = true;
     private IDisposable _sub;
 
     //make use of current timespan scheduling 
     //but with UTC and add hour on ambiguous when time < now
-    public AsyncCronScheduler(IAsyncScheduler scheduler, Func<Task> action, string cron)
+    public AsyncCronScheduler(IScheduler scheduler, Func<Task> action, string cron)
     {
         _scheduler = scheduler;
         _action = async () =>

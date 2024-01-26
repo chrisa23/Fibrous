@@ -12,8 +12,8 @@ internal class SnapshotChannel
     [Test]
     public void AsyncSnapshot()
     {
-        using AsyncFiber fiber = new();
-        using AsyncFiber fiber2 = new();
+        using Fiber fiber = new();
+        using Fiber fiber2 = new();
         List<string> list = new() {"Prime"};
         SnapshotChannel<string, string[]> channel = new();
 

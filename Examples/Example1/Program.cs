@@ -21,7 +21,7 @@ namespace Example1
         {
             //Exceptions get lost with AsyncFiber, so use an
             //exception callback
-            AsyncFiber h = new AsyncFiber();
+            Fiber h = new Fiber();
             for (int i = 0; i < 10; i++)
             {
                 h.Enqueue(() =>
@@ -52,7 +52,7 @@ namespace Example1
 
         private static void SimpleExample()
         {
-            using AsyncFiber fiber   = new AsyncFiber();
+            using Fiber fiber   = new Fiber();
             IChannel<string> channel = fiber.NewChannel<string>(Console.WriteLine);
 
             channel.Publish("Test message");
@@ -87,12 +87,12 @@ namespace Example1
 
     public class Calculator : IDisposable
     {
-        private readonly IAsyncFiber _fiber;
+        private readonly IFiber _fiber;
         private double _current;
 
         public Calculator()
         {
-            _fiber = new AsyncFiber(OnError);
+            _fiber = new Fiber(OnError);
             Messages = _fiber.NewChannel<Message>(OnMessage);
             Requests = _fiber.NewRequestPort<object, double>(OnRequest);
         }

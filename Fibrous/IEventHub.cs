@@ -13,7 +13,7 @@ namespace Fibrous;
 /// </summary>
 public interface IEventHub
 {
-    IDisposable Subscribe(IAsyncFiber fiber, object handler);
+    IDisposable Subscribe(IFiber fiber, object handler);
     void Publish<T>(T msg);
 }
 
@@ -47,7 +47,7 @@ public sealed class EventHub : IEventHub
 {
     private readonly ConcurrentDictionary<Type, object> _channels = new();
 
-    public IDisposable Subscribe(IAsyncFiber fiber, object handler)
+    public IDisposable Subscribe(IFiber fiber, object handler)
     {
         IDisposable disposable = SetupHandlers(handler, fiber, false);
 
@@ -99,7 +99,7 @@ public sealed class EventHub : IEventHub
 
 
     // ReSharper disable once UnusedMember.Local
-    private IDisposable AsyncSubscribeToChannel<T>(IAsyncFiber fiber, IHandleAsync<T> receive)
+    private IDisposable AsyncSubscribeToChannel<T>(IFiber fiber, IHandleAsync<T> receive)
     {
         Type type = typeof(T);
         IChannel<T> channel = (IChannel<T>)_channels.GetOrAdd(type, _ => new Channel<T>());

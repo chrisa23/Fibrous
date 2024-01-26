@@ -19,7 +19,7 @@ public class EventChannelTests
             reset.Set();
         }
 
-        using AsyncFiber fiber = new();
+        using Fiber fiber = new();
 
         eventChannel.Subscribe(fiber, Receive);
 
@@ -44,7 +44,7 @@ public class EventChannelTests
             }
         }
 
-        using AsyncFiber fiber = new();
+        using Fiber fiber = new();
 
         eventChannel.SubscribeThrottled(fiber, Receive, TimeSpan.FromSeconds(.5));
         for (int j = 0; j < 10; j++)

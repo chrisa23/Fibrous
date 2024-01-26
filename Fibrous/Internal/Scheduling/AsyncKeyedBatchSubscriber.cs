@@ -11,7 +11,7 @@ internal sealed class AsyncKeyedBatchSubscriber<TKey, T> : AsyncBatchSubscriberB
     private Dictionary<TKey, T> _pending;
 
     public AsyncKeyedBatchSubscriber(ISubscriberPort<T> channel,
-        IAsyncFiber fiber,
+        IFiber fiber,
         TimeSpan interval,
         Converter<T, TKey> keyResolver,
         Func<IDictionary<TKey, T>, Task> target)

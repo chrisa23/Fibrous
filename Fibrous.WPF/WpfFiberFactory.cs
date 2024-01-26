@@ -15,6 +15,6 @@ public class WpfFiberFactory : IFiberFactory
         _priority = priority;
     }
 
-    public IAsyncFiber CreateAsyncFiber(Action<Exception> errorHandler) =>
-        new AsyncDispatcherFiber(errorHandler, _dispatcher, _priority);
+    public IFiber CreateAsyncFiber(Action<Exception> errorHandler) =>
+        new DispatcherFiber(errorHandler, _dispatcher, _priority);
 }

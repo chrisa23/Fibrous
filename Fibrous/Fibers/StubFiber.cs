@@ -6,15 +6,15 @@ namespace Fibrous;
 /// <summary>
 ///     Fiber that executes on caller's thread.  For testing and well understood situations.  Use with caution.
 /// </summary>
-public sealed class AsyncStubFiber : AsyncFiberBase
+public sealed class StubFiber : FiberBase
 {
-    public AsyncStubFiber(IAsyncExecutor executor = null, IAsyncFiberScheduler scheduler = null)
+    public StubFiber(IExecutor executor = null, IAsyncFiberScheduler scheduler = null)
         : base(executor, scheduler)
     {
     }
 
-    public AsyncStubFiber(Action<Exception> errorCallback, IAsyncFiberScheduler scheduler = null)
-        : this(new AsyncExceptionHandlingExecutor(errorCallback), scheduler)
+    public StubFiber(Action<Exception> errorCallback, IAsyncFiberScheduler scheduler = null)
+        : this(new ExceptionHandlingExecutor(errorCallback), scheduler)
     {
     }
 

@@ -14,13 +14,13 @@ public interface IEventTrigger
 
 public interface IEventPort
 {
-    IDisposable Subscribe(IAsyncFiber fiber, Func<Task> receive);
+    IDisposable Subscribe(IFiber fiber, Func<Task> receive);
     IDisposable Subscribe(Action receive);
 }
 
 public static class EventPortExtensions
 {
-    public static IDisposable SubscribeThrottled(this IEventPort port, IAsyncFiber fiber, Action receive, TimeSpan span) =>
+    public static IDisposable SubscribeThrottled(this IEventPort port, IFiber fiber, Action receive, TimeSpan span) =>
         new AsyncLastEventSubscriber(port, fiber, span, receive);
 }
 
@@ -34,7 +34,7 @@ public class EventChannel : IEventChannel, IDisposable
 
     public void Trigger() => _internalEvent.Trigger();
 
-    public IDisposable Subscribe(IAsyncFiber fiber, Func<Task> receive)
+    public IDisposable Subscribe(IFiber fiber, Func<Task> receive)
     {
         void Action() => fiber.Enqueue(receive);
 

@@ -1,20 +1,23 @@
+// Licensed to the.NET Foundation under one or more agreements.
+// The.NET Foundation licenses this file to you under the MIT license.
+
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Fibrous;
 
-public abstract class AsyncFiberBase : IAsyncFiber
+public abstract class FiberBase : IFiber
 {
-    private readonly Disposables _disposables = new();
-    private readonly IAsyncFiberScheduler _fiberScheduler;
-    protected readonly IAsyncExecutor Executor;
-    private bool _disposed;
+    private readonly   Disposables          _disposables = new();
+    private readonly   IAsyncFiberScheduler _fiberScheduler;
+    protected readonly IExecutor            Executor;
+    private            bool                 _disposed;
 
-    protected AsyncFiberBase(IAsyncExecutor executor = null, IAsyncFiberScheduler scheduler = null)
+    protected FiberBase(IExecutor executor = null, IAsyncFiberScheduler scheduler = null)
     {
         _fiberScheduler = scheduler ?? new AsyncTimerScheduler();
-        Executor = executor ?? new AsyncExecutor();
+        Executor = executor ?? new Executor();
     }
 
     public IDisposable Schedule(Func<Task> action, TimeSpan dueTime) =>
@@ -62,18 +65,3 @@ public abstract class AsyncFiberBase : IAsyncFiber
 
     protected abstract void InternalEnqueue(Func<Task> action);
 }
-
-internal readonly struct ActionConverter
-{
-    public ActionConverter(Action action)
-    {
-        _action = action;
-    }
-    readonly Action _action;
-    public Task InvokeAsync()
-    {
-        _action.Invoke();
-        return Task.CompletedTask;
-    }
-}
-

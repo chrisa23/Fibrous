@@ -2,13 +2,13 @@
 
 namespace Fibrous.Pipelines;
 
-public sealed class AsyncComponent<TIn, TOut> : AsyncFiberComponent
+public sealed class Component<TIn, TOut> : FiberComponent
 {
     private readonly IPublisherPort<Exception> _error;
     private readonly IPublisherPort<TOut> _output;
     private readonly IAsyncProcessor<TIn, TOut> _processor;
 
-    public AsyncComponent(IAsyncProcessor<TIn, TOut> processor,
+    public Component(IAsyncProcessor<TIn, TOut> processor,
         ISubscriberPort<TIn> input,
         IPublisherPort<TOut> output,
         IPublisherPort<Exception> error)

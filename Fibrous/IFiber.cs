@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 namespace Fibrous;
 
 //It's suggested to always use an Exception callback with the IAsyncFiber
-public interface IAsyncFiber : IAsyncScheduler, IDisposableRegistry
+public interface IFiber : IScheduler, IDisposableRegistry
 {
     void Enqueue(Action action);
     void Enqueue(Func<Task> action);
 }
 
-public interface IAsyncScheduler
+public interface IScheduler
 {
     /// <summary>
     ///     Schedule an action to be executed once
@@ -78,7 +78,7 @@ public static class AsyncFiberExtensions
             : when - DateTime.Now, interval);*/
 
 
-    public static IDisposable CronSchedule(this IAsyncScheduler scheduler, Func<Task> action, string cron) =>
+    public static IDisposable CronSchedule(this IScheduler scheduler, Func<Task> action, string cron) =>
         new AsyncCronScheduler(scheduler, action, cron);
 
     /// <summary>
@@ -89,7 +89,7 @@ public static class AsyncFiberExtensions
     /// <param name="channel"></param>
     /// <param name="handler"></param>
     /// <returns></returns>
-    public static IDisposable Subscribe<T>(this IAsyncFiber fiber, ISubscriberPort<T> channel,
+    public static IDisposable Subscribe<T>(this IFiber fiber, ISubscriberPort<T> channel,
         Func<T, Task> handler) =>
         channel.Subscribe(fiber, handler);
 
@@ -100,7 +100,7 @@ public static class AsyncFiberExtensions
     /// <param name="receive">  The receive. </param>
     /// <param name="interval"> The interval. </param>
     /// <returns>   . </returns>
-    public static IDisposable SubscribeToBatch<T>(this IAsyncFiber fiber,
+    public static IDisposable SubscribeToBatch<T>(this IFiber fiber,
         ISubscriberPort<T> port,
         Func<T[], Task> receive,
         TimeSpan interval) =>
@@ -117,7 +117,7 @@ public static class AsyncFiberExtensions
     /// <param name="receive"></param>
     /// <param name="interval"></param>
     /// <returns></returns>
-    public static IDisposable SubscribeToKeyedBatch<TKey, T>(this IAsyncFiber fiber,
+    public static IDisposable SubscribeToKeyedBatch<TKey, T>(this IFiber fiber,
         ISubscriberPort<T> port,
         Converter<T, TKey> keyResolver,
         Func<IDictionary<TKey, T>, Task> receive,
@@ -133,7 +133,7 @@ public static class AsyncFiberExtensions
     /// <param name="receive"></param>
     /// <param name="interval"></param>
     /// <returns></returns>
-    public static IDisposable SubscribeToLast<T>(this IAsyncFiber fiber,
+    public static IDisposable SubscribeToLast<T>(this IFiber fiber,
         ISubscriberPort<T> port,
         Func<T, Task> receive,
         TimeSpan interval) =>
@@ -148,7 +148,7 @@ public static class AsyncFiberExtensions
     /// <param name="receive"></param>
     /// <param name="filter"></param>
     /// <returns></returns>
-    public static IDisposable Subscribe<T>(this IAsyncFiber fiber,
+    public static IDisposable Subscribe<T>(this IFiber fiber,
         ISubscriberPort<T> port,
         Func<T, Task> receive,
         Predicate<T> filter)
@@ -166,20 +166,20 @@ public static class AsyncFiberExtensions
         return new Unsubscriber(sub, fiber);
     }
 
-    public static IChannel<T> NewChannel<T>(this IAsyncFiber fiber, Action<T> onEvent)
+    public static IChannel<T> NewChannel<T>(this IFiber fiber, Action<T> onEvent)
     {
         Channel<T> channel = new();
         channel.Subscribe(fiber, onEvent.ToAsync());
         return channel;
     }
-    public static IChannel<T> NewChannel<T>(this IAsyncFiber fiber, Func<T, Task> onEvent)
+    public static IChannel<T> NewChannel<T>(this IFiber fiber, Func<T, Task> onEvent)
     {
         Channel<T> channel = new();
         channel.Subscribe(fiber, onEvent);
         return channel;
     }
 
-    public static IRequestPort<TRq, TRp> NewRequestPort<TRq, TRp>(this IAsyncFiber fiber,
+    public static IRequestPort<TRq, TRp> NewRequestPort<TRq, TRp>(this IFiber fiber,
         Func<IRequest<TRq, TRp>, Task> onEvent)
     {
         RequestChannel<TRq, TRp> channel = new();

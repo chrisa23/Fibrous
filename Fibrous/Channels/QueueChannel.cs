@@ -20,7 +20,7 @@ public sealed class QueueChannel<TMsg> : IChannel<TMsg>
     private long _subCount;
     private IQueueSubscriber[] _subscribers = new IQueueSubscriber[0];
 
-    public IDisposable Subscribe(IAsyncFiber fiber, Func<TMsg, Task> receive)
+    public IDisposable Subscribe(IFiber fiber, Func<TMsg, Task> receive)
     {
         AsyncQueueConsumer asyncQueueConsumer = new(fiber, receive, this);
         lock (_lock)
@@ -88,9 +88,9 @@ public sealed class QueueChannel<TMsg> : IChannel<TMsg>
         private readonly Func<Task> _cache;
         private readonly Func<TMsg, Task> _callback;
         private readonly QueueChannel<TMsg> _eventChannel;
-        private readonly IAsyncFiber _target;
+        private readonly IFiber _target;
 
-        public AsyncQueueConsumer(IAsyncFiber target, Func<TMsg, Task> callback,
+        public AsyncQueueConsumer(IFiber target, Func<TMsg, Task> callback,
             QueueChannel<TMsg> eventChannel)
         {
             _target = target;

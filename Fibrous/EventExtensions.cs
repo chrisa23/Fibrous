@@ -15,7 +15,7 @@ public static class EventExtensions
     /// <param name="eventName"></param>
     /// <param name="receive"></param>
     /// <returns></returns>
-    public static IDisposable SubscribeToEvent<T>(this IAsyncFiber fiber, object obj, string eventName,
+    public static IDisposable SubscribeToEvent<T>(this IFiber fiber, object obj, string eventName,
         Func<T, Task> receive)
     {
         EventInfo evt = obj.GetType().GetEvent(eventName);
@@ -39,7 +39,7 @@ public static class EventExtensions
     /// <param name="eventName"></param>
     /// <param name="receive"></param>
     /// <returns></returns>
-    public static IDisposable SubscribeToEvent(this IAsyncFiber fiber, object obj, string eventName,
+    public static IDisposable SubscribeToEvent(this IFiber fiber, object obj, string eventName,
         Func<Task> receive)
     {
         EventInfo evt = obj.GetType().GetEvent(eventName);

@@ -43,7 +43,7 @@ namespace Fibrous.Benchmark
             }
         }
 
-        public void Run(IAsyncFiber fiber)
+        public void Run(IFiber fiber)
         {
             using (fiber)
             {
@@ -72,9 +72,9 @@ namespace Fibrous.Benchmark
 
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void Async() => Run(new AsyncFiber());
+        public void Async() => Run(new Fiber());
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void AsyncLock() => Run(new LockAsyncFiber());
+        public void AsyncLock() => Run(new LockFiber());
     }
 }

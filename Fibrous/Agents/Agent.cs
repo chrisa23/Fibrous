@@ -10,12 +10,12 @@ namespace Fibrous.Agents;
 public class Agent<T> : IAgent<T>
 {
     private readonly Func<T, Task> _handler;
-    protected IAsyncFiber Fiber;
+    protected IFiber Fiber;
 
     public Agent(Func<T, Task> handler, Action<Exception> callback)
     {
         _handler = handler;
-        Fiber = new AsyncFiber(callback);
+        Fiber = new Fiber(callback);
     }
 
     public Agent(IFiberFactory factory, Func<T, Task> handler, Action<Exception> callback)

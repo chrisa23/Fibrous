@@ -9,10 +9,10 @@ public sealed class RequestChannel<TRequest, TReply> : IRequestChannel<TRequest,
     private readonly IChannel<IRequest<TRequest, TReply>> _requestChannel =
         new Channel<IRequest<TRequest, TReply>>();
 
-    public IDisposable SetRequestHandler(IAsyncFiber fiber, Func<IRequest<TRequest, TReply>, Task> onRequest) =>
+    public IDisposable SetRequestHandler(IFiber fiber, Func<IRequest<TRequest, TReply>, Task> onRequest) =>
         _requestChannel.Subscribe(fiber, onRequest);
 
-    public IDisposable SendRequest(TRequest request, IAsyncFiber fiber, Func<TReply, Task> onReply)
+    public IDisposable SendRequest(TRequest request, IFiber fiber, Func<TReply, Task> onReply)
     {
         AsyncChannelRequest channelRequest = new(fiber, request, onReply);
         _requestChannel.Publish(channelRequest);
@@ -97,7 +97,7 @@ public sealed class RequestChannel<TRequest, TReply> : IRequestChannel<TRequest,
         private readonly IChannel<TReply> _resp = new Channel<TReply>();
         private readonly IDisposable _sub;
 
-        public AsyncChannelRequest(IAsyncFiber fiber, TRequest request, Func<TReply, Task> replier)
+        public AsyncChannelRequest(IFiber fiber, TRequest request, Func<TReply, Task> replier)
         {
             Request = request;
             _sub = _resp.Subscribe(fiber, replier);

@@ -6,10 +6,10 @@ namespace Fibrous;
 public interface ISnapshotChannel<T, TSnapshot> : IPublisherPort<T>, ISnapshotSubscriberPort<T, TSnapshot>,
     IDisposable
 {
-    IDisposable ReplyToPrimingRequest(IAsyncFiber fiber, Func<Task<TSnapshot>> reply);
+    IDisposable ReplyToPrimingRequest(IFiber fiber, Func<Task<TSnapshot>> reply);
 }
 
 public interface ISnapshotSubscriberPort<out T, out TSnapshot>
 {
-    IDisposable Subscribe(IAsyncFiber fiber, Func<T, Task> receive, Func<TSnapshot, Task> receiveSnapshot);
+    IDisposable Subscribe(IFiber fiber, Func<T, Task> receive, Func<TSnapshot, Task> receiveSnapshot);
 }

@@ -14,7 +14,7 @@ public class FiberDictionary<TKey, T> :
     private readonly ISnapshotChannel<ItemAction<KeyValuePair<TKey, T>>, KeyValuePair<TKey, T>[]> _channel =
         new SnapshotChannel<ItemAction<KeyValuePair<TKey, T>>, KeyValuePair<TKey, T>[]>();
 
-    private readonly IAsyncFiber _fiber;
+    private readonly IFiber _fiber;
 
     private readonly Dictionary<TKey, T> _items = new();
     private readonly IChannel<TKey> _remove = new Channel<TKey>();
@@ -22,9 +22,9 @@ public class FiberDictionary<TKey, T> :
     private readonly IRequestChannel<Func<TKey, bool>, KeyValuePair<TKey, T>[]> _request =
         new RequestChannel<Func<TKey, bool>, KeyValuePair<TKey, T>[]>();
 
-    public FiberDictionary(IAsyncExecutor executor = null)
+    public FiberDictionary(IExecutor executor = null)
     {
-        _fiber = new AsyncFiber(executor);
+        _fiber = new Fiber(executor);
         _channel.ReplyToPrimingRequest(_fiber, Reply);
         _add.Subscribe(_fiber, AddItem);
         _remove.Subscribe(_fiber, RemoveItem);
@@ -34,7 +34,7 @@ public class FiberDictionary<TKey, T> :
     public void Dispose() => _fiber.Dispose();
 
 
-    public IDisposable SendRequest(Func<TKey, bool> request, IAsyncFiber fiber,
+    public IDisposable SendRequest(Func<TKey, bool> request, IFiber fiber,
         Func<KeyValuePair<TKey, T>[], Task> onReply) => _request.SendRequest(request, fiber, onReply);
 
     public Task<KeyValuePair<TKey, T>[]> SendRequestAsync(Func<TKey, bool> request) =>
@@ -43,7 +43,7 @@ public class FiberDictionary<TKey, T> :
     public Task<Reply<KeyValuePair<TKey, T>[]>> SendRequestAsync(Func<TKey, bool> request, TimeSpan timeout) =>
         _request.SendRequestAsync(request, timeout);
 
-    public IDisposable Subscribe(IAsyncFiber fiber, Func<ItemAction<KeyValuePair<TKey, T>>, Task> receive,
+    public IDisposable Subscribe(IFiber fiber, Func<ItemAction<KeyValuePair<TKey, T>>, Task> receive,
         Func<KeyValuePair<TKey, T>[], Task> receiveSnapshot) => _channel.Subscribe(fiber, receive, receiveSnapshot);
 
     public void Add(KeyValuePair<TKey, T> item) => _add.Publish(item);
@@ -124,7 +124,7 @@ public class FiberDictionary<TKey, T> :
     //Helper functions to create handlers for maintaining a local collection based on a FiberDictionary
 
     public IDisposable
-        SubscribeLocalCopy(IAsyncFiber fiber, Dictionary<TKey, T> localDict, Action updateCallback) => Subscribe(
+        SubscribeLocalCopy(IFiber fiber, Dictionary<TKey, T> localDict, Action updateCallback) => Subscribe(
         fiber, CreateReceiveAsync(localDict, updateCallback), CreateSnapshotAsync(localDict, updateCallback));
 
     private static Action<ItemAction<KeyValuePair<TKey, T>>> CreateReceive(Dictionary<TKey, T> localDict,

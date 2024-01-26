@@ -7,9 +7,9 @@ namespace Fibrous.WPF;
 public abstract class AsyncFiberViewModelBase : INotifyPropertyChanged
 {
     protected AsyncFiberViewModelBase(IFiberFactory factory = null) =>
-        Fiber = factory?.CreateAsyncFiber(OnError) ?? new AsyncDispatcherFiber(OnError);
+        Fiber = factory?.CreateAsyncFiber(OnError) ?? new DispatcherFiber(OnError);
 
-    protected IAsyncFiber Fiber { get; }
+    protected IFiber Fiber { get; }
 
     public event PropertyChangedEventHandler PropertyChanged;
 

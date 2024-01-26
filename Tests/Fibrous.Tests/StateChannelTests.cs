@@ -11,7 +11,7 @@ public class StateChannelTests
     [Test]
     public void StateChannel()
     {
-        using AsyncFiber fiber = new();
+        using Fiber fiber = new();
         string result = null;
         AutoResetEvent reset = new(false);
 
@@ -50,7 +50,7 @@ public class StateChannelTests
     [Test]
     public void StateChannelNoInit()
     {
-        using AsyncFiber fiber = new();
+        using Fiber fiber = new();
         string result = null;
         AutoResetEvent reset = new(false);
 
@@ -89,7 +89,7 @@ public class StateChannelTests
     [Test]
     public void AsyncStateChannel()
     {
-        using AsyncFiber fiber = new();
+        using Fiber fiber = new();
         string result = null;
         AutoResetEvent reset = new(false);
 
@@ -128,7 +128,7 @@ public class StateChannelTests
     [Test]
     public void AsyncStateChannelNoInit()
     {
-        using AsyncFiber fiber = new();
+        using Fiber fiber = new();
         string result = null;
         AutoResetEvent reset = new(false);
 

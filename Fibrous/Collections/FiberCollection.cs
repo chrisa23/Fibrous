@@ -14,20 +14,20 @@ public class FiberCollection<T> : ISnapshotSubscriberPort<ItemAction<T>, T[]>, I
     IDisposable
 {
     private readonly ISnapshotChannel<ItemAction<T>, T[]> _channel = new SnapshotChannel<ItemAction<T>, T[]>();
-    private readonly IAsyncFiber _fiber;
+    private readonly IFiber _fiber;
     private readonly List<T> _items = new();
     private readonly IRequestChannel<Func<T, bool>, T[]> _request = new RequestChannel<Func<T, bool>, T[]>();
 
-    public FiberCollection(IAsyncExecutor executor = null)
+    public FiberCollection(IExecutor executor = null)
     {
-        _fiber = new AsyncFiber(executor);
+        _fiber = new Fiber(executor);
         _channel.ReplyToPrimingRequest(_fiber, Reply);
         _request.SetRequestHandler(_fiber, OnRequest);
     }
 
     public void Dispose() => _fiber.Dispose();
 
-    public IDisposable SendRequest(Func<T, bool> request, IAsyncFiber fiber, Func<T[], Task> onReply) =>
+    public IDisposable SendRequest(Func<T, bool> request, IFiber fiber, Func<T[], Task> onReply) =>
         _request.SendRequest(request, fiber, onReply);
 
     public Task<T[]> SendRequestAsync(Func<T, bool> request) => _request.SendRequestAsync(request);
@@ -37,7 +37,7 @@ public class FiberCollection<T> : ISnapshotSubscriberPort<ItemAction<T>, T[]>, I
 
 
 
-    public IDisposable Subscribe(IAsyncFiber fiber, Func<ItemAction<T>, Task> receive,
+    public IDisposable Subscribe(IFiber fiber, Func<ItemAction<T>, Task> receive,
         Func<T[], Task> receiveSnapshot) => _channel.Subscribe(fiber, receive, receiveSnapshot);
 
     public void Clear() =>
@@ -79,7 +79,7 @@ public class FiberCollection<T> : ISnapshotSubscriberPort<ItemAction<T>, T[]>, I
 
     private async Task<T[]> Reply() => _items.ToArray();
 
-    public IDisposable SubscribeLocalCopy(IAsyncFiber fiber, List<T> local, Action updateCallback) =>
+    public IDisposable SubscribeLocalCopy(IFiber fiber, List<T> local, Action updateCallback) =>
         Subscribe(fiber, CreateReceive(local, updateCallback), CreateSnapshot(local, updateCallback));
 
     private static Func<T[], Task> CreateSnapshot(List<T> local,

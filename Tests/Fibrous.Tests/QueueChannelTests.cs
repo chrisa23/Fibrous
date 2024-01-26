@@ -20,7 +20,7 @@ public class QueueChannelTests
         }
     }
 
-    private void QueueChannelTest(int fibers, Func<IAsyncFiber> factory, int messageCount,
+    private void QueueChannelTest(int fibers, Func<IFiber> factory, int messageCount,
         Func<IChannel<int>> channelFactory)
     {
         using Disposables queues = new();
@@ -41,7 +41,7 @@ public class QueueChannelTests
 
         for (int i = 0; i < fibers; i++)
         {
-            IAsyncFiber fiber = factory();
+            IFiber fiber = factory();
             queues.Add(fiber);
             channel.Subscribe(fiber, OnReceive);
         }
@@ -64,7 +64,7 @@ public class QueueChannelTests
     public void Multiple()
     {
         const int MessageCount = 100;
-        List<IAsyncFiber> queues = new();
+        List<IFiber> queues = new();
         int receiveCount = 0;
         using AutoResetEvent reset = new(false);
         object updateLock = new();
@@ -86,7 +86,7 @@ public class QueueChannelTests
 
         for (int i = 0; i < 5; i++)
         {
-            AsyncFiber fiber = new();
+            Fiber fiber = new();
             queues.Add(fiber);
             channel.Subscribe(fiber, OnReceive);
         }
@@ -105,9 +105,9 @@ public class QueueChannelTests
     {
         int msgCount = 1000;
 
-        static IAsyncFiber Factory()
+        static IFiber Factory()
         {
-            return new AsyncFiber();
+            return new Fiber();
         }
 
         Console.WriteLine("First");
@@ -122,7 +122,7 @@ public class QueueChannelTests
     public void SingleConsumer()
     {
         int oneConsumed = 0;
-        using AsyncFiber one = new();
+        using Fiber one = new();
         using AutoResetEvent reset = new(false);
         QueueChannel<int> channel = new();
 
@@ -160,8 +160,8 @@ public class QueueChannelTests
         }
 
         List<Exception> failed = new();
-        AsyncExceptionHandlingExecutor exec = new(async x => failed.Add(x));
-        using AsyncFiber one = new(exec);
+        ExceptionHandlingExecutor exec = new(async x => failed.Add(x));
+        using Fiber one = new(exec);
         QueueChannel<int> channel = new();
         channel.Subscribe(one, OnMsg);
         channel.Publish(0);
@@ -186,8 +186,8 @@ public class QueueChannelTests
             }
         }
 
-        using AsyncFiber fiber = new();
-        using AsyncFiber fiber2 = new();
+        using Fiber fiber = new();
+        using Fiber fiber2 = new();
         using QueueChannel<int> queue = new();
         queue.Subscribe(fiber, OnMessage);
         queue.Subscribe(fiber2, OnMessage);
@@ -216,8 +216,8 @@ public class QueueChannelTests
             }
         }
 
-        using AsyncFiber fiber = new();
-        using AsyncFiber fiber2 = new();
+        using Fiber fiber = new();
+        using Fiber fiber2 = new();
         using QueueChannel<int> queue = new();
         queue.Subscribe(fiber, OnMessage);
         queue.Subscribe(fiber2, OnMessage);
@@ -276,8 +276,8 @@ public class QueueChannelTests
             Thread.Sleep(100);
         }
 
-        using AsyncFiber fiber = new();
-        using AsyncFiber fiber2 = new();
+        using Fiber fiber = new();
+        using Fiber fiber2 = new();
         using QueueChannel<int> queue = new();
         queue.Subscribe(fiber, OnMessage);
         queue.Subscribe(fiber2, OnMessage2);
@@ -311,9 +311,9 @@ public class QueueChannelTests
         }
 
         using IChannel<int> _queue = new QueueChannel<int>();
-        using AsyncFiber fiber1 = new();
-        using AsyncFiber fiber2 = new();
-        using AsyncFiber fiber3 = new();
+        using Fiber fiber1 = new();
+        using Fiber fiber2 = new();
+        using Fiber fiber3 = new();
         using IDisposable sub = _queue.Subscribe(fiber1, AsyncHandler);
         using IDisposable sub2 = _queue.Subscribe(fiber2, AsyncHandler);
         using IDisposable sub3 = _queue.Subscribe(fiber3, AsyncHandler);

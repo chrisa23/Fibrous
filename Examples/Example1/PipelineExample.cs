@@ -46,10 +46,10 @@ namespace Example1
             var channels = new Channels();
             var processor1 = new Stage1(new SomeService());
             var processor2 = new Stage2(new SomeDataAccess());
-            using var stage1 = new AsyncComponent<Payload, Payload>(processor1, channels.Input, channels.Stage1To2, channels.Errors);
-            using var stage2 = new AsyncComponent<Payload, Payload>(processor2, channels.Stage1To2, channels.Output, channels.Errors);
-            using var stub = new AsyncStubFiber();
-            using var timer = new AsyncFiber();
+            using var stage1 = new Component<Payload, Payload>(processor1, channels.Input, channels.Stage1To2, channels.Errors);
+            using var stage2 = new Component<Payload, Payload>(processor2, channels.Stage1To2, channels.Output, channels.Errors);
+            using var stub = new StubFiber();
+            using var timer = new Fiber();
 
             channels.Output.Subscribe(stub, payload =>
             {

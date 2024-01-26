@@ -8,7 +8,7 @@ namespace Fibrous.Tests;
 
 public static class FiberTester
 {
-    public static void TestPubSubSimple(IAsyncFiber fiber)
+    public static void TestPubSubSimple(IFiber fiber)
     {
         using (fiber)
         using (AutoResetEvent reset = new(false))
@@ -25,7 +25,7 @@ public static class FiberTester
     }
 
 
-    public static void TestPubSubWithFilter(IAsyncFiber fiber)
+    public static void TestPubSubWithFilter(IFiber fiber)
     {
         using (fiber)
         using (AutoResetEvent reset = new(false))
@@ -52,7 +52,7 @@ public static class FiberTester
         }
     }
 
-    public static async Task TestReqReplyAsync(IAsyncFiber fiber)
+    public static async Task TestReqReplyAsync(IFiber fiber)
     {
         RequestChannel<string, string> channel = new();
         using (fiber)
@@ -63,13 +63,13 @@ public static class FiberTester
         }
     }
 
-    public static void TestScheduling1(IAsyncFiber fiber)
+    public static void TestScheduling1(IFiber fiber)
     {
     }
 
 
 
-    public static void TestBatching(IAsyncFiber fiber)
+    public static void TestBatching(IFiber fiber)
     {
         using (fiber)
         using (ManualResetEvent reset = new(false))
@@ -98,7 +98,7 @@ public static class FiberTester
         }
     }
 
-    public static void TestBatchingWithKey(IAsyncFiber fiber)
+    public static void TestBatchingWithKey(IFiber fiber)
     {
         using (fiber)
         using (ManualResetEvent reset = new(false))
@@ -159,7 +159,7 @@ public static class FiberTester
     //    }
     //}
 
-    public static void InOrderExecution(IAsyncFiber fiber)
+    public static void InOrderExecution(IFiber fiber)
     {
         using (fiber)
         using (AutoResetEvent reset = new(false))
@@ -194,7 +194,7 @@ public static class FiberTester
         }
     }
 
-    public static void TestPubSubWExtraFiber(IAsyncFiber fiber, IAsyncFiber fiber2)
+    public static void TestPubSubWExtraFiber(IFiber fiber, IFiber fiber2)
     {
         using (fiber)
         using (fiber2)

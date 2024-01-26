@@ -11,8 +11,8 @@ public class BoundedProductionTests
     [Test]
     public void SlowerConsumer()
     {
-        using AsyncFiber fiber1 = new(size: 4);
-        using AsyncFiber fiber2 = new();
+        using Fiber fiber1 = new(size: 4);
+        using Fiber fiber2 = new();
         int              count  = 0;
         AutoResetEvent   reset  = new(false);
 

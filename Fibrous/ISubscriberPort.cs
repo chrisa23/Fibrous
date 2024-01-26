@@ -16,7 +16,7 @@ public interface ISubscriberPort<out T>
     /// <param name="fiber"></param>
     /// <param name="receive"></param>
     /// <returns></returns>
-    IDisposable Subscribe(IAsyncFiber fiber, Func<T, Task> receive);
+    IDisposable Subscribe(IFiber fiber, Func<T, Task> receive);
 
     /// <summary>
     ///     Subscribe to messages on this channel with a  handler directly.
@@ -36,7 +36,7 @@ public static class SubscriberPortExtensions
     /// <param name="interval"> The interval. </param>
     /// <returns>   . </returns>
     public static IDisposable SubscribeToBatch<T>(this ISubscriberPort<T> port,
-        IAsyncFiber fiber,
+        IFiber fiber,
         Func<T[], Task> receive,
         TimeSpan interval) =>
         new AsyncBatchSubscriber<T>(port, fiber, interval, receive);
@@ -54,7 +54,7 @@ public static class SubscriberPortExtensions
     /// <param name="interval"></param>
     /// <returns></returns>
     public static IDisposable SubscribeToKeyedBatch<TKey, T>(this ISubscriberPort<T> port,
-        IAsyncFiber fiber,
+        IFiber fiber,
         Converter<T, TKey> keyResolver,
         Func<IDictionary<TKey, T>, Task> receive,
         TimeSpan interval) =>
@@ -70,7 +70,7 @@ public static class SubscriberPortExtensions
     /// <param name="interval"></param>
     /// <returns></returns>
     public static IDisposable SubscribeToLast<T>(this ISubscriberPort<T> port,
-        IAsyncFiber fiber,
+        IFiber fiber,
         Func<T, Task> receive,
         TimeSpan interval) =>
         new AsyncLastSubscriber<T>(port, fiber, interval, receive);
@@ -85,7 +85,7 @@ public static class SubscriberPortExtensions
     /// <param name="filter"></param>
     /// <returns></returns>
     public static IDisposable Subscribe<T>(this ISubscriberPort<T> port,
-        IAsyncFiber fiber,
+        IFiber fiber,
         Func<T, Task> receive,
         Predicate<T> filter)
     {

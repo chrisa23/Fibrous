@@ -16,7 +16,7 @@ namespace Fibrous.Benchmark
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void AsyncFiber()
         {
-            using AsyncFiberConsumer consumer = new(_hub, _wait);
+            using FiberConsumer consumer = new(_hub, _wait);
 
             for (int j = 0; j < OperationsPerInvoke; j++)
             {
@@ -35,11 +35,11 @@ namespace Fibrous.Benchmark
             }
         }
 
-        public class AsyncFiberConsumer : AsyncFiberComponent, IHandleAsync<int>
+        public class FiberConsumer : FiberComponent, IHandleAsync<int>
         {
             private readonly AutoResetEvent _reset;
 
-            public AsyncFiberConsumer(IEventHub hub, AutoResetEvent reset)
+            public FiberConsumer(IEventHub hub, AutoResetEvent reset)
             {
                 _reset = reset;
                 hub.Subscribe(Fiber, this);

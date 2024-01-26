@@ -33,7 +33,7 @@ namespace Fibrous.Benchmark
             return Task.CompletedTask;
         }
 
-        public void Run(IAsyncFiber fiber)
+        public void Run(IFiber fiber)
         {
             using (fiber)
             {
@@ -51,12 +51,12 @@ namespace Fibrous.Benchmark
 
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void Async() => Run(new AsyncFiber());
+        public void Async() => Run(new Fiber());
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void AsyncLock() => Run(new LockAsyncFiber());
+        public void AsyncLock() => Run(new LockFiber());
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void AsyncStub() => Run(new AsyncStubFiber());
+        public void AsyncStub() => Run(new StubFiber());
     }
 }

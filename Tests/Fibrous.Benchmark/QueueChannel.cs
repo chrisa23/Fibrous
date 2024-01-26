@@ -46,7 +46,7 @@ namespace Fibrous.Benchmark
             using IChannel<int> _queue = queueFactory();
             using IDisposable fibers = new Disposables(Enumerable.Range(0, count).Select(x =>
             {
-                IAsyncFiber fiber = factory.CreateAsyncFiber(ex => { });
+                IFiber fiber = factory.CreateAsyncFiber(ex => { });
                 IDisposable sub = _queue.Subscribe(fiber, AsyncHandler);
                 return fiber;
             }));

@@ -15,7 +15,7 @@ public class ContentionTests
     [Test]
     public void Test()
     {
-        using AsyncFiber afiber = new();
+        using Fiber afiber = new();
         _count = 2;
         Run(afiber);
         Console.WriteLine("2");
@@ -60,7 +60,7 @@ public class ContentionTests
         }
     }
 
-    public void Run(IAsyncFiber fiber)
+    public void Run(IFiber fiber)
     {
         using IDisposable sub = _channel.Subscribe(fiber, AsyncHandler);
 

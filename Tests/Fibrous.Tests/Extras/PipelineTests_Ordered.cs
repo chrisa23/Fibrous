@@ -18,7 +18,7 @@ public class PipelineTests_Ordered
         int count = 1000;
         IStage<int, int> pipe = new AsyncStage<int, int>(async x => Enumerable.Range(0, count).ToArray())
             .SelectOrdered(x => x, 4);
-        using AsyncFiber fiber = new();
+        using Fiber fiber = new();
         pipe.Subscribe(fiber, async x =>
         {
             Assert.AreEqual(index, x);
@@ -48,7 +48,7 @@ public class PipelineTests_Ordered
                 Thread.Sleep((int)(rnd.NextDouble() * 10));
                 return x;
             }, 4);
-        using AsyncFiber fiber = new();
+        using Fiber fiber = new();
         pipe.Subscribe(fiber, async x =>
         {
             Assert.AreEqual(index, x);
@@ -84,7 +84,7 @@ public class PipelineTests_Ordered
             .Select(Id, Handle)
             .Select(Id, Handle)
             .Select(Id, Handle);
-        using AsyncFiber fiber = new();
+        using Fiber fiber = new();
         pipe.Subscribe(fiber, async x =>
         {
             index++;

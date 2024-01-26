@@ -10,7 +10,7 @@ public class EventBusTests
     [Test]
     public void EventBusInt()
     {
-        using AsyncFiber fiber = new();
+        using Fiber fiber = new();
         using AutoResetEvent reset = new(false);
         EventBus<int>.Subscribe(fiber, _ =>
         {
@@ -24,8 +24,8 @@ public class EventBusTests
     [Test]
     public void EventBusMixed()
     {
-        using AsyncFiber fiber = new();
-        using AsyncFiber fiber2 = new();
+        using Fiber fiber = new();
+        using Fiber fiber2 = new();
         using AutoResetEvent reset = new(false);
         using AutoResetEvent reset2 = new(false);
         EventBus<int>.Subscribe(fiber, _ =>
