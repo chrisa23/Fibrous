@@ -1,4 +1,3 @@
-/*
 using System;
 
 namespace Fibrous;
@@ -49,4 +48,3 @@ public static class ObservableExtensions
         }
     }
 }
-*/

@@ -6,7 +6,7 @@ using Fibrous.Collections;
 namespace Fibrous.Benchmark
 {
     [MemoryDiagnoser]
-    public class FiberDictionary
+    public class FiberDictionaryBench
     {
         private FiberDictionary<string, string> _dictionary;
 

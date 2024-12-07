@@ -16,7 +16,7 @@ public abstract class AsyncObserver<T> : IObserver<T>
     private bool _flushPending;
     private bool _stopped;
 
-    public AsyncObserver(int size = QueueSize.DefaultQueueSize, TaskFactory taskFactory = null)
+    protected AsyncObserver(int size = QueueSize.DefaultQueueSize, TaskFactory taskFactory = null)
     {
         _queue = new ArrayQueue<T>(size);
         _taskFactory = taskFactory ??

@@ -14,6 +14,8 @@ namespace Example1
             SimpleExample();
             await MoreComplexExample();
             AgentExample();
+
+            PipelineExample.Run();
         }
 
         private static void ExceptionTest()
