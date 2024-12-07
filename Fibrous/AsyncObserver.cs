@@ -133,15 +133,11 @@ public abstract class AsyncObserver<T> : IObserver<T>
     }
 }
 
-public sealed class AsyncObserverWrapper<T> : AsyncObserver<T>
+public sealed class AsyncObserverWrapper<T>(IObserver<T> wrapped) : AsyncObserver<T>
 {
-    private readonly IObserver<T> _wrapped;
+    protected override void HandleCompleted() => wrapped.OnCompleted();
 
-    public AsyncObserverWrapper(IObserver<T> wrapped) => _wrapped = wrapped;
+    protected override void HandleError(Exception error) => wrapped.OnError(error);
 
-    protected override void HandleCompleted() => _wrapped.OnCompleted();
-
-    protected override void HandleError(Exception error) => _wrapped.OnError(error);
-
-    protected override void Handle(T value) => _wrapped.OnNext(value);
+    protected override void Handle(T value) => wrapped.OnNext(value);
 }
