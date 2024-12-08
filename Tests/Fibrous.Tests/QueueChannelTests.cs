@@ -10,9 +10,9 @@ namespace Fibrous.Tests;
 [TestFixture]
 public class QueueChannelTests
 {
-    private static void NOP(double durationMS)
+    private static void NOP(double durationMs)
     {
-        double durationTicks = Math.Round(durationMS * Stopwatch.Frequency / 1000);
+        double durationTicks = Math.Round(durationMs * Stopwatch.Frequency / 1000);
         Stopwatch sw = Stopwatch.StartNew();
 
         while (sw.ElapsedTicks < durationTicks)
@@ -28,15 +28,17 @@ public class QueueChannelTests
         using IChannel<int> channel = channelFactory();
         int count = 0;
 
-        async Task OnReceive(int obj)
+        Task OnReceive(int obj)
         {
             int c = Interlocked.Increment(ref count);
             if (c == messageCount)
             {
+                // ReSharper disable once AccessToDisposedClosure
                 reset.Set();
             }
 
             NOP(1);
+            return Task.CompletedTask;
         }
 
         for (int i = 0; i < fibers; i++)
@@ -63,23 +65,26 @@ public class QueueChannelTests
     [Test]
     public void Multiple()
     {
-        const int MessageCount = 100;
+        const int messageCount = 100;
         List<IFiber> queues = new();
         int receiveCount = 0;
         using AutoResetEvent reset = new(false);
         object updateLock = new();
 
-        async Task OnReceive(int obj)
+        Task OnReceive(int obj)
         {
             Thread.Sleep(15);
             lock (updateLock)
             {
                 Interlocked.Increment(ref receiveCount);
-                if (receiveCount == MessageCount)
+                if (receiveCount == messageCount)
                 {
+                    // ReSharper disable once AccessToDisposedClosure
                     reset.Set();
                 }
             }
+
+            return Task.CompletedTask;
         }
 
         QueueChannel<int> channel = new();
@@ -91,7 +96,7 @@ public class QueueChannelTests
             channel.Subscribe(fiber, OnReceive);
         }
 
-        for (int i = 0; i < MessageCount; i++)
+        for (int i = 0; i < messageCount; i++)
         {
             channel.Publish(i);
         }
@@ -126,13 +131,16 @@ public class QueueChannelTests
         using AutoResetEvent reset = new(false);
         QueueChannel<int> channel = new();
 
-        async Task OnMsg(int obj)
+        Task OnMsg(int obj)
         {
             Interlocked.Increment(ref oneConsumed);
             if (oneConsumed == 20)
             {
+                // ReSharper disable once AccessToDisposedClosure
                 reset.Set();
             }
+
+            return Task.CompletedTask;
         }
 
         channel.Subscribe(one, OnMsg);
@@ -149,18 +157,20 @@ public class QueueChannelTests
     {
         using AutoResetEvent reset = new(false);
 
-        async Task OnMsg(int num)
+        Task OnMsg(int num)
         {
             if (num == 0)
             {
                 throw new Exception();
             }
 
+            // ReSharper disable once AccessToDisposedClosure
             reset.Set();
+            return Task.CompletedTask;
         }
 
         List<Exception> failed = new();
-        ExceptionHandlingExecutor exec = new(async x => failed.Add(x));
+        ExceptionHandlingExecutor exec = new(x => failed.Add(x));
         using Fiber one = new(exec);
         QueueChannel<int> channel = new();
         channel.Subscribe(one, OnMsg);
@@ -176,14 +186,17 @@ public class QueueChannelTests
         using AutoResetEvent reset = new(false);
         int count = 0;
 
-        async Task OnMessage(int i)
+        Task OnMessage(int i)
         {
             int c = Interlocked.Increment(ref count);
             Thread.Sleep(100);
             if (c == 20)
             {
+                // ReSharper disable once AccessToDisposedClosure
                 reset.Set();
             }
+
+            return Task.CompletedTask;
         }
 
         using Fiber fiber = new();
@@ -203,17 +216,20 @@ public class QueueChannelTests
     [Test]
     public void FullDrain2()
     {
-        const int Max = 1_000_000;
+        const int max = 1_000_000;
         using AutoResetEvent reset = new(false);
         int count = 0;
 
-        async Task OnMessage(int i)
+        Task OnMessage(int i)
         {
             int c = Interlocked.Increment(ref count);
-            if (c == Max)
+            if (c == max)
             {
+                // ReSharper disable once AccessToDisposedClosure
                 reset.Set();
             }
+
+            return Task.CompletedTask;
         }
 
         using Fiber fiber = new();
@@ -221,13 +237,13 @@ public class QueueChannelTests
         using QueueChannel<int> queue = new();
         queue.Subscribe(fiber, OnMessage);
         queue.Subscribe(fiber2, OnMessage);
-        for (int i = 0; i < Max; i++)
+        for (int i = 0; i < max; i++)
         {
             queue.Publish(i);
         }
 
         Assert.IsTrue(reset.WaitOne(15000, false));
-        Assert.AreEqual(Max, count);
+        Assert.AreEqual(max, count);
     }
 
     //[Test]
@@ -264,16 +280,18 @@ public class QueueChannelTests
         int count = 0;
         int count2 = 0;
 
-        async Task OnMessage(int i)
+        Task OnMessage(int i)
         {
             count++;
             Thread.Sleep(100);
+            return Task.CompletedTask;
         }
 
-        async Task OnMessage2(int i)
+        Task OnMessage2(int i)
         {
             count2++;
             Thread.Sleep(100);
+            return Task.CompletedTask;
         }
 
         using Fiber fiber = new();
@@ -295,14 +313,14 @@ public class QueueChannelTests
     [Test]
     public void ThreeAsyncFibers()
     {
-        int OperationsPerInvoke = 1000000;
+        int operationsPerInvoke = 1000000;
         AutoResetEvent wait = new(false);
         int count = 0;
 
         Task AsyncHandler(int s)
         {
             int i = Interlocked.Increment(ref count);
-            if (i == OperationsPerInvoke)
+            if (i == operationsPerInvoke)
             {
                 wait.Set();
             }
@@ -310,17 +328,17 @@ public class QueueChannelTests
             return Task.CompletedTask;
         }
 
-        using IChannel<int> _queue = new QueueChannel<int>();
+        using IChannel<int> queue = new QueueChannel<int>();
         using Fiber fiber1 = new();
         using Fiber fiber2 = new();
         using Fiber fiber3 = new();
-        using IDisposable sub = _queue.Subscribe(fiber1, AsyncHandler);
-        using IDisposable sub2 = _queue.Subscribe(fiber2, AsyncHandler);
-        using IDisposable sub3 = _queue.Subscribe(fiber3, AsyncHandler);
+        using IDisposable sub = queue.Subscribe(fiber1, AsyncHandler);
+        using IDisposable sub2 = queue.Subscribe(fiber2, AsyncHandler);
+        using IDisposable sub3 = queue.Subscribe(fiber3, AsyncHandler);
 
-        for (int j = 0; j < OperationsPerInvoke; j++)
+        for (int j = 0; j < operationsPerInvoke; j++)
         {
-            _queue.Publish(j);
+            queue.Publish(j);
         }
 
         Assert.IsTrue(wait.WaitOne(15000, false));

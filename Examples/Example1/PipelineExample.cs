@@ -7,6 +7,9 @@ using Fibrous.Pipelines;
 
 namespace Example1
 {
+    /// <summary>
+    /// Example of higher level components built from Fibrous.  In this case a flexible, composable, asynchronous pipeline library
+    /// </summary>
     internal class PipelineExample
     {
         public static void Run()
