@@ -14,6 +14,7 @@ namespace Example1
             SimpleExample();
             await MoreComplexExample();
             AgentExample();
+
             PipelineExample.Run();
         }
 
@@ -21,7 +22,7 @@ namespace Example1
         {
             //Exceptions get lost with AsyncFiber, so use an
             //exception callback
-            AsyncFiber h = new AsyncFiber();
+            Fiber h = new Fiber();
             for (int i = 0; i < 10; i++)
             {
                 h.Enqueue(() =>
@@ -52,7 +53,7 @@ namespace Example1
 
         private static void SimpleExample()
         {
-            using Fiber fiber = new Fiber();
+            using Fiber fiber   = new Fiber();
             IChannel<string> channel = fiber.NewChannel<string>(Console.WriteLine);
 
             channel.Publish("Test message");
@@ -67,7 +68,7 @@ namespace Example1
         {
             //agents provide thread safety to individual functions.
             //in this case, we want one point for storing to the database that can be shared
-            using AsyncAgent<object> dataAccess = new AsyncAgent<object>(StoreToDatabase, x => { });
+            using Agent<object> dataAccess = new Agent<object>(StoreToDatabase, x => { });
 
             object latestData = new object();
 
@@ -102,7 +103,7 @@ namespace Example1
 
         public void Dispose() => _fiber?.Dispose();
 
-        private void OnRequest(IRequest<object, double> obj) => obj.Reply(_current);
+        private async Task OnRequest(IRequest<object, double> obj) => obj.Reply(_current);
 
         private void OnMessage(Message obj)
         {

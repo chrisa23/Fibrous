@@ -5,34 +5,38 @@ using System.Threading.Tasks;
 
 namespace Fibrous;
 
+/// <summary>
+///     It is suggested to always use an Exception callback with the IAsyncFiber
+/// </summary>
 public class Fiber : FiberBase
 {
-    private readonly Action _flushCache;
-    private readonly ArrayQueue<Action> _queue;
+    private readonly Func<Task> _flushCache;
+    private readonly ArrayQueue<Func<Task>> _queue;
     private readonly TaskFactory _taskFactory;
     private bool _flushPending;
     private SpinLock _spinLock = new(false);
 
-    public Fiber(IExecutor executor = null, int size = QueueSize.DefaultQueueSize, TaskFactory taskFactory = null,
-        IFiberScheduler scheduler = null)
+    public Fiber(IExecutor executor = null, int size = QueueSize.DefaultQueueSize,
+        TaskFactory taskFactory = null, IAsyncFiberScheduler scheduler = null)
         : base(executor, scheduler)
     {
-        _queue = new ArrayQueue<Action>(size);
+        _queue = new ArrayQueue<Func<Task>>(size);
         _taskFactory = taskFactory ??
                        new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None);
-        _flushCache = Flush;
+        _flushCache = FlushAsync;
     }
 
     public Fiber(Action<Exception> errorCallback, int size = QueueSize.DefaultQueueSize,
-        TaskFactory taskFactory = null, IFiberScheduler scheduler = null)
+        TaskFactory taskFactory = null, IAsyncFiberScheduler scheduler = null)
         : this(new ExceptionHandlingExecutor(errorCallback), size, taskFactory, scheduler)
     {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override void InternalEnqueue(Action action)
+    protected override void InternalEnqueue(Func<Task> action)
     {
         AggressiveSpinWait spinWait = default;
+        //SpinWait spinWait = new SpinWait();
         while (_queue.IsFull)
         {
             spinWait.SpinOnce();
@@ -62,14 +66,13 @@ public class Fiber : FiberBase
         }
     }
 
-    private void Flush()
+    private async Task FlushAsync()
     {
-        (int count, Action[] actions) = Drain();
+        (int count, Func<Task>[] actions) = Drain();
 
         for (int i = 0; i < count; i++)
         {
-            Action execute = actions[i];
-            Executor.Execute(execute);
+            await Executor.ExecuteAsync(actions[i]);
         }
 
         bool lockTaken = false;
@@ -96,117 +99,7 @@ public class Fiber : FiberBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private (int, Action[]) Drain()
-    {
-        bool lockTaken = false;
-        try
-        {
-            _spinLock.Enter(ref lockTaken);
-
-            return _queue.Drain();
-        }
-        finally
-        {
-            if (lockTaken)
-            {
-                _spinLock.Exit(false);
-            }
-        }
-    }
-}
-
-public class Fiber2 : FiberBase
-{
-    private readonly WaitCallback _flushCache;
-    private readonly ArrayQueue<Action> _queue;
-    private readonly TaskFactory _taskFactory;
-    private bool _flushPending;
-    private SpinLock _spinLock = new(false);
-
-    public Fiber2(IExecutor executor = null, int size = QueueSize.DefaultQueueSize, TaskFactory taskFactory = null,
-        IFiberScheduler scheduler = null)
-        : base(executor, scheduler)
-    {
-        _queue = new ArrayQueue<Action>(size);
-        _taskFactory = taskFactory ??
-                       new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None);
-        _flushCache = Flush;
-    }
-
-    public Fiber2(Action<Exception> errorCallback, int size = QueueSize.DefaultQueueSize,
-        TaskFactory taskFactory = null, IFiberScheduler scheduler = null)
-        : this(new ExceptionHandlingExecutor(errorCallback), size, taskFactory, scheduler)
-    {
-    }
-
-    protected override void InternalEnqueue(Action action)
-    {
-        AggressiveSpinWait spinWait = default;
-        while (_queue.IsFull)
-        {
-            spinWait.SpinOnce();
-        }
-
-        bool lockTaken = false;
-        try
-        {
-            _spinLock.Enter(ref lockTaken);
-
-            _queue.Enqueue(action);
-
-            if (_flushPending)
-            {
-                return;
-            }
-
-            _flushPending = true;
-            ThreadPool.QueueUserWorkItem(Flush, null);
-        }
-        finally
-        {
-            if (lockTaken)
-            {
-                _spinLock.Exit(false);
-            }
-        }
-    }
-
-    private void Flush(object o)
-    {
-        (int count, Action[] actions) = Drain();
-
-        for (int i = 0; i < count; i++)
-        {
-            Action execute = actions[i];
-            Executor.Execute(execute);
-        }
-
-        bool lockTaken = false;
-        try
-        {
-            _spinLock.Enter(ref lockTaken);
-
-            if (_queue.Count > 0)
-            {
-                //don't monopolize thread.
-                ThreadPool.QueueUserWorkItem(Flush, null);
-            }
-            else
-            {
-                _flushPending = false;
-            }
-        }
-        finally
-        {
-            if (lockTaken)
-            {
-                _spinLock.Exit(false);
-            }
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private (int, Action[]) Drain()
+    private (int, Func<Task>[]) Drain()
     {
         bool lockTaken = false;
         try

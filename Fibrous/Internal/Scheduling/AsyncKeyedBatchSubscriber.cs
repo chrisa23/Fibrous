@@ -4,28 +4,21 @@ using System.Threading.Tasks;
 
 namespace Fibrous;
 
-internal sealed class AsyncKeyedBatchSubscriber<TKey, T> : AsyncBatchSubscriberBase<T>
+internal sealed class AsyncKeyedBatchSubscriber<TKey, T>(
+    ISubscriberPort<T> channel,
+    IFiber fiber,
+    TimeSpan interval,
+    Converter<T, TKey> keyResolver,
+    Func<IDictionary<TKey, T>, Task> target)
+    : AsyncBatchSubscriberBase<T>(channel, fiber, interval)
 {
-    private readonly Converter<T, TKey> _keyResolver;
-    private readonly Func<IDictionary<TKey, T>, Task> _target;
     private Dictionary<TKey, T> _pending;
-
-    public AsyncKeyedBatchSubscriber(ISubscriberPort<T> channel,
-        IAsyncFiber fiber,
-        TimeSpan interval,
-        Converter<T, TKey> keyResolver,
-        Func<IDictionary<TKey, T>, Task> target)
-        : base(channel, fiber, interval)
-    {
-        _keyResolver = keyResolver;
-        _target = target;
-    }
 
     protected override Task OnMessageAsync(T msg)
     {
         lock (BatchLock)
         {
-            TKey key = _keyResolver(msg);
+            TKey key = keyResolver(msg);
             if (_pending == null)
             {
                 _pending = new Dictionary<TKey, T>();
@@ -43,7 +36,7 @@ internal sealed class AsyncKeyedBatchSubscriber<TKey, T> : AsyncBatchSubscriberB
         IDictionary<TKey, T> toReturn = ClearPending();
         if (toReturn != null)
         {
-            Fiber.Enqueue(() => _target(toReturn));
+            Fiber.Enqueue(() => target(toReturn));
         }
 
         return Task.CompletedTask;

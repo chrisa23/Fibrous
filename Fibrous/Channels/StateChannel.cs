@@ -25,22 +25,7 @@ public sealed class StateChannel<T> : IChannel<T>
     {
     }
 
-    public IDisposable Subscribe(IFiber fiber, Action<T> handler)
-    {
-        lock (_lock)
-        {
-            IDisposable disposable = _updateChannel.Subscribe(fiber, handler);
-            if (_hasValue)
-            {
-                T item = _last;
-                fiber.Enqueue(() => handler(item));
-            }
-
-            return disposable;
-        }
-    }
-
-    public IDisposable Subscribe(IAsyncFiber fiber, Func<T, Task> receive)
+    public IDisposable Subscribe(IFiber fiber, Func<T, Task> receive)
     {
         lock (_lock)
         {

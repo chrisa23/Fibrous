@@ -7,24 +7,19 @@ namespace Fibrous.WPF;
 /// <summary>
 ///     Fiber for use with WPF forms and controls.Provides seamless marshalling to dispatcher thread.
 /// </summary>
-public sealed class AsyncDispatcherFiber : AsyncFiberBase
+public sealed class DispatcherFiber(
+    IExecutor executor = null,
+    Dispatcher dispatcher = null,
+    DispatcherPriority priority = DispatcherPriority.Normal)
+    : FiberBase(executor)
 {
-    private readonly Dispatcher _dispatcher;
-    private readonly DispatcherPriority _priority;
+    private readonly Dispatcher _dispatcher = dispatcher ?? Dispatcher.CurrentDispatcher;
 
-    public AsyncDispatcherFiber(IAsyncExecutor executor = null, Dispatcher dispatcher = null,
+    public DispatcherFiber(Action<Exception> errorCallback, Dispatcher dispatcher = null,
         DispatcherPriority priority = DispatcherPriority.Normal)
-        : base(executor)
-    {
-        _dispatcher = dispatcher ?? Dispatcher.CurrentDispatcher;
-        _priority = priority;
-    }
-
-    public AsyncDispatcherFiber(Action<Exception> errorCallback, Dispatcher dispatcher = null,
-        DispatcherPriority priority = DispatcherPriority.Normal)
-        : this(new AsyncExceptionHandlingExecutor(errorCallback), dispatcher, priority)
+        : this(new ExceptionHandlingExecutor(errorCallback), dispatcher, priority)
     {
     }
 
-    protected override void InternalEnqueue(Func<Task> action) => _dispatcher.InvokeAsync(action, _priority);
+    protected override void InternalEnqueue(Func<Task> action) => _dispatcher.InvokeAsync(action, priority);
 }

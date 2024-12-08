@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Fibrous;
 
@@ -8,5 +9,5 @@ namespace Fibrous;
 /// </summary>
 public interface IExecutor
 {
-    void Execute(Action toExecute);
+    Task ExecuteAsync(Func<Task> toExecute);
 }

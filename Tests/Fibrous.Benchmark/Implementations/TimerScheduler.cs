@@ -1,3 +1,4 @@
+/*
 using System;
 
 namespace Fibrous;
@@ -19,3 +20,4 @@ internal sealed class TimerScheduler : IFiberScheduler
     public IDisposable Schedule(IFiber fiber, Action action, TimeSpan dueTime, TimeSpan interval) =>
         new TimerAction(fiber, action, dueTime, interval);
 }
+*/

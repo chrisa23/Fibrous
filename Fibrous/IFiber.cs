@@ -1,22 +1,35 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Fibrous;
 
-/// <summary>
-///     Fibers are independent synchronous execution contexts.
-/// </summary>
+//It's suggested to always use an Exception callback with the IAsyncFiber
 public interface IFiber : IScheduler, IDisposableRegistry
 {
-    /// <summary>
-    ///     Enqueue an Action to be executed
-    /// </summary>
-    /// <param name="action"></param>
     void Enqueue(Action action);
+    void Enqueue(Func<Task> action);
 }
 
 public interface IScheduler
 {
+    /// <summary>
+    ///     Schedule an action to be executed once
+    /// </summary>
+    /// <param name="action"></param>
+    /// <param name="dueTime"></param>
+    /// <returns></returns>
+    IDisposable Schedule(Func<Task> action, TimeSpan dueTime);
+
+    /// <summary>
+    ///     Schedule an action to be taken repeatedly
+    /// </summary>
+    /// <param name="action"></param>
+    /// <param name="startTime"></param>
+    /// <param name="interval"></param>
+    /// <returns></returns>
+    IDisposable Schedule(Func<Task> action, TimeSpan startTime, TimeSpan interval);
+
     /// <summary>
     ///     Schedule an action to be executed once
     /// </summary>
@@ -35,17 +48,20 @@ public interface IScheduler
     IDisposable Schedule(Action action, TimeSpan startTime, TimeSpan interval);
 }
 
-public static class FiberExtensions
+public static class AsyncFiberExtensions
 {
-    /// <summary>
+    /*/// <summary>
     ///     Schedule an action at a DateTime
     /// </summary>
     /// <param name="scheduler"></param>
     /// <param name="action"></param>
     /// <param name="when"></param>
     /// <returns></returns>
-    public static IDisposable Schedule(this IScheduler scheduler, Action action, DateTime when) =>
-        scheduler.Schedule(action, when - DateTime.Now);
+    public static IDisposable Schedule(this IAsyncScheduler scheduler, Func<Task> action, DateTime when) =>
+        scheduler.Schedule(action,
+            when.Kind is DateTimeKind.Utc
+                ? when - DateTime.UtcNow
+                : when - DateTime.Now);//TODO:  test this...
 
     /// <summary>
     ///     Schedule an action at a DateTime with an interval
@@ -55,12 +71,15 @@ public static class FiberExtensions
     /// <param name="when"></param>
     /// <param name="interval"></param>
     /// <returns></returns>
-    public static IDisposable
-        Schedule(this IScheduler scheduler, Action action, DateTime when, TimeSpan interval) =>
-        scheduler.Schedule(action, when - DateTime.Now, interval);
+    public static IDisposable Schedule(this IAsyncScheduler scheduler, Func<Task> action, DateTime when,
+        TimeSpan interval) =>
+        scheduler.Schedule(action,  when.Kind is DateTimeKind.Utc
+            ? when - DateTime.UtcNow
+            : when - DateTime.Now, interval);*/
 
-    public static IDisposable CronSchedule(this IScheduler scheduler, Action action, string cron) =>
-        new CronScheduler(scheduler, action, cron);
+
+    public static IDisposable CronSchedule(this IScheduler scheduler, Func<Task> action, string cron) =>
+        new AsyncCronScheduler(scheduler, action, cron);
 
     /// <summary>
     ///     Subscribe to a channel from the fiber.
@@ -70,33 +89,9 @@ public static class FiberExtensions
     /// <param name="channel"></param>
     /// <param name="handler"></param>
     /// <returns></returns>
-    public static IDisposable Subscribe<T>(this IFiber fiber, ISubscriberPort<T> channel, Action<T> handler) =>
+    public static IDisposable Subscribe<T>(this IFiber fiber, ISubscriberPort<T> channel,
+        Func<T, Task> handler) =>
         channel.Subscribe(fiber, handler);
-
-    /// <summary>
-    ///     Subscribe to a channel from the fiber.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="fiber"></param>
-    /// <param name="channel"></param>
-    /// <param name="handler"></param>
-    /// <returns></returns>
-    public static IDisposable Subscribe(this IFiber fiber, IEventPort channel, Action handler) =>
-        channel.Subscribe(fiber, handler);
-
-    /// <summary>
-    ///     Subscribe to a channel from the fiber.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <typeparam name="TSnapshot"></typeparam>
-    /// <param name="fiber"></param>
-    /// <param name="channel"></param>
-    /// <param name="handler"></param>
-    /// <param name="snapshot"></param>
-    /// <returns></returns>
-    public static IDisposable Subscribe<T, TSnapshot>(this IFiber fiber,
-        ISnapshotSubscriberPort<T, TSnapshot> channel, Action<T> handler, Action<TSnapshot> snapshot) =>
-        channel.Subscribe(fiber, handler, snapshot);
 
     /// <summary>Method that subscribe to a periodic batch. </summary>
     /// <typeparam name="T">    Generic type parameter. </typeparam>
@@ -107,9 +102,9 @@ public static class FiberExtensions
     /// <returns>   . </returns>
     public static IDisposable SubscribeToBatch<T>(this IFiber fiber,
         ISubscriberPort<T> port,
-        Action<T[]> receive,
+        Func<T[], Task> receive,
         TimeSpan interval) =>
-        new BatchSubscriber<T>(port, fiber, interval, receive);
+        new AsyncBatchSubscriber<T>(port, fiber, interval, receive);
 
     /// <summary>
     ///     Subscribe to a periodic batch, maintaining the last item by key
@@ -125,9 +120,9 @@ public static class FiberExtensions
     public static IDisposable SubscribeToKeyedBatch<TKey, T>(this IFiber fiber,
         ISubscriberPort<T> port,
         Converter<T, TKey> keyResolver,
-        Action<IDictionary<TKey, T>> receive,
+        Func<IDictionary<TKey, T>, Task> receive,
         TimeSpan interval) =>
-        new KeyedBatchSubscriber<TKey, T>(port, fiber, interval, keyResolver, receive);
+        new AsyncKeyedBatchSubscriber<TKey, T>(port, fiber, interval, keyResolver, receive);
 
     /// <summary>
     ///     Subscribe to a port but only consume the last msg per interval
@@ -140,9 +135,9 @@ public static class FiberExtensions
     /// <returns></returns>
     public static IDisposable SubscribeToLast<T>(this IFiber fiber,
         ISubscriberPort<T> port,
-        Action<T> receive,
+        Func<T, Task> receive,
         TimeSpan interval) =>
-        new LastSubscriber<T>(port, fiber, interval, receive);
+        new AsyncLastSubscriber<T>(port, fiber, interval, receive);
 
     /// <summary>
     ///     Subscribe with a message predicate to filter messages
@@ -155,7 +150,7 @@ public static class FiberExtensions
     /// <returns></returns>
     public static IDisposable Subscribe<T>(this IFiber fiber,
         ISubscriberPort<T> port,
-        Action<T> receive,
+        Func<T, Task> receive,
         Predicate<T> filter)
     {
         void FilteredReceiver(T x)
@@ -166,6 +161,7 @@ public static class FiberExtensions
             }
         }
 
+        //we use a stub fiber to force the filtering onto the publisher thread.
         IDisposable sub = port.Subscribe(FilteredReceiver);
         return new Unsubscriber(sub, fiber);
     }
@@ -173,12 +169,18 @@ public static class FiberExtensions
     public static IChannel<T> NewChannel<T>(this IFiber fiber, Action<T> onEvent)
     {
         Channel<T> channel = new();
+        channel.Subscribe(fiber, onEvent.ToAsync());
+        return channel;
+    }
+    public static IChannel<T> NewChannel<T>(this IFiber fiber, Func<T, Task> onEvent)
+    {
+        Channel<T> channel = new();
         channel.Subscribe(fiber, onEvent);
         return channel;
     }
 
     public static IRequestPort<TRq, TRp> NewRequestPort<TRq, TRp>(this IFiber fiber,
-        Action<IRequest<TRq, TRp>> onEvent)
+        Func<IRequest<TRq, TRp>, Task> onEvent)
     {
         RequestChannel<TRq, TRp> channel = new();
         channel.SetRequestHandler(fiber, onEvent);

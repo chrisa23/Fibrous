@@ -37,22 +37,6 @@ namespace Fibrous.Benchmark
         {
             using (fiber)
             {
-                using IDisposable sub = _channel.Subscribe(fiber, Handler);
-
-                _i = 0;
-                for (int j = 0; j < OperationsPerInvoke; j++)
-                {
-                    _channel.Publish(0);
-                }
-
-                WaitHandle.WaitAny(new WaitHandle[] {_wait});
-            }
-        }
-
-        public void Run(IAsyncFiber fiber)
-        {
-            using (fiber)
-            {
                 using IDisposable sub = _channel.Subscribe(fiber, AsyncHandler);
 
                 _i = 0;
@@ -67,24 +51,12 @@ namespace Fibrous.Benchmark
 
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void PoolFiber() => Run(new Fiber2());
+        public void Async() => Run(new Fiber());
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void Fiber() => Run(new Fiber());
+        public void AsyncLock() => Run(new LockFiber());
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void Async() => Run(new AsyncFiber());
-
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void Lock() => Run(new LockFiber());
-
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void AsyncLock() => Run(new LockAsyncFiber());
-
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void Stub() => Run(new StubFiber());
-
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void AsyncStub() => Run(new AsyncStubFiber());
+        public void AsyncStub() => Run(new StubFiber());
     }
 }

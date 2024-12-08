@@ -16,10 +16,10 @@ public class PipelineTests_Ordered
         using AutoResetEvent reset = new(false);
         long index = 0;
         int count = 1000;
-        IStage<int, int> pipe = new Stage<int, int>(x => Enumerable.Range(0, count).ToArray())
+        IStage<int, int> pipe = new AsyncStage<int, int>(async x => Enumerable.Range(0, count).ToArray())
             .SelectOrdered(x => x, 4);
         using Fiber fiber = new();
-        pipe.Subscribe(fiber, x =>
+        pipe.Subscribe(fiber, async x =>
         {
             Assert.AreEqual(index, x);
             index++;
@@ -41,15 +41,15 @@ public class PipelineTests_Ordered
 
         long index = 0;
         int count = 1000;
-        IStage<int, int> pipe = new Stage<int, int>(x => Enumerable.Range(0, count).ToArray())
-            .SelectOrdered(x =>
+        IStage<int, int> pipe = new AsyncStage<int, int>(async x => Enumerable.Range(0, count).ToArray())
+            .SelectOrdered( x =>
             {
                 Random rnd = new(x);
                 Thread.Sleep((int)(rnd.NextDouble() * 10));
                 return x;
             }, 4);
         using Fiber fiber = new();
-        pipe.Subscribe(fiber, x =>
+        pipe.Subscribe(fiber, async x =>
         {
             Assert.AreEqual(index, x);
             index++;
@@ -69,7 +69,7 @@ public class PipelineTests_Ordered
     {
         long index = 0;
 
-        static int Id(int i)
+        static async Task<int> Id(int i)
         {
             return i;
         }
@@ -80,12 +80,12 @@ public class PipelineTests_Ordered
         }
 
         using AutoResetEvent reset = new(false);
-        using IStage<int, int> pipe = new Stage<int, int>(Id, Handle)
+        using IStage<int, int> pipe = new AsyncStage<int, int>(Id, Handle)
             .Select(Id, Handle)
             .Select(Id, Handle)
             .Select(Id, Handle);
         using Fiber fiber = new();
-        pipe.Subscribe(fiber, x =>
+        pipe.Subscribe(fiber, async x =>
         {
             index++;
             if (index == 100000)
@@ -108,10 +108,10 @@ public class PipelineTests_Ordered
     {
         long index = 0;
         using AutoResetEvent reset = new(false);
-        using IStage<int, int> pipe = new Stage<int, int>(x => x)
+        using IStage<int, int> pipe = new AsyncStage<int, int>(async x => x)
             .SelectOrdered(x => x, 4)
             .Where(x => x % 2 == 0)
-            .Select(x => x)
+            .Select(async x => x)
             .Tap(x =>
             {
                 if (x % 10000 == 0)
@@ -120,7 +120,7 @@ public class PipelineTests_Ordered
                 }
             });
 
-        pipe.Subscribe(x =>
+        pipe.Subscribe(async x =>
         {
             index++;
             if (index % 10000 == 0)

@@ -33,11 +33,8 @@ public class FiberDictionary<TKey, T> :
 
     public void Dispose() => _fiber.Dispose();
 
-    public IDisposable
-        SendRequest(Func<TKey, bool> request, IFiber fiber, Action<KeyValuePair<TKey, T>[]> onReply) =>
-        _request.SendRequest(request, fiber, onReply);
 
-    public IDisposable SendRequest(Func<TKey, bool> request, IAsyncFiber fiber,
+    public IDisposable SendRequest(Func<TKey, bool> request, IFiber fiber,
         Func<KeyValuePair<TKey, T>[], Task> onReply) => _request.SendRequest(request, fiber, onReply);
 
     public Task<KeyValuePair<TKey, T>[]> SendRequestAsync(Func<TKey, bool> request) =>
@@ -46,10 +43,7 @@ public class FiberDictionary<TKey, T> :
     public Task<Reply<KeyValuePair<TKey, T>[]>> SendRequestAsync(Func<TKey, bool> request, TimeSpan timeout) =>
         _request.SendRequestAsync(request, timeout);
 
-    public IDisposable Subscribe(IFiber fiber, Action<ItemAction<KeyValuePair<TKey, T>>> receive,
-        Action<KeyValuePair<TKey, T>[]> receiveSnapshot) => _channel.Subscribe(fiber, receive, receiveSnapshot);
-
-    public IDisposable Subscribe(IAsyncFiber fiber, Func<ItemAction<KeyValuePair<TKey, T>>, Task> receive,
+    public IDisposable Subscribe(IFiber fiber, Func<ItemAction<KeyValuePair<TKey, T>>, Task> receive,
         Func<KeyValuePair<TKey, T>[], Task> receiveSnapshot) => _channel.Subscribe(fiber, receive, receiveSnapshot);
 
     public void Add(KeyValuePair<TKey, T> item) => _add.Publish(item);
@@ -96,13 +90,15 @@ public class FiberDictionary<TKey, T> :
         });
 
 
-    public async Task<KeyValuePair<TKey, T>[]> GetItemsAsync(Func<TKey, bool> request) =>
-        await _request.SendRequestAsync(request);
+    public Task<KeyValuePair<TKey, T>[]> GetItemsAsync(Func<TKey, bool> request) => _request.SendRequestAsync(request);
 
-    private void OnRequest(IRequest<Func<TKey, bool>, KeyValuePair<TKey, T>[]> request) =>
+    private Task OnRequest(IRequest<Func<TKey, bool>, KeyValuePair<TKey, T>[]> request)
+    {
         request.Reply(_items.Where(x => request.Request(x.Key)).ToArray());
+        return Task.CompletedTask;
+    }
 
-    private void RemoveItem(TKey obj)
+    private Task RemoveItem(TKey obj)
     {
         T data = _items.ContainsKey(obj) ? _items[obj] : default;
         bool removed = _items.Remove(obj);
@@ -111,24 +107,24 @@ public class FiberDictionary<TKey, T> :
             _channel.Publish(new ItemAction<KeyValuePair<TKey, T>>(ActionType.Remove,
                 new[] {new KeyValuePair<TKey, T>(obj, data)}));
         }
+        return Task.CompletedTask;
     }
 
-    private void AddItem(KeyValuePair<TKey, T> obj)
+    private Task AddItem(KeyValuePair<TKey, T> obj)
     {
         bool exists = _items.ContainsKey(obj.Key);
         _items[obj.Key] = obj.Value;
         _channel.Publish(
             new ItemAction<KeyValuePair<TKey, T>>(exists ? ActionType.Update : ActionType.Add, new[] {obj}));
+        return Task.CompletedTask;
     }
 
-    private KeyValuePair<TKey, T>[] Reply() => _items.ToArray();
+    private async Task<KeyValuePair<TKey, T>[]> Reply() => _items.ToArray();
 
     //Helper functions to create handlers for maintaining a local collection based on a FiberDictionary
-    public IDisposable SubscribeLocalCopy(IFiber fiber, Dictionary<TKey, T> localDict, Action updateCallback) =>
-        Subscribe(fiber, CreateReceive(localDict, updateCallback), CreateSnapshot(localDict, updateCallback));
 
     public IDisposable
-        SubscribeLocalCopy(IAsyncFiber fiber, Dictionary<TKey, T> localDict, Action updateCallback) => Subscribe(
+        SubscribeLocalCopy(IFiber fiber, Dictionary<TKey, T> localDict, Action updateCallback) => Subscribe(
         fiber, CreateReceiveAsync(localDict, updateCallback), CreateSnapshotAsync(localDict, updateCallback));
 
     private static Action<ItemAction<KeyValuePair<TKey, T>>> CreateReceive(Dictionary<TKey, T> localDict,

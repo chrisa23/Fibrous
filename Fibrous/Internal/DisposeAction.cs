@@ -2,18 +2,15 @@ using System;
 
 namespace Fibrous;
 
-internal sealed class DisposeAction : IDisposable
+internal sealed class DisposeAction(Action action) : IDisposable
 {
-    private readonly Action _action;
-    private readonly SingleShotGuard _guard;
-
-    public DisposeAction(Action action) => _action = action;
+    private readonly SingleShotGuard _guard = new();
 
     public void Dispose()
     {
         if (_guard.Check)
         {
-            _action();
+            action();
         }
     }
 }

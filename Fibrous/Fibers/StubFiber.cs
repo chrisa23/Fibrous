@@ -1,24 +1,20 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Fibrous;
 
 /// <summary>
 ///     Fiber that executes on caller's thread.  For testing and well understood situations.  Use with caution.
 /// </summary>
-public sealed class StubFiber : FiberBase
+public sealed class StubFiber(IExecutor executor = null, IAsyncFiberScheduler scheduler = null)
+    : FiberBase(executor, scheduler)
 {
-    public StubFiber(IExecutor executor = null, IFiberScheduler scheduler = null)
-        : base(executor, scheduler)
-    {
-    }
-
-    public StubFiber(Action<Exception> errorCallback, IFiberScheduler scheduler = null)
+    public StubFiber(Action<Exception> errorCallback, IAsyncFiberScheduler scheduler = null)
         : this(new ExceptionHandlingExecutor(errorCallback), scheduler)
     {
     }
 
-    protected override void InternalEnqueue(Action action) =>
-        //There is no lock here to force sequentiality, since that will cause deadlocks in some
-        //situations.  Stub fibers are not thread safe.  
-        Executor.Execute(action);
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
+    protected override void InternalEnqueue(Func<Task> action) => Executor.ExecuteAsync(action).Wait();
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
 }

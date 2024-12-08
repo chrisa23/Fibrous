@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using System.Reactive.Subjects;
 using System.Threading;
 using BenchmarkDotNet.Attributes;
@@ -32,7 +33,7 @@ namespace Fibrous.Benchmark
         public void Wrapper()
         {
             using AutoResetEvent reset = new(false);
-            using IFiber fiber = new Fiber();
+            using IAsyncFiber fiber = new AsyncFiber();
             WrappedObserver observer = new WrappedObserver(reset, OperationsPerInvoke);
             Subject<long> subject = new Subject<long>();
             using IDisposable dispose = subject.Subscribe(fiber, observer);
@@ -122,3 +123,4 @@ namespace Fibrous.Benchmark
         }
     }
 }
+*/

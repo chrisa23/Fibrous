@@ -47,9 +47,6 @@ namespace Fibrous.Benchmark
         }
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void Agent1() => Run(new Agent<int>(Handler));
-
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void AsyncAgent() => Run(new AsyncAgent<int>(AsyncHandler, ex => { }));
+        public void AsyncAgent() => Run(new Agent<int>(AsyncHandler, ex => { }));
     }
 }

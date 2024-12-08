@@ -16,7 +16,7 @@ namespace Fibrous.Benchmark
         public void Setup()
         {
             _fiber = new Fiber();
-            _channel.Subscribe(_fiber, o => { });
+            _channel.Subscribe(_fiber, async o => { });
         }
 
         [GlobalCleanup]

@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Fibrous;
 using Fibrous.Pipelines;
 
 namespace Example1.ComponentBased
 {
-    public class Stage1 : IProcessor<Payload, Payload>
+    public class Stage1 : IAsyncProcessor<Payload, Payload>
     {
         private readonly ISomeService _service;
 
@@ -16,13 +17,14 @@ namespace Example1.ComponentBased
         public event Action<Payload> Output;
         public event Action<Exception> Exception;
 
-        public void Process(Payload input)
+        public Task Process(Payload input)
         {
             //We can have explicit error handling and decide what needs raising or
             //can be handled here or let the ExceptionHandlingExecutor wrap this
             //automatically and raise errors to our error handler for the pipeline
             input.Data["Stage1"] = "Done";
             Output?.Invoke(input);
+            return Task.CompletedTask;
         }
 
         public void Initialize(IScheduler scheduler)

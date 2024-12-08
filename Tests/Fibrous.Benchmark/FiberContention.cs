@@ -33,18 +33,6 @@ namespace Fibrous.Benchmark
             return Task.CompletedTask;
         }
 
-        public void Run(IFiber fiber)
-        {
-            using (fiber)
-            {
-                using IDisposable sub = _channel.Subscribe(fiber, Handler);
-                i = 0;
-                Task.Run(Iterate);
-                Task.Run(Iterate);
-
-                WaitHandle.WaitAny(new WaitHandle[] {_wait});
-            }
-        }
 
         private void Iterate()
         {
@@ -55,7 +43,7 @@ namespace Fibrous.Benchmark
             }
         }
 
-        public void Run(IAsyncFiber fiber)
+        public void Run(IFiber fiber)
         {
             using (fiber)
             {
@@ -68,6 +56,7 @@ namespace Fibrous.Benchmark
             }
         }
 
+        /*
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void Fiber2() => Run(new Fiber2());
 
@@ -79,12 +68,13 @@ namespace Fibrous.Benchmark
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void LockFiber() => Run(new LockFiber());
+        */
 
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void Async() => Run(new AsyncFiber());
+        public void Async() => Run(new Fiber());
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void AsyncLock() => Run(new LockAsyncFiber());
+        public void AsyncLock() => Run(new LockFiber());
     }
 }

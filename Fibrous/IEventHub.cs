@@ -13,7 +13,6 @@ namespace Fibrous;
 /// </summary>
 public interface IEventHub
 {
-    IDisposable Subscribe(IAsyncFiber fiber, object handler);
     IDisposable Subscribe(IFiber fiber, object handler);
     void Publish<T>(T msg);
 }
@@ -48,16 +47,9 @@ public sealed class EventHub : IEventHub
 {
     private readonly ConcurrentDictionary<Type, object> _channels = new();
 
-    public IDisposable Subscribe(IAsyncFiber fiber, object handler)
-    {
-        IDisposable disposable = SetupHandlers(handler, fiber, false);
-
-        return new Unsubscriber(disposable, fiber);
-    }
-
     public IDisposable Subscribe(IFiber fiber, object handler)
     {
-        IDisposable disposable = SetupHandlers(handler, fiber, true);
+        IDisposable disposable = SetupHandlers(handler, fiber, false);
 
         return new Unsubscriber(disposable, fiber);
     }
@@ -67,12 +59,12 @@ public sealed class EventHub : IEventHub
     {
         Type type = typeof(T);
 
-        if (!_channels.ContainsKey(type))
+        if (!_channels.TryGetValue(type, out object channel1))
         {
             return;
         }
 
-        IChannel<T> channel = (IChannel<T>)_channels[type];
+        IChannel<T> channel = (IChannel<T>)channel1;
         channel.Publish(msg);
     }
 
@@ -89,7 +81,7 @@ public sealed class EventHub : IEventHub
         foreach (Type @interface in interfaces)
         {
             Type type = @interface.GetTypeInfo().GenericTypeArguments[0];
-            MethodInfo method = @interface.GetRuntimeMethod(regular ? "Handle" : "HandleAsync", new[] {type});
+            MethodInfo method = @interface.GetRuntimeMethod(regular ? "Handle" : "HandleAsync", [type]);
 
             if (method == null)
             {
@@ -98,23 +90,16 @@ public sealed class EventHub : IEventHub
 
             MethodInfo sub = GetType().GetTypeInfo().GetDeclaredMethod(subMethod).MakeGenericMethod(type);
 
-            IDisposable dispose = sub.Invoke(this, new[] {fiber, handler}) as IDisposable;
+            IDisposable dispose = sub.Invoke(this, [fiber, handler]) as IDisposable;
             disposables.Add(dispose);
         }
 
         return disposables;
     }
 
-    // ReSharper disable once UnusedMember.Local
-    private IDisposable SubscribeToChannel<T>(IFiber fiber, IHandle<T> receive)
-    {
-        Type type = typeof(T);
-        IChannel<T> channel = (IChannel<T>)_channels.GetOrAdd(type, _ => new Channel<T>());
-        return channel.Subscribe(fiber, receive.Handle);
-    }
 
     // ReSharper disable once UnusedMember.Local
-    private IDisposable AsyncSubscribeToChannel<T>(IAsyncFiber fiber, IHandleAsync<T> receive)
+    private IDisposable AsyncSubscribeToChannel<T>(IFiber fiber, IHandleAsync<T> receive)
     {
         Type type = typeof(T);
         IChannel<T> channel = (IChannel<T>)_channels.GetOrAdd(type, _ => new Channel<T>());
@@ -125,12 +110,12 @@ public sealed class EventHub : IEventHub
     {
         Type type = typeof(T);
 
-        if (!_channels.ContainsKey(type))
+        if (!_channels.TryGetValue(type, out object channel1))
         {
             return false;
         }
 
-        Channel<T> channel = (Channel<T>)_channels[type];
+        Channel<T> channel = (Channel<T>)channel1;
         return channel.HasSubscriptions;
     }
 }

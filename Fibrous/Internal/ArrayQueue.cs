@@ -8,24 +8,16 @@ internal static class QueueSize
     internal const int DefaultQueueSize = 1008;
 }
 
-internal sealed class ArrayQueue<T>
+internal sealed class ArrayQueue<T>(int size)
 {
     public static readonly (int, T[]) Empty = (0, Array.Empty<T>());
-    private readonly int _size;
-    private T[] _actions;
+    private T[] _actions = new T[size + 16];
     private int _processCount;
-    private T[] _toPass;
-
-    public ArrayQueue(int size)
-    {
-        _size = size;
-        _actions = new T[size + 16];
-        _toPass = new T[size + 16];
-    }
+    private T[] _toPass = new T[size + 16];
 
     public int Count { get; private set; }
 
-    public bool IsFull => Count >= _size;
+    public bool IsFull => Count >= size;
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

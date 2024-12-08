@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Fibrous.Agents;
 
@@ -8,22 +9,22 @@ namespace Fibrous.Agents;
 /// <typeparam name="T"></typeparam>
 public class Agent<T> : IAgent<T>
 {
-    private readonly Action<T> _handler;
+    private readonly Func<T, Task> _handler;
     protected IFiber Fiber;
 
-    public Agent(Action<T> handler, Action<Exception> errorCallback = null)
+    public Agent(Func<T, Task> handler, Action<Exception> callback)
     {
         _handler = handler;
-        Fiber = errorCallback == null ? new Fiber() : new Fiber(errorCallback);
+        Fiber = new Fiber(callback);
     }
 
-    public Agent(IFiberFactory factory, Action<T> handler, Action<Exception> errorCallback = null)
+    public Agent(IFiberFactory factory, Func<T, Task> handler, Action<Exception> callback)
     {
         _handler = handler;
-        Fiber = errorCallback == null ? factory.CreateFiber() : factory.CreateFiber(errorCallback);
+        Fiber = factory.CreateFiber(callback);
     }
 
     public void Publish(T msg) => Fiber.Enqueue(() => _handler(msg));
 
-    public void Dispose() => Fiber.Dispose();
+    public void Dispose() => Fiber?.Dispose();
 }

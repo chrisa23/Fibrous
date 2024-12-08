@@ -14,7 +14,7 @@ public class EventChannelTests
         IEventChannel eventChannel = new EventChannel();
         using AutoResetEvent reset = new(false);
 
-        void Receive()
+        async Task Receive()
         {
             reset.Set();
         }

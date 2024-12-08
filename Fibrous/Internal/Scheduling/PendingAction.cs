@@ -2,12 +2,9 @@
 
 namespace Fibrous;
 
-internal sealed class PendingAction : IDisposable
+internal sealed class PendingAction(Action action) : IDisposable
 {
-    private readonly Action _action;
     private bool _cancelled;
-
-    public PendingAction(Action action) => _action = action;
 
     public void Dispose() => _cancelled = true;
 
@@ -15,7 +12,7 @@ internal sealed class PendingAction : IDisposable
     {
         if (!_cancelled)
         {
-            _action();
+            action();
         }
     }
 }

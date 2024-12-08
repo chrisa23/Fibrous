@@ -1,23 +1,44 @@
+// Licensed to the.NET Foundation under one or more agreements.
+// The.NET Foundation licenses this file to you under the MIT license.
+
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Fibrous;
 
-public abstract class FiberBase : IFiber
+public abstract class FiberBase(IExecutor executor = null, IAsyncFiberScheduler scheduler = null)
+    : IFiber
 {
-    private readonly Disposables _disposables = new();
-    private readonly IFiberScheduler _fiberScheduler;
-    protected readonly IExecutor Executor;
-    private volatile bool _disposed;
+    private readonly   Disposables          _disposables = new();
+    private readonly   IAsyncFiberScheduler _fiberScheduler = scheduler ?? new AsyncTimerScheduler();
+    protected readonly IExecutor            Executor = executor ?? new Executor();
+    private            bool                 _disposed;
 
-    protected FiberBase(IExecutor executor = null, IFiberScheduler scheduler = null)
+    public IDisposable Schedule(Func<Task> action, TimeSpan dueTime) =>
+        _fiberScheduler.Schedule(this, action, dueTime);
+
+    public IDisposable Schedule(Func<Task> action, TimeSpan startTime, TimeSpan interval) =>
+        _fiberScheduler.Schedule(this, action, startTime, interval);
+
+    public IDisposable Schedule(Action action, TimeSpan dueTime) =>
+        Schedule(new ActionConverter(action).InvokeAsync, dueTime);
+
+    public IDisposable Schedule(Action action, TimeSpan startTime, TimeSpan interval) =>
+        Schedule(new ActionConverter(action).InvokeAsync, startTime, interval);
+
+    public void Enqueue(Action action)
     {
-        _fiberScheduler = scheduler ?? new TimerScheduler();
-        Executor = executor ?? new Executor();
+        if (_disposed)
+        {
+            return;
+        }
+
+        InternalEnqueue(new ActionConverter(action).InvokeAsync);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Enqueue(Action action)
+    public void Enqueue(Func<Task> action)
     {
         if (_disposed)
         {
@@ -26,11 +47,6 @@ public abstract class FiberBase : IFiber
 
         InternalEnqueue(action);
     }
-
-    public IDisposable Schedule(Action action, TimeSpan dueTime) => _fiberScheduler.Schedule(this, action, dueTime);
-
-    public IDisposable Schedule(Action action, TimeSpan startTime, TimeSpan interval) =>
-        _fiberScheduler.Schedule(this, action, startTime, interval);
 
     public void Dispose()
     {
@@ -42,5 +58,5 @@ public abstract class FiberBase : IFiber
 
     public void Remove(IDisposable toRemove) => _disposables.Remove(toRemove);
 
-    protected abstract void InternalEnqueue(Action action);
+    protected abstract void InternalEnqueue(Func<Task> action);
 }

@@ -15,21 +15,17 @@ public class ContentionTests
     [Test]
     public void Test()
     {
-        using AsyncFiber afiber = new();
-        using Fiber fiber = new();
+        using Fiber afiber = new();
         _count = 2;
-        Run(fiber);
         Run(afiber);
         Console.WriteLine("2");
 
         _count = 4;
         Run(afiber);
-        Run(fiber);
         Console.WriteLine("4");
 
         _count = 10;
         Run(afiber);
-        Run(fiber);
         Console.WriteLine("10");
     }
 
@@ -55,20 +51,6 @@ public class ContentionTests
 
     private readonly IChannel<object> _channel = new Channel<object>();
     private int _count;
-
-    public void Run(IFiber fiber)
-    {
-        using IDisposable sub = _channel.Subscribe(fiber, Handler);
-
-        i = 0;
-        for (int j = 0; j < _count; j++)
-        {
-            _ = Task.Run(Iterate);
-        }
-
-        WaitHandle.WaitAny(new WaitHandle[] {_wait});
-    }
-
     private void Iterate()
     {
         int count = OperationsPerInvoke / _count;
@@ -78,7 +60,7 @@ public class ContentionTests
         }
     }
 
-    public void Run(IAsyncFiber fiber)
+    public void Run(IFiber fiber)
     {
         using IDisposable sub = _channel.Subscribe(fiber, AsyncHandler);
 

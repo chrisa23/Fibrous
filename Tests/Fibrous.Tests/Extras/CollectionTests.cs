@@ -20,7 +20,7 @@ public class CollectionTests
         collection.Add(1);
         collection.Add(2);
         collection.Subscribe(receive,
-            action =>
+            async action =>
             {
                 if (action.ActionType == ActionType.Add)
                 {
@@ -33,7 +33,7 @@ public class CollectionTests
 
                 reset.Set();
             },
-            ints =>
+            async ints =>
             {
                 snapshot = ints;
                 reset.Set();
@@ -71,7 +71,7 @@ public class CollectionTests
         collection.Add(1);
         collection.Add(2);
         collection.Subscribe(receive,
-            action =>
+            async action =>
             {
                 if (action.ActionType == ActionType.Add)
                 {
@@ -84,7 +84,7 @@ public class CollectionTests
 
                 reset.Set();
             },
-            ints =>
+            async ints =>
             {
                 snapshot = ints;
                 reset.Set();
@@ -122,7 +122,7 @@ public class CollectionTests
         collection.Add(1, 1);
         collection.Add(2, 2);
         collection.Subscribe(receive,
-            action =>
+            async action =>
             {
                 if (action.ActionType == ActionType.Add)
                 {
@@ -135,7 +135,7 @@ public class CollectionTests
 
                 reset.Set();
             },
-            ints =>
+            async ints =>
             {
                 snapshot = ints;
                 reset.Set();

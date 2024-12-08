@@ -15,10 +15,11 @@ public class StateChannelTests
         string result = null;
         AutoResetEvent reset = new(false);
 
-        void Handle(string s)
+        Task Handle(string s)
         {
             result = s;
             reset.Set();
+            return Task.CompletedTask;
         }
 
         StateChannel<string> channel = new("none");
@@ -53,10 +54,11 @@ public class StateChannelTests
         string result = null;
         AutoResetEvent reset = new(false);
 
-        void Handle(string s)
+        Task Handle(string s)
         {
             result = s;
             reset.Set();
+            return Task.CompletedTask;
         }
 
         StateChannel<string> channel = new();
@@ -87,7 +89,7 @@ public class StateChannelTests
     [Test]
     public void AsyncStateChannel()
     {
-        using AsyncFiber fiber = new();
+        using Fiber fiber = new();
         string result = null;
         AutoResetEvent reset = new(false);
 
@@ -126,7 +128,7 @@ public class StateChannelTests
     [Test]
     public void AsyncStateChannelNoInit()
     {
-        using AsyncFiber fiber = new();
+        using Fiber fiber = new();
         string result = null;
         AutoResetEvent reset = new(false);
 

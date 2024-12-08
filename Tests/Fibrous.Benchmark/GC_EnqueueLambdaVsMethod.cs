@@ -19,7 +19,7 @@ namespace Fibrous.Benchmark
         }
 
         [GlobalSetup]
-        public void Setup() => _fiber = PoolFiber_OLD.StartNew();
+        public void Setup() => _fiber = new Fiber();
 
         [GlobalCleanup]
         public void Cleanup() => _fiber.Dispose();

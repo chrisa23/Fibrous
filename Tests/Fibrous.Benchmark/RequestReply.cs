@@ -11,9 +11,8 @@ namespace Fibrous.Benchmark
 
         private readonly TimeSpan _oneSecond = TimeSpan.FromSeconds(1);
         private readonly IRequestChannel<int, int> _requestChannel = new RequestChannel<int, int>();
-        private IAsyncFiber _asyncFiber;
         private IFiber _fiber;
-        private IFiber _fiberReply;
+
 
         [Benchmark]
         public async Task<int> FiberReqRep() => await _requestChannel.SendRequestAsync(0);
@@ -33,19 +32,17 @@ namespace Fibrous.Benchmark
         [GlobalSetup]
         public void Setup()
         {
+
             _fiber = new Fiber();
-            _fiberReply = new Fiber();
-            _asyncFiber = new AsyncFiber();
-            _requestChannel.SetRequestHandler(_fiberReply, r => r.Reply(1));
-            _asyncRequestChannel.SetRequestHandler(_asyncFiber, async r => r.Reply(1));
+            _requestChannel.SetRequestHandler(_fiber, async r => r.Reply(1));
+            _asyncRequestChannel.SetRequestHandler(_fiber, async r => r.Reply(1));
         }
 
         [GlobalCleanup]
         public void Cleanup()
         {
+
             _fiber.Dispose();
-            _fiberReply.Dispose();
-            _asyncFiber.Dispose();
         }
     }
 }

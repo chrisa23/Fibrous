@@ -1,11 +1,15 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Example1.ComponentBased;
 using Fibrous;
 using Fibrous.Pipelines;
 
 namespace Example1
 {
+    /// <summary>
+    /// Example of higher level components built from Fibrous.  In this case a flexible, composable, asynchronous pipeline library
+    /// </summary>
     internal class PipelineExample
     {
         public static void Run()
@@ -50,8 +54,16 @@ namespace Example1
             using var stub = new StubFiber();
             using var timer = new Fiber();
 
-            channels.Output.Subscribe(stub, payload => Console.WriteLine("Got output"));
-            channels.Stage1To2.Subscribe(stub, payload => Console.WriteLine("Monitoring Stage1to2 channel saw a message"));
+            channels.Output.Subscribe(stub, payload =>
+            {
+                Console.WriteLine("Got output");
+                return Task.CompletedTask;
+            });
+            channels.Stage1To2.Subscribe(stub, payload =>
+            {
+                Console.WriteLine("Monitoring Stage1to2 channel saw a message");
+                return Task.CompletedTask;
+            });
 
             var twoSecs = TimeSpan.FromSeconds(2);
 

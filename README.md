@@ -7,9 +7,8 @@
 High performance concurrency library for the .Net platform. Fibrous is a fork of
 Retlang [http://code.google.com/p/retlang/].
 
-Fibrous is an actor-like framework but more of a flexible set of concurrency components. The main abstractions are
-Fibers, Ports and Channels. Fibers are execution contexts, Ports are messaging end points, and channels are combinations
-of ports that allow decoupling of fiber components.
+Fibrous is an actor-like framework and also a flexible and pragmatic concurrency toolbox similar to some ML concurrency libraries. The main abstractions are
+Fibers (execution contexts) and Channels/Ports (messaging conduits and endpoints).  From these components, you can build simple to complex concurrent libraries and applications.  
 
 Some of the library benefits:
 
@@ -23,7 +22,7 @@ Some of the library benefits:
 
 Fibrous is great for multi-threading when you don't need extreme low latency or distributed actors but want an easy to
 reason about and extremely flexible messaging based model. Fibrous is also fast. It's in production use in multiple
-trading systems, both server side and front end.
+trading systems, server side and front end.
 
 If you need distributed concurrency, look into Akka.net or Proto.Actor and if you need extreme performance and super low
 latency, look into Disruptor.net.
@@ -32,11 +31,8 @@ Fibers
 ------
 
 Fibers are synchronous execution contexts that maintain order of actions. Like Actors, Fibers can manage state without
-worries of cross threading issues. While a Fiber is synchronous, your system can consist of multiple Fibers
+worries of cross threading issues. While a Fiber processes synchronously, your system can consist of multiple Fibers
 communicating through messaging to provide parallelism to your system.
-
-In version 3, Async Fibers were introduced. These work off of Func&lt;Task> rather than Action delegates allowing a
-fiber based component to use async/await safely.
 
 Fibers subscribe to channels to receive messages which queue actions based on the assigned handler. Fibers have a
 scheduling API that allows actions to be scheduled in the future as well as repeatedly. You can also directly queue
@@ -51,22 +47,16 @@ thread. There is a StubFiber, which is used for testing and special cases, and i
 calling thread.
 
 ```csharp
-//Representations of the IFiber and IAsyncFiber interface.
-//There are many extensions to enable more complex behavior~~~~
+//Representations of the IFiber interface.
+//There are many extensions to enable more complex behavior
 public interface IFiber : IDisposable
 {
-    void Enqueue(Action action);
-    IDisposable Schedule(Action action, TimeSpan dueTime);
-    IDisposable Schedule(Action action, TimeSpan startTime, TimeSpan interval);
-    void Add(IDisposable toAdd);
-    void Remove(IDisposable toRemove);
-}
-
-public interface IAsyncFiber : IDisposable
-{
     void Enqueue(Func<Task> action);
+    void Enqueue(Action action);
     IDisposable Schedule(Func<Task> action, TimeSpan dueTime);
     IDisposable Schedule(Func<Task> action, TimeSpan startTime, TimeSpan interval);
+    IDisposable Schedule(Action action, TimeSpan dueTime);
+    IDisposable Schedule(Action action, TimeSpan startTime, TimeSpan interval);
     void Add(IDisposable toAdd);
     void Remove(IDisposable toRemove);
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Fibrous.Agents;
 
@@ -10,14 +11,14 @@ public class ChannelAgent<T> : IDisposable
 {
     protected IFiber Fiber;
 
-    public ChannelAgent(IChannel<T> channel, Action<T> handler, Action<Exception> errorCallback = null)
+    public ChannelAgent(IChannel<T> channel, Func<T, Task> handler, Action<Exception> errorCallback)
     {
-        Fiber = errorCallback == null ? new Fiber() : new Fiber(errorCallback);
+        Fiber = new Fiber(errorCallback);
         channel.Subscribe(Fiber, handler);
     }
 
-    public ChannelAgent(IFiberFactory factory, IChannel<T> channel, Action<T> handler,
-        Action<Exception> errorCallback = null)
+    public ChannelAgent(IFiberFactory factory, IChannel<T> channel, Func<T, Task> handler,
+        Action<Exception> errorCallback)
     {
         Fiber = factory.CreateFiber(errorCallback);
         channel.Subscribe(Fiber, handler);

@@ -3,24 +3,28 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>Fibrous.WPF</id>
-    <version>5.0.0</version>
+    <version>6.0.0</version>
     <authors>Chris Anderson</authors>
     <owners>chrisa23</owners>
     <projectUrl>http://github.com/chrisa23/fibrous</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>WPF Dispatcher fiber for Fibrous</description>
-    <copyright>Copyright ©2021 CA Anderson LLC</copyright>
+    <copyright>Copyright ©2024 CA Anderson LLC</copyright>
     <tags>concurrency actors multi-threading messaging WPF</tags>
     <dependencies>
-      <dependency id="Fibrous" version="5.0.0"/>
+      <dependency id="Fibrous" version="6.0.0"/>
     </dependencies>
   </metadata>
   <files>
-    <file src=".\bin\Release\net462\Fibrous.WPF.dll" target="lib/net462"/>
-    <file src=".\bin\Release\net462\Fibrous.WPF.pdb" target="lib/net462"/>
+    <file src=".\bin\Release\net48\Fibrous.WPF.dll" target="lib/net48"/>
+    <file src=".\bin\Release\net48\Fibrous.WPF.pdb" target="lib/net48"/>
     <file src=".\bin\Release\netcoreapp3.1\Fibrous.WPF.dll" target="lib/netcoreapp3.1"/>
     <file src=".\bin\Release\netcoreapp3.1\Fibrous.WPF.pdb" target="lib/netcoreapp3.1"/>
     <file src=".\bin\Release\net5.0-windows\Fibrous.WPF.dll" target="lib/net5.0"/>
     <file src=".\bin\Release\net5.0-windows\Fibrous.WPF.pdb" target="lib/net5.0"/>
+    <file src=".\bin\Release\net6.0-windows\Fibrous.WPF.dll" target="lib/net6.0"/>
+    <file src=".\bin\Release\net6.0-windows\Fibrous.WPF.pdb" target="lib/net6.0"/>
+    <file src=".\bin\Release\net8.0-windows\Fibrous.WPF.dll" target="lib/net8.0"/>
+    <file src=".\bin\Release\net8.0-windows\Fibrous.WPF.pdb" target="lib/net8.0"/>
   </files>
 </package>

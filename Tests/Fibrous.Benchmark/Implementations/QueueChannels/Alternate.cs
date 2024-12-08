@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,11 +16,6 @@ namespace Fibrous.Benchmark.Implementations.QueueChannels
     {
         private readonly ConcurrentQueue<TMsg> _queue = new();
 
-        public IDisposable Subscribe(IFiber fiber, Action<TMsg> onMessage)
-        {
-            QueueConsumer queueConsumer = new(fiber, onMessage, this);
-            return new Unsubscriber(queueConsumer, fiber);
-        }
 
         public IDisposable Subscribe(IAsyncFiber fiber, Func<TMsg, Task> receive)
         {
@@ -653,7 +649,7 @@ namespace Fibrous.Benchmark.Implementations.QueueChannels
 
             for (int i = 0; i < _subCount; i++)
             {
-                //equivalent of Action event but round robin starting 
+                //equivalent of Action event but round robin starting
                 _subscribers[(index + i) % _subCount].Signal();
             }
         }
@@ -751,3 +747,4 @@ namespace Fibrous.Benchmark.Implementations.QueueChannels
         }
     }
 }
+*/

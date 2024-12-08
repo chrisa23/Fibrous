@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace Fibrous;
@@ -12,6 +13,7 @@ internal struct AggressiveSpinWait
 
     private bool NextSpinWillYield => _count > YieldThreshold || _isSingleProcessor;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SpinOnce()
     {
         if (NextSpinWillYield)

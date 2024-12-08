@@ -24,10 +24,7 @@ public class FiberKeyedCollection<TKey, T> : ISnapshotSubscriberPort<ItemAction<
 
     public void Dispose() => _fiber.Dispose();
 
-    public IDisposable SendRequest(Func<T, bool> request, IFiber fiber, Action<T[]> onReply) =>
-        _request.SendRequest(request, fiber, onReply);
-
-    public IDisposable SendRequest(Func<T, bool> request, IAsyncFiber fiber, Func<T[], Task> onReply) =>
+    public IDisposable SendRequest(Func<T, bool> request, IFiber fiber, Func<T[], Task> onReply) =>
         _request.SendRequest(request, fiber, onReply);
 
     public Task<T[]> SendRequestAsync(Func<T, bool> request) => _request.SendRequestAsync(request);
@@ -35,10 +32,7 @@ public class FiberKeyedCollection<TKey, T> : ISnapshotSubscriberPort<ItemAction<
     public Task<Reply<T[]>> SendRequestAsync(Func<T, bool> request, TimeSpan timeout) =>
         _request.SendRequestAsync(request, timeout);
 
-    public IDisposable Subscribe(IFiber fiber, Action<ItemAction<T>> receive, Action<T[]> receiveSnapshot) =>
-        _channel.Subscribe(fiber, receive, receiveSnapshot);
-
-    public IDisposable Subscribe(IAsyncFiber fiber, Func<ItemAction<T>, Task> receive,
+    public IDisposable Subscribe(IFiber fiber, Func<ItemAction<T>, Task> receive,
         Func<T[], Task> receiveSnapshot) => _channel.Subscribe(fiber, receive, receiveSnapshot);
 
     public void Add(T item) => _fiber.Enqueue(() => AddItem(item));
@@ -47,7 +41,7 @@ public class FiberKeyedCollection<TKey, T> : ISnapshotSubscriberPort<ItemAction<
 
     public Task<T[]> GetItemsAsync(Func<T, bool> request) => _request.SendRequestAsync(request);
 
-    private void OnRequest(IRequest<Func<T, bool>, T[]> request) =>
+    private async Task OnRequest(IRequest<Func<T, bool>, T[]> request) =>
         request.Reply(_items.Values.Where(request.Request).ToArray());
 
     private void RemoveItem(T obj)
@@ -67,5 +61,5 @@ public class FiberKeyedCollection<TKey, T> : ISnapshotSubscriberPort<ItemAction<
         _channel.Publish(new ItemAction<T>(exists ? ActionType.Update : ActionType.Add, new[] {obj}));
     }
 
-    private T[] Reply() => _items.Values.ToArray();
+    private async Task< T[]> Reply() => _items.Values.ToArray();
 }

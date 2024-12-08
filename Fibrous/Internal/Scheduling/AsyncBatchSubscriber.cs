@@ -4,17 +4,14 @@ using System.Threading.Tasks;
 
 namespace Fibrous;
 
-internal sealed class AsyncBatchSubscriber<T> : AsyncBatchSubscriberBase<T>
+internal sealed class AsyncBatchSubscriber<T>(
+    ISubscriberPort<T> channel,
+    IFiber fiber,
+    TimeSpan interval,
+    Func<T[], Task> receive)
+    : AsyncBatchSubscriberBase<T>(channel, fiber, interval)
 {
-    private readonly Func<T[], Task> _receive;
     private List<T> _pending;
-
-    public AsyncBatchSubscriber(ISubscriberPort<T> channel,
-        IAsyncFiber fiber,
-        TimeSpan interval,
-        Func<T[], Task> receive)
-        : base(channel, fiber, interval) =>
-        _receive = receive;
 
     protected override Task OnMessageAsync(T msg)
     {
@@ -46,7 +43,7 @@ internal sealed class AsyncBatchSubscriber<T> : AsyncBatchSubscriberBase<T>
 
         if (toFlush != null)
         {
-            Fiber.Enqueue(() => _receive(toFlush));
+            Fiber.Enqueue(() => receive(toFlush));
         }
 
         return Task.CompletedTask;

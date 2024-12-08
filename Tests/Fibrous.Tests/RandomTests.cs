@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Fibrous.Agents;
 using NUnit.Framework;
 
@@ -19,19 +20,21 @@ internal class RandomTests
         int count = 0;
         using AutoResetEvent reset = new(false);
 
-        void Handler1(string x)
+        Task Handler1(string x)
         {
             string u = x.ToUpper();
             _queue.Publish(u);
+            return Task.CompletedTask;
         }
 
-        void Handler(string x)
+        Task Handler(string x)
         {
             string l = x.ToLower();
             _output.Publish(l);
+            return Task.CompletedTask;
         }
 
-        void Action(string x)
+        async Task Action(string x)
         {
             count++;
             if (count >= OperationsPerInvoke)
@@ -41,13 +44,13 @@ internal class RandomTests
         }
 
         using Disposables d = new();
-        using ChannelAgent<string> fiber = new(_input, Handler1);
+        using ChannelAgent<string> fiber = new(_input, Handler1, e => { });//Todo: make sure no exceptions
         for (int i = 0; i < 10; i++)
         {
-            d.Add(new ChannelAgent<string>(_queue, Handler));
+            d.Add(new ChannelAgent<string>(_queue, Handler, e => { }));
         }
 
-        using ChannelAgent<string> fiberOut = new(_output, Action);
+        using ChannelAgent<string> fiberOut = new(_output,  (Func<string, Task>)Action, e => { });
 
         for (int i = 0; i < OperationsPerInvoke; i++)
         {

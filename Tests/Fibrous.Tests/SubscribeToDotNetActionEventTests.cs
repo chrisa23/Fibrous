@@ -26,7 +26,7 @@ public class SubscribeToDotNetActionEventTests
         bool triggered = false;
         StubFiber stub = new();
         EventTester evt = new();
-        IDisposable dispose = stub.SubscribeToEvent<object>(evt, "EventWithObject", x => triggered = true);
+        IDisposable dispose = stub.SubscribeToEvent<object>(evt, "EventWithObject", async _ => triggered = true);
         Assert.IsTrue(evt.IsAttachedWithObject);
         evt.Invoke();
         Assert.IsTrue(triggered);
@@ -40,7 +40,7 @@ public class SubscribeToDotNetActionEventTests
         bool triggered = false;
         StubFiber stub = new();
         EventTester evt = new();
-        IDisposable dispose = stub.SubscribeToEvent(evt, "Event", () => triggered = true);
+        IDisposable dispose = stub.SubscribeToEvent(evt, "Event", async () => triggered = true);
         Assert.IsTrue(evt.IsAttached);
         evt.Invoke();
         Assert.IsTrue(triggered);
