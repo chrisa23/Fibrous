@@ -53,27 +53,27 @@ internal sealed class AsyncLastEventSubscriber : IDisposable
     private            bool        _flushPending;
     private            bool        _pending;
     private readonly   IDisposable _sub;
-    protected readonly object      BatchLock = new();
-    protected readonly IFiber Fiber;
-    protected readonly TimeSpan    Interval;
+    private readonly object      _batchLock = new();
+    private readonly IFiber _fiber;
+    private readonly TimeSpan    _interval;
     public AsyncLastEventSubscriber(IEventPort channel,
         IFiber fiber,
         TimeSpan interval,
         Action target)
     {
         _sub = channel.Subscribe(fiber, OnMessageAsync);
-        Fiber = fiber;
-        Interval = interval;
+        _fiber = fiber;
+        _interval = interval;
         _target = target;
     }
 
-    protected Task OnMessageAsync()
+    private Task OnMessageAsync()
     {
-        lock (BatchLock)
+        lock (_batchLock)
         {
             if (!_flushPending)
             {
-                Fiber.Schedule(FlushAsync, Interval);
+                _fiber.Schedule(FlushAsync, _interval);
                 _flushPending = true;
             }
 
@@ -96,7 +96,7 @@ internal sealed class AsyncLastEventSubscriber : IDisposable
 
     private bool ClearPending()
     {
-        lock (BatchLock)
+        lock (_batchLock)
         {
             _flushPending = false;
             bool clearPending = _pending;
