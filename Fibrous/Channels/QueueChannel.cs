@@ -18,7 +18,7 @@ public sealed class QueueChannel<TMsg> : IChannel<TMsg>
 
     private long _index = -1;
     private long _subCount;
-    private IQueueSubscriber[] _subscribers = new IQueueSubscriber[0];
+    private IQueueSubscriber[] _subscribers = [];
 
     public IDisposable Subscribe(IFiber fiber, Func<TMsg, Task> receive)
     {
@@ -42,10 +42,13 @@ public sealed class QueueChannel<TMsg> : IChannel<TMsg>
         }
 
         _queue.Enqueue(message);
-        long index = Interlocked.Increment(ref _index) % _subCount;
+        lock (_lock)
+        {
+            long index = Interlocked.Increment(ref _index) % _subCount;
 
-        IQueueSubscriber queueSubscriber = _subscribers[index];
-        queueSubscriber.Signal();
+            IQueueSubscriber queueSubscriber = _subscribers[index];
+            queueSubscriber.Signal();
+        }
     }
 
     public void Dispose()
@@ -57,12 +60,12 @@ public sealed class QueueChannel<TMsg> : IChannel<TMsg>
                 subscriber.Dispose();
             }
 
-            _subscribers = new IQueueSubscriber[0];
+            _subscribers = [];
             _subCount = 0;
         }
     }
 
-    internal bool Pop(out TMsg msg) => _queue.TryDequeue(out msg);
+    private bool Pop(out TMsg msg) => _queue.TryDequeue(out msg);
 
     private void RemoveSubscriber(IQueueSubscriber queueConsumer)
     {

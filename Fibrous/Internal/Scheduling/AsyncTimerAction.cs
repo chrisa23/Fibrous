@@ -47,15 +47,7 @@ internal sealed class AsyncTimerAction : IDisposable
         }
     }
 
-    private Task ExecuteAsync()
-    {
-        if (_cancelled)
-        {
-            return Task.CompletedTask;
-        }
-
-        return _action();
-    }
+    private Task ExecuteAsync() => _cancelled ? Task.CompletedTask : _action();
 
     private void DisposeTimer()
     {

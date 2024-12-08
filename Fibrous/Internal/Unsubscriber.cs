@@ -6,7 +6,7 @@ internal sealed class Unsubscriber : IDisposable
 {
     private readonly IDisposable _disposable;
     private readonly IDisposableRegistry _disposables;
-    private readonly SingleShotGuard _guard;
+    private readonly SingleShotGuard _guard = new();
 
     public Unsubscriber(IDisposable disposable, IDisposableRegistry disposables)
     {

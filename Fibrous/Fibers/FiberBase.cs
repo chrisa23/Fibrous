@@ -7,18 +7,13 @@ using System.Threading.Tasks;
 
 namespace Fibrous;
 
-public abstract class FiberBase : IFiber
+public abstract class FiberBase(IExecutor executor = null, IAsyncFiberScheduler scheduler = null)
+    : IFiber
 {
     private readonly   Disposables          _disposables = new();
-    private readonly   IAsyncFiberScheduler _fiberScheduler;
-    protected readonly IExecutor            Executor;
+    private readonly   IAsyncFiberScheduler _fiberScheduler = scheduler ?? new AsyncTimerScheduler();
+    protected readonly IExecutor            Executor = executor ?? new Executor();
     private            bool                 _disposed;
-
-    protected FiberBase(IExecutor executor = null, IAsyncFiberScheduler scheduler = null)
-    {
-        _fiberScheduler = scheduler ?? new AsyncTimerScheduler();
-        Executor = executor ?? new Executor();
-    }
 
     public IDisposable Schedule(Func<Task> action, TimeSpan dueTime) =>
         _fiberScheduler.Schedule(this, action, dueTime);

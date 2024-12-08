@@ -59,12 +59,12 @@ public sealed class EventHub : IEventHub
     {
         Type type = typeof(T);
 
-        if (!_channels.ContainsKey(type))
+        if (!_channels.TryGetValue(type, out object channel1))
         {
             return;
         }
 
-        IChannel<T> channel = (IChannel<T>)_channels[type];
+        IChannel<T> channel = (IChannel<T>)channel1;
         channel.Publish(msg);
     }
 
@@ -81,7 +81,7 @@ public sealed class EventHub : IEventHub
         foreach (Type @interface in interfaces)
         {
             Type type = @interface.GetTypeInfo().GenericTypeArguments[0];
-            MethodInfo method = @interface.GetRuntimeMethod(regular ? "Handle" : "HandleAsync", new[] {type});
+            MethodInfo method = @interface.GetRuntimeMethod(regular ? "Handle" : "HandleAsync", [type]);
 
             if (method == null)
             {
@@ -90,7 +90,7 @@ public sealed class EventHub : IEventHub
 
             MethodInfo sub = GetType().GetTypeInfo().GetDeclaredMethod(subMethod).MakeGenericMethod(type);
 
-            IDisposable dispose = sub.Invoke(this, new[] {fiber, handler}) as IDisposable;
+            IDisposable dispose = sub.Invoke(this, [fiber, handler]) as IDisposable;
             disposables.Add(dispose);
         }
 
@@ -110,12 +110,12 @@ public sealed class EventHub : IEventHub
     {
         Type type = typeof(T);
 
-        if (!_channels.ContainsKey(type))
+        if (!_channels.TryGetValue(type, out object channel1))
         {
             return false;
         }
 
-        Channel<T> channel = (Channel<T>)_channels[type];
+        Channel<T> channel = (Channel<T>)channel1;
         return channel.HasSubscriptions;
     }
 }

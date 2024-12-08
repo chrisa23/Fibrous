@@ -3,12 +3,9 @@ using System.Threading.Tasks;
 
 namespace Fibrous;
 
-internal sealed class AsyncPendingAction : IDisposable
+internal sealed class AsyncPendingAction(Func<Task> action) : IDisposable
 {
-    private readonly Func<Task> _action;
     private bool _cancelled;
-
-    public AsyncPendingAction(Func<Task> action) => _action = action;
 
     public void Dispose() => _cancelled = true;
 
@@ -19,6 +16,6 @@ internal sealed class AsyncPendingAction : IDisposable
             return Task.CompletedTask;
         }
 
-        return _action();
+        return action();
     }
 }

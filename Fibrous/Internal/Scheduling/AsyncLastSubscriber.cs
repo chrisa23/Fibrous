@@ -3,18 +3,15 @@ using System.Threading.Tasks;
 
 namespace Fibrous;
 
-internal sealed class AsyncLastSubscriber<T> : AsyncBatchSubscriberBase<T>
+internal sealed class AsyncLastSubscriber<T>(
+    ISubscriberPort<T> channel,
+    IFiber fiber,
+    TimeSpan interval,
+    Func<T, Task> target)
+    : AsyncBatchSubscriberBase<T>(channel, fiber, interval)
 {
-    private readonly Func<T, Task> _target;
     private bool _flushPending;
     private T _pending;
-
-    public AsyncLastSubscriber(ISubscriberPort<T> channel,
-        IFiber fiber,
-        TimeSpan interval,
-        Func<T, Task> target)
-        : base(channel, fiber, interval) =>
-        _target = target;
 
     protected override Task OnMessageAsync(T msg)
     {
@@ -35,7 +32,7 @@ internal sealed class AsyncLastSubscriber<T> : AsyncBatchSubscriberBase<T>
     private Task FlushAsync()
     {
         T toReturn = ClearPending();
-        Fiber.Enqueue(() => _target(toReturn));
+        Fiber.Enqueue(() => target(toReturn));
         return Task.CompletedTask;
     }
 
