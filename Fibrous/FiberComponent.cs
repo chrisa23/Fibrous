@@ -5,7 +5,7 @@ namespace Fibrous;
 public abstract class FiberComponent : IDisposable
 {
     protected FiberComponent(IFiberFactory factory = null) =>
-        Fiber = factory?.CreateAsyncFiber(OnError) ?? new Fiber(OnError);
+        Fiber = factory?.CreateFiber(OnError) ?? new Fiber(OnError);
 
     protected IFiber Fiber { get; }
 

@@ -2,15 +2,8 @@
 
 namespace Fibrous;
 
-public class StubFiberFactory : IFiberFactory
+public class StubFiberFactory(IAsyncFiberScheduler asyncScheduler = null) : IFiberFactory
 {
-    private readonly IAsyncFiberScheduler _asyncScheduler;
-
-    public StubFiberFactory(IAsyncFiberScheduler asyncScheduler = null)
-    {
-        _asyncScheduler = asyncScheduler;
-    }
-
-    public IFiber CreateAsyncFiber(Action<Exception> errorHandler) =>
-        new StubFiber(errorHandler, _asyncScheduler);
+    public IFiber CreateFiber(Action<Exception> errorHandler) =>
+        new StubFiber(errorHandler, asyncScheduler);
 }

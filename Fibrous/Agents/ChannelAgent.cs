@@ -20,7 +20,7 @@ public class ChannelAgent<T> : IDisposable
     public ChannelAgent(IFiberFactory factory, IChannel<T> channel, Func<T, Task> handler,
         Action<Exception> errorCallback)
     {
-        Fiber = factory.CreateAsyncFiber(errorCallback);
+        Fiber = factory.CreateFiber(errorCallback);
         channel.Subscribe(Fiber, handler);
     }
 

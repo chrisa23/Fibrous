@@ -22,7 +22,7 @@ public class RequestAgent<TRequest, TReply> : IRequestAgent<TRequest, TReply>
     public RequestAgent(IFiberFactory factory, Func<IRequest<TRequest, TReply>, Task> handler,
         Action<Exception> callback)
     {
-        Fiber = factory.CreateAsyncFiber(callback);
+        Fiber = factory.CreateFiber(callback);
         _channel = Fiber.NewRequestPort(handler);
     }
 

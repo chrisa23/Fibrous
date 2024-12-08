@@ -8,6 +8,6 @@ public class WpfFiberFactory(
     DispatcherPriority priority = DispatcherPriority.Normal)
     : IFiberFactory
 {
-    public IFiber CreateAsyncFiber(Action<Exception> errorHandler) =>
+    public IFiber CreateFiber(Action<Exception> errorHandler) =>
         new DispatcherFiber(errorHandler, dispatcher, priority);
 }

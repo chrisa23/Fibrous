@@ -24,7 +24,7 @@ public interface IDisposableRegistry : IDisposable
 
 public class Disposables : IDisposableRegistry
 {
-    private readonly SingleShotGuard _guard;
+    private readonly SingleShotGuard _guard = new();
     private readonly List<IDisposable> _items = new();
     private readonly object _lock = new();
 

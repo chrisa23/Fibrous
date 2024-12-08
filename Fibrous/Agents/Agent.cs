@@ -21,7 +21,7 @@ public class Agent<T> : IAgent<T>
     public Agent(IFiberFactory factory, Func<T, Task> handler, Action<Exception> callback)
     {
         _handler = handler;
-        Fiber = factory.CreateAsyncFiber(callback);
+        Fiber = factory.CreateFiber(callback);
     }
 
     public void Publish(T msg) => Fiber.Enqueue(() => _handler(msg));
