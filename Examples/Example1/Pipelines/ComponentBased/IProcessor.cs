@@ -1,6 +1,7 @@
 ﻿using System;
+using Fibrous;
 
-namespace Fibrous.Pipelines;
+namespace Example1.Pipelines.ComponentBased;
 
 /// <summary>
 ///     Interface for a concurrent processing component.

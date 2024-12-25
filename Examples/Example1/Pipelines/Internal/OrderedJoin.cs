@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Fibrous;
 
-namespace Fibrous.Pipelines;
+namespace Example1.Pipelines.Internal;
 
 internal sealed class OrderedJoin<T> : IDisposable
 {

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Fibrous.Pipelines;
+using Fibrous;
 
-namespace Fibrous;
+namespace Example1.Pipelines.Internal;
 
 internal sealed class OrderedRoundRobinFanOut<T> : Disposables
 {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Fibrous.Pipelines;
+namespace Example1.Pipelines.Internal;
 
 //Should this use a stub fiber?
 //this should probably not start immediately...

@@ -40,6 +40,9 @@ public sealed class StateChannel<T> : IChannel<T>
         }
     }
 
+    public IDisposable Subscribe(IFiber fiber, Action<T> receive) =>
+            Subscribe(fiber, receive.ToAsync());
+
     public IDisposable Subscribe(Action<T> receive)
     {
         lock (_lock)

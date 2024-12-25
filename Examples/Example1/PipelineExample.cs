@@ -2,8 +2,9 @@
 using System.IO;
 using System.Threading.Tasks;
 using Example1.ComponentBased;
+using Example1.Pipelines;
+using Example1.Pipelines.ComponentBased;
 using Fibrous;
-using Fibrous.Pipelines;
 
 namespace Example1
 {

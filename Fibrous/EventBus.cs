@@ -35,4 +35,26 @@ public static class EventBus<T>
         Func<T, Task> receive,
         TimeSpan interval) =>
         Channel.SubscribeToLast(fiber, receive, interval);
+
+    public static IDisposable Subscribe(IFiber fiber, Action<T> receive) =>
+        Channel.Subscribe(fiber, receive);
+
+    public static IDisposable Subscribe(IFiber fiber, Action<T> receive, Predicate<T> filter) =>
+        Subscribe(fiber, receive.ToAsync(), filter);
+
+    public static IDisposable SubscribeToBatch(IFiber fiber,
+        Action<T[]> receive,
+        TimeSpan interval) =>
+        SubscribeToBatch(fiber, receive.ToAsync(), interval);
+
+    public static IDisposable SubscribeToKeyedBatch<TKey>(IFiber fiber,
+        Converter<T, TKey> keyResolver,
+        Action<IDictionary<TKey, T>> receive,
+        TimeSpan interval) =>
+        SubscribeToKeyedBatch(fiber, keyResolver,receive.ToAsync(), interval);
+
+    public static IDisposable SubscribeToLast(IFiber fiber,
+        Action<T> receive,
+        TimeSpan interval) =>
+        SubscribeToLast(fiber, receive.ToAsync(), interval);
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
+//Potentially remove.  I've never used and just adds complexity and confusion
 namespace Fibrous;
 
 /// <summary>

@@ -45,6 +45,15 @@ public interface IRequestPort<in TRequest, TReply>
     /// <param name="onReply"></param>
     /// <returns></returns>
     IDisposable SendRequest(TRequest request, IFiber fiber, Func<TReply, Task> onReply);
+
+    /// <summary>
+    ///     Send an asynchronous request, and let the reply be delivered to the fiber when ready
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="fiber"></param>
+    /// <param name="onReply"></param>
+    /// <returns></returns>
+    IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply);
 }
 
 /// <summary>

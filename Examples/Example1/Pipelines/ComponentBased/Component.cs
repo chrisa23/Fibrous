@@ -1,6 +1,7 @@
 ﻿using System;
+using Fibrous;
 
-namespace Fibrous.Pipelines;
+namespace Example1.Pipelines.ComponentBased;
 
 public sealed class Component<TIn, TOut> : FiberComponent
 {

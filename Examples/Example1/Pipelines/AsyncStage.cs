@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Fibrous.Pipelines;
+namespace Example1.Pipelines;
 
 public class AsyncStage<TIn, TOut> : AsyncFiberStageBase<TIn, TOut>
 {

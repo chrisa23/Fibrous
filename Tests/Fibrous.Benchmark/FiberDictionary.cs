@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
-using Fibrous.Collections;
+using Example1.Collections;
 
 namespace Fibrous.Benchmark
 {

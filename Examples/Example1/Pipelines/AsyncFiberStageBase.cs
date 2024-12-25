@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Fibrous;
 
-namespace Fibrous.Pipelines;
+namespace Example1.Pipelines;
 
 public abstract class AsyncFiberStageBase<TIn, TOut> : StageBase<TIn, TOut>
 {

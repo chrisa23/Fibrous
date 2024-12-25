@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using Fibrous;
 
-namespace Fibrous;
+namespace Example1.Pipelines.Internal;
 
 internal sealed class RoundRobinFanOut<T> : Disposables
 {

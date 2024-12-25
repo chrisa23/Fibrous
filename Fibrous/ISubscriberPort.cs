@@ -17,7 +17,13 @@ public interface ISubscriberPort<out T>
     /// <param name="receive"></param>
     /// <returns></returns>
     IDisposable Subscribe(IFiber fiber, Func<T, Task> receive);
-
+    /// <summary>
+    ///     Subscribe to messages on this channel with a fiber and handler.
+    /// </summary>
+    /// <param name="fiber"></param>
+    /// <param name="receive"></param>
+    /// <returns></returns>
+    IDisposable Subscribe(IFiber fiber, Action<T> receive);
     /// <summary>
     ///     Subscribe to messages on this channel with a  handler directly.
     /// </summary>
@@ -111,8 +117,4 @@ public static class SubscriberPortExtensions
     public static IDisposable Connect<T>(this ISubscriberPort<T> port,
         IPublisherPort<T> receive) =>
         port.Subscribe(receive.Publish);
-
-    public static Func<Task> ToAsync<T>(this Action action) => () => Task.Run(action);
-    public static Func<T, Task> ToAsync<T>(this Action<T> action) => x => Task.Run(() => action(x));
-    public static Func<TIn, Task<TOut>> ToAsync<TIn, TOut>(this Func<TIn, TOut> action) => x => Task.Run(() => action(x));
 }

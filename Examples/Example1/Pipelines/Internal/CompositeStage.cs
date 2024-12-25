@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Fibrous;
 
-namespace Fibrous.Pipelines;
+namespace Example1.Pipelines.Internal;
 
 internal sealed class CompositeStage<TIn, TOut> : IStage<TIn, TOut>
 {
@@ -20,6 +21,7 @@ internal sealed class CompositeStage<TIn, TOut> : IStage<TIn, TOut>
 
 
     public IDisposable Subscribe(IFiber fiber, Func<TOut, Task> receive) => _output.Subscribe(fiber, receive);
+    public IDisposable Subscribe(IFiber fiber, Action<TOut> receive) => _output.Subscribe(fiber, receive);
 
     public IDisposable Subscribe(Action<TOut> receive) => _output.Subscribe(receive);
 

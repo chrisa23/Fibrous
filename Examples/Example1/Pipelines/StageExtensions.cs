@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Example1.Pipelines.Internal;
+using Fibrous;
 
-namespace Fibrous.Pipelines;
+namespace Example1.Pipelines;
 
 public static class Pipeline
 {

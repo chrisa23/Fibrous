@@ -131,33 +131,6 @@ public static class FiberTester
         }
     }
 
-    //public static void ExecuteOnlyAfterStart(IFiber fiber)
-    //{
-    //    using (fiber)
-    //    using (var reset = new AutoResetEvent(false))
-    //    {
-    //        fiber.Enqueue(() => reset.Set());
-    //        Assert.IsFalse(reset.WaitOne(1, false));
-    //        fiber.Start();
-    //        Assert.IsTrue(reset.WaitOne(1000, false));
-    //    }
-    //}
-
-    //public static void ExecuteOnlyAfterStart(IAsyncFiber fiber)
-    //{
-    //    using (fiber)
-    //    using (var reset = new AutoResetEvent(false))
-    //    {
-    //        fiber.Enqueue(() =>
-    //        {
-    //            reset.Set();
-    //            return Task.CompletedTask;
-    //        });
-    //        Assert.IsFalse(reset.WaitOne(1, false));
-    //        fiber.Start();
-    //        Assert.IsTrue(reset.WaitOne(1000, false));
-    //    }
-    //}
 
     public static void InOrderExecution(IFiber fiber)
     {

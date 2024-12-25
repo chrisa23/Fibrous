@@ -1,4 +1,4 @@
-﻿namespace Fibrous.Collections;
+﻿namespace Example1.Collections;
 
 public enum ActionType
 {

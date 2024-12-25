@@ -29,6 +29,9 @@ public class RequestAgent<TRequest, TReply> : IRequestAgent<TRequest, TReply>
     public IDisposable SendRequest(TRequest request, IFiber fiber, Func<TReply, Task> onReply) =>
         _channel.SendRequest(request, fiber, onReply);
 
+    public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply) =>
+        _channel.SendRequest(request, fiber, onReply);
+
     public Task<TReply> SendRequestAsync(TRequest request) => _channel.SendRequestAsync(request);
 
     public Task<Reply<TReply>> SendRequestAsync(TRequest request, TimeSpan timeout) =>

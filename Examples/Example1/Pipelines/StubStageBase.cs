@@ -1,6 +1,7 @@
 ﻿using System;
+using Fibrous;
 
-namespace Fibrous.Pipelines;
+namespace Example1.Pipelines;
 
 public abstract class StubStageBase<TIn, TOut> : StageBase<TIn, TOut>
 {

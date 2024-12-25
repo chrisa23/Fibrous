@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Fibrous;
 
-namespace Fibrous.Pipelines;
+namespace Example1.Pipelines;
 
 public abstract class StageBase<TIn, TOut> : IStage<TIn, TOut>
 {
@@ -10,6 +11,8 @@ public abstract class StageBase<TIn, TOut> : IStage<TIn, TOut>
 
     public void Publish(TIn msg) => In.Publish(msg);
     public IDisposable Subscribe(IFiber fiber, Func<TOut, Task> receive) => Out.Subscribe(fiber, receive);
+    public IDisposable Subscribe(IFiber fiber, Action<TOut> receive) => Out.Subscribe(fiber, receive);
+
     public IDisposable Subscribe(Action<TOut> receive) => Out.Subscribe(receive);
 
     public abstract void Dispose();

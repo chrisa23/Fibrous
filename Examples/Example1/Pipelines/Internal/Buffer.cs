@@ -1,6 +1,7 @@
 ﻿using System;
+using Fibrous;
 
-namespace Fibrous;
+namespace Example1.Pipelines.Internal;
 
 //This is interesting for batching,
 //but what happens if buffer not filled...

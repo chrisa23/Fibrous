@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Fibrous.Collections;
+using Example1.Collections;
 using NUnit.Framework;
 
 namespace Fibrous.Tests;

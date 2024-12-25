@@ -22,10 +22,10 @@ public abstract class FiberBase(IExecutor executor = null, IAsyncFiberScheduler 
         _fiberScheduler.Schedule(this, action, startTime, interval);
 
     public IDisposable Schedule(Action action, TimeSpan dueTime) =>
-        Schedule(new ActionConverter(action).InvokeAsync, dueTime);
+        Schedule(action.ToAsync(), dueTime);
 
     public IDisposable Schedule(Action action, TimeSpan startTime, TimeSpan interval) =>
-        Schedule(new ActionConverter(action).InvokeAsync, startTime, interval);
+        Schedule(action.ToAsync(), startTime, interval);
 
     public void Enqueue(Action action)
     {
@@ -34,7 +34,7 @@ public abstract class FiberBase(IExecutor executor = null, IAsyncFiberScheduler 
             return;
         }
 
-        InternalEnqueue(new ActionConverter(action).InvokeAsync);
+        InternalEnqueue(action.ToAsync());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

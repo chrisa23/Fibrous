@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Fibrous.Pipelines;
+namespace Example1.Pipelines.Internal;
 
 internal class Filter<T> : StubStageBase<T, T>
 {

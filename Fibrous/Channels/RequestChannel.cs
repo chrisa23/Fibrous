@@ -19,6 +19,8 @@ public sealed class RequestChannel<TRequest, TReply> : IRequestChannel<TRequest,
         return new Unsubscriber(channelRequest, fiber);
     }
 
+    public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply) => SendRequest(request, fiber, onReply.ToAsync());
+
     public Task<TReply> SendRequestAsync(TRequest request)
     {
         ChannelRequest channelRequest = new(request);

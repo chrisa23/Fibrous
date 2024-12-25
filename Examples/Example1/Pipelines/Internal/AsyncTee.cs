@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Fibrous.Pipelines;
+namespace Example1.Pipelines.Internal;
 
 internal class AsyncTee<T> : AsyncFiberStageBase<T, T>
 {

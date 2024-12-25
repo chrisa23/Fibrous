@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Example1.Pipelines.ComponentBased;
 using Fibrous;
-using Fibrous.Pipelines;
 
 namespace Example1.ComponentBased
 {

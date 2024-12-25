@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Fibrous;
 
-namespace Fibrous.Collections;
+namespace Example1.Collections;
 
 public class FiberDictionary<TKey, T> :
     ISnapshotSubscriberPort<ItemAction<KeyValuePair<TKey, T>>, KeyValuePair<TKey, T>[]>,
@@ -36,6 +37,9 @@ public class FiberDictionary<TKey, T> :
 
     public IDisposable SendRequest(Func<TKey, bool> request, IFiber fiber,
         Func<KeyValuePair<TKey, T>[], Task> onReply) => _request.SendRequest(request, fiber, onReply);
+
+    public IDisposable SendRequest(Func<TKey, bool> request, IFiber fiber, Action<KeyValuePair<TKey, T>[]> onReply) =>
+        SendRequest(request, fiber, onReply.ToAsync());
 
     public Task<KeyValuePair<TKey, T>[]> SendRequestAsync(Func<TKey, bool> request) =>
         _request.SendRequestAsync(request);

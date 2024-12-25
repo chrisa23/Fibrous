@@ -1,4 +1,4 @@
-﻿namespace Fibrous.Pipelines;
+﻿namespace Example1.Pipelines.Internal;
 
 internal struct Ordered<T>
 {

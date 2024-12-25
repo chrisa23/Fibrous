@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Fibrous;
 
-namespace Fibrous.Collections;
+namespace Example1.Collections;
 
 /// <summary>
 ///     Collection class that can be monitored and provides a snapshot on subscription.  Can also be queried with a
@@ -29,6 +30,9 @@ public class FiberCollection<T> : ISnapshotSubscriberPort<ItemAction<T>, T[]>, I
 
     public IDisposable SendRequest(Func<T, bool> request, IFiber fiber, Func<T[], Task> onReply) =>
         _request.SendRequest(request, fiber, onReply);
+
+    public IDisposable SendRequest(Func<T, bool> request, IFiber fiber, Action<T[]> onReply) =>
+        SendRequest(request, fiber,onReply.ToAsync());
 
     public Task<T[]> SendRequestAsync(Func<T, bool> request) => _request.SendRequestAsync(request);
 

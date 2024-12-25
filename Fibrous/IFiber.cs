@@ -169,7 +169,7 @@ public static class AsyncFiberExtensions
     public static IChannel<T> NewChannel<T>(this IFiber fiber, Action<T> onEvent)
     {
         Channel<T> channel = new();
-        channel.Subscribe(fiber, onEvent.ToAsync());
+        channel.Subscribe(fiber, onEvent.ToAsync<T>());
         return channel;
     }
     public static IChannel<T> NewChannel<T>(this IFiber fiber, Func<T, Task> onEvent)

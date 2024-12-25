@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Fibrous.Pipelines;
+using Example1.Pipelines;
 using NUnit.Framework;
 
 namespace Fibrous.Tests;

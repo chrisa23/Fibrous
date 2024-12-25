@@ -24,10 +24,9 @@ public static class EventExtensions
 
         void Action(T msg) => fiber.Enqueue(() => receive(msg));
 
-        object[] addHandlerArgs = {(Action<T>)Action};
-        add.Invoke(obj, addHandlerArgs);
+        add.Invoke(obj, [(Action<T>)Action]);
 
-        return new Unsubscriber(new DisposeAction(() => remove.Invoke(obj, addHandlerArgs)), fiber);
+        return new Unsubscriber(new DisposeAction(() => remove.Invoke(obj, [(Action<T>)Action])), fiber);
     }
 
 
@@ -56,4 +55,32 @@ public static class EventExtensions
 
         return new Unsubscriber(new DisposeAction(() => remove.Invoke(obj, addHandlerArgs)), fiber);
     }
+
+
+    /// <summary>
+    ///     Subscribe an AsyncFiber to an Action based event
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="fiber"></param>
+    /// <param name="obj"></param>
+    /// <param name="eventName"></param>
+    /// <param name="receive"></param>
+    /// <returns></returns>
+    public static IDisposable SubscribeToEvent<T>(this IFiber fiber, object obj, string eventName,
+        Action<T> receive) =>
+        SubscribeToEvent(fiber, obj, eventName, receive.ToAsync());
+
+
+
+    /// <summary>
+    ///     Subscribe an AsyncFiber to an Action based event
+    /// </summary>
+    /// <param name="fiber"></param>
+    /// <param name="obj"></param>
+    /// <param name="eventName"></param>
+    /// <param name="receive"></param>
+    /// <returns></returns>
+    public static IDisposable SubscribeToEvent(this IFiber fiber, object obj, string eventName,
+        Action receive) =>
+        SubscribeToEvent(fiber, obj, eventName, receive.ToAsync());
 }

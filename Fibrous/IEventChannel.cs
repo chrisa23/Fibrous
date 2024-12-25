@@ -15,6 +15,7 @@ public interface IEventTrigger
 public interface IEventPort
 {
     IDisposable Subscribe(IFiber fiber, Func<Task> receive);
+    IDisposable Subscribe(IFiber fiber, Action receive);
     IDisposable Subscribe(Action receive);
 }
 
@@ -41,6 +42,8 @@ public class EventChannel : IEventChannel, IDisposable
         IDisposable disposable = _internalEvent.Subscribe(Action);
         return new Unsubscriber(disposable, fiber);
     }
+
+    public IDisposable Subscribe(IFiber fiber, Action receive) => Subscribe(fiber, receive.ToAsync());
 
     public IDisposable Subscribe(Action receive) => _internalEvent.Subscribe(receive);
 }
