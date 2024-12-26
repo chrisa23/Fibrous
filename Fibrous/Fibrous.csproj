@@ -21,9 +21,6 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
   </PropertyGroup>
-  <ItemGroup>
-    <None Remove="Fibrous.v3.ncrunchproject" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AsyncFixer" Version="1.6.0">
@@ -41,5 +38,5 @@
     <None Include="../README.md" Pack="true" PackagePath=""/>
     <None Include="../LICENSE.txt" Pack="true" PackagePath=""/>
   </ItemGroup>
- 
+
 </Project>

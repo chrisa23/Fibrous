@@ -50,34 +50,13 @@ public interface IScheduler
 
 public static class AsyncFiberExtensions
 {
-    /*/// <summary>
-    ///     Schedule an action at a DateTime
-    /// </summary>
-    /// <param name="scheduler"></param>
-    /// <param name="action"></param>
-    /// <param name="when"></param>
-    /// <returns></returns>
-    public static IDisposable Schedule(this IAsyncScheduler scheduler, Func<Task> action, DateTime when) =>
-        scheduler.Schedule(action,
-            when.Kind is DateTimeKind.Utc
-                ? when - DateTime.UtcNow
-                : when - DateTime.Now);//TODO:  test this...
-
     /// <summary>
-    ///     Schedule an action at a DateTime with an interval
+    /// Schedule an action to run on a cron schedule
     /// </summary>
     /// <param name="scheduler"></param>
     /// <param name="action"></param>
-    /// <param name="when"></param>
-    /// <param name="interval"></param>
+    /// <param name="cron"></param>
     /// <returns></returns>
-    public static IDisposable Schedule(this IAsyncScheduler scheduler, Func<Task> action, DateTime when,
-        TimeSpan interval) =>
-        scheduler.Schedule(action,  when.Kind is DateTimeKind.Utc
-            ? when - DateTime.UtcNow
-            : when - DateTime.Now, interval);*/
-
-
     public static IDisposable CronSchedule(this IScheduler scheduler, Func<Task> action, string cron) =>
         new AsyncCronScheduler(scheduler, action, cron);
 
