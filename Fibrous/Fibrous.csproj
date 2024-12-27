@@ -7,8 +7,8 @@
     <Company>CA Anderson LLC</Company>
     <PackageProjectUrl>https://github.com/chrisa23/Fibrous</PackageProjectUrl>
     <RepositoryUrl>https://github.com/chrisa23/Fibrous</RepositoryUrl>
-    <AssemblyVersion>5.0.0</AssemblyVersion>
-    <FileVersion>5.0.0</FileVersion>
+    <AssemblyVersion>6.1.0</AssemblyVersion>
+    <FileVersion>6.1.0</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageTags>concurrency actors multi-threading messaging</PackageTags>
     <LangVersion>latest</LangVersion>
