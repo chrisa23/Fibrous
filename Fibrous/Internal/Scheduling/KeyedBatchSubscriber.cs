@@ -4,13 +4,13 @@ using System.Threading.Tasks;
 
 namespace Fibrous;
 
-internal sealed class AsyncKeyedBatchSubscriber<TKey, T>(
+internal sealed class KeyedBatchSubscriber<TKey, T>(
     ISubscriberPort<T> channel,
     IFiber fiber,
     TimeSpan interval,
     Converter<T, TKey> keyResolver,
     Func<IDictionary<TKey, T>, Task> target)
-    : AsyncBatchSubscriberBase<T>(channel, fiber, interval)
+    : BatchSubscriberBase<T>(channel, fiber, interval)
 {
     private Dictionary<TKey, T> _pending;
 

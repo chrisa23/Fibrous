@@ -29,7 +29,7 @@ public class FiberKeyedCollection<TKey, T> : ISnapshotSubscriberPort<ItemAction<
         _request.SendRequest(request, fiber, onReply);
 
     public IDisposable SendRequest(Func<T, bool> request, IFiber fiber, Action<T[]> onReply) =>
-    SendRequest(request, fiber, onReply.ToAsync());
+    SendRequest(request, fiber, onReply);
 
     public Task<T[]> SendRequestAsync(Func<T, bool> request) => _request.SendRequestAsync(request);
 

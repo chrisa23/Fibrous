@@ -6,9 +6,9 @@ namespace Fibrous;
 public class LockFiberFactory(
     int size = QueueSize.DefaultQueueSize,
     TaskFactory taskFactory = null,
-    IAsyncFiberScheduler asyncScheduler = null)
+    IFiberScheduler scheduler = null)
     : IFiberFactory
 {
     public IFiber CreateFiber(Action<Exception> errorHandler) =>
-        new LockFiber(errorHandler, size, taskFactory, asyncScheduler);
+        new LockFiber(errorHandler, size, taskFactory, scheduler);
 }

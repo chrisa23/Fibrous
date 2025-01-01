@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Fibrous;
 
-public sealed class Channel<T> : IChannel<T>
+public sealed class    Channel<T> : IChannel<T>
 {
     private readonly Event<T> _internalEvent = new();
 
@@ -13,20 +13,15 @@ public sealed class Channel<T> : IChannel<T>
 
     public IDisposable Subscribe(IFiber fiber, Func<T, Task> receive)
     {
-        void Receive(T msg)
-        {
-            fiber.Enqueue(() => receive(msg));
-        }
+        void Receive(T msg) => fiber.Enqueue(() => receive(msg));
 
         IDisposable disposable = _internalEvent.Subscribe(Receive);
         return new Unsubscriber(disposable, fiber);
     }
 
-    public IDisposable Subscribe(IFiber fiber, Action<T> receive) {
-        void Receive(T msg)
-        {
-            fiber.Enqueue(() => receive(msg));
-        }
+    public IDisposable Subscribe(IFiber fiber, Action<T> receive)
+    {
+        void Receive(T msg) => fiber.Enqueue(() => receive(msg));
 
         IDisposable disposable = _internalEvent.Subscribe(Receive);
         return new Unsubscriber(disposable, fiber);

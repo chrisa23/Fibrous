@@ -13,7 +13,7 @@ public class LockFiber : FiberBase
     private bool _flushPending;
 
     public LockFiber(IExecutor executor = null, int size = QueueSize.DefaultQueueSize,
-        TaskFactory taskFactory = null, IAsyncFiberScheduler scheduler = null)
+        TaskFactory taskFactory = null, IFiberScheduler scheduler = null)
         : base(executor, scheduler)
     {
         _queue = new ArrayQueue<Func<Task>>(size);
@@ -23,7 +23,7 @@ public class LockFiber : FiberBase
     }
 
     public LockFiber(Action<Exception> errorCallback, int size = QueueSize.DefaultQueueSize,
-        TaskFactory taskFactory = null, IAsyncFiberScheduler scheduler = null)
+        TaskFactory taskFactory = null, IFiberScheduler scheduler = null)
         : this(new ExceptionHandlingExecutor(errorCallback), size, taskFactory, scheduler)
     {
     }

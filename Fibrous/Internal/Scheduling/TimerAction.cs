@@ -4,14 +4,14 @@ using System.Threading.Tasks;
 
 namespace Fibrous;
 
-internal sealed class AsyncTimerAction : IDisposable
+internal sealed class TimerAction : IDisposable
 {
     private readonly Func<Task> _action;
     private readonly TimeSpan _interval;
     private bool _cancelled;
     private Timer _timer;
 
-    public AsyncTimerAction(IFiber fiber, Func<Task> action, TimeSpan dueTime)
+    public TimerAction(IFiber fiber, Func<Task> action, TimeSpan dueTime)
     {
         _action = action;
         _interval = TimeSpan.FromMilliseconds(-1);
@@ -19,7 +19,7 @@ internal sealed class AsyncTimerAction : IDisposable
         fiber.Add(this);
     }
 
-    public AsyncTimerAction(IFiber fiber, Func<Task> action, TimeSpan dueTime, TimeSpan interval)
+    public TimerAction(IFiber fiber, Func<Task> action, TimeSpan dueTime, TimeSpan interval)
     {
         _action = action;
         _interval = interval;

@@ -3,12 +3,12 @@ using System.Threading.Tasks;
 
 namespace Fibrous;
 
-internal sealed class AsyncLastSubscriber<T>(
+internal sealed class LastSubscriber<T>(
     ISubscriberPort<T> channel,
     IFiber fiber,
     TimeSpan interval,
     Func<T, Task> target)
-    : AsyncBatchSubscriberBase<T>(channel, fiber, interval)
+    : BatchSubscriberBase<T>(channel, fiber, interval)
 {
     private bool _flushPending;
     private T _pending;

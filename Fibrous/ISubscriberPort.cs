@@ -45,7 +45,7 @@ public static class SubscriberPortExtensions
         IFiber fiber,
         Func<T[], Task> receive,
         TimeSpan interval) =>
-        new AsyncBatchSubscriber<T>(port, fiber, interval, receive);
+        new BatchSubscriber<T>(port, fiber, interval, receive);
 
 
     /// <summary>
@@ -64,7 +64,7 @@ public static class SubscriberPortExtensions
         Converter<T, TKey> keyResolver,
         Func<IDictionary<TKey, T>, Task> receive,
         TimeSpan interval) =>
-        new AsyncKeyedBatchSubscriber<TKey, T>(port, fiber, interval, keyResolver, receive);
+        new KeyedBatchSubscriber<TKey, T>(port, fiber, interval, keyResolver, receive);
 
     /// <summary>
     ///     Subscribe to a port but only consume the last msg per interval
@@ -79,7 +79,7 @@ public static class SubscriberPortExtensions
         IFiber fiber,
         Func<T, Task> receive,
         TimeSpan interval) =>
-        new AsyncLastSubscriber<T>(port, fiber, interval, receive);
+        new LastSubscriber<T>(port, fiber, interval, receive);
 
     /// <summary>
     ///     Subscribe with a message predicate to filter messages

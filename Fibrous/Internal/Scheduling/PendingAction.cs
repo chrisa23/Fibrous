@@ -1,18 +1,21 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Fibrous;
 
-internal sealed class PendingAction(Action action) : IDisposable
+internal sealed class PendingAction(Func<Task> action) : IDisposable
 {
     private bool _cancelled;
 
     public void Dispose() => _cancelled = true;
 
-    public void Execute()
+    public Task ExecuteAsync()
     {
-        if (!_cancelled)
+        if (_cancelled)
         {
-            action();
+            return Task.CompletedTask;
         }
+
+        return action();
     }
 }

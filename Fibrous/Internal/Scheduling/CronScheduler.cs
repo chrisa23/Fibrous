@@ -4,7 +4,7 @@ using Quartz;
 
 namespace Fibrous;
 
-internal class AsyncCronScheduler : IDisposable
+internal class CronScheduler : IDisposable
 {
     private readonly Func<Task> _action;
     private readonly CronExpression _cronExpression;
@@ -12,9 +12,9 @@ internal class AsyncCronScheduler : IDisposable
     private bool _running = true;
     private IDisposable _sub;
 
-    //make use of current timespan scheduling 
+    //make use of current timespan scheduling
     //but with UTC and add hour on ambiguous when time < now
-    public AsyncCronScheduler(IScheduler scheduler, Func<Task> action, string cron)
+    public CronScheduler(IScheduler scheduler, Func<Task> action, string cron)
     {
         _scheduler = scheduler;
         _action = async () =>

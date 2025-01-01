@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Fibrous;
 
-public static class ActionConverterUtils
+internal static class ActionConverterUtils
 {
 #pragma warning disable VSTHRD200
     public static Func<T, Task> ToAsync<T>(this Action<T> action) =>

@@ -39,7 +39,7 @@ public class FiberDictionary<TKey, T> :
         Func<KeyValuePair<TKey, T>[], Task> onReply) => _request.SendRequest(request, fiber, onReply);
 
     public IDisposable SendRequest(Func<TKey, bool> request, IFiber fiber, Action<KeyValuePair<TKey, T>[]> onReply) =>
-        SendRequest(request, fiber, onReply.ToAsync());
+        SendRequest(request, fiber, onReply);
 
     public Task<KeyValuePair<TKey, T>[]> SendRequestAsync(Func<TKey, bool> request) =>
         _request.SendRequestAsync(request);

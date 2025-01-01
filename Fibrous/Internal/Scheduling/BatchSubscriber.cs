@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 
 namespace Fibrous;
 
-internal sealed class AsyncBatchSubscriber<T>(
+internal sealed class BatchSubscriber<T>(
     ISubscriberPort<T> channel,
     IFiber fiber,
     TimeSpan interval,
     Func<T[], Task> receive)
-    : AsyncBatchSubscriberBase<T>(channel, fiber, interval)
+    : BatchSubscriberBase<T>(channel, fiber, interval)
 {
     private List<T> _pending;
 
