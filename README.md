@@ -42,7 +42,7 @@ Fibers are a repository of IDisposable objects and will dispose of all children 
 to clean up subscriptions and scheduling for any fiber. This is also useful for dealing with children used in the
 Fiber's context that implement IDisposable.
 
-There are specialised Fibers for Windows Forms and WPF, which automatically handle invoking actions on the UI/Dispatcher
+There are specialised Fibers for WPF, which automatically handle invoking actions on the UI/Dispatcher
 thread. There is a StubFiber, which is used for testing and special cases, and immediately executes actions on the
 calling thread.
 
