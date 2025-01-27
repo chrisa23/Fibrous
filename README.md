@@ -8,7 +8,7 @@ High performance concurrency library for the .Net platform. Fibrous is a fork of
 Retlang [http://code.google.com/p/retlang/].
 
 Fibrous is an actor-like framework and also a flexible and pragmatic concurrency toolbox similar to some ML concurrency libraries. The main abstractions are
-Fibers (execution contexts) and Channels/Ports (messaging conduits and endpoints).  From these components, you can build simple to complex concurrent libraries and applications.
+Fibers (execution contexts), Channels (messaging conduits and endpoints) and Events (wrapped, subscribable .Net events).  From these components, you can build simple to complex concurrent libraries and applications.
 
 Some of the library benefits:
 
@@ -128,3 +128,6 @@ agent.Publish("the message");
 Patterns
 --------
 
+Fibrous is incredibly flexible but also incredibly simple, and this can lead to confusion on how to use it.  Sometimes I use it in simple ways to solve a concurrency or performance issue and sometimes it becomes the backbone of a highly concurrent, high performance application.  
+
+I will be sharing more examples and patterns of use soon...
