@@ -1,15 +1,9 @@
+// Licensed to the.NET Foundation under one or more agreements.
+// The.NET Foundation licenses this file to you under the MIT license.
+
 using System;
 
 namespace Fibrous;
-
-/// <summary>
-///     Simple subscribe event with Dispose() for unsubscribe.
-/// </summary>
-/// <typeparam name="TEvent"></typeparam>
-public interface IEvent<TEvent> : IPublisherPort<TEvent>, IDisposable, IObservable<TEvent>
-{
-    IDisposable Subscribe(Action<TEvent> receive);
-}
 
 public sealed class Event<TEvent> : IEvent<TEvent>
 {
@@ -36,4 +30,25 @@ public sealed class Event<TEvent> : IEvent<TEvent>
     }
 
     private event Action<TEvent> InternalEvent;
+}
+
+public sealed class Event : IEvent
+{
+    public bool HasSubscriptions => InternalEvent != null;
+
+    public IDisposable Subscribe(Action receive)
+    {
+        InternalEvent += receive;
+        return new DisposeAction(() => InternalEvent -= receive);
+    }
+
+    public void Trigger()
+    {
+        Action internalEvent = InternalEvent;
+        internalEvent?.Invoke();
+    }
+
+    public void Dispose() => InternalEvent = null;
+
+    internal event Action InternalEvent;
 }

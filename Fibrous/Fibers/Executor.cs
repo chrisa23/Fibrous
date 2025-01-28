@@ -10,5 +10,6 @@ namespace Fibrous;
 public sealed class Executor : IExecutor
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Task ExecuteAsync(Func<Task> toExecute) => toExecute();
+    public
+        Task ExecuteAsync(Func<Task> toExecute) => toExecute();
 }

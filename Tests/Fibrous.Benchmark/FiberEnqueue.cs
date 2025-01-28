@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
-using Fibrous.Benchmark.Implementations;
 
 namespace Fibrous.Benchmark
 {
@@ -38,32 +37,7 @@ namespace Fibrous.Benchmark
             }
         }
 
-        public void Run(IValueAsyncFiber fiber)
-        {
-            using AutoResetEvent wait = new(false);
-            using (fiber)
-            {
-                int i = 0;
 
-                ValueTask AsyncHandler()
-                {
-                    i++;
-                    if (i == OperationsPerInvoke)
-                    {
-                        wait.Set();
-                    }
-
-                    return new ValueTask();
-                }
-
-                for (int j = 0; j < OperationsPerInvoke; j++)
-                {
-                    fiber.Enqueue(AsyncHandler);
-                }
-
-                WaitHandle.WaitAny(new WaitHandle[] {wait});
-            }
-        }
 
 
 
@@ -114,9 +88,6 @@ namespace Fibrous.Benchmark
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void Async() => Run(new Fiber());
-
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void ValueAsync() => Run(new ValueAsyncFiber());
 
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]

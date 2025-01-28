@@ -7,11 +7,6 @@ public interface IEventChannel : IEventTrigger, IEventPort
 {
 }
 
-public interface IEventTrigger
-{
-    void Trigger();
-}
-
 public interface IEventPort
 {
     IDisposable Subscribe(IFiber fiber, Func<Task> receive);
