@@ -8,7 +8,6 @@ using BenchmarkDotNet.Attributes;
 namespace Fibrous.Benchmark
 {
     [MemoryDiagnoser]
-    [ShortRunJob]
     public class QueueChannel
     {
         private const int OperationsPerInvoke = 1_000_000;

@@ -51,7 +51,7 @@ namespace Fibrous.Benchmark
         public void WrapperLock()
         {
             using AutoResetEvent reset = new(false);
-            using IFiber fiber = new LockFiber();
+            using IFiber fiber = new Fiber();
             WrappedObserver observer = new WrappedObserver(reset, OperationsPerInvoke);
             Subject<long> subject = new Subject<long>();
             using IDisposable dispose = subject.Subscribe(fiber, observer);

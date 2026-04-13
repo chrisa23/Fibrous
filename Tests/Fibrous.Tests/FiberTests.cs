@@ -11,7 +11,6 @@ public class FiberTests
     {
         FiberTester.InOrderExecution(new Fiber());
         FiberTester.InOrderExecution(new StubFiber());
-        FiberTester.InOrderExecution(new LockFiber());
     }
 
     [Test]
@@ -19,10 +18,8 @@ public class FiberTests
     {
         FiberTester.TestBatching(new Fiber());
         FiberTester.TestBatching(new StubFiber());
-        FiberTester.TestBatching(new LockFiber());
         FiberTester.TestBatchingWithKey(new Fiber());
         FiberTester.TestBatchingWithKey(new StubFiber());
-        FiberTester.TestBatchingWithKey(new LockFiber());
         }
 
     [Test]
@@ -30,7 +27,6 @@ public class FiberTests
     {
         FiberTester.TestPubSubSimple(new Fiber());
         FiberTester.TestPubSubSimple(new StubFiber());
-        FiberTester.TestPubSubSimple(new LockFiber());
     }
 
     [Test]
@@ -38,22 +34,20 @@ public class FiberTests
     {
         FiberTester.TestPubSubWithFilter(new Fiber());
         FiberTester.TestPubSubWithFilter(new StubFiber());
-        FiberTester.TestPubSubWithFilter(new LockFiber());
     }
 
     [Test]
     public async Task TestReqReplyAsync()
     {
         await FiberTester.TestReqReplyAsync(new Fiber());
-        await FiberTester.TestReqReplyAsync(new LockFiber());
         await FiberTester.TestReqReplyAsync(new StubFiber());
     }
 
     [Test]
     public void TestTwoFibers()
     {
-        FiberTester.TestPubSubWExtraFiber(new Fiber(), new LockFiber());
-        FiberTester.TestPubSubWExtraFiber(new LockFiber(), new LockFiber());
+        FiberTester.TestPubSubWExtraFiber(new Fiber(), new Fiber());
+        FiberTester.TestPubSubWExtraFiber(new Fiber(), new StubFiber());
         FiberTester.TestPubSubWExtraFiber(new StubFiber(), new Fiber());
         FiberTester.TestPubSubWExtraFiber(new StubFiber(), new Fiber());
     }

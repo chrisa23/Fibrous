@@ -54,9 +54,6 @@ namespace Fibrous.Benchmark
         public void Async() => Run(new Fiber());
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void AsyncLock() => Run(new LockFiber());
-
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void AsyncStub() => Run(new StubFiber());
     }
 }

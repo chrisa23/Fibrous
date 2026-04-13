@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Fibrous;
@@ -11,10 +10,10 @@ namespace Fibrous;
 public class Fiber : FiberBase
 {
     private readonly Func<Task> _flushCache;
+    private readonly object _lock = new();
     private readonly ArrayQueue<Func<Task>> _queue;
     private readonly TaskFactory _taskFactory;
     private bool _flushPending;
-    private SpinLock _spinLock = new(false);
 
     public Fiber(IExecutor executor = null, int size = QueueSize.DefaultQueueSize,
         TaskFactory taskFactory = null, IFiberScheduler scheduler = null)
@@ -42,11 +41,8 @@ public class Fiber : FiberBase
             spinWait.SpinOnce();
         }
 
-        bool lockTaken = false;
-        try
+        lock (_lock)
         {
-            _spinLock.Enter(ref lockTaken);
-
             _queue.Enqueue(action);
 
             if (_flushPending)
@@ -56,13 +52,6 @@ public class Fiber : FiberBase
 
             _flushPending = true;
             _ = _taskFactory.StartNew(_flushCache);
-        }
-        finally
-        {
-            if (lockTaken)
-            {
-                _spinLock.Exit(false);
-            }
         }
     }
 
@@ -75,11 +64,8 @@ public class Fiber : FiberBase
             await Executor.ExecuteAsync(actions[i]);
         }
 
-        bool lockTaken = false;
-        try
+        lock (_lock)
         {
-            _spinLock.Enter(ref lockTaken);
-
             if (_queue.Count > 0)
             {
                 _ = _taskFactory.StartNew(_flushCache);
@@ -89,31 +75,14 @@ public class Fiber : FiberBase
                 _flushPending = false;
             }
         }
-        finally
-        {
-            if (lockTaken)
-            {
-                _spinLock.Exit(false);
-            }
-        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private (int, Func<Task>[]) Drain()
     {
-        bool lockTaken = false;
-        try
+        lock (_lock)
         {
-            _spinLock.Enter(ref lockTaken);
-
             return _queue.Drain();
-        }
-        finally
-        {
-            if (lockTaken)
-            {
-                _spinLock.Exit(false);
-            }
         }
     }
 }

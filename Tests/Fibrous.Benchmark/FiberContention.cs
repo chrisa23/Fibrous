@@ -56,25 +56,7 @@ namespace Fibrous.Benchmark
             }
         }
 
-        /*
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void Fiber2() => Run(new Fiber2());
-
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void Pool1() => Run(PoolFiber_OLD.StartNew());
-
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void Fiber() => Run(new Fiber());
-
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void LockFiber() => Run(new LockFiber());
-        */
-
-
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void Async() => Run(new Fiber());
-
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void AsyncLock() => Run(new LockFiber());
     }
 }

@@ -23,13 +23,22 @@ public class FiberKeyedCollection<TKey, T> : ISnapshotSubscriberPort<ItemAction<
         _request.SetRequestHandler(_fiber, OnRequest);
     }
 
-    public void Dispose() => _fiber.Dispose();
+    public void Dispose()
+    {
+        _fiber.Dispose();
+        _channel.Dispose();
+        _request.Dispose();
+    }
 
     public IDisposable SendRequest(Func<T, bool> request, IFiber fiber, Func<T[], Task> onReply) =>
         _request.SendRequest(request, fiber, onReply);
 
     public IDisposable SendRequest(Func<T, bool> request, IFiber fiber, Action<T[]> onReply) =>
-    SendRequest(request, fiber, onReply);
+        SendRequest(request, fiber, items =>
+        {
+            onReply(items);
+            return Task.CompletedTask;
+        });
 
     public Task<T[]> SendRequestAsync(Func<T, bool> request) => _request.SendRequestAsync(request);
 

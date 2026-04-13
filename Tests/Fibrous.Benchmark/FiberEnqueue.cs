@@ -69,19 +69,10 @@ namespace Fibrous.Benchmark
 
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public async Task TwoAsyncFibers()
+        public async Task TwoFibers()
         {
             Task t1 = Task.Run(() => Run(new Fiber()));
             Task t2 = Task.Run(() => Run(new Fiber()));
-            await t1;
-            await t2;
-        }
-
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public async Task TwoLockAsyncFibers()
-        {
-            Task t1 = Task.Run(() => Run(new LockFiber()));
-            Task t2 = Task.Run(() => Run(new LockFiber()));
             await t1;
             await t2;
         }
@@ -94,11 +85,5 @@ namespace Fibrous.Benchmark
         public void AsyncWCache() => Run2(new Fiber());
 
 
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void LockAsync() => Run(new LockFiber());
-
-
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void LockAsyncWCache() => Run2(new LockFiber());
     }
 }

@@ -32,14 +32,25 @@ public class FiberDictionary<TKey, T> :
         _request.SetRequestHandler(_fiber, OnRequest);
     }
 
-    public void Dispose() => _fiber.Dispose();
+    public void Dispose()
+    {
+        _fiber.Dispose();
+        _add.Dispose();
+        _remove.Dispose();
+        _channel.Dispose();
+        _request.Dispose();
+    }
 
 
     public IDisposable SendRequest(Func<TKey, bool> request, IFiber fiber,
         Func<KeyValuePair<TKey, T>[], Task> onReply) => _request.SendRequest(request, fiber, onReply);
 
     public IDisposable SendRequest(Func<TKey, bool> request, IFiber fiber, Action<KeyValuePair<TKey, T>[]> onReply) =>
-        SendRequest(request, fiber, onReply);
+        SendRequest(request, fiber, items =>
+        {
+            onReply(items);
+            return Task.CompletedTask;
+        });
 
     public Task<KeyValuePair<TKey, T>[]> SendRequestAsync(Func<TKey, bool> request) =>
         _request.SendRequestAsync(request);
