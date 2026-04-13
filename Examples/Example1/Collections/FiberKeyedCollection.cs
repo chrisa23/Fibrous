@@ -10,7 +10,7 @@ public class FiberKeyedCollection<TKey, T> : ISnapshotSubscriberPort<ItemAction<
     IRequestPort<Func<T, bool>, T[]>, IDisposable
 {
     private readonly SnapshotChannel<ItemAction<T>, T[]> _channel = new();
-    private readonly IFiber _fiber;
+    private readonly Fiber _fiber;
     private readonly Dictionary<TKey, T> _items = new();
     private readonly Func<T, TKey> _keyGen;
     private readonly RequestChannel<Func<T, bool>, T[]> _request = new();

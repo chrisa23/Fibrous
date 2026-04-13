@@ -14,7 +14,7 @@ public class FiberDictionary<TKey, T> :
 
     private readonly SnapshotChannel<ItemAction<KeyValuePair<TKey, T>>, KeyValuePair<TKey, T>[]> _channel = new();
 
-    private readonly IFiber _fiber;
+    private readonly Fiber _fiber;
 
     private readonly Dictionary<TKey, T> _items = new();
     private readonly Channel<TKey> _remove = new();
@@ -69,7 +69,7 @@ public class FiberDictionary<TKey, T> :
         _fiber.Enqueue(() =>
         {
             _items.Clear();
-            _channel.Publish(new ItemAction<KeyValuePair<TKey, T>>(ActionType.Clear, new KeyValuePair<TKey, T>[0]));
+            _channel.Publish(new ItemAction<KeyValuePair<TKey, T>>(ActionType.Clear, []));
         });
 
     public void AddRange(IEnumerable<KeyValuePair<TKey, T>> items) =>
@@ -113,12 +113,12 @@ public class FiberDictionary<TKey, T> :
 
     private Task RemoveItem(TKey obj)
     {
-        T data = _items.ContainsKey(obj) ? _items[obj] : default;
+        T    data    = _items.GetValueOrDefault(obj);
         bool removed = _items.Remove(obj);
         if (removed)
         {
             _channel.Publish(new ItemAction<KeyValuePair<TKey, T>>(ActionType.Remove,
-                new[] {new KeyValuePair<TKey, T>(obj, data)}));
+                [new KeyValuePair<TKey, T>(obj, data)]));
         }
         return Task.CompletedTask;
     }
@@ -132,7 +132,17 @@ public class FiberDictionary<TKey, T> :
         return Task.CompletedTask;
     }
 
-    private async Task<KeyValuePair<TKey, T>[]> Reply() => _items.ToArray();
+    private Task<KeyValuePair<TKey, T>[]> Reply()
+    {
+        try
+        {
+            return Task.FromResult(_items.ToArray());
+        }
+        catch (Exception exception)
+        {
+            return Task.FromException<KeyValuePair<TKey, T>[]>(exception);
+        }
+    }
 
     //Helper functions to create handlers for maintaining a local collection based on a FiberDictionary
 
@@ -140,26 +150,6 @@ public class FiberDictionary<TKey, T> :
         SubscribeLocalCopy(IFiber fiber, Dictionary<TKey, T> localDict, Action updateCallback) => Subscribe(
         fiber, CreateReceiveAsync(localDict, updateCallback), CreateSnapshotAsync(localDict, updateCallback));
 
-    private static Action<ItemAction<KeyValuePair<TKey, T>>> CreateReceive(Dictionary<TKey, T> localDict,
-        Action updateCallback) =>
-        x =>
-        {
-            UpdateLocal(localDict, x);
-
-            updateCallback();
-        };
-
-    private static Action<KeyValuePair<TKey, T>[]> CreateSnapshot(Dictionary<TKey, T> localDict,
-        Action updateCallback) =>
-        x =>
-        {
-            foreach (KeyValuePair<TKey, T> item in x)
-            {
-                localDict[item.Key] = item.Value;
-            }
-
-            updateCallback();
-        };
 
     private static Func<ItemAction<KeyValuePair<TKey, T>>, Task> CreateReceiveAsync(Dictionary<TKey, T> localDict,
         Action updateCallback) =>

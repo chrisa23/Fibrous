@@ -27,22 +27,6 @@ public class ReqReplyTests
         }
     }
 
-    /*[Test]
-    public async Task BasicRequestReplyAsync()
-    {
-        IRequestChannel<int, int> channel = new RequestChannel<int, int>();
-        Fiber fiber1 = new();
-        channel.SetRequestHandler(fiber1, request => request.Reply(request.Request + 1));
-        using (PerfTimer perfTimer = new(1000000))
-        {
-            for (int i = 0; i < 1000000; i++)
-            {
-                int reply = await channel.SendRequestAsync(0);
-                // Assert.AreEqual(1, reply);
-            }
-        }
-    }*/
-
     [Test]
     public async Task TimeOutRequestReplyAsync()
     {
