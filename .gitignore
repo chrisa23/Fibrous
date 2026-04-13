@@ -14,6 +14,8 @@ perf/
 # NuGet-related
 packages
 nuget.exe
+*.nupkg
+*.snupkg
 
 # User Settings
 *.suo
