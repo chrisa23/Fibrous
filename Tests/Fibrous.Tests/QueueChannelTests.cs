@@ -246,34 +246,6 @@ public class QueueChannelTests
         Assert.AreEqual(max, count);
     }
 
-    //[Test]
-    //public void FullDrain3()
-    //{
-    //    const int Max = 1_000_000;
-    //    using var reset = new AutoResetEvent(false);
-    //    int count = 0;
-
-    //    void OnMessage(int i)
-    //    {
-    //        int c = Interlocked.Increment(ref count);
-    //        if (c == Max)
-    //            reset.Set();
-    //    }
-
-    //    using var fiber = new Fiber();
-    //    using var fiber2 = new Fiber();
-    //    using var queue = new QueueChannelRR2<int>();
-    //    queue.Subscribe(fiber, OnMessage);
-    //    queue.Subscribe(fiber2, OnMessage);
-    //    for (int i = 0; i < Max; i++)
-    //    {
-    //        queue.Publish(i);
-    //    }
-
-    //    Assert.IsTrue(reset.WaitOne(15000, false));
-    //    Assert.AreEqual(Max, count);
-    //}
-
     [Test]
     public void WorkDistribution()
     {
