@@ -5,15 +5,15 @@ namespace Fibrous;
 
 internal static class QueueSize
 {
-    internal const int DefaultQueueSize = 1008;
+    internal const int DefaultQueueSize = 1024;
 }
 
 internal sealed class ArrayQueue<T>(int size)
 {
     public static readonly (int, T[]) Empty = (0, Array.Empty<T>());
-    private T[] _actions = new T[size + 16];
+    private T[] _actions = new T[size];
     private int _processCount;
-    private T[] _toPass = new T[size + 16];
+    private T[] _toPass = new T[size];
 
     public int Count { get; private set; }
 

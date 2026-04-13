@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Fibrous;
@@ -9,25 +10,25 @@ namespace Fibrous;
 /// </summary>
 public class Fiber : FiberBase
 {
+    private const TaskCreationOptions FlushTaskCreationOptions = TaskCreationOptions.DenyChildAttach;
     private readonly Func<Task> _flushCache;
     private readonly object _lock = new();
     private readonly ArrayQueue<Func<Task>> _queue;
-    private readonly TaskFactory _taskFactory;
+    private readonly TaskScheduler _taskScheduler;
     private bool _flushPending;
 
     public Fiber(IExecutor executor = null, int size = QueueSize.DefaultQueueSize,
-        TaskFactory taskFactory = null, IFiberScheduler scheduler = null)
+        IFiberScheduler scheduler = null)
         : base(executor, scheduler)
     {
         _queue = new ArrayQueue<Func<Task>>(size);
-        _taskFactory = taskFactory ??
-                       new TaskFactory(TaskCreationOptions.PreferFairness, TaskContinuationOptions.None);
+        _taskScheduler = TaskScheduler.Default;
         _flushCache = FlushAsync;
     }
 
     public Fiber(Action<Exception> errorCallback, int size = QueueSize.DefaultQueueSize,
-        TaskFactory taskFactory = null, IFiberScheduler scheduler = null)
-        : this(new ExceptionHandlingExecutor(errorCallback), size, taskFactory, scheduler)
+        IFiberScheduler scheduler = null)
+        : this(new ExceptionHandlingExecutor(errorCallback), size, scheduler)
     {
     }
 
@@ -35,23 +36,29 @@ public class Fiber : FiberBase
     protected override void InternalEnqueue(Func<Task> action)
     {
         AggressiveSpinWait spinWait = default;
-        //SpinWait spinWait = new SpinWait();
-        while (_queue.IsFull)
+        while (true)
         {
-            spinWait.SpinOnce();
-        }
-
-        lock (_lock)
-        {
-            _queue.Enqueue(action);
-
-            if (_flushPending)
+            lock (_lock)
             {
+                if (_queue.IsFull)
+                {
+                    goto Spin;
+                }
+
+                _queue.Enqueue(action);
+
+                if (_flushPending)
+                {
+                    return;
+                }
+
+                _flushPending = true;
+                ScheduleFlush();
                 return;
             }
 
-            _flushPending = true;
-            _ = _taskFactory.StartNew(_flushCache);
+Spin:
+            spinWait.SpinOnce();
         }
     }
 
@@ -68,7 +75,7 @@ public class Fiber : FiberBase
         {
             if (_queue.Count > 0)
             {
-                _ = _taskFactory.StartNew(_flushCache);
+                ScheduleFlush();
             }
             else
             {
@@ -85,4 +92,11 @@ public class Fiber : FiberBase
             return _queue.Drain();
         }
     }
+
+    private void ScheduleFlush() =>
+        _ = Task.Factory.StartNew(_flushCache,
+                CancellationToken.None,
+                FlushTaskCreationOptions,
+                _taskScheduler)
+            .Unwrap();
 }

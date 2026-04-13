@@ -4,6 +4,7 @@ obj/
 build/
 publish/
 perf/
+BenchmarkDotNet.Artifacts/
 
 
 # Native libraries
