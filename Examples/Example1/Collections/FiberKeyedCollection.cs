@@ -9,11 +9,11 @@ namespace Example1.Collections;
 public class FiberKeyedCollection<TKey, T> : ISnapshotSubscriberPort<ItemAction<T>, T[]>,
     IRequestPort<Func<T, bool>, T[]>, IDisposable
 {
-    private readonly ISnapshotChannel<ItemAction<T>, T[]> _channel = new SnapshotChannel<ItemAction<T>, T[]>();
+    private readonly SnapshotChannel<ItemAction<T>, T[]> _channel = new();
     private readonly IFiber _fiber;
     private readonly Dictionary<TKey, T> _items = new();
     private readonly Func<T, TKey> _keyGen;
-    private readonly IRequestChannel<Func<T, bool>, T[]> _request = new RequestChannel<Func<T, bool>, T[]>();
+    private readonly RequestChannel<Func<T, bool>, T[]> _request = new();
 
     public FiberKeyedCollection(Func<T, TKey> keyGen, IExecutor executor = null)
     {

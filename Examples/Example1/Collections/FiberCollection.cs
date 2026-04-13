@@ -14,10 +14,10 @@ namespace Example1.Collections;
 public class FiberCollection<T> : ISnapshotSubscriberPort<ItemAction<T>, T[]>, IRequestPort<Func<T, bool>, T[]>,
     IDisposable
 {
-    private readonly ISnapshotChannel<ItemAction<T>, T[]> _channel = new SnapshotChannel<ItemAction<T>, T[]>();
+    private readonly SnapshotChannel<ItemAction<T>, T[]> _channel = new();
     private readonly IFiber _fiber;
     private readonly List<T> _items = new();
-    private readonly IRequestChannel<Func<T, bool>, T[]> _request = new RequestChannel<Func<T, bool>, T[]>();
+    private readonly RequestChannel<Func<T, bool>, T[]> _request = new();
 
     public FiberCollection(IExecutor executor = null)
     {

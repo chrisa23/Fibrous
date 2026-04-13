@@ -10,18 +10,16 @@ public class FiberDictionary<TKey, T> :
     ISnapshotSubscriberPort<ItemAction<KeyValuePair<TKey, T>>, KeyValuePair<TKey, T>[]>,
     IRequestPort<Func<TKey, bool>, KeyValuePair<TKey, T>[]>, IDisposable
 {
-    private readonly IChannel<KeyValuePair<TKey, T>> _add = new Channel<KeyValuePair<TKey, T>>();
+    private readonly Channel<KeyValuePair<TKey, T>> _add = new();
 
-    private readonly ISnapshotChannel<ItemAction<KeyValuePair<TKey, T>>, KeyValuePair<TKey, T>[]> _channel =
-        new SnapshotChannel<ItemAction<KeyValuePair<TKey, T>>, KeyValuePair<TKey, T>[]>();
+    private readonly SnapshotChannel<ItemAction<KeyValuePair<TKey, T>>, KeyValuePair<TKey, T>[]> _channel = new();
 
     private readonly IFiber _fiber;
 
     private readonly Dictionary<TKey, T> _items = new();
-    private readonly IChannel<TKey> _remove = new Channel<TKey>();
+    private readonly Channel<TKey> _remove = new();
 
-    private readonly IRequestChannel<Func<TKey, bool>, KeyValuePair<TKey, T>[]> _request =
-        new RequestChannel<Func<TKey, bool>, KeyValuePair<TKey, T>[]>();
+    private readonly RequestChannel<Func<TKey, bool>, KeyValuePair<TKey, T>[]> _request = new();
 
     public FiberDictionary(IExecutor executor = null)
     {

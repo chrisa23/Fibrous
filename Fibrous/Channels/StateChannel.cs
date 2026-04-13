@@ -11,7 +11,7 @@ namespace Fibrous;
 public sealed class StateChannel<T> : IChannel<T>, IInlineSubscriberPort<T>
 {
     private readonly object _lock = new();
-    private readonly IChannel<T> _updateChannel = new Channel<T>();
+    private readonly Channel<T> _updateChannel = new();
     private bool _hasValue;
     private T _last;
 

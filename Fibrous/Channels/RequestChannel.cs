@@ -6,8 +6,7 @@ namespace Fibrous;
 
 public sealed class RequestChannel<TRequest, TReply> : IRequestChannel<TRequest, TReply>
 {
-    private readonly IChannel<IRequest<TRequest, TReply>> _requestChannel =
-        new Channel<IRequest<TRequest, TReply>>();
+    private readonly Channel<IRequest<TRequest, TReply>> _requestChannel = new();
 
     public IDisposable SetRequestHandler(IFiber fiber, Func<IRequest<TRequest, TReply>, Task> onRequest) =>
         _requestChannel.Subscribe(fiber, onRequest);
@@ -96,7 +95,7 @@ public sealed class RequestChannel<TRequest, TReply> : IRequestChannel<TRequest,
     {
         private readonly CancellationTokenSource _cancel = new();
         private readonly SingleShotGuard _guard;
-        private readonly IChannel<TReply> _resp = new Channel<TReply>();
+        private readonly Channel<TReply> _resp = new();
         private readonly IDisposable _sub;
 
         public AsyncChannelRequest(IFiber fiber, TRequest request, Func<TReply, Task> replier)

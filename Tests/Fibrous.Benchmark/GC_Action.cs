@@ -5,7 +5,7 @@ namespace Fibrous.Benchmark
     [MemoryDiagnoser]
     public class GC_Action
     {
-        private readonly IChannel<object> _channel = new Channel<object>();
+        private readonly Channel<object> _channel = new();
         private readonly object _msg = new();
         private IFiber _fiber;
 

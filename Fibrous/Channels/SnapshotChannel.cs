@@ -5,10 +5,9 @@ namespace Fibrous;
 
 public sealed class SnapshotChannel<T, TSnapshot> : ISnapshotChannel<T, TSnapshot>
 {
-    private readonly IRequestChannel<AsyncSnapshotRequest, TSnapshot> _requestChannel =
-        new RequestChannel<AsyncSnapshotRequest, TSnapshot>();
+    private readonly RequestChannel<AsyncSnapshotRequest, TSnapshot> _requestChannel = new();
 
-    private readonly IChannel<T> _updatesChannel = new Channel<T>();
+    private readonly Channel<T> _updatesChannel = new();
 
     /// <summary>
     ///     Subscribes for an initial snapshot and then incremental update.
