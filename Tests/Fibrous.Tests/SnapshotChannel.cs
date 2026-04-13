@@ -14,8 +14,11 @@ internal class SnapshotChannel
     {
         using Fiber fiber = new();
         using Fiber fiber2 = new();
+        using AutoResetEvent snapshotReceived = new(false);
+        using AutoResetEvent updatesReceived = new(false);
         List<string> list = new() {"Prime"};
         SnapshotChannel<string, string[]> channel = new();
+        int updateCount = 0;
 
         Task<string[]> Reply()
         {
@@ -28,23 +31,27 @@ internal class SnapshotChannel
         Task Update(string x)
         {
             primeResult.Add(x);
+            if (Interlocked.Increment(ref updateCount) == 2)
+            {
+                updatesReceived.Set();
+            }
+
             return Task.CompletedTask;
         }
 
         Task Snap(string[] x)
         {
             primeResult.AddRange(x);
+            snapshotReceived.Set();
             return Task.CompletedTask;
         }
 
         channel.Subscribe(fiber, Update, Snap);
-
-        Thread.Sleep(500);
+        TestWait.For(snapshotReceived);
 
         channel.Publish("hello");
         channel.Publish("hello2");
-
-        Thread.Sleep(500);
+        TestWait.For(updatesReceived);
 
         Assert.AreEqual("Prime", primeResult[0]);
         Assert.AreEqual("hello2", primeResult[^1]);

@@ -56,7 +56,7 @@ public class QueueChannelTests
             channel.Publish(i);
         }
 
-        Assert.IsTrue(reset.WaitOne(10000, false));
+        TestWait.For(reset, 10000);
         sw.Stop();
         Console.WriteLine($"Fibers: {fibers}  End : {sw.ElapsedMilliseconds} Count {count}");
     }
@@ -101,7 +101,7 @@ public class QueueChannelTests
             channel.Publish(i);
         }
 
-        Assert.IsTrue(reset.WaitOne(10000, false));
+        TestWait.For(reset, 10000);
         queues.ForEach(q => q.Dispose());
     }
 
@@ -149,7 +149,7 @@ public class QueueChannelTests
             channel.Publish(i);
         }
 
-        Assert.IsTrue(reset.WaitOne(10000, false));
+        TestWait.For(reset, 10000);
     }
 
     [Test]
@@ -176,7 +176,7 @@ public class QueueChannelTests
         channel.Subscribe(one, OnMsg);
         channel.Publish(0);
         channel.Publish(1);
-        Assert.IsTrue(reset.WaitOne(10000, false));
+        TestWait.For(reset, 10000);
         Assert.AreEqual(1, failed.Count);
     }
 
@@ -209,7 +209,7 @@ public class QueueChannelTests
             queue.Publish(i);
         }
 
-        Assert.IsTrue(reset.WaitOne(15000, false));
+        TestWait.For(reset, 15000);
         Assert.AreEqual(20, count);
     }
 
@@ -242,7 +242,7 @@ public class QueueChannelTests
             queue.Publish(i);
         }
 
-        Assert.IsTrue(reset.WaitOne(15000, false));
+        TestWait.For(reset, 15000);
         Assert.AreEqual(max, count);
     }
 
@@ -251,17 +251,26 @@ public class QueueChannelTests
     {
         int count = 0;
         int count2 = 0;
+        using AutoResetEvent reset = new(false);
 
         Task OnMessage(int i)
         {
-            count++;
+            if (Interlocked.Increment(ref count) + Volatile.Read(ref count2) == 20)
+            {
+                reset.Set();
+            }
+
             Thread.Sleep(100);
             return Task.CompletedTask;
         }
 
         Task OnMessage2(int i)
         {
-            count2++;
+            if (Interlocked.Increment(ref count2) + Volatile.Read(ref count) == 20)
+            {
+                reset.Set();
+            }
+
             Thread.Sleep(100);
             return Task.CompletedTask;
         }
@@ -276,7 +285,7 @@ public class QueueChannelTests
             queue.Publish(i);
         }
 
-        Thread.Sleep(10000);
+        TestWait.For(reset, 15000);
         Console.WriteLine($"{count} | {count2}");
         Assert.AreEqual(10, count);
         Assert.AreEqual(10, count2);
@@ -313,6 +322,6 @@ public class QueueChannelTests
             queue.Publish(j);
         }
 
-        Assert.IsTrue(wait.WaitOne(15000, false));
+        TestWait.For(wait, 15000);
     }
 }

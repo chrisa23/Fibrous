@@ -20,7 +20,7 @@ public class CollectionTests
         collection.Add(1);
         collection.Add(2);
         collection.Subscribe(receive,
-            async action =>
+            action =>
             {
                 if (action.ActionType == ActionType.Add)
                 {
@@ -32,14 +32,16 @@ public class CollectionTests
                 }
 
                 reset.Set();
+                return Task.CompletedTask;
             },
-            async ints =>
+            ints =>
             {
                 snapshot = ints;
                 reset.Set();
+                return Task.CompletedTask;
             });
 
-        Assert.IsTrue(reset.WaitOne(1000));
+        TestWait.For(reset, 1000);
 
         Assert.AreEqual(2, snapshot.Length);
         Assert.AreEqual(1, snapshot[0]);
@@ -47,12 +49,12 @@ public class CollectionTests
         Assert.AreEqual(0, list.Count);
 
         collection.Add(3);
-        Assert.IsTrue(reset.WaitOne(1000));
+        TestWait.For(reset, 1000);
 
         Assert.AreEqual(1, list.Count);
 
         collection.Remove(3);
-        Assert.IsTrue(reset.WaitOne(1000));
+        TestWait.For(reset, 1000);
 
         Assert.AreEqual(0, list.Count);
 
@@ -71,7 +73,7 @@ public class CollectionTests
         collection.Add(1);
         collection.Add(2);
         collection.Subscribe(receive,
-            async action =>
+            action =>
             {
                 if (action.ActionType == ActionType.Add)
                 {
@@ -83,14 +85,16 @@ public class CollectionTests
                 }
 
                 reset.Set();
+                return Task.CompletedTask;
             },
-            async ints =>
+            ints =>
             {
                 snapshot = ints;
                 reset.Set();
+                return Task.CompletedTask;
             });
 
-        Assert.IsTrue(reset.WaitOne(1000));
+        TestWait.For(reset, 1000);
 
         Assert.AreEqual(2, snapshot.Length);
         Assert.AreEqual(1, snapshot[0]);
@@ -98,12 +102,12 @@ public class CollectionTests
         Assert.AreEqual(0, list.Count);
 
         collection.Add(3);
-        Assert.IsTrue(reset.WaitOne(1000));
+        TestWait.For(reset, 1000);
 
         Assert.AreEqual(1, list.Count);
 
         collection.Remove(3);
-        Assert.IsTrue(reset.WaitOne(1000));
+        TestWait.For(reset, 1000);
 
         Assert.AreEqual(0, list.Count);
 
@@ -122,7 +126,7 @@ public class CollectionTests
         collection.Add(1, 1);
         collection.Add(2, 2);
         collection.Subscribe(receive,
-            async action =>
+            action =>
             {
                 if (action.ActionType == ActionType.Add)
                 {
@@ -134,14 +138,16 @@ public class CollectionTests
                 }
 
                 reset.Set();
+                return Task.CompletedTask;
             },
-            async ints =>
+            ints =>
             {
                 snapshot = ints;
                 reset.Set();
+                return Task.CompletedTask;
             });
 
-        Assert.IsTrue(reset.WaitOne(2000));
+        TestWait.For(reset, 2000);
 
         Assert.AreEqual(2, snapshot.Length);
         Assert.AreEqual(1, snapshot[0].Key);
@@ -149,12 +155,12 @@ public class CollectionTests
         Assert.AreEqual(0, list.Count);
 
         collection.Add(3, 3);
-        Assert.IsTrue(reset.WaitOne(1000));
+        TestWait.For(reset, 1000);
 
         Assert.AreEqual(1, list.Count);
 
         collection.Remove(3);
-        Assert.IsTrue(reset.WaitOne(1000));
+        TestWait.For(reset, 1000);
 
         Assert.AreEqual(0, list.Count);
 
@@ -181,7 +187,7 @@ public class CollectionTests
         //Snapshot after subscribe local copy
         collection.SubscribeLocalCopy(fiber, local, () => reset.Set());
 
-        Assert.IsTrue(reset.WaitOne(1000));
+        TestWait.For(reset, 1000);
 
         Assert.AreEqual(2, local.Count);
         Assert.AreEqual(1, local[1]);
@@ -189,12 +195,12 @@ public class CollectionTests
 
         //Add
         collection.Add(3, 3);
-        Assert.IsTrue(reset.WaitOne(1000));
+        TestWait.For(reset, 1000);
         Assert.AreEqual(3, local.Count);
 
         //Remove
         collection.Remove(3);
-        Assert.IsTrue(reset.WaitOne(1000));
+        TestWait.For(reset, 1000);
         Assert.AreEqual(2, local.Count);
 
         //GetItems
