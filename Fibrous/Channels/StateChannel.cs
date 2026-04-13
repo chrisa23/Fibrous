@@ -8,7 +8,7 @@ namespace Fibrous;
 ///     latest status.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public sealed class StateChannel<T> : IChannel<T>
+public sealed class StateChannel<T> : IChannel<T>, IInlineSubscriberPort<T>
 {
     private readonly object _lock = new();
     private readonly IChannel<T> _updateChannel = new Channel<T>();
@@ -43,11 +43,11 @@ public sealed class StateChannel<T> : IChannel<T>
     public IDisposable Subscribe(IFiber fiber, Action<T> receive) =>
             Subscribe(fiber, receive.ToAsync());
 
-    public IDisposable Subscribe(Action<T> receive)
+    IDisposable IInlineSubscriberPort<T>.SubscribeInline(Action<T> receive)
     {
         lock (_lock)
         {
-            IDisposable disposable = _updateChannel.Subscribe(receive);
+            IDisposable disposable = ((IInlineSubscriberPort<T>)_updateChannel).SubscribeInline(receive);
             if (_hasValue)
             {
                 T item = _last;

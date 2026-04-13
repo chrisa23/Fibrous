@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Fibrous;
 
-public sealed class    Channel<T> : IChannel<T>
+public sealed class Channel<T> : IChannel<T>, IInlineSubscriberPort<T>
 {
     private readonly Event<T> _internalEvent = new();
 
@@ -27,8 +27,7 @@ public sealed class    Channel<T> : IChannel<T>
         return new Unsubscriber(disposable, fiber);
     }
 
-
-    public IDisposable Subscribe(Action<T> receive) => _internalEvent.Subscribe(receive);
+    IDisposable IInlineSubscriberPort<T>.SubscribeInline(Action<T> receive) => _internalEvent.Subscribe(receive);
 
     public void Dispose() => _internalEvent.Dispose();
 }

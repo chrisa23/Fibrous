@@ -95,6 +95,11 @@ public static class FiberExtensions
                                            Func<T, Task>      receive,
                                            Predicate<T>       filter)
     {
+        if (port is not IInlineSubscriberPort<T> inlinePort)
+        {
+            throw new NotSupportedException("Publisher-side filtering requires an inline subscriber port.");
+        }
+
         void FilteredReceiver(T x)
         {
             if (filter(x))
@@ -103,8 +108,8 @@ public static class FiberExtensions
             }
         }
 
-        //we use a stub fiber to force the filtering onto the publisher thread.
-        IDisposable sub = port.Subscribe(FilteredReceiver);
+        // Filtering stays on the publisher thread to avoid enqueuing discarded messages.
+        IDisposable sub = inlinePort.SubscribeInline(FilteredReceiver);
         return new Unsubscriber(sub, fiber);
     }
 

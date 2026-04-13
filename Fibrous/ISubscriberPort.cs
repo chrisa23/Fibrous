@@ -24,12 +24,6 @@ public interface ISubscriberPort<out T>
     /// <param name="receive"></param>
     /// <returns></returns>
     IDisposable Subscribe(IFiber fiber, Action<T> receive);
-    /// <summary>
-    ///     Subscribe to messages on this channel with a  handler directly.
-    /// </summary>
-    /// <param name="receive"></param>
-    /// <returns></returns>
-    IDisposable Subscribe(Action<T> receive);
 }
 
 public static class SubscriberPortExtensions
@@ -95,6 +89,11 @@ public static class SubscriberPortExtensions
         Func<T, Task> receive,
         Predicate<T> filter)
     {
+        if (port is not IInlineSubscriberPort<T> inlinePort)
+        {
+            throw new NotSupportedException("Publisher-side filtering requires an inline subscriber port.");
+        }
+
         void FilteredReceiver(T x)
         {
             if (filter(x))
@@ -103,7 +102,7 @@ public static class SubscriberPortExtensions
             }
         }
 
-        IDisposable sub = port.Subscribe(FilteredReceiver);
+        IDisposable sub = inlinePort.SubscribeInline(FilteredReceiver);
         return new Unsubscriber(sub, fiber);
     }
 
@@ -115,6 +114,13 @@ public static class SubscriberPortExtensions
     /// <param name="receive"></param>
     /// <returns></returns>
     public static IDisposable Connect<T>(this ISubscriberPort<T> port,
-        IPublisherPort<T> receive) =>
-        port.Subscribe(receive.Publish);
+        IPublisherPort<T> receive)
+    {
+        if (port is not IInlineSubscriberPort<T> inlinePort)
+        {
+            throw new NotSupportedException("Connecting without a fiber requires an inline subscriber port.");
+        }
+
+        return inlinePort.SubscribeInline(receive.Publish);
+    }
 }

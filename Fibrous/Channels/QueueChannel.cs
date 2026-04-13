@@ -35,8 +35,6 @@ public sealed class QueueChannel<TMsg> : IChannel<TMsg>
     public IDisposable Subscribe(IFiber fiber, Action<TMsg> receive) =>
         Subscribe(fiber, receive.ToAsync());
 
-    public IDisposable Subscribe(Action<TMsg> receive) => throw new NotImplementedException();
-
     public void Publish(TMsg message)
     {
         if (_subCount == 0)

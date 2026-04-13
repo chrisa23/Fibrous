@@ -84,7 +84,7 @@ public sealed class SnapshotChannel<T, TSnapshot> : ISnapshotChannel<T, TSnapsho
                 return;
             }
 
-            _subscription = updatesPort.Subscribe(PublishUpdate);
+            _subscription = ((IInlineSubscriberPort<T>)updatesPort).SubscribeInline(PublishUpdate);
         }
 
         private void PublishUpdate(T msg)
