@@ -8,63 +8,80 @@ internal class CronScheduler : IDisposable
 {
     private readonly Func<Task> _action;
     private readonly CronExpression _cronExpression;
+    private readonly object _gate = new();
     private readonly IScheduler _scheduler;
     private bool _running = true;
-    private IDisposable _sub;
+    private IDisposable _subscription;
 
-    //make use of current timespan scheduling
-    //but with UTC and add hour on ambiguous when time < now
     public CronScheduler(IScheduler scheduler, Func<Task> action, string cron)
     {
         _scheduler = scheduler;
         _action = async () =>
         {
+            if (!IsRunning())
+            {
+                return;
+            }
+
             await action();
             await ScheduleNextAsync();
         };
-        //parse cron
-        //find next and schedule
-        //on next, repeat
-        //TODO:  try parse without and then with seconds
+
         _cronExpression = new CronExpression(cron);
         _ = ScheduleNextAsync();
     }
 
     public void Dispose()
     {
-        _running = false;
-        _sub?.Dispose();
-#if DEBUG
-        Console.WriteLine("Dispose");
-#endif
+        IDisposable subscription;
+        lock (_gate)
+        {
+            _running = false;
+            subscription = _subscription;
+            _subscription = null;
+        }
+
+        subscription?.Dispose();
     }
 
     private Task ScheduleNextAsync()
     {
-        if (!_running)
+        DateTimeOffset now = SystemTime.Now();
+        DateTimeOffset? next = _cronExpression.GetNextValidTimeAfter(now);
+        if (!next.HasValue)
         {
             return Task.CompletedTask;
         }
 
-        DateTimeOffset? next = _cronExpression.GetNextValidTimeAfter(DateTimeOffset.Now);
-        if (next.HasValue)
+        TimeSpan dueTime = next.Value - now;
+        if (dueTime < TimeSpan.Zero)
         {
-            DateTime utc = next.Value.UtcDateTime;
-            DateTime now = DateTime.UtcNow;
-            TimeSpan span = utc - now;
+            dueTime = TimeSpan.Zero;
+        }
 
+        IDisposable scheduled = _scheduler.Schedule(_action, dueTime);
+        IDisposable previous;
+        lock (_gate)
+        {
             if (!_running)
             {
+                scheduled.Dispose();
                 return Task.CompletedTask;
             }
 
-            _sub = _scheduler.Schedule(_action, span);
-
-#if DEBUG
-            Console.WriteLine(span);
-#endif
+            previous = _subscription;
+            _subscription = scheduled;
         }
 
+        previous?.Dispose();
         return Task.CompletedTask;
+    }
+
+    private bool IsRunning()
+    {
+        lock (_gate)
+        {
+            return _running;
+        }
     }
 }

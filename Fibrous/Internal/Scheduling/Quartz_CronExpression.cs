@@ -655,6 +655,11 @@ public class CronExpression : IDeserializationCallback, ISerializable
             int exprOn = Second;
 
             string[] exprsTok = expression.Split(splitSeparators, StringSplitOptions.RemoveEmptyEntries);
+            if (exprsTok.Length > 7)
+            {
+                throw new FormatException("Cron expression cannot contain more than 7 fields.");
+            }
+
             foreach (string exprTok in exprsTok)
             {
                 string expr = exprTok.Trim();
