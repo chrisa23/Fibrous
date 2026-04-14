@@ -5,7 +5,7 @@ namespace Fibrous;
 
 internal static class QueueSize
 {
-    internal const int DefaultQueueSize = 1024;
+    internal const int DefaultQueueSize = 2048;
 }
 
 internal sealed class ArrayQueue<T>(int size)
