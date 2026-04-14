@@ -4,13 +4,12 @@ using System.Threading.Tasks;
 namespace Fibrous.Agents;
 
 /// <summary>
-///     Agent using injected handler function.
+///     Request/reply agent that owns a fiber and delegates requests to a supplied handler.
 /// </summary>
-/// <typeparam name="TRequest"></typeparam>
-/// <typeparam name="TReply"></typeparam>
 public class RequestAgent<TRequest, TReply> : IRequestAgent<TRequest, TReply>
 {
     private readonly IRequestPort<TRequest, TReply> _channel;
+
     protected IFiber Fiber;
 
     public RequestAgent(Func<IRequest<TRequest, TReply>, Task> handler, Action<Exception> callback)
@@ -37,5 +36,5 @@ public class RequestAgent<TRequest, TReply> : IRequestAgent<TRequest, TReply>
     public Task<Reply<TReply>> SendRequestAsync(TRequest request, TimeSpan timeout) =>
         _channel.SendRequestAsync(request, timeout);
 
-    public void Dispose() => Fiber?.Dispose();
+    public void Dispose() => Fiber.Dispose();
 }

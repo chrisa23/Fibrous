@@ -7,79 +7,70 @@ namespace Fibrous;
 public interface IRequestChannel<TRequest, TReply> : IRequestPort<TRequest, TReply>, IDisposable
 {
     /// <summary>
-    ///     Set the fiber and handler for responding to requests.
+    ///     Sets the fiber and handler that will process incoming requests.
     /// </summary>
-    /// <param name="fiber"></param>
-    /// <param name="onRequest"></param>
-    /// <returns></returns>
+    /// <param name="fiber">Fiber that handles incoming requests.</param>
+    /// <param name="onRequest">Handler invoked for each request.</param>
     IDisposable SetRequestHandler(IFiber fiber, Func<IRequest<TRequest, TReply>, Task> onRequest);
 }
 
 /// <summary>
 ///     Port for sending requests and receiving replies.
 /// </summary>
-/// <typeparam name="TRequest"></typeparam>
-/// <typeparam name="TReply"></typeparam>
 public interface IRequestPort<in TRequest, TReply>
 {
     /// <summary>
-    ///     Send an asynchronous request with a timeout.  This is the preferred method to use for ReqReply
+    ///     Sends an asynchronous request with a timeout.
     /// </summary>
-    /// <param name="request"></param>
-    /// <param name="timeout"></param>
-    /// <returns></returns>
+    /// <param name="request">Request payload.</param>
+    /// <param name="timeout">Timeout before a failed reply result is returned.</param>
     Task<Reply<TReply>> SendRequestAsync(TRequest request, TimeSpan timeout);
 
     /// <summary>
-    ///     Send an asynchronous request and get a reply object for handling the response in the same code block.
+    ///     Sends an asynchronous request and returns the reply task.
     /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
+    /// <param name="request">Request payload.</param>
     Task<TReply> SendRequestAsync(TRequest request);
 
     /// <summary>
-    ///     Send an asynchronous request, and let the reply be delivered to the fiber when ready
+    ///     Sends an asynchronous request and delivers the reply to a fiber when ready.
     /// </summary>
-    /// <param name="request"></param>
-    /// <param name="fiber"></param>
-    /// <param name="onReply"></param>
-    /// <returns></returns>
+    /// <param name="request">Request payload.</param>
+    /// <param name="fiber">Fiber that receives the reply.</param>
+    /// <param name="onReply">Reply handler.</param>
     IDisposable SendRequest(TRequest request, IFiber fiber, Func<TReply, Task> onReply);
 
     /// <summary>
-    ///     Send an asynchronous request, and let the reply be delivered to the fiber when ready
+    ///     Sends an asynchronous request and delivers the reply to a fiber when ready.
     /// </summary>
-    /// <param name="request"></param>
-    /// <param name="fiber"></param>
-    /// <param name="onReply"></param>
-    /// <returns></returns>
+    /// <param name="request">Request payload.</param>
+    /// <param name="fiber">Fiber that receives the reply.</param>
+    /// <param name="onReply">Reply handler.</param>
     IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply);
 }
 
 /// <summary>
 ///     Interface for requests where a handler can send a reply
 /// </summary>
-/// <typeparam name="TRequest"></typeparam>
-/// <typeparam name="TReply"></typeparam>
 public interface IRequest<out TRequest, in TReply>
 {
     /// <summary>
-    ///     The request
+    ///     Gets the request payload.
     /// </summary>
     TRequest Request { get; }
 
     CancellationToken CancellationToken { get; }
 
     /// <summary>
-    ///     Reply to the request
+    ///     Replies to the request.
     /// </summary>
-    /// <param name="reply"></param>
+    /// <param name="reply">Reply payload.</param>
     void Reply(TReply reply);
 }
 
 public readonly struct Reply<T>
 {
-    public readonly T    Value;
+    public readonly T Value;
     public readonly bool Succeeded;
 
     private Reply(T value)
@@ -88,6 +79,6 @@ public readonly struct Reply<T>
         Value     = value;
     }
 
-    public static          Reply<T> Ok(T value) => new(value);
+    public static Reply<T> Ok(T value) => new(value);
     public static readonly Reply<T> Failed = default;
 }

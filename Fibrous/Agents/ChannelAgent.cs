@@ -4,9 +4,8 @@ using System.Threading.Tasks;
 namespace Fibrous.Agents;
 
 /// <summary>
-///     Actor like abstraction.  Receives a single type of message through a channel
+///     Actor-like abstraction that subscribes a dedicated fiber to a channel.
 /// </summary>
-/// <typeparam name="T"></typeparam>
 public class ChannelAgent<T> : IDisposable
 {
     protected IFiber Fiber;
@@ -24,5 +23,5 @@ public class ChannelAgent<T> : IDisposable
         channel.Subscribe(Fiber, handler);
     }
 
-    public void Dispose() => Fiber?.Dispose();
+    public void Dispose() => Fiber.Dispose();
 }

@@ -15,10 +15,10 @@ public sealed class Event<TEvent> : IEvent<TEvent>
         return new DisposeAction(() => InternalEvent -= receive);
     }
 
-    public void Publish(TEvent msg)
+    public void Publish(TEvent message)
     {
         Action<TEvent> internalEvent = InternalEvent;
-        internalEvent?.Invoke(msg);
+        internalEvent?.Invoke(message);
     }
 
     public void Dispose() => InternalEvent = null;
@@ -42,11 +42,7 @@ public sealed class Event : IEvent
         return new DisposeAction(() => InternalEvent -= receive);
     }
 
-    public void Trigger()
-    {
-        Action internalEvent = InternalEvent;
-        internalEvent?.Invoke();
-    }
+    public void Trigger() => InternalEvent?.Invoke();
 
     public void Dispose() => InternalEvent = null;
 

@@ -7,6 +7,9 @@ public interface IEventChannel : IEventTrigger, IEventPort
 {
 }
 
+/// <summary>
+///     Port for subscribing to event-style notifications.
+/// </summary>
 public interface IEventPort
 {
     IDisposable Subscribe(IFiber fiber, Func<Task> receive);
@@ -16,7 +19,14 @@ public interface IEventPort
 
 public static class EventPortExtensions
 {
-    public static IDisposable SubscribeThrottled(this IEventPort port, IFiber fiber, Action receive, TimeSpan span) =>
+    /// <summary>
+    ///     Subscribes to an event port and delivers only the last event seen in each interval.
+    /// </summary>
+    public static IDisposable SubscribeThrottled(
+        this IEventPort port,
+        IFiber fiber,
+        Action receive,
+        TimeSpan span) =>
         new AsyncLastEventSubscriber(port, fiber, span, receive);
 }
 
@@ -32,9 +42,9 @@ public class EventChannel : IEventChannel, IDisposable
 
     public IDisposable Subscribe(IFiber fiber, Func<Task> receive)
     {
-        void Action() => fiber.Enqueue(receive);
+        void Handler() => fiber.Enqueue(receive);
 
-        IDisposable disposable = _internalEvent.Subscribe(Action);
+        IDisposable disposable = _internalEvent.Subscribe(Handler);
         return new Unsubscriber(disposable, fiber);
     }
 

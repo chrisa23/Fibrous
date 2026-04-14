@@ -3,9 +3,8 @@
 namespace Fibrous;
 
 /// <summary>
-///     IChannels are in-memory conduits for messages
+///     In-memory conduit for publishing and subscribing to messages.
 /// </summary>
-/// <typeparam name="T"></typeparam>
 public interface IChannel<T> : IPublisherPort<T>, ISubscriberPort<T>, IDisposable
 {
 }
