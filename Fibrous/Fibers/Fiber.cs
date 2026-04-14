@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace Fibrous;
 
 /// <summary>
-///     It is suggested to always use an Exception callback with the IAsyncFiber
+///     Ordered execution context backed by the thread pool.
 /// </summary>
 public class Fiber : FiberBase
 {
@@ -17,7 +17,9 @@ public class Fiber : FiberBase
     private readonly TaskScheduler _taskScheduler;
     private bool _flushPending;
 
-    public Fiber(IExecutor executor = null, int size = QueueSize.DefaultQueueSize,
+    public Fiber(
+        IExecutor executor = null,
+        int size = QueueSize.DefaultQueueSize,
         IFiberScheduler scheduler = null)
         : base(executor, scheduler)
     {
@@ -26,7 +28,9 @@ public class Fiber : FiberBase
         _flushCache = FlushAsync;
     }
 
-    public Fiber(Action<Exception> errorCallback, int size = QueueSize.DefaultQueueSize,
+    public Fiber(
+        Action<Exception> errorCallback,
+        int size = QueueSize.DefaultQueueSize,
         IFiberScheduler scheduler = null)
         : this(new ExceptionHandlingExecutor(errorCallback), size, scheduler)
     {
@@ -40,6 +44,7 @@ public class Fiber : FiberBase
         {
             lock (_lock)
             {
+                // Admission is checked under the lock so the queue capacity is exact.
                 if (_queue.IsFull)
                 {
                     goto Spin;
@@ -94,7 +99,8 @@ Spin:
     }
 
     private void ScheduleFlush() =>
-        _ = Task.Factory.StartNew(_flushCache,
+        _ = Task.Factory.StartNew(
+                _flushCache,
                 CancellationToken.None,
                 FlushTaskCreationOptions,
                 _taskScheduler)

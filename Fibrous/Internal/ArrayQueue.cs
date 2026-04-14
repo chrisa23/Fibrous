@@ -11,6 +11,7 @@ internal static class QueueSize
 internal sealed class ArrayQueue<T>(int size)
 {
     public static readonly (int, T[]) Empty = (0, Array.Empty<T>());
+
     private T[] _actions = new T[size];
     private int _processCount;
     private T[] _toPass = new T[size];
@@ -19,14 +20,12 @@ internal sealed class ArrayQueue<T>(int size)
 
     public bool IsFull => Count >= size;
 
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Enqueue(T a)
+    public void Enqueue(T item)
     {
-        int index0 = Count++;
-        _actions[index0] = a;
+        int index = Count++;
+        _actions[index] = item;
     }
-
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public (int count, T[] actions) Drain()
@@ -46,8 +45,8 @@ internal sealed class ArrayQueue<T>(int size)
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void Swap(ref T[] a, ref T[] b)
+    private static void Swap(ref T[] left, ref T[] right)
     {
-        (a, b) = (b, a);
+        (left, right) = (right, left);
     }
 }
