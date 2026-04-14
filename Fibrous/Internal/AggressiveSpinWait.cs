@@ -6,9 +6,10 @@ namespace Fibrous;
 
 internal struct AggressiveSpinWait
 {
-    private static readonly bool _isSingleProcessor = Environment.ProcessorCount == 1;
-    private const int YieldThreshold = 10;
+    private static readonly bool _isSingleProcessor      = Environment.ProcessorCount == 1;
+    private const          int  YieldThreshold          = 10;
     private const int Sleep0EveryHowManyTimes = 5;
+
     private int _count;
 
     private bool NextSpinWillYield => _count > YieldThreshold || _isSingleProcessor;

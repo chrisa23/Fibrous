@@ -4,6 +4,9 @@ using System.Runtime.CompilerServices;
 
 namespace Fibrous.WPF;
 
+/// <summary>
+///     Base class for WPF view models that own a fiber for marshalled work.
+/// </summary>
 public abstract class FiberViewModelBase : INotifyPropertyChanged
 {
     protected FiberViewModelBase(IFiberFactory factory = null) =>
@@ -15,7 +18,7 @@ public abstract class FiberViewModelBase : INotifyPropertyChanged
 
     protected abstract void OnError(Exception obj);
 
-    public void Dispose() => Fiber?.Dispose();
+    public void Dispose() => Fiber.Dispose();
 
     protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

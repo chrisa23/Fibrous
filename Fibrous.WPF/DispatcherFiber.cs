@@ -23,5 +23,6 @@ public sealed class DispatcherFiber(
     {
     }
 
-    protected override void InternalEnqueue(Func<Task> action) => _dispatcher.InvokeAsync(action, priority);
+    protected override void InternalEnqueue(Func<Task> action) =>
+        _dispatcher.InvokeAsync(action, priority);
 }

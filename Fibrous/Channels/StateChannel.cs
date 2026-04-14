@@ -10,6 +10,7 @@ public sealed class StateChannel<T> : IChannel<T>, IInlineSubscriberPort<T>
 {
     private readonly object _lock = new();
     private readonly Channel<T> _updateChannel = new();
+
     private bool _hasValue;
     private T _last;
 
@@ -23,6 +24,9 @@ public sealed class StateChannel<T> : IChannel<T>, IInlineSubscriberPort<T>
     {
     }
 
+    /// <summary>
+    ///     Subscribes and immediately replays the current value when one exists.
+    /// </summary>
     public IDisposable Subscribe(IFiber fiber, Func<T, Task> receive)
     {
         lock (_lock)
@@ -45,7 +49,8 @@ public sealed class StateChannel<T> : IChannel<T>, IInlineSubscriberPort<T>
     {
         lock (_lock)
         {
-            IDisposable disposable = ((IInlineSubscriberPort<T>)_updateChannel).SubscribeInline(receive);
+            IDisposable disposable = ((IInlineSubscriberPort<T>)_updateChannel)
+                .SubscribeInline(receive);
             if (_hasValue)
             {
                 T item = _last;

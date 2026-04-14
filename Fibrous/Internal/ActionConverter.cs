@@ -9,8 +9,9 @@ internal static class ActionConverterUtils
     public static Func<T, Task> ToAsync<T>(this Action<T> action) =>
 #pragma warning restore VSTHRD200
         new ActionConverter<T>(action).InvokeAsync;
+
 #pragma warning disable VSTHRD200
-    public static Func< Task> ToAsync(this Action action) =>
+    public static Func<Task> ToAsync(this Action action) =>
 #pragma warning restore VSTHRD200
         new ActionConverter(action).InvokeAsync;
 
@@ -22,7 +23,6 @@ internal static class ActionConverterUtils
             return Task.CompletedTask;
         }
     }
-
 
     private readonly struct ActionConverter<T>(Action<T> action)
     {

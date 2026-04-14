@@ -20,7 +20,10 @@ public sealed class SnapshotChannel<T, TSnapshot> : ISnapshotChannel<T, TSnapsho
     public IDisposable Subscribe(IFiber fiber, Func<T, Task> receive, Func<TSnapshot, Task> receiveSnapshot)
     {
         AsyncSnapshotRequest primedSubscribe = new(fiber, receive, receiveSnapshot);
-        _requestChannel.SendRequest(primedSubscribe, fiber, snapshot => primedSubscribe.PublishSnapshotAsync(snapshot));
+        _requestChannel.SendRequest(
+            primedSubscribe,
+            fiber,
+            snapshot => primedSubscribe.PublishSnapshotAsync(snapshot));
         return new Unsubscriber(primedSubscribe, fiber);
     }
 
@@ -46,6 +49,7 @@ public sealed class SnapshotChannel<T, TSnapshot> : ISnapshotChannel<T, TSnapsho
         private readonly IFiber _fiber;
         private readonly Func<T, Task> _receive;
         private readonly Func<TSnapshot, Task> _receiveSnapshot;
+
         private bool _disposed;
         private IDisposable _subscription;
 
@@ -54,8 +58,8 @@ public sealed class SnapshotChannel<T, TSnapshot> : ISnapshotChannel<T, TSnapsho
             Func<T, Task> receive,
             Func<TSnapshot, Task> receiveSnapshot)
         {
-            _fiber = fiber;
-            _receive = receive;
+            _fiber           = fiber;
+            _receive         = receive;
             _receiveSnapshot = receiveSnapshot;
             _fiber.Add(this);
         }
