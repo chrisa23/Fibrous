@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace Fibrous;
 
 /// <summary>
-///     IExecutor that handles any exceptions thrown with an optional exception callback
+///     Executor that catches exceptions and forwards them to an optional callback.
 /// </summary>
 public sealed class ExceptionHandlingExecutor : IExecutor
 {
@@ -18,9 +18,9 @@ public sealed class ExceptionHandlingExecutor : IExecutor
         {
             await toExecute();
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            _callback?.Invoke(e);
+            _callback?.Invoke(exception);
         }
     }
 }

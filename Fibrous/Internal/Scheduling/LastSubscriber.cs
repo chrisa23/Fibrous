@@ -13,7 +13,7 @@ internal sealed class LastSubscriber<T>(
     private bool _flushPending;
     private T _pending;
 
-    protected override Task OnMessageAsync(T msg)
+    protected override Task OnMessageAsync(T message)
     {
         lock (BatchLock)
         {
@@ -23,7 +23,7 @@ internal sealed class LastSubscriber<T>(
                 _flushPending = true;
             }
 
-            _pending = msg;
+            _pending = message;
         }
 
         return Task.CompletedTask;
@@ -46,25 +46,26 @@ internal sealed class LastSubscriber<T>(
     }
 }
 
-
 internal sealed class AsyncLastEventSubscriber : IDisposable
 {
-    private readonly   Action _target;
+    private readonly   Action      _target;
+    private readonly   IDisposable _subscription;
+    private readonly   object      _batchLock    = new();
+    private readonly   IFiber      _fiber;
+    private readonly   TimeSpan    _interval;
     private            bool        _flushPending;
     private            bool        _pending;
-    private readonly   IDisposable _sub;
-    private readonly object      _batchLock = new();
-    private readonly IFiber _fiber;
-    private readonly TimeSpan    _interval;
-    public AsyncLastEventSubscriber(IEventPort channel,
+
+    public AsyncLastEventSubscriber(
+        IEventPort channel,
         IFiber fiber,
         TimeSpan interval,
         Action target)
     {
-        _sub = channel.Subscribe(fiber, OnMessageAsync);
-        _fiber = fiber;
+        _subscription = channel.Subscribe(fiber, OnMessageAsync);
+        _fiber        = fiber;
         _interval = interval;
-        _target = target;
+        _target   = target;
     }
 
     private Task OnMessageAsync()
@@ -90,7 +91,6 @@ internal sealed class AsyncLastEventSubscriber : IDisposable
             _target();
         }
 
-        //Fiber.Enqueue(() => toReturn ? _target() : Task.CompletedTask);
         return Task.CompletedTask;
     }
 
@@ -105,5 +105,5 @@ internal sealed class AsyncLastEventSubscriber : IDisposable
         }
     }
 
-    public void Dispose() => _sub?.Dispose();
+    public void Dispose() => _subscription.Dispose();
 }

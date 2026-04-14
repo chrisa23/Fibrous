@@ -4,8 +4,7 @@ using System.Threading.Tasks;
 namespace Fibrous;
 
 /// <summary>
-///     Abstraction of handling execution.  Allows insertion of exception handling, profiling,
-///     etc.
+///     Abstraction for executing work, allowing exception handling or instrumentation to be layered in.
 /// </summary>
 public interface IExecutor
 {

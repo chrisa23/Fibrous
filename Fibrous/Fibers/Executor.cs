@@ -5,11 +5,10 @@ using System.Threading.Tasks;
 namespace Fibrous;
 
 /// <summary>
-///     Default executor that simply awaits running the async method
+///     Default executor that directly invokes the provided asynchronous delegate.
 /// </summary>
 public sealed class Executor : IExecutor
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public
-        Task ExecuteAsync(Func<Task> toExecute) => toExecute();
+    public Task ExecuteAsync(Func<Task> toExecute) => toExecute();
 }

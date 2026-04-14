@@ -13,7 +13,7 @@ internal sealed class BatchSubscriber<T>(
 {
     private List<T> _pending;
 
-    protected override Task OnMessageAsync(T msg)
+    protected override Task OnMessageAsync(T message)
     {
         lock (BatchLock)
         {
@@ -23,7 +23,7 @@ internal sealed class BatchSubscriber<T>(
                 Fiber.Schedule(FlushAsync, Interval);
             }
 
-            _pending.Add(msg);
+            _pending.Add(message);
         }
 
         return Task.CompletedTask;

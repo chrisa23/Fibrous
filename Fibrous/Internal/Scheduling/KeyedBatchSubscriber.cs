@@ -14,18 +14,18 @@ internal sealed class KeyedBatchSubscriber<TKey, T>(
 {
     private Dictionary<TKey, T> _pending;
 
-    protected override Task OnMessageAsync(T msg)
+    protected override Task OnMessageAsync(T message)
     {
         lock (BatchLock)
         {
-            TKey key = keyResolver(msg);
+            TKey key = keyResolver(message);
             if (_pending == null)
             {
                 _pending = new Dictionary<TKey, T>();
                 Fiber.Schedule(FlushAsync, Interval);
             }
 
-            _pending[key] = msg;
+            _pending[key] = message;
         }
 
         return Task.CompletedTask;
