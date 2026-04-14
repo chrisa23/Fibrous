@@ -4,21 +4,20 @@ using System.Collections.Generic;
 namespace Fibrous;
 
 /// <summary>
-///     Collection of disposables, where they can be removed or Disposed together.
-///     Mostly for internal use, but very convenient for grouping and handling disposables
+///     Registry of disposables that can be removed individually or disposed together.
 /// </summary>
 public interface IDisposableRegistry : IDisposable
 {
     /// <summary>
-    ///     Add an IDisposable to the registry.  It will be disposed when the registry is disposed.
+    ///     Adds a disposable to the registry. It will be disposed when the registry is disposed.
     /// </summary>
-    /// <param name="toAdd"></param>
+    /// <param name="toAdd">Disposable to add.</param>
     void Add(IDisposable toAdd);
 
     /// <summary>
-    ///     Remove a disposable from the registry.  It will not be disposed when the registry is disposed.
+    ///     Removes a disposable from the registry. It will not be disposed with the registry.
     /// </summary>
-    /// <param name="toRemove"></param>
+    /// <param name="toRemove">Disposable to remove.</param>
     void Remove(IDisposable toRemove);
 }
 

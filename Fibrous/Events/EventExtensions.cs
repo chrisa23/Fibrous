@@ -7,80 +7,71 @@ namespace Fibrous;
 public static class EventExtensions
 {
     /// <summary>
-    ///     Subscribe an AsyncFiber to an Action based event
+    ///     Subscribes a fiber to an <see cref="Action{T}" />-based event by name.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="fiber"></param>
-    /// <param name="obj"></param>
-    /// <param name="eventName"></param>
-    /// <param name="receive"></param>
-    /// <returns></returns>
-    public static IDisposable SubscribeToEvent<T>(this IFiber fiber, object obj, string eventName,
+    public static IDisposable SubscribeToEvent<T>(
+        this IFiber fiber,
+        object obj,
+        string eventName,
         Func<T, Task> receive)
     {
-        EventInfo evt = obj.GetType().GetEvent(eventName);
-        MethodInfo add = evt.GetAddMethod();
-        MethodInfo remove = evt.GetRemoveMethod();
+        (MethodInfo add, MethodInfo remove) = GetEventAccessors(obj, eventName);
 
-        void Action(T msg) => fiber.Enqueue(() => receive(msg));
+        void Handler(T message) => fiber.Enqueue(() => receive(message));
 
-        add.Invoke(obj, [(Action<T>)Action]);
+        object[] handlerArgs = { (Action<T>)Handler };
+        add.Invoke(obj, handlerArgs);
 
-        return new Unsubscriber(new DisposeAction(() => remove.Invoke(obj, [(Action<T>)Action])), fiber);
+        return new Unsubscriber(new DisposeAction(() => remove.Invoke(obj, handlerArgs)), fiber);
     }
 
-
     /// <summary>
-    ///     Subscribe an AsyncFiber to an Action based event
+    ///     Subscribes a fiber to an <see cref="Action" />-based event by name.
     /// </summary>
-    /// <param name="fiber"></param>
-    /// <param name="obj"></param>
-    /// <param name="eventName"></param>
-    /// <param name="receive"></param>
-    /// <returns></returns>
-    public static IDisposable SubscribeToEvent(this IFiber fiber, object obj, string eventName,
+    public static IDisposable SubscribeToEvent(
+        this IFiber fiber,
+        object obj,
+        string eventName,
         Func<Task> receive)
     {
-        EventInfo evt = obj.GetType().GetEvent(eventName);
-        MethodInfo add = evt.GetAddMethod();
-        MethodInfo remove = evt.GetRemoveMethod();
+        (MethodInfo add, MethodInfo remove) = GetEventAccessors(obj, eventName);
 
-        void Action()
+        void Handler()
         {
             fiber.Enqueue(receive);
         }
 
-        object[] addHandlerArgs = {(Action)Action};
-        add.Invoke(obj, addHandlerArgs);
+        object[] handlerArgs = { (Action)Handler };
+        add.Invoke(obj, handlerArgs);
 
-        return new Unsubscriber(new DisposeAction(() => remove.Invoke(obj, addHandlerArgs)), fiber);
+        return new Unsubscriber(new DisposeAction(() => remove.Invoke(obj, handlerArgs)), fiber);
     }
 
-
     /// <summary>
-    ///     Subscribe an AsyncFiber to an Action based event
+    ///     Subscribes a fiber to an <see cref="Action{T}" />-based event by name.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="fiber"></param>
-    /// <param name="obj"></param>
-    /// <param name="eventName"></param>
-    /// <param name="receive"></param>
-    /// <returns></returns>
-    public static IDisposable SubscribeToEvent<T>(this IFiber fiber, object obj, string eventName,
+    public static IDisposable SubscribeToEvent<T>(
+        this IFiber fiber,
+        object obj,
+        string eventName,
         Action<T> receive) =>
         SubscribeToEvent(fiber, obj, eventName, receive.ToAsync());
 
-
-
     /// <summary>
-    ///     Subscribe an AsyncFiber to an Action based event
+    ///     Subscribes a fiber to an <see cref="Action" />-based event by name.
     /// </summary>
-    /// <param name="fiber"></param>
-    /// <param name="obj"></param>
-    /// <param name="eventName"></param>
-    /// <param name="receive"></param>
-    /// <returns></returns>
-    public static IDisposable SubscribeToEvent(this IFiber fiber, object obj, string eventName,
+    public static IDisposable SubscribeToEvent(
+        this IFiber fiber,
+        object obj,
+        string eventName,
         Action receive) =>
         SubscribeToEvent(fiber, obj, eventName, receive.ToAsync());
+
+    private static (MethodInfo add, MethodInfo remove) GetEventAccessors(object target, string eventName)
+    {
+        EventInfo evt = target.GetType().GetEvent(eventName);
+        MethodInfo add = evt.GetAddMethod();
+        MethodInfo remove = evt.GetRemoveMethod();
+        return (add, remove);
+    }
 }
