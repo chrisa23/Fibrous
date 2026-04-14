@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 
 namespace Fibrous;
 
+/// <summary>
+///     Request/reply channel for coordinating one request handler with asynchronous replies.
+/// </summary>
 public sealed class RequestChannel<TRequest, TReply> : IRequestChannel<TRequest, TReply>
 {
     private readonly Channel<IRequest<TRequest, TReply>> _requestChannel = new();
@@ -18,8 +21,10 @@ public sealed class RequestChannel<TRequest, TReply> : IRequestChannel<TRequest,
         return new Unsubscriber(channelRequest, fiber);
     }
 
-    public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply) => SendRequest(request, fiber, onReply.ToAsync());
+    public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply) =>
+        SendRequest(request, fiber, onReply.ToAsync());
 
+#pragma warning disable VSTHRD003 // The returned task is completed by the request/reply channel, not by work started on the caller's context.
     public Task<TReply> SendRequestAsync(TRequest request)
     {
         ChannelRequest channelRequest = new(request);
@@ -28,11 +33,8 @@ public sealed class RequestChannel<TRequest, TReply> : IRequestChannel<TRequest,
     }
 
     /// <summary>
-    ///     Async ReqReply with timeout
+    ///     Sends a request and returns either a reply or a timeout failure.
     /// </summary>
-    /// <param name="request"></param>
-    /// <param name="timeout"></param>
-    /// <returns></returns>
     public async Task<Reply<TReply>> SendRequestAsync(TRequest request, TimeSpan timeout)
     {
         using CancellationTokenSource cts = new(timeout);
@@ -48,6 +50,7 @@ public sealed class RequestChannel<TRequest, TReply> : IRequestChannel<TRequest,
             return Reply<TReply>.Failed;
         }
     }
+#pragma warning restore VSTHRD003
 
     public void Dispose() => _requestChannel.Dispose();
 
@@ -66,7 +69,12 @@ public sealed class RequestChannel<TRequest, TReply> : IRequestChannel<TRequest,
             }
         }
 
-        public TaskCompletionSource<TReply> Resp { get; } = new();
+        public TaskCompletionSource<TReply> Resp { get; } =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public CancellationToken CancellationToken => _cancel.Token;
+
+        public TRequest Request { get; }
 
         public void Dispose()
         {
@@ -75,10 +83,6 @@ public sealed class RequestChannel<TRequest, TReply> : IRequestChannel<TRequest,
                 _cancel.Cancel();
             }
         }
-
-        public CancellationToken CancellationToken => _cancel.Token;
-
-        public TRequest Request { get; }
 
         public void Reply(TReply response)
         {
@@ -104,6 +108,10 @@ public sealed class RequestChannel<TRequest, TReply> : IRequestChannel<TRequest,
             _sub = _resp.Subscribe(fiber, replier);
         }
 
+        public TRequest Request { get; }
+
+        public CancellationToken CancellationToken => _cancel.Token;
+
         public void Dispose()
         {
             if (_guard.Check)
@@ -113,8 +121,6 @@ public sealed class RequestChannel<TRequest, TReply> : IRequestChannel<TRequest,
             }
         }
 
-        public TRequest Request { get; }
-
         public void Reply(TReply response)
         {
             if (_guard.Check)
@@ -122,7 +128,5 @@ public sealed class RequestChannel<TRequest, TReply> : IRequestChannel<TRequest,
                 _resp.Publish(response);
             }
         }
-
-        public CancellationToken CancellationToken => _cancel.Token;
     }
 }

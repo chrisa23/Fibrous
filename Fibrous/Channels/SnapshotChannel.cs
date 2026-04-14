@@ -3,37 +3,37 @@ using System.Threading.Tasks;
 
 namespace Fibrous;
 
+/// <summary>
+///     Coordinates an initial snapshot with later incremental updates.
+/// </summary>
 public sealed class SnapshotChannel<T, TSnapshot> : ISnapshotChannel<T, TSnapshot>
 {
     private readonly RequestChannel<AsyncSnapshotRequest, TSnapshot> _requestChannel = new();
-
     private readonly Channel<T> _updatesChannel = new();
 
     /// <summary>
-    ///     Subscribes for an initial snapshot and then incremental update.
+    ///     Subscribes for an initial snapshot and then incremental updates.
     /// </summary>
-    /// <param name="fiber">the target executor to receive the message</param>
-    /// <param name="receive"></param>
-    /// <param name="receiveSnapshot"> </param>
+    /// <param name="fiber">Target fiber for snapshot and update callbacks.</param>
+    /// <param name="receive">Receives incremental updates.</param>
+    /// <param name="receiveSnapshot">Receives the initial snapshot.</param>
     public IDisposable Subscribe(IFiber fiber, Func<T, Task> receive, Func<TSnapshot, Task> receiveSnapshot)
     {
         AsyncSnapshotRequest primedSubscribe = new(fiber, receive, receiveSnapshot);
-        _requestChannel.SendRequest(primedSubscribe, fiber, x =>
-        {
-            return primedSubscribe.PublishSnapshotAsync(x);
-        });
+        _requestChannel.SendRequest(primedSubscribe, fiber, snapshot => primedSubscribe.PublishSnapshotAsync(snapshot));
         return new Unsubscriber(primedSubscribe, fiber);
     }
 
-    public IDisposable ReplyToPrimingRequest(IFiber fiber, Func<Task<TSnapshot>> reply) => _requestChannel.SetRequestHandler(
-        fiber,
-        async x =>
-        {
-            x.Request.SubscribeToUpdates(_updatesChannel);
-            x.Reply(await reply());
-        });
+    public IDisposable ReplyToPrimingRequest(IFiber fiber, Func<Task<TSnapshot>> reply) =>
+        _requestChannel.SetRequestHandler(
+            fiber,
+            async request =>
+            {
+                request.Request.SubscribeToUpdates(_updatesChannel);
+                request.Reply(await reply());
+            });
 
-    public void Publish(T msg) => _updatesChannel.Publish(msg);
+    public void Publish(T message) => _updatesChannel.Publish(message);
 
     public void Dispose()
     {
@@ -49,7 +49,8 @@ public sealed class SnapshotChannel<T, TSnapshot> : ISnapshotChannel<T, TSnapsho
         private bool _disposed;
         private IDisposable _subscription;
 
-        public AsyncSnapshotRequest(IFiber fiber,
+        public AsyncSnapshotRequest(
+            IFiber fiber,
             Func<T, Task> receive,
             Func<TSnapshot, Task> receiveSnapshot)
         {
@@ -66,14 +67,14 @@ public sealed class SnapshotChannel<T, TSnapshot> : ISnapshotChannel<T, TSnapsho
             _subscription?.Dispose();
         }
 
-        public Task PublishSnapshotAsync(TSnapshot msg)
+        public Task PublishSnapshotAsync(TSnapshot snapshot)
         {
             if (_disposed)
             {
                 return Task.CompletedTask;
             }
 
-            return _receiveSnapshot(msg);
+            return _receiveSnapshot(snapshot);
         }
 
         public void SubscribeToUpdates(ISubscriberPort<T> updatesPort)
@@ -86,14 +87,14 @@ public sealed class SnapshotChannel<T, TSnapshot> : ISnapshotChannel<T, TSnapsho
             _subscription = ((IInlineSubscriberPort<T>)updatesPort).SubscribeInline(PublishUpdate);
         }
 
-        private void PublishUpdate(T msg)
+        private void PublishUpdate(T message)
         {
             if (_disposed)
             {
                 return;
             }
 
-            _fiber.Enqueue(() => _receive(msg));
+            _fiber.Enqueue(() => _receive(message));
         }
     }
 }

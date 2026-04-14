@@ -4,10 +4,8 @@ using System.Threading.Tasks;
 namespace Fibrous;
 
 /// <summary>
-///     Channel that maintains its last value which is passed to new subscribers.  Useful with Enums or values representing
-///     latest status.
+///     Channel that maintains its last value and immediately replays it to new subscribers.
 /// </summary>
-/// <typeparam name="T"></typeparam>
 public sealed class StateChannel<T> : IChannel<T>, IInlineSubscriberPort<T>
 {
     private readonly object _lock = new();
@@ -41,7 +39,7 @@ public sealed class StateChannel<T> : IChannel<T>, IInlineSubscriberPort<T>
     }
 
     public IDisposable Subscribe(IFiber fiber, Action<T> receive) =>
-            Subscribe(fiber, receive.ToAsync());
+        Subscribe(fiber, receive.ToAsync());
 
     IDisposable IInlineSubscriberPort<T>.SubscribeInline(Action<T> receive)
     {
@@ -58,13 +56,13 @@ public sealed class StateChannel<T> : IChannel<T>, IInlineSubscriberPort<T>
         }
     }
 
-    public void Publish(T msg)
+    public void Publish(T message)
     {
         lock (_lock)
         {
-            _last = msg;
+            _last = message;
             _hasValue = true;
-            _updateChannel.Publish(msg);
+            _updateChannel.Publish(message);
         }
     }
 
