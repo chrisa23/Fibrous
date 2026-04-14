@@ -14,7 +14,7 @@ Agents should preserve the library’s main value:
 make concurrent systems easier to reason about while remaining practical and performant.
 
 ## Current repo context
-- Primary target frameworks include .NET Standard 2.1, .NET 8, and .NET 9
+- Primary target frameworks include .NET Standard 2.0, .NET 8, and .NET 10
 - There is a separate .NET Windows project for WPF integration
 - The repository is in a v7 era where some API changes may be acceptable, but they should still be deliberate and well-justified
 - The repo has strong existing test coverage, though more improvement is welcome
@@ -101,7 +101,7 @@ Be cautious with:
 - using .NET 8/9-only APIs in shared code without proper multi-targeting guards
 
 ## Multi-targeting guidance
-Because the repo targets .NET Standard 2.1, .NET 8, and .NET 9:
+Because the repo targets .NET Standard 2.0, .NET 8, and .NET 10:
 - preserve compatibility in shared code unless a task explicitly targets a newer framework path
 - use conditional compilation only when it clearly improves performance, maintainability, or platform support
 - avoid introducing framework-specific behavior differences unless documented and tested
@@ -153,6 +153,7 @@ When behavior changes or clarity improves:
 - update XML docs
 - add comments explaining non-obvious concurrency reasoning
 - document migration notes for deliberate v7 API changes
+- follow the repository structure guidance in `STYLE.md`
 
 Comments should explain why the synchronization or sequencing is correct.
 
