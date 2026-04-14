@@ -6,6 +6,7 @@ namespace Fibrous;
 
 internal sealed class TimerAction : IDisposable
 {
+    private static readonly TimeSpan OneShotInterval = TimeSpan.FromMilliseconds(-1);
     private readonly Func<Task> _action;
     private readonly TimeSpan _interval;
     private bool _cancelled;
@@ -14,7 +15,7 @@ internal sealed class TimerAction : IDisposable
     public TimerAction(IFiber fiber, Func<Task> action, TimeSpan dueTime)
     {
         _action = action;
-        _interval = TimeSpan.FromMilliseconds(-1);
+        _interval = OneShotInterval;
         _timer = new Timer(x => ExecuteOnTimerThread(fiber), null, dueTime, _interval);
         fiber.Add(this);
     }
@@ -35,7 +36,7 @@ internal sealed class TimerAction : IDisposable
 
     private void ExecuteOnTimerThread(IFiber fiber)
     {
-        if (_interval.Ticks == TimeSpan.FromMilliseconds(-1).Ticks || _cancelled)
+        if (_interval == OneShotInterval || _cancelled)
         {
             fiber.Remove(this);
             DisposeTimer();

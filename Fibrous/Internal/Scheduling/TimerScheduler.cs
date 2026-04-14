@@ -7,7 +7,7 @@ internal sealed class TimerScheduler : IFiberScheduler
 {
     public IDisposable Schedule(IFiber fiber, Func<Task> action, TimeSpan dueTime)
     {
-        if (dueTime.TotalMilliseconds <= 0)
+        if (dueTime <= TimeSpan.Zero)
         {
             PendingAction pending = new(action);
             fiber.Enqueue(pending.ExecuteAsync);
