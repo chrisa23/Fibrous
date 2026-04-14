@@ -90,7 +90,18 @@ fiber.Schedule(ScheduledMethod, TimeSpan.FromSeconds(5));
 fiber.Schedule(ScheduledMethod, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(10));
 ```
 
-### Channels
+### Channels and Ports
+
+Ports are the endpoints for publishing and subscribing to messages.
+
+The main port types are:
+
+- `ISubscriberPort<T>`
+- `IPublisherPort<T>`
+- `IRequestPort<TRequest, TReply>`
+- `ISnapshotSubscriberPort<T, TSnapshot>`
+- `IEventPort`
+- `IEventTrigger`
 
 Channels are the in-memory conduits that implement those ports.
 
