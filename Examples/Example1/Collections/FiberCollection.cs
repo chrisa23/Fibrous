@@ -1,17 +1,19 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Fibrous;
 
 namespace Example1.Collections;
 
 /// <summary>
-///     Collection class that can be monitored and provides a snapshot on subscription.  Can also be queried with a
-///     predicate
+///     Collection class that can be monitored and provides a snapshot on subscription. Can also be queried with a
+///     predicate.
 /// </summary>
-/// <typeparam name="T"></typeparam>
-public class FiberCollection<T> : ISnapshotSubscriberPort<ItemAction<T>, T[]>, IRequestPort<Func<T, bool>, T[]>,
+public class FiberCollection<T> :
+    ISnapshotSubscriberPort<ItemAction<T>, T[]>,
+    IRequestPort<Func<T, bool>, T[]>,
     IDisposable
 {
     private readonly SnapshotChannel<ItemAction<T>, T[]> _channel = new();
@@ -45,19 +47,23 @@ public class FiberCollection<T> : ISnapshotSubscriberPort<ItemAction<T>, T[]>, I
 
     public Task<T[]> SendRequestAsync(Func<T, bool> request) => _request.SendRequestAsync(request);
 
+    public Task<Reply<T[]>> SendRequestAsync(Func<T, bool> request, CancellationToken cancellationToken) =>
+        _request.SendRequestAsync(request, cancellationToken);
+
     public Task<Reply<T[]>> SendRequestAsync(Func<T, bool> request, TimeSpan timeout) =>
         _request.SendRequestAsync(request, timeout);
 
-
-
-    public IDisposable Subscribe(IFiber fiber, Func<ItemAction<T>, Task> receive,
-        Func<T[], Task> receiveSnapshot) => _channel.Subscribe(fiber, receive, receiveSnapshot);
+    public IDisposable Subscribe(
+        IFiber fiber,
+        Func<ItemAction<T>, Task> receive,
+        Func<T[], Task> receiveSnapshot) =>
+        _channel.Subscribe(fiber, receive, receiveSnapshot);
 
     public void Clear() =>
         _fiber.Enqueue(() =>
         {
             _items.Clear();
-            _channel.Publish(new ItemAction<T>(ActionType.Clear, new T[] { }));
+            _channel.Publish(new ItemAction<T>(ActionType.Clear, Array.Empty<T>()));
         });
 
     public void AddRange(IEnumerable<T> items) =>
@@ -72,7 +78,7 @@ public class FiberCollection<T> : ISnapshotSubscriberPort<ItemAction<T>, T[]>, I
         _fiber.Enqueue(() =>
         {
             _items.Add(item);
-            _channel.Publish(new ItemAction<T>(ActionType.Add, new[] {item}));
+            _channel.Publish(new ItemAction<T>(ActionType.Add, new[] { item }));
         });
 
     public void Remove(T item) =>
@@ -81,52 +87,50 @@ public class FiberCollection<T> : ISnapshotSubscriberPort<ItemAction<T>, T[]>, I
             bool removed = _items.Remove(item);
             if (removed)
             {
-                _channel.Publish(new ItemAction<T>(ActionType.Remove, new[] {item}));
+                _channel.Publish(new ItemAction<T>(ActionType.Remove, new[] { item }));
             }
         });
 
     public Task<T[]> GetItemsAsync(Func<T, bool> request) => _request.SendRequestAsync(request);
 
-    private async Task  OnRequest(IRequest<Func<T, bool>, T[]> request) =>
+    private Task OnRequest(IRequest<Func<T, bool>, T[]> request)
+    {
         request.Reply(_items.Where(request.Request).ToArray());
+        return Task.CompletedTask;
+    }
 
-    private async Task<T[]> Reply() => _items.ToArray();
+    private Task<T[]> Reply() => Task.FromResult(_items.ToArray());
 
     public IDisposable SubscribeLocalCopy(IFiber fiber, List<T> local, Action updateCallback) =>
         Subscribe(fiber, CreateReceive(local, updateCallback), CreateSnapshot(local, updateCallback));
 
-    private static Func<T[], Task> CreateSnapshot(List<T> local,
-        Action updateCallback) =>
-        x =>
+    private static Func<T[], Task> CreateSnapshot(List<T> local, Action updateCallback) =>
+        items =>
         {
-            local.AddRange(x);
-
+            local.AddRange(items);
             updateCallback();
             return Task.CompletedTask;
         };
 
-    private static Func<ItemAction<T>, Task> CreateReceive(List<T> local,
-        Action updateCallback) =>
-        x =>
+    private static Func<ItemAction<T>, Task> CreateReceive(List<T> local, Action updateCallback) =>
+        action =>
         {
-            Update(local, x);
-
+            Update(local, action);
             updateCallback();
             return Task.CompletedTask;
         };
 
-    private static void Update(List<T> local, ItemAction<T> x)
+    private static void Update(List<T> local, ItemAction<T> action)
     {
-        switch (x.ActionType)
+        switch (action.ActionType)
         {
             case ActionType.Add:
-                local.AddRange(x.Items);
+                local.AddRange(action.Items);
                 break;
             case ActionType.Update:
-                //No update in this collection
                 break;
             case ActionType.Remove:
-                foreach (T item in x.Items)
+                foreach (T item in action.Items)
                 {
                     local.Remove(item);
                 }

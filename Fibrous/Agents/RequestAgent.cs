@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Fibrous.Agents;
@@ -18,7 +19,9 @@ public class RequestAgent<TRequest, TReply> : IRequestAgent<TRequest, TReply>
         _channel = Fiber.NewRequestPort(handler);
     }
 
-    public RequestAgent(IFiberFactory factory, Func<IRequest<TRequest, TReply>, Task> handler,
+    public RequestAgent(
+        IFiberFactory factory,
+        Func<IRequest<TRequest, TReply>, Task> handler,
         Action<Exception> callback)
     {
         Fiber = factory.CreateFiber(callback);
@@ -32,6 +35,9 @@ public class RequestAgent<TRequest, TReply> : IRequestAgent<TRequest, TReply>
         _channel.SendRequest(request, fiber, onReply);
 
     public Task<TReply> SendRequestAsync(TRequest request) => _channel.SendRequestAsync(request);
+
+    public Task<Reply<TReply>> SendRequestAsync(TRequest request, CancellationToken cancellationToken) =>
+        _channel.SendRequestAsync(request, cancellationToken);
 
     public Task<Reply<TReply>> SendRequestAsync(TRequest request, TimeSpan timeout) =>
         _channel.SendRequestAsync(request, timeout);

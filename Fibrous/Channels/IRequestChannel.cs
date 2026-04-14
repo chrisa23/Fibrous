@@ -20,6 +20,13 @@ public interface IRequestChannel<TRequest, TReply> : IRequestPort<TRequest, TRep
 public interface IRequestPort<in TRequest, TReply>
 {
     /// <summary>
+    ///     Sends an asynchronous request with cancellation support.
+    /// </summary>
+    /// <param name="request">Request payload.</param>
+    /// <param name="cancellationToken">Cancellation token for the request.</param>
+    Task<Reply<TReply>> SendRequestAsync(TRequest request, CancellationToken cancellationToken);
+
+    /// <summary>
     ///     Sends an asynchronous request with a timeout.
     /// </summary>
     /// <param name="request">Request payload.</param>

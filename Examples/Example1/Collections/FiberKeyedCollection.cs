@@ -1,13 +1,16 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Fibrous;
 
 namespace Example1.Collections;
 
-public class FiberKeyedCollection<TKey, T> : ISnapshotSubscriberPort<ItemAction<T>, T[]>,
-    IRequestPort<Func<T, bool>, T[]>, IDisposable
+public class FiberKeyedCollection<TKey, T> :
+    ISnapshotSubscriberPort<ItemAction<T>, T[]>,
+    IRequestPort<Func<T, bool>, T[]>,
+    IDisposable
 {
     private readonly SnapshotChannel<ItemAction<T>, T[]> _channel = new();
     private readonly Fiber _fiber;
@@ -42,11 +45,17 @@ public class FiberKeyedCollection<TKey, T> : ISnapshotSubscriberPort<ItemAction<
 
     public Task<T[]> SendRequestAsync(Func<T, bool> request) => _request.SendRequestAsync(request);
 
+    public Task<Reply<T[]>> SendRequestAsync(Func<T, bool> request, CancellationToken cancellationToken) =>
+        _request.SendRequestAsync(request, cancellationToken);
+
     public Task<Reply<T[]>> SendRequestAsync(Func<T, bool> request, TimeSpan timeout) =>
         _request.SendRequestAsync(request, timeout);
 
-    public IDisposable Subscribe(IFiber fiber, Func<ItemAction<T>, Task> receive,
-        Func<T[], Task> receiveSnapshot) => _channel.Subscribe(fiber, receive, receiveSnapshot);
+    public IDisposable Subscribe(
+        IFiber fiber,
+        Func<ItemAction<T>, Task> receive,
+        Func<T[], Task> receiveSnapshot) =>
+        _channel.Subscribe(fiber, receive, receiveSnapshot);
 
     public void Add(T item) => _fiber.Enqueue(() => AddItem(item));
 
@@ -54,25 +63,28 @@ public class FiberKeyedCollection<TKey, T> : ISnapshotSubscriberPort<ItemAction<
 
     public Task<T[]> GetItemsAsync(Func<T, bool> request) => _request.SendRequestAsync(request);
 
-    private async Task OnRequest(IRequest<Func<T, bool>, T[]> request) =>
-        request.Reply(_items.Values.Where(request.Request).ToArray());
-
-    private void RemoveItem(T obj)
+    private Task OnRequest(IRequest<Func<T, bool>, T[]> request)
     {
-        bool removed = _items.Remove(_keyGen(obj));
+        request.Reply(_items.Values.Where(request.Request).ToArray());
+        return Task.CompletedTask;
+    }
+
+    private void RemoveItem(T item)
+    {
+        bool removed = _items.Remove(_keyGen(item));
         if (removed)
         {
-            _channel.Publish(new ItemAction<T>(ActionType.Remove, new[] {obj}));
+            _channel.Publish(new ItemAction<T>(ActionType.Remove, new[] { item }));
         }
     }
 
-    private void AddItem(T obj)
+    private void AddItem(T item)
     {
-        TKey key = _keyGen(obj);
+        TKey key = _keyGen(item);
         bool exists = _items.ContainsKey(key);
-        _items[key] = obj;
-        _channel.Publish(new ItemAction<T>(exists ? ActionType.Update : ActionType.Add, new[] {obj}));
+        _items[key] = item;
+        _channel.Publish(new ItemAction<T>(exists ? ActionType.Update : ActionType.Add, new[] { item }));
     }
 
-    private async Task< T[]> Reply() => _items.Values.ToArray();
+    private Task<T[]> Reply() => Task.FromResult(_items.Values.ToArray());
 }
