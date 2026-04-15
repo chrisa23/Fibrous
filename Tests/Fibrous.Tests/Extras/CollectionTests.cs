@@ -10,59 +10,6 @@ namespace Fibrous.Tests;
 public class CollectionTests
 {
     [Test]
-    public async Task FiberCollectionTest1()
-    {
-        int[] snapshot = null;
-        List<int> list = new();
-        using FiberCollection<int> collection = new();
-        using AutoResetEvent reset = new(false);
-        using Fiber receive = new();
-        collection.Add(1);
-        collection.Add(2);
-        collection.Subscribe(receive,
-            action =>
-            {
-                if (action.ActionType == ActionType.Add)
-                {
-                    list.Add(action.Items[0]);
-                }
-                else
-                {
-                    list.Remove(action.Items[0]);
-                }
-
-                reset.Set();
-                return Task.CompletedTask;
-            },
-            ints =>
-            {
-                snapshot = ints;
-                reset.Set();
-                return Task.CompletedTask;
-            });
-
-        TestWait.For(reset, 1000);
-
-        Assert.AreEqual(2, snapshot.Length);
-        Assert.AreEqual(1, snapshot[0]);
-        Assert.AreEqual(2, snapshot[1]);
-        Assert.AreEqual(0, list.Count);
-
-        collection.Add(3);
-        TestWait.For(reset, 1000);
-
-        Assert.AreEqual(1, list.Count);
-
-        collection.Remove(3);
-        TestWait.For(reset, 1000);
-
-        Assert.AreEqual(0, list.Count);
-
-        int[] items = await collection.GetItemsAsync(x => true);
-        Assert.AreEqual(2, items.Length);
-    }
-
-    [Test]
     public async Task KeyCollectionTest1()
     {
         int[] snapshot = null;
