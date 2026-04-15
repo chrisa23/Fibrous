@@ -9,14 +9,19 @@ namespace Fibrous;
 public sealed class ExceptionHandlingExecutor : IExecutor
 {
     private readonly Action<Exception> _callback;
+    private readonly IExecutor _inner;
 
-    public ExceptionHandlingExecutor(Action<Exception> callback = null) => _callback = callback;
+    public ExceptionHandlingExecutor(Action<Exception> callback = null, IExecutor inner = null)
+    {
+        _callback = callback;
+        _inner = inner ?? new Executor();
+    }
 
     public async Task ExecuteAsync(Func<Task> toExecute)
     {
         try
         {
-            await toExecute();
+            await _inner.ExecuteAsync(toExecute);
         }
         catch (Exception exception)
         {
