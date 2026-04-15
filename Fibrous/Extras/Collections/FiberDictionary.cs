@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Fibrous;
 
-namespace Example1.Collections;
+namespace Fibrous.Extras.Collections;
 
 public class FiberDictionary<TKey, T> :
     ISnapshotSubscriberPort<ItemAction<KeyValuePair<TKey, T>>, KeyValuePair<TKey, T>[]>,
@@ -22,10 +21,10 @@ public class FiberDictionary<TKey, T> :
     public FiberDictionary(IExecutor executor = null)
     {
         _fiber = new Fiber(executor);
-        _channel.ReplyToPrimingRequest(_fiber, Reply);
-        _add.Subscribe(_fiber, AddItem);
-        _remove.Subscribe(_fiber, RemoveItem);
-        _request.SetRequestHandler(_fiber, OnRequest);
+        _channel.ReplyToPrimingRequest(_fiber, ReplyAsync);
+        _add.Subscribe(_fiber, AddItemAsync);
+        _remove.Subscribe(_fiber, RemoveItemAsync);
+        _request.SetRequestHandler(_fiber, OnRequestAsync);
     }
 
     public void Dispose()
@@ -43,7 +42,10 @@ public class FiberDictionary<TKey, T> :
         Func<KeyValuePair<TKey, T>[], Task> onReply) =>
         _request.SendRequest(request, fiber, onReply);
 
-    public IDisposable SendRequest(Func<TKey, bool> request, IFiber fiber, Action<KeyValuePair<TKey, T>[]> onReply) =>
+    public IDisposable SendRequest(
+        Func<TKey, bool> request,
+        IFiber fiber,
+        Action<KeyValuePair<TKey, T>[]> onReply) =>
         SendRequest(request, fiber, items =>
         {
             onReply(items);
@@ -77,7 +79,8 @@ public class FiberDictionary<TKey, T> :
         _fiber.Enqueue(() =>
         {
             _items.Clear();
-            _channel.Publish(new ItemAction<KeyValuePair<TKey, T>>(ActionType.Clear, Array.Empty<KeyValuePair<TKey, T>>()));
+            _channel.Publish(
+                new ItemAction<KeyValuePair<TKey, T>>(ActionType.Clear, Array.Empty<KeyValuePair<TKey, T>>()));
         });
 
     public void AddRange(IEnumerable<KeyValuePair<TKey, T>> items) =>
@@ -112,15 +115,18 @@ public class FiberDictionary<TKey, T> :
 
     public Task<KeyValuePair<TKey, T>[]> GetItemsAsync(Func<TKey, bool> request) => _request.SendRequestAsync(request);
 
-    private Task OnRequest(IRequest<Func<TKey, bool>, KeyValuePair<TKey, T>[]> request)
+    public IDisposable SubscribeLocalCopy(IFiber fiber, Dictionary<TKey, T> localDict, Action updateCallback) =>
+        Subscribe(fiber, CreateReceive(localDict, updateCallback), CreateSnapshot(localDict, updateCallback));
+
+    private Task OnRequestAsync(IRequest<Func<TKey, bool>, KeyValuePair<TKey, T>[]> request)
     {
         request.Reply(_items.Where(x => request.Request(x.Key)).ToArray());
         return Task.CompletedTask;
     }
 
-    private Task RemoveItem(TKey key)
+    private Task RemoveItemAsync(TKey key)
     {
-        T data = _items.GetValueOrDefault(key);
+        _items.TryGetValue(key, out T data);
         bool removed = _items.Remove(key);
         if (removed)
         {
@@ -132,7 +138,7 @@ public class FiberDictionary<TKey, T> :
         return Task.CompletedTask;
     }
 
-    private Task AddItem(KeyValuePair<TKey, T> item)
+    private Task AddItemAsync(KeyValuePair<TKey, T> item)
     {
         bool exists = _items.ContainsKey(item.Key);
         _items[item.Key] = item.Value;
@@ -142,7 +148,7 @@ public class FiberDictionary<TKey, T> :
         return Task.CompletedTask;
     }
 
-    private Task<KeyValuePair<TKey, T>[]> Reply()
+    private Task<KeyValuePair<TKey, T>[]> ReplyAsync()
     {
         try
         {
@@ -154,10 +160,7 @@ public class FiberDictionary<TKey, T> :
         }
     }
 
-    public IDisposable SubscribeLocalCopy(IFiber fiber, Dictionary<TKey, T> localDict, Action updateCallback) =>
-        Subscribe(fiber, CreateReceiveAsync(localDict, updateCallback), CreateSnapshotAsync(localDict, updateCallback));
-
-    private static Func<ItemAction<KeyValuePair<TKey, T>>, Task> CreateReceiveAsync(
+    private static Func<ItemAction<KeyValuePair<TKey, T>>, Task> CreateReceive(
         Dictionary<TKey, T> localDict,
         Action updateCallback) =>
         action =>
@@ -194,7 +197,7 @@ public class FiberDictionary<TKey, T> :
         }
     }
 
-    private static Func<KeyValuePair<TKey, T>[], Task> CreateSnapshotAsync(
+    private static Func<KeyValuePair<TKey, T>[], Task> CreateSnapshot(
         Dictionary<TKey, T> localDict,
         Action updateCallback) =>
         items =>

@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Fibrous;
 
-namespace Example1.Collections;
+namespace Fibrous.Extras.Collections;
 
 public class FiberKeyedCollection<TKey, T> :
     ISnapshotSubscriberPort<ItemAction<T>, T[]>,
@@ -22,8 +21,8 @@ public class FiberKeyedCollection<TKey, T> :
     {
         _keyGen = keyGen;
         _fiber = new Fiber(executor);
-        _channel.ReplyToPrimingRequest(_fiber, Reply);
-        _request.SetRequestHandler(_fiber, OnRequest);
+        _channel.ReplyToPrimingRequest(_fiber, ReplyAsync);
+        _request.SetRequestHandler(_fiber, OnRequestAsync);
     }
 
     public void Dispose()
@@ -57,34 +56,37 @@ public class FiberKeyedCollection<TKey, T> :
         Func<T[], Task> receiveSnapshot) =>
         _channel.Subscribe(fiber, receive, receiveSnapshot);
 
-    public void Add(T item) => _fiber.Enqueue(() => AddItem(item));
+    public void Add(T item) => _fiber.Enqueue(() => AddItemAsync(item));
 
-    public void Remove(T item) => _fiber.Enqueue(() => RemoveItem(item));
+    public void Remove(T item) => _fiber.Enqueue(() => RemoveItemAsync(item));
 
     public Task<T[]> GetItemsAsync(Func<T, bool> request) => _request.SendRequestAsync(request);
 
-    private Task OnRequest(IRequest<Func<T, bool>, T[]> request)
+    private Task OnRequestAsync(IRequest<Func<T, bool>, T[]> request)
     {
         request.Reply(_items.Values.Where(request.Request).ToArray());
         return Task.CompletedTask;
     }
 
-    private void RemoveItem(T item)
+    private Task RemoveItemAsync(T item)
     {
         bool removed = _items.Remove(_keyGen(item));
         if (removed)
         {
             _channel.Publish(new ItemAction<T>(ActionType.Remove, new[] { item }));
         }
+
+        return Task.CompletedTask;
     }
 
-    private void AddItem(T item)
+    private Task AddItemAsync(T item)
     {
         TKey key = _keyGen(item);
         bool exists = _items.ContainsKey(key);
         _items[key] = item;
         _channel.Publish(new ItemAction<T>(exists ? ActionType.Update : ActionType.Add, new[] { item }));
+        return Task.CompletedTask;
     }
 
-    private Task<T[]> Reply() => Task.FromResult(_items.Values.ToArray());
+    private Task<T[]> ReplyAsync() => Task.FromResult(_items.Values.ToArray());
 }
