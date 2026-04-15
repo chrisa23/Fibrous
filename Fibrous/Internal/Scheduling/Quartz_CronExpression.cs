@@ -17,6 +17,14 @@
  *
  */
 
+/*
+ * Vendored into Fibrous from Quartz.NET to provide Quartz-style cron parsing
+ * without a package dependency on the full Quartz runtime.
+ *
+ * Fibrous keeps local changes intentionally small and prefers wrapper-level
+ * behavior in CronScheduler over parser forking where possible.
+ */
+
 #endregion
 
 using System;
