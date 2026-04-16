@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
@@ -7,35 +8,31 @@ namespace Fibrous.Tests;
 [TestFixture]
 public class CronSchedulingTests
 {
-
     [Test]
-    public async Task BasicAsyncTest()
+    public void BasicAsyncTest()
     {
-        int msWait = 1000 - DateTime.Now.TimeOfDay.Milliseconds - 200;
-        if (msWait < 0)
-        {
-            msWait = msWait + 1000;
-        }
-
-        await Task.Delay(msWait);
-
         int count = 0;
+        using ManualResetEventSlim receivedTwo = new();
 
         Task Action()
         {
-            count++;
+            if (Interlocked.Increment(ref count) == 2)
+            {
+                receivedTwo.Set();
+            }
+
             return Task.CompletedTask;
         }
 
         using Fiber fiber = new();
-        using (IDisposable sub = fiber.CronSchedule(Action, "0/2 * * 1/1 * ? *"))
+        using (fiber.CronSchedule(Action, "0/1 * * * * ? *"))
         {
-            await Task.Delay(TimeSpan.FromSeconds(4.1));
+            TestWait.For(receivedTwo, TimeSpan.FromSeconds(5));
         }
 
-        Assert.IsTrue(count >= 2);
+        int countAfterDispose = Volatile.Read(ref count);
 
-        await Task.Delay(TimeSpan.FromSeconds(8));
-        Assert.IsTrue(count <= 3);
+        Thread.Sleep(TimeSpan.FromSeconds(2));
+        Assert.That(Volatile.Read(ref count), Is.EqualTo(countAfterDispose));
     }
 }
