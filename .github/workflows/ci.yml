@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build-test-pack:
+  build-test:
     runs-on: windows-latest
 
     steps:
@@ -27,17 +27,3 @@ jobs:
 
       - name: Test
         run: dotnet test Fibrous.sln -c Release --no-build --verbosity normal
-
-      - name: Pack Fibrous
-        run: dotnet pack Fibrous\Fibrous.csproj -c Release --no-build -o artifacts
-
-      - name: Pack Fibrous.WPF
-        run: dotnet pack Fibrous.WPF\Fibrous.WPF.csproj -c Release --no-build -o artifacts
-
-      - name: Upload packages
-        uses: actions/upload-artifact@v4
-        with:
-          name: nuget-packages
-          path: |
-            artifacts/*.nupkg
-            artifacts/*.snupkg

@@ -29,11 +29,31 @@ jobs:
       - name: Test
         run: dotnet test Fibrous.sln -c Release --no-build --verbosity normal
 
+      - name: Resolve package version
+        id: version
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}"
+          if ($version.StartsWith("v")) {
+            $version = $version.Substring(1)
+          }
+          "package_version=$version" >> $env:GITHUB_OUTPUT
+
       - name: Pack Fibrous
-        run: dotnet pack Fibrous\Fibrous.csproj -c Release --no-build -o artifacts
+        run: >
+          dotnet pack Fibrous\Fibrous.csproj
+          -c Release
+          --no-build
+          -o artifacts
+          -p:PackageVersion=${{ steps.version.outputs.package_version }}
 
       - name: Pack Fibrous.WPF
-        run: dotnet pack Fibrous.WPF\Fibrous.WPF.csproj -c Release --no-build -o artifacts
+        run: >
+          dotnet pack Fibrous.WPF\Fibrous.WPF.csproj
+          -c Release
+          --no-build
+          -o artifacts
+          -p:PackageVersion=${{ steps.version.outputs.package_version }}
 
       - name: Publish to NuGet
         run: >
