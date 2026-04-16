@@ -223,7 +223,8 @@ public class CronExpressionTest
         // test failed before because of improper trimming
         string expr = " 30 *   * * * ?  ";
         CronExpression calendar = new(expr);
-        Assert.IsFalse(calendar.IsSatisfiedBy(DateTime.Now.AddMinutes(2)), "Time was included");
+        DateTime nonMatchingTime = new DateTime(2026, 4, 15, 12, 0, 31, DateTimeKind.Utc);
+        Assert.IsFalse(calendar.IsSatisfiedBy(nonMatchingTime), "Time was included");
     }
 
     private static void TestCorrectWeekFireDays(CronExpression cronExpression, IList<int> correctFireDays)
