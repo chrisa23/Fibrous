@@ -17,6 +17,14 @@
  *
  */
 
+/*
+ * Vendored into Fibrous from Quartz.NET to provide Quartz-style cron parsing
+ * without a package dependency on the full Quartz runtime.
+ *
+ * Fibrous keeps local changes intentionally small and prefers wrapper-level
+ * behavior in CronScheduler over parser forking where possible.
+ */
+
 #endregion
 
 using System;
@@ -655,6 +663,11 @@ public class CronExpression : IDeserializationCallback, ISerializable
             int exprOn = Second;
 
             string[] exprsTok = expression.Split(splitSeparators, StringSplitOptions.RemoveEmptyEntries);
+            if (exprsTok.Length > 7)
+            {
+                throw new FormatException("Cron expression cannot contain more than 7 fields.");
+            }
+
             foreach (string exprTok in exprsTok)
             {
                 string expr = exprTok.Trim();

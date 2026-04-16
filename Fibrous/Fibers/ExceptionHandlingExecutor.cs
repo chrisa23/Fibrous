@@ -4,23 +4,28 @@ using System.Threading.Tasks;
 namespace Fibrous;
 
 /// <summary>
-///     IExecutor that handles any exceptions thrown with an optional exception callback
+///     Executor that catches exceptions and forwards them to an optional callback.
 /// </summary>
 public sealed class ExceptionHandlingExecutor : IExecutor
 {
     private readonly Action<Exception> _callback;
+    private readonly IExecutor _inner;
 
-    public ExceptionHandlingExecutor(Action<Exception> callback = null) => _callback = callback;
+    public ExceptionHandlingExecutor(Action<Exception> callback = null, IExecutor inner = null)
+    {
+        _callback = callback;
+        _inner = inner ?? new Executor();
+    }
 
     public async Task ExecuteAsync(Func<Task> toExecute)
     {
         try
         {
-            await toExecute();
+            await _inner.ExecuteAsync(toExecute);
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            _callback?.Invoke(e);
+            _callback?.Invoke(exception);
         }
     }
 }

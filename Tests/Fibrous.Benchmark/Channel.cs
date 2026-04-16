@@ -8,7 +8,7 @@ namespace Fibrous.Benchmark
     public class Channel
     {
         private const int OperationsPerInvoke = 1000000;
-        private readonly IChannel<int> _channel = new Channel<int>();
+        private readonly Event<int> _event = new();
         private readonly AutoResetEvent _wait = new(false);
         private int i;
 
@@ -24,11 +24,11 @@ namespace Fibrous.Benchmark
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void NoFiber()
         {
-            using IDisposable sub = _channel.Subscribe(Handler);
+            using IDisposable sub = _event.Subscribe(Handler);
             i = 0;
             for (int j = 0; j < 1000000; j++)
             {
-                _channel.Publish(0);
+                _event.Publish(0);
             }
 
             WaitHandle.WaitAny(new WaitHandle[] {_wait});

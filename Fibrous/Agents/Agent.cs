@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 namespace Fibrous.Agents;
 
 /// <summary>
-///     Agent using injected handler function.
+///     Agent that owns a fiber and forwards published messages to a supplied handler.
 /// </summary>
-/// <typeparam name="T"></typeparam>
 public class Agent<T> : IAgent<T>
 {
     private readonly Func<T, Task> _handler;
+
     protected IFiber Fiber;
 
     public Agent(Func<T, Task> handler, Action<Exception> callback)
@@ -24,7 +24,7 @@ public class Agent<T> : IAgent<T>
         Fiber = factory.CreateFiber(callback);
     }
 
-    public void Publish(T msg) => Fiber.Enqueue(() => _handler(msg));
+    public void Publish(T message) => Fiber.Enqueue(() => _handler(message));
 
-    public void Dispose() => Fiber?.Dispose();
+    public void Dispose() => Fiber.Dispose();
 }

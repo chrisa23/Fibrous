@@ -4,21 +4,20 @@ using System.Collections.Generic;
 namespace Fibrous;
 
 /// <summary>
-///     Collection of disposables, where they can be removed or Disposed together.
-///     Mostly for internal use, but very convenient for grouping and handling disposables
+///     Registry of disposables that can be removed individually or disposed together.
 /// </summary>
 public interface IDisposableRegistry : IDisposable
 {
     /// <summary>
-    ///     Add an IDisposable to the registry.  It will be disposed when the registry is disposed.
+    ///     Adds a disposable to the registry. It will be disposed when the registry is disposed.
     /// </summary>
-    /// <param name="toAdd"></param>
+    /// <param name="toAdd">Disposable to add.</param>
     void Add(IDisposable toAdd);
 
     /// <summary>
-    ///     Remove a disposable from the registry.  It will not be disposed when the registry is disposed.
+    ///     Removes a disposable from the registry. It will not be disposed with the registry.
     /// </summary>
-    /// <param name="toRemove"></param>
+    /// <param name="toRemove">Disposable to remove.</param>
     void Remove(IDisposable toRemove);
 }
 
@@ -27,6 +26,7 @@ public class Disposables : IDisposableRegistry
     private readonly SingleShotGuard _guard = new();
     private readonly List<IDisposable> _items = new();
     private readonly object _lock = new();
+    private bool _disposed;
 
     public Disposables()
     {
@@ -36,9 +36,22 @@ public class Disposables : IDisposableRegistry
 
     public void Add(IDisposable toAdd)
     {
+        bool disposeImmediately = false;
         lock (_lock)
         {
-            _items.Add(toAdd);
+            if (_disposed)
+            {
+                disposeImmediately = true;
+            }
+            else
+            {
+                _items.Add(toAdd);
+            }
+        }
+
+        if (disposeImmediately)
+        {
+            toAdd.Dispose();
         }
     }
 
@@ -64,8 +77,14 @@ public class Disposables : IDisposableRegistry
         IDisposable[] disposables;
         lock (_lock)
         {
+            if (_disposed)
+            {
+                return;
+            }
+
             disposables = _items.ToArray();
             _items.Clear();
+            _disposed = true;
         }
 
         foreach (IDisposable victim in disposables)

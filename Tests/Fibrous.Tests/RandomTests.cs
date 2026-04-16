@@ -10,9 +10,9 @@ namespace Fibrous.Tests;
 internal class RandomTests
 {
     private const int OperationsPerInvoke = 100000;
-    private readonly IChannel<string> _input = new Channel<string>();
-    private readonly IChannel<string> _queue = new QueueChannel<string>();
-    private readonly IChannel<string> _output = new Channel<string>();
+    private readonly Channel<string> _input = new();
+    private readonly QueueChannel<string> _queue = new();
+    private readonly Channel<string> _output = new();
 
     [Test]
     public void FanOutIn()

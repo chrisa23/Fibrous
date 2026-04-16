@@ -1,19 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
-    <TargetFrameworks>net5.0-windows;net6.0-windows;net8.0-windows;net9.0-windows</TargetFrameworks>
+    <TargetFrameworks>net8.0-windows;net10.0-windows</TargetFrameworks>
     <DefineConstants>$(DefineConstants);WPF</DefineConstants>
     <Platforms>x64;x86;AnyCPU</Platforms>
     <UseWPF>true</UseWPF>
     <Title>Fibrous.WPF</Title>
-    <Version>6.0.0</Version>
+    <Version>7.0.0</Version>
     <Description>High performace concurrency library for the .Net platform.</Description>
     <Authors>Chris Anderson</Authors>
     <Company>CA Anderson LLC</Company>
     <PackageProjectUrl>https://github.com/chrisa23/Fibrous</PackageProjectUrl>
     <RepositoryUrl>https://github.com/chrisa23/Fibrous</RepositoryUrl>
-    <AssemblyVersion>6.0.0</AssemblyVersion>
-    <FileVersion>6.0.0</FileVersion>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <AssemblyVersion>7.0.0</AssemblyVersion>
+    <FileVersion>7.0.0</FileVersion>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageTags>concurrency actors multi-threading messaging</PackageTags>
     <LangVersion>latest</LangVersion>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -27,7 +27,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.201" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,30 +39,4 @@
     <None Include="../LICENSE.txt" Pack="true" PackagePath=""/>
   </ItemGroup>
   
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS;NET47;DEV_DEBUG;DEBUG_LAYOUT</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS;NET47;DEV_DEBUG;DEBUG_LAYOUT</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS;NET47;DEV_DEBUG;DEBUG_LAYOUT</DefineConstants>
-  </PropertyGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
-    <Reference Include="PresentationCore"/>
-    <Reference Include="PresentationFramework"/>
-    <Reference Include="System"/>
-    <Reference Include="System.Core"/>
-    <Reference Include="System.Design"/>
-    <Reference Include="System.Drawing"/>
-    <Reference Include="System.Net"/>
-    <Reference Include="System.Net.Http"/>
-    <Reference Include="System.Windows"/>
-    <Reference Include="System.Xaml"/>
-    <Reference Include="WindowsBase"/>
-  </ItemGroup>
-
 </Project>

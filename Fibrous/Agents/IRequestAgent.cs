@@ -3,10 +3,8 @@
 namespace Fibrous.Agents;
 
 /// <summary>
-///     Actor like abstraction for request reply.
+///     Actor-like abstraction for request/reply messaging.
 /// </summary>
-/// <typeparam name="TRequest"></typeparam>
-/// <typeparam name="TReply"></typeparam>
 public interface IRequestAgent<in TRequest, TReply> : IRequestPort<TRequest, TReply>, IDisposable
 {
 }

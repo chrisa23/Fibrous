@@ -1,0 +1,58 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Fibrous;
+
+internal sealed class TimerAction : IDisposable
+{
+    private static readonly TimeSpan OneShotInterval = TimeSpan.FromMilliseconds(-1);
+    private readonly Func<Task> _action;
+    private readonly TimeSpan _interval;
+    private bool _cancelled;
+    private Timer _timer;
+
+    public TimerAction(IFiber fiber, Func<Task> action, TimeSpan dueTime)
+    {
+        _action = action;
+        _interval = OneShotInterval;
+        _timer = new Timer(x => ExecuteOnTimerThread(fiber), null, dueTime, _interval);
+        fiber.Add(this);
+    }
+
+    public TimerAction(IFiber fiber, Func<Task> action, TimeSpan dueTime, TimeSpan interval)
+    {
+        _action = action;
+        _interval = interval;
+        _timer = new Timer(x => ExecuteOnTimerThread(fiber), null, dueTime, interval);
+        fiber.Add(this);
+    }
+
+    public void Dispose()
+    {
+        _cancelled = true;
+        DisposeTimer();
+    }
+
+    private void ExecuteOnTimerThread(IFiber fiber)
+    {
+        if (_interval == OneShotInterval || _cancelled)
+        {
+            fiber.Remove(this);
+            DisposeTimer();
+        }
+
+        if (!_cancelled)
+        {
+            fiber.Enqueue(ExecuteAsync);
+        }
+    }
+
+    private Task ExecuteAsync() => _cancelled ? Task.CompletedTask : _action();
+
+    private void DisposeTimer()
+    {
+        _timer?.Dispose();
+        _timer = null;
+    }
+}

@@ -4,14 +4,13 @@ using System.Threading.Tasks;
 namespace Fibrous;
 
 /// <summary>
-///     Channel that maintains its last value which is passed to new subscribers.  Useful with Enums or values representing
-///     latest status.
+///     Channel that maintains its last value and immediately replays it to new subscribers.
 /// </summary>
-/// <typeparam name="T"></typeparam>
-public sealed class StateChannel<T> : IChannel<T>
+public sealed class StateChannel<T> : IChannel<T>, IInlineSubscriberPort<T>
 {
     private readonly object _lock = new();
-    private readonly IChannel<T> _updateChannel = new Channel<T>();
+    private readonly Channel<T> _updateChannel = new();
+
     private bool _hasValue;
     private T _last;
 
@@ -25,6 +24,9 @@ public sealed class StateChannel<T> : IChannel<T>
     {
     }
 
+    /// <summary>
+    ///     Subscribes and immediately replays the current value when one exists.
+    /// </summary>
     public IDisposable Subscribe(IFiber fiber, Func<T, Task> receive)
     {
         lock (_lock)
@@ -41,13 +43,14 @@ public sealed class StateChannel<T> : IChannel<T>
     }
 
     public IDisposable Subscribe(IFiber fiber, Action<T> receive) =>
-            Subscribe(fiber, receive.ToAsync());
+        Subscribe(fiber, receive.ToAsync());
 
-    public IDisposable Subscribe(Action<T> receive)
+    IDisposable IInlineSubscriberPort<T>.SubscribeInline(Action<T> receive)
     {
         lock (_lock)
         {
-            IDisposable disposable = _updateChannel.Subscribe(receive);
+            IDisposable disposable = ((IInlineSubscriberPort<T>)_updateChannel)
+                .SubscribeInline(receive);
             if (_hasValue)
             {
                 T item = _last;
@@ -58,13 +61,13 @@ public sealed class StateChannel<T> : IChannel<T>
         }
     }
 
-    public void Publish(T msg)
+    public void Publish(T message)
     {
         lock (_lock)
         {
-            _last = msg;
+            _last = message;
             _hasValue = true;
-            _updateChannel.Publish(msg);
+            _updateChannel.Publish(message);
         }
     }
 

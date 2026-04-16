@@ -4,6 +4,7 @@ obj/
 build/
 publish/
 perf/
+BenchmarkDotNet.Artifacts/
 
 
 # Native libraries
@@ -14,6 +15,8 @@ perf/
 # NuGet-related
 packages
 nuget.exe
+*.nupkg
+*.snupkg
 
 # User Settings
 *.suo

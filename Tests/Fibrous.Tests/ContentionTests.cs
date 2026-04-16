@@ -49,7 +49,7 @@ public class ContentionTests
         return Task.CompletedTask;
     }
 
-    private readonly IChannel<object> _channel = new Channel<object>();
+    private readonly Channel<object> _channel = new();
     private int _count;
     private void Iterate()
     {

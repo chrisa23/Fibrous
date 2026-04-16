@@ -20,7 +20,7 @@ public static class FiberTester
                 return Task.CompletedTask;
             });
             channel.Publish("hello");
-            Assert.IsTrue(reset.WaitOne(5000, false));
+            TestWait.For(reset);
         }
     }
 
@@ -48,7 +48,7 @@ public static class FiberTester
             channel.Publish(2);
             channel.Publish(3);
             channel.Publish(4);
-            Assert.IsTrue(reset.WaitOne(5000, false));
+            TestWait.For(reset);
         }
     }
 
@@ -56,7 +56,11 @@ public static class FiberTester
     {
         RequestChannel<string, string> channel = new();
         using (fiber)
-        using (channel.SetRequestHandler(fiber, async req => req.Reply("bye")))
+        using (channel.SetRequestHandler(fiber, req =>
+               {
+                   req.Reply("bye");
+                   return Task.CompletedTask;
+               }))
         {
             string reply = await channel.SendRequestAsync("hello");
             Assert.AreEqual("bye", reply);
@@ -94,7 +98,7 @@ public static class FiberTester
                 counter.Publish(i);
             }
 
-            Assert.IsTrue(reset.WaitOne(10000, false));
+            TestWait.For(reset, 10000);
         }
     }
 
@@ -127,7 +131,7 @@ public static class FiberTester
                 counter.Publish(i);
             }
 
-            Assert.IsTrue(reset.WaitOne(10000, false));
+            TestWait.For(reset, 10000);
         }
     }
 
@@ -157,7 +161,7 @@ public static class FiberTester
                 channel.Publish(i);
             }
 
-            Assert.IsTrue(reset.WaitOne(10000, false));
+            TestWait.For(reset, 10000);
             Assert.AreEqual(100, result.Count);
 
             for (int i = 0; i < 100; i++)
@@ -180,10 +184,14 @@ public static class FiberTester
                 reset.Set();
                 return Task.CompletedTask;
             });
-            channel.Subscribe(fiber2, async obj => reset2.Set());
+            channel.Subscribe(fiber2, obj =>
+            {
+                reset2.Set();
+                return Task.CompletedTask;
+            });
             channel.Publish("hello");
-            Assert.IsTrue(reset.WaitOne(5000, false));
-            Assert.IsTrue(reset2.WaitOne(5000, false));
+            TestWait.For(reset);
+            TestWait.For(reset2);
         }
     }
 }

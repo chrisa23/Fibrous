@@ -8,13 +8,12 @@
 	- Channels
 	- Events
 	- Event Hub and Event Bus
-	- Extras 
+	- Extras
 		- Collections
-		- Pipelines 
+		- Pipelines
 - Add more examples
 - Performance things to look at:
 	- Are there places padding for cache coherence will help?
-	- Figure out EventHub performance difference
 	- Figure out Fiber w cache benchmark variance
-	
-	
+
+

@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ master ]
+  push:
+    branches: [ master ]
+
+jobs:
+  build-test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore Fibrous.sln
+
+      - name: Build
+        run: dotnet build Fibrous.sln -c Release --no-restore
+
+      - name: Test
+        run: dotnet test Fibrous.sln -c Release --no-build --verbosity normal

@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
-using Fibrous.Benchmark.Implementations;
 
 namespace Fibrous.Benchmark
 {
@@ -38,32 +37,7 @@ namespace Fibrous.Benchmark
             }
         }
 
-        public void Run(IValueAsyncFiber fiber)
-        {
-            using AutoResetEvent wait = new(false);
-            using (fiber)
-            {
-                int i = 0;
 
-                ValueTask AsyncHandler()
-                {
-                    i++;
-                    if (i == OperationsPerInvoke)
-                    {
-                        wait.Set();
-                    }
-
-                    return new ValueTask();
-                }
-
-                for (int j = 0; j < OperationsPerInvoke; j++)
-                {
-                    fiber.Enqueue(AsyncHandler);
-                }
-
-                WaitHandle.WaitAny(new WaitHandle[] {wait});
-            }
-        }
 
 
 
@@ -95,7 +69,7 @@ namespace Fibrous.Benchmark
 
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public async Task TwoAsyncFibers()
+        public async Task TwoFibers()
         {
             Task t1 = Task.Run(() => Run(new Fiber()));
             Task t2 = Task.Run(() => Run(new Fiber()));
@@ -104,30 +78,12 @@ namespace Fibrous.Benchmark
         }
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public async Task TwoLockAsyncFibers()
-        {
-            Task t1 = Task.Run(() => Run(new LockFiber()));
-            Task t2 = Task.Run(() => Run(new LockFiber()));
-            await t1;
-            await t2;
-        }
-
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void Async() => Run(new Fiber());
-
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void ValueAsync() => Run(new ValueAsyncFiber());
 
 
         [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
         public void AsyncWCache() => Run2(new Fiber());
 
 
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void LockAsync() => Run(new LockFiber());
-
-
-        [Benchmark(OperationsPerInvoke = OperationsPerInvoke)]
-        public void LockAsyncWCache() => Run2(new LockFiber());
     }
 }

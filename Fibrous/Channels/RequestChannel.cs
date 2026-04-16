@@ -4,10 +4,12 @@ using System.Threading.Tasks;
 
 namespace Fibrous;
 
+/// <summary>
+///     Request/reply channel for coordinating one request handler with asynchronous replies.
+/// </summary>
 public sealed class RequestChannel<TRequest, TReply> : IRequestChannel<TRequest, TReply>
 {
-    private readonly IChannel<IRequest<TRequest, TReply>> _requestChannel =
-        new Channel<IRequest<TRequest, TReply>>();
+    private readonly Channel<IRequest<TRequest, TReply>> _requestChannel = new();
 
     public IDisposable SetRequestHandler(IFiber fiber, Func<IRequest<TRequest, TReply>, Task> onRequest) =>
         _requestChannel.Subscribe(fiber, onRequest);
@@ -19,8 +21,10 @@ public sealed class RequestChannel<TRequest, TReply> : IRequestChannel<TRequest,
         return new Unsubscriber(channelRequest, fiber);
     }
 
-    public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply) => SendRequest(request, fiber, onReply.ToAsync());
+    public IDisposable SendRequest(TRequest request, IFiber fiber, Action<TReply> onReply) =>
+        SendRequest(request, fiber, onReply.ToAsync());
 
+#pragma warning disable VSTHRD003 // The returned task is completed by the request/reply channel, not by work started on the caller's context.
     public Task<TReply> SendRequestAsync(TRequest request)
     {
         ChannelRequest channelRequest = new(request);
@@ -29,15 +33,11 @@ public sealed class RequestChannel<TRequest, TReply> : IRequestChannel<TRequest,
     }
 
     /// <summary>
-    ///     Async ReqReply with timeout
+    ///     Sends a request and returns either a reply or a cancellation failure.
     /// </summary>
-    /// <param name="request"></param>
-    /// <param name="timeout"></param>
-    /// <returns></returns>
-    public async Task<Reply<TReply>> SendRequestAsync(TRequest request, TimeSpan timeout)
+    public async Task<Reply<TReply>> SendRequestAsync(TRequest request, CancellationToken cancellationToken)
     {
-        using CancellationTokenSource cts = new(timeout);
-        using ChannelRequest channelRequest = new(request, cts);
+        using ChannelRequest channelRequest = new(request, cancellationToken);
         _requestChannel.Publish(channelRequest);
         try
         {
@@ -50,80 +50,106 @@ public sealed class RequestChannel<TRequest, TReply> : IRequestChannel<TRequest,
         }
     }
 
+    /// <summary>
+    ///     Sends a request and returns either a reply or a timeout failure.
+    /// </summary>
+    public async Task<Reply<TReply>> SendRequestAsync(TRequest request, TimeSpan timeout)
+    {
+        using CancellationTokenSource cts = new(timeout);
+        return await SendRequestAsync(request, cts.Token);
+    }
+#pragma warning restore VSTHRD003
+
     public void Dispose() => _requestChannel.Dispose();
 
-    public sealed class ChannelRequest : IRequest<TRequest, TReply>, IDisposable
+    internal sealed class ChannelRequest : IRequest<TRequest, TReply>, IDisposable
     {
         private readonly CancellationTokenSource _cancel;
+        private readonly CancellationTokenRegistration _registration;
         private readonly SingleShotGuard _guard;
 
-        public ChannelRequest(TRequest req, CancellationTokenSource cts = null)
+        public ChannelRequest(TRequest req, CancellationToken cancellationToken = default)
         {
             Request = req;
-            _cancel = cts ?? new CancellationTokenSource();
-            if (cts != null)
+            if (cancellationToken.CanBeCanceled)
             {
-                _cancel.Token.Register(Callback);
+                _cancel = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                _registration = _cancel.Token.Register(Callback);
+            }
+            else
+            {
+                _cancel = new CancellationTokenSource();
             }
         }
 
-        public TaskCompletionSource<TReply> Resp { get; } = new();
-
-        public void Dispose()
-        {
-            if (_guard.Check)
-            {
-                _cancel.Cancel();
-            }
-        }
+        public TaskCompletionSource<TReply> Resp { get; } =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
 
         public CancellationToken CancellationToken => _cancel.Token;
 
         public TRequest Request { get; }
 
+        public void Dispose()
+        {
+            if (_guard.Check)
+            {
+                _registration.Dispose();
+                _cancel.Cancel();
+                _cancel.Dispose();
+            }
+        }
+
         public void Reply(TReply response)
         {
             if (_guard.Check)
             {
-                Resp.SetResult(response);
+                Resp.TrySetResult(response);
             }
         }
 
         private void Callback() => Resp.TrySetCanceled();
     }
 
-    public class AsyncChannelRequest : IRequest<TRequest, TReply>, IDisposable
+    private class AsyncChannelRequest : IRequest<TRequest, TReply>, IDisposable
     {
         private readonly CancellationTokenSource _cancel = new();
+        private readonly Func<Task> _disposeGuardedReply;
         private readonly SingleShotGuard _guard;
-        private readonly IChannel<TReply> _resp = new Channel<TReply>();
-        private readonly IDisposable _sub;
+        private readonly Func<TReply, Task> _replier;
+        private readonly IFiber _target;
+        private TReply _response;
 
         public AsyncChannelRequest(IFiber fiber, TRequest request, Func<TReply, Task> replier)
         {
             Request = request;
-            _sub = _resp.Subscribe(fiber, replier);
+            _target = fiber;
+            _replier = replier;
+            _disposeGuardedReply = PublishReplyAsync;
         }
+
+        public TRequest Request { get; }
+
+        public CancellationToken CancellationToken => _cancel.Token;
 
         public void Dispose()
         {
             if (_guard.Check)
             {
                 _cancel.Cancel();
-                _sub?.Dispose();
+                _cancel.Dispose();
             }
         }
-
-        public TRequest Request { get; }
 
         public void Reply(TReply response)
         {
             if (_guard.Check)
             {
-                _resp.Publish(response);
+                _response = response;
+                _target.Enqueue(_disposeGuardedReply);
             }
         }
 
-        public CancellationToken CancellationToken => _cancel.Token;
+        private Task PublishReplyAsync() =>
+            _cancel.IsCancellationRequested ? Task.CompletedTask : _replier(_response);
     }
 }

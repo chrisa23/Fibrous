@@ -1,15 +1,13 @@
 namespace Fibrous;
 
 /// <summary>
-///     Port for publishing side of messages
+///     Port for publishing messages.
 /// </summary>
-/// <typeparam name="T"></typeparam>
 public interface IPublisherPort<in T>
 {
     /// <summary>
-    ///     Publish a message and get a true/false as to whether there are any subscribers
+    ///     Publishes a message.
     /// </summary>
-    /// <param name="msg"></param>
-    /// <returns></returns>
-    void Publish(T msg);
+    /// <param name="message">Message to publish.</param>
+    void Publish(T message);
 }

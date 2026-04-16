@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Example1.Collections;
+using Fibrous.Extras.Collections;
 using NUnit.Framework;
 
 namespace Fibrous.Tests;
@@ -9,57 +9,6 @@ namespace Fibrous.Tests;
 [TestFixture]
 public class CollectionTests
 {
-    [Test]
-    public async Task FiberCollectionTest1()
-    {
-        int[] snapshot = null;
-        List<int> list = new();
-        using FiberCollection<int> collection = new();
-        using AutoResetEvent reset = new(false);
-        using Fiber receive = new();
-        collection.Add(1);
-        collection.Add(2);
-        collection.Subscribe(receive,
-            async action =>
-            {
-                if (action.ActionType == ActionType.Add)
-                {
-                    list.Add(action.Items[0]);
-                }
-                else
-                {
-                    list.Remove(action.Items[0]);
-                }
-
-                reset.Set();
-            },
-            async ints =>
-            {
-                snapshot = ints;
-                reset.Set();
-            });
-
-        Assert.IsTrue(reset.WaitOne(1000));
-
-        Assert.AreEqual(2, snapshot.Length);
-        Assert.AreEqual(1, snapshot[0]);
-        Assert.AreEqual(2, snapshot[1]);
-        Assert.AreEqual(0, list.Count);
-
-        collection.Add(3);
-        Assert.IsTrue(reset.WaitOne(1000));
-
-        Assert.AreEqual(1, list.Count);
-
-        collection.Remove(3);
-        Assert.IsTrue(reset.WaitOne(1000));
-
-        Assert.AreEqual(0, list.Count);
-
-        int[] items = await collection.GetItemsAsync(x => true);
-        Assert.AreEqual(2, items.Length);
-    }
-
     [Test]
     public async Task KeyCollectionTest1()
     {
@@ -71,7 +20,7 @@ public class CollectionTests
         collection.Add(1);
         collection.Add(2);
         collection.Subscribe(receive,
-            async action =>
+            action =>
             {
                 if (action.ActionType == ActionType.Add)
                 {
@@ -83,14 +32,16 @@ public class CollectionTests
                 }
 
                 reset.Set();
+                return Task.CompletedTask;
             },
-            async ints =>
+            ints =>
             {
                 snapshot = ints;
                 reset.Set();
+                return Task.CompletedTask;
             });
 
-        Assert.IsTrue(reset.WaitOne(1000));
+        TestWait.For(reset, 1000);
 
         Assert.AreEqual(2, snapshot.Length);
         Assert.AreEqual(1, snapshot[0]);
@@ -98,12 +49,12 @@ public class CollectionTests
         Assert.AreEqual(0, list.Count);
 
         collection.Add(3);
-        Assert.IsTrue(reset.WaitOne(1000));
+        TestWait.For(reset, 1000);
 
         Assert.AreEqual(1, list.Count);
 
         collection.Remove(3);
-        Assert.IsTrue(reset.WaitOne(1000));
+        TestWait.For(reset, 1000);
 
         Assert.AreEqual(0, list.Count);
 
@@ -122,7 +73,7 @@ public class CollectionTests
         collection.Add(1, 1);
         collection.Add(2, 2);
         collection.Subscribe(receive,
-            async action =>
+            action =>
             {
                 if (action.ActionType == ActionType.Add)
                 {
@@ -134,14 +85,16 @@ public class CollectionTests
                 }
 
                 reset.Set();
+                return Task.CompletedTask;
             },
-            async ints =>
+            ints =>
             {
                 snapshot = ints;
                 reset.Set();
+                return Task.CompletedTask;
             });
 
-        Assert.IsTrue(reset.WaitOne(2000));
+        TestWait.For(reset, 2000);
 
         Assert.AreEqual(2, snapshot.Length);
         Assert.AreEqual(1, snapshot[0].Key);
@@ -149,12 +102,12 @@ public class CollectionTests
         Assert.AreEqual(0, list.Count);
 
         collection.Add(3, 3);
-        Assert.IsTrue(reset.WaitOne(1000));
+        TestWait.For(reset, 1000);
 
         Assert.AreEqual(1, list.Count);
 
         collection.Remove(3);
-        Assert.IsTrue(reset.WaitOne(1000));
+        TestWait.For(reset, 1000);
 
         Assert.AreEqual(0, list.Count);
 
@@ -181,7 +134,7 @@ public class CollectionTests
         //Snapshot after subscribe local copy
         collection.SubscribeLocalCopy(fiber, local, () => reset.Set());
 
-        Assert.IsTrue(reset.WaitOne(1000));
+        TestWait.For(reset, 1000);
 
         Assert.AreEqual(2, local.Count);
         Assert.AreEqual(1, local[1]);
@@ -189,12 +142,12 @@ public class CollectionTests
 
         //Add
         collection.Add(3, 3);
-        Assert.IsTrue(reset.WaitOne(1000));
+        TestWait.For(reset, 1000);
         Assert.AreEqual(3, local.Count);
 
         //Remove
         collection.Remove(3);
-        Assert.IsTrue(reset.WaitOne(1000));
+        TestWait.For(reset, 1000);
         Assert.AreEqual(2, local.Count);
 
         //GetItems

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Fibrous;
 
 /// <summary>
-///     Default executor that simply awaits running the async method
+///     Default executor that directly invokes the provided asynchronous delegate.
 /// </summary>
 public sealed class Executor : IExecutor
 {

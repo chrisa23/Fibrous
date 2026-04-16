@@ -10,7 +10,6 @@ namespace Fibrous;
 /// <summary>
 ///     Queue channel where a message is consumed by only one consumer.
 /// </summary>
-/// <typeparam name="TMsg"></typeparam>
 public sealed class QueueChannel<TMsg> : IChannel<TMsg>
 {
     private readonly object _lock = new();
@@ -34,8 +33,6 @@ public sealed class QueueChannel<TMsg> : IChannel<TMsg>
 
     public IDisposable Subscribe(IFiber fiber, Action<TMsg> receive) =>
         Subscribe(fiber, receive.ToAsync());
-
-    public IDisposable Subscribe(Action<TMsg> receive) => throw new NotImplementedException();
 
     public void Publish(TMsg message)
     {
@@ -93,27 +90,29 @@ public sealed class QueueChannel<TMsg> : IChannel<TMsg>
     {
         private readonly Func<Task> _cache;
         private readonly Func<TMsg, Task> _callback;
-        private readonly QueueChannel<TMsg> _eventChannel;
+        private readonly QueueChannel<TMsg> _channel;
         private readonly IFiber _target;
 
-        public AsyncQueueConsumer(IFiber target, Func<TMsg, Task> callback,
+        public AsyncQueueConsumer(
+            IFiber target,
+            Func<TMsg, Task> callback,
             QueueChannel<TMsg> eventChannel)
         {
-            _target = target;
+            _target   = target;
             _callback = callback;
-            _eventChannel = eventChannel;
-            _cache = ConsumeNextAsync;
+            _channel  = eventChannel;
+            _cache    = ConsumeNextAsync;
         }
 
-        public void Dispose() => _eventChannel.RemoveSubscriber(this);
+        public void Dispose() => _channel.RemoveSubscriber(this);
 
         public void Signal() => _target.Enqueue(_cache);
 
         private async Task ConsumeNextAsync()
         {
-            if (_eventChannel.Pop(out TMsg msg))
+            if (_channel.Pop(out TMsg message))
             {
-                await _callback(msg);
+                await _callback(message);
             }
         }
     }
