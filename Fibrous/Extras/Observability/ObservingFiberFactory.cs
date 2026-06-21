@@ -7,15 +7,15 @@ namespace Fibrous.Extras.Observability;
 /// </summary>
 public sealed class ObservingFiberFactory(
     Action<ExecutionObservation> observe,
-    int size = QueueSize.DefaultQueueSize,
-    IFiberScheduler scheduler = null)
+    int                          size      = QueueSize.DefaultQueueSize,
+    IFiberScheduler              scheduler = null)
     : IFiberFactory
 {
-    public IFiber CreateFiber(Action<Exception> errorHandler)
-    {
-        IExecutor observed = new ObservingExecutor(observe);
-        IExecutor handled = new ExceptionHandlingExecutor(errorHandler, observed);
+    private readonly Action<ExecutionObservation> _observe = observe ?? throw new ArgumentNullException(nameof(observe));
 
-        return new Fiber(handled, size, scheduler);
-    }
+    public IFiber CreateFiber(Action<Exception> errorHandler) =>
+        new Fiber(
+            new ExceptionHandlingExecutor(errorHandler, new ObservingExecutor(_observe)),
+            size,
+            scheduler);
 }
