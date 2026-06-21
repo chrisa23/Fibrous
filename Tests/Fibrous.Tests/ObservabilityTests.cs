@@ -40,10 +40,11 @@ public class ObservabilityTests
     [Test]
     public void ObservingFiberFactory_ReportsSuccessfulWork()
     {
-        ManualResetEventSlim completed = new(false);
+        using ManualResetEventSlim completed = new(false);
         ExecutionObservation observation = default;
+        Exception unexpectedError = null;
         ObservingFiberFactory factory = new(x => observation = x);
-        IFiber fiber = factory.CreateFiber(error => Assert.Fail(error.ToString()));
+        IFiber fiber = factory.CreateFiber(error => unexpectedError = error);
 
         fiber.Enqueue(() =>
         {
@@ -52,6 +53,7 @@ public class ObservabilityTests
         });
 
         TestWait.For(completed, TimeSpan.FromSeconds(1));
+        Assert.IsNull(unexpectedError, unexpectedError?.ToString());
         Assert.IsTrue(observation.Succeeded);
         Assert.IsNull(observation.Exception);
     }
@@ -59,9 +61,10 @@ public class ObservabilityTests
     [Test]
     public void ObservingFiberFactory_ReportsFailedWork_AndInvokesErrorHandler()
     {
-        ManualResetEventSlim observed = new(false);
-        ManualResetEventSlim handled = new(false);
+        using ManualResetEventSlim observed = new(false);
+        using ManualResetEventSlim handled = new(false);
         ExecutionObservation observation = default;
+        Exception capturedError = null;
         InvalidOperationException expected = new("boom");
         ObservingFiberFactory factory = new(x =>
         {
@@ -71,7 +74,7 @@ public class ObservabilityTests
 
         IFiber fiber = factory.CreateFiber(error =>
         {
-            Assert.AreSame(expected, error);
+            capturedError = error;
             handled.Set();
         });
 
@@ -79,6 +82,7 @@ public class ObservabilityTests
 
         TestWait.For(observed, TimeSpan.FromSeconds(1));
         TestWait.For(handled, TimeSpan.FromSeconds(1));
+        Assert.AreSame(expected, capturedError);
         Assert.IsFalse(observation.Succeeded);
         Assert.AreSame(expected, observation.Exception);
     }

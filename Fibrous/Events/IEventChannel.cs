@@ -14,7 +14,6 @@ public interface IEventPort
 {
     IDisposable Subscribe(IFiber fiber, Func<Task> receive);
     IDisposable Subscribe(IFiber fiber, Action receive);
-    IDisposable Subscribe(Action receive);
 }
 
 public static class EventPortExtensions
@@ -49,6 +48,4 @@ public class EventChannel : IEventChannel, IDisposable
     }
 
     public IDisposable Subscribe(IFiber fiber, Action receive) => Subscribe(fiber, receive.ToAsync());
-
-    public IDisposable Subscribe(Action receive) => _internalEvent.Subscribe(receive);
 }

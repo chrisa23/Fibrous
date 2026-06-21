@@ -9,6 +9,8 @@ namespace Fibrous;
 /// </summary>
 public sealed class Executor : IExecutor
 {
+    public static readonly Executor Default = new();
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Task ExecuteAsync(Func<Task> toExecute) => toExecute();
 }

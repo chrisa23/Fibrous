@@ -7,27 +7,28 @@ namespace Fibrous.Extras.Observability;
 /// <summary>
 ///     Executor wrapper that records execution duration and success or failure.
 /// </summary>
-public sealed class ObservingExecutor : IExecutor
+public sealed class ObservingExecutor(
+    Action<ExecutionObservation> observe,
+    IExecutor                    inner = null)
+    : IExecutor
 {
-    private readonly IExecutor _inner;
-    private readonly Action<ExecutionObservation> _observe;
-
-    public ObservingExecutor(
-        Action<ExecutionObservation> observe,
-        IExecutor inner = null)
-    {
-        _observe = observe ?? throw new ArgumentNullException(nameof(observe));
-        _inner = inner ?? new Executor();
-    }
+    private readonly Action<ExecutionObservation> _observe = observe ?? throw new ArgumentNullException(nameof(observe));
 
     public async Task ExecuteAsync(Func<Task> toExecute)
     {
-        Stopwatch stopwatch = Stopwatch.StartNew();
+        long start = Stopwatch.GetTimestamp();
         Exception exception = null;
 
         try
         {
-            await _inner.ExecuteAsync(toExecute);
+            if (inner is null)
+            {
+                await toExecute();
+            }
+            else
+            {
+                await inner.ExecuteAsync(toExecute);
+            }
         }
         catch (Exception ex)
         {
@@ -36,7 +37,18 @@ public sealed class ObservingExecutor : IExecutor
         }
         finally
         {
-            _observe(new ExecutionObservation(stopwatch.Elapsed, exception));
+            _observe(new ExecutionObservation(GetElapsed(start), exception));
         }
+    }
+
+    private static TimeSpan GetElapsed(long startTimestamp)
+    {
+#if NET7_0_OR_GREATER
+        return Stopwatch.GetElapsedTime(startTimestamp);
+#else
+        long elapsedTicks = (long)((Stopwatch.GetTimestamp() - startTimestamp)
+                                   * (TimeSpan.TicksPerSecond / (double)Stopwatch.Frequency));
+        return new TimeSpan(elapsedTicks);
+#endif
     }
 }
